@@ -5,6 +5,7 @@ import * as AuthSession from 'expo-auth-session';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import { supabase } from '@/lib/supabase';
+import { clearPushTokenInDb } from '@/lib/notifications';
 import { useAppStore } from '@/store/useAppStore';
 import { userToOnboardingPatch } from './useOnboarding';
 import type { User } from '@/types';
@@ -93,8 +94,18 @@ export function useAuth() {
           // a fresh login/signup where the public.users row may not exist YET
           // (profile.tsx will create it).
           const signOutIfMissing = event === 'TOKEN_REFRESHED';
-          await fetchProfile(session.user.id, { signOutIfMissing });
-          setAuthLoading(false);
+          // Defer the PostgREST call OUT of this callback. supabase-js holds an
+          // internal auth lock for the whole duration of onAuthStateChange;
+          // calling supabase.from(...) here would re-acquire that lock (to attach
+          // the token) and deadlock until fetchProfile's 8s timeout fires.
+          // setTimeout(…, 0) runs it after the callback returns and the lock is
+          // released. See supabase-js docs: never call Supabase inside the
+          // auth-state callback.
+          setTimeout(async () => {
+            if (!mounted) return;
+            await fetchProfile(session.user.id, { signOutIfMissing });
+            if (mounted) setAuthLoading(false);
+          }, 0);
         } else {
           reset();
         }
@@ -399,6 +410,10 @@ export function useAuth() {
   }
 
   async function signOut() {
+    // Clear the push token while still authenticated (RLS allows updating own
+    // row) so this device stops receiving pushes after sign-out.
+    const uid = useAppStore.getState().user?.id;
+    if (uid) await clearPushTokenInDb(uid);
     await supabase.auth.signOut();
     reset();
   }

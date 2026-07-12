@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
+import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
+import { registerAndSaveToken, routeFromNotificationData } from '@/lib/notifications';
 import { colors } from '@/constants/colors';
 
 export { ErrorBoundary } from 'expo-router';
@@ -25,9 +27,39 @@ export default function RootLayout() {
     'Lora-Italic': require('../assets/fonts/Lora-Italic.ttf'),
   });
 
-  const { isAuthenticated, isOnboarded, authLoading } = useAuth();
+  const { user, isAuthenticated, isOnboarded, authLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+
+  // Register the Expo push token once the user is authenticated AND onboarded.
+  // Guarded so it runs a single time per session per user id.
+  const registeredFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (isAuthenticated && isOnboarded && user?.id && registeredFor.current !== user.id) {
+      registeredFor.current = user.id;
+      registerAndSaveToken(user.id);
+    }
+    if (!isAuthenticated) registeredFor.current = null;
+  }, [isAuthenticated, isOnboarded, user?.id]);
+
+  // Route on notification tap — both cold-start (app killed) and while running.
+  useEffect(() => {
+    Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (response) {
+        routeFromNotificationData(
+          response.notification.request.content.data as Record<string, unknown>,
+          router,
+        );
+      }
+    });
+    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
+      routeFromNotificationData(
+        response.notification.request.content.data as Record<string, unknown>,
+        router,
+      );
+    });
+    return () => sub.remove();
+  }, [router]);
 
   // Latch: once the initial auth check completes, never unmount the Stack again.
   // Subsequent authLoading toggles (during sign-in/sign-up actions) must not

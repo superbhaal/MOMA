@@ -98,10 +98,13 @@ Une fois Étapes A + D faites, le flow de confirmation marche déjà via fallbac
 ## 5. Code gaps connus (à faire quand tu veux)
 
 ### Push notifications
-- [ ] Brancher `registerForPushNotifications()` (déjà dans `lib/notifications.ts`) après login
-  - Endroit : `hooks/useAuth.ts` → après `fetchProfile()`
-  - UPDATE `users.expo_push_token` avec le token retourné
-  - Sans ça, les 5 edge functions qui pushent ne touchent personne
+- [x] Brancher `registerForPushNotifications()` après login — fait (Lot 1)
+  - Enregistrement + upsert `users.expo_push_token` dans `app/_layout.tsx` (une fois authentifié + onboardé), nettoyage au sign-out, routing sur tap.
+  - `match-users` envoie désormais push + email au match.
+- [ ] **Config email au match (Resend)** — sans ça l'email no-op (le push marche quand même)
+  - Créer un compte Resend (free tier), vérifier le domaine `joinmoma.org`
+  - `supabase secrets set RESEND_API_KEY=… MATCH_EMAIL_FROM='møma <hello@joinmoma.org>'` (ou via Dashboard → Edge Functions → Secrets)
+- [ ] Déployer `match-users` mis à jour (`supabase functions deploy match-users`) + les autres si besoin
 
 ### Onboarding ergonomie
 - [ ] Remplacer `TextInput YYYY-MM-DD` du baby DOB par un vrai date picker

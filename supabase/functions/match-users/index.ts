@@ -30,6 +30,8 @@ interface RecurringAvailability {
 interface UserRow {
   id: string;
   display_name: string;
+  email: string | null;
+  expo_push_token: string | null;
   baby_dob: string;
   city: string | null;
   neighbourhood: string | null;
@@ -41,6 +43,16 @@ interface UserRow {
   secondary_languages: string[] | null;
   pref_age_window_weeks: number;
   pref_distance_minutes: number;
+}
+
+const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
+
+interface PushMessage {
+  to: string;
+  title: string;
+  body: string;
+  sound: string;
+  data: Record<string, unknown>;
 }
 
 Deno.serve(async () => {
@@ -98,6 +110,8 @@ Deno.serve(async () => {
   }
 
   const previews: string[] = [];
+  const pushMessages: PushMessage[] = [];
+  const emailJobs: Promise<void>[] = [];
   for (const g of formedGroups) {
     const groupName = `${g.seed.neighbourhood ?? g.seed.city ?? 'møma'} ${g.seed.life_stage ?? 'group'}`.toLowerCase();
     const { data: groupRow, error: gErr } = await supabase
@@ -123,10 +137,122 @@ Deno.serve(async () => {
       .in('user_id', g.mates.map((u) => u.id));
 
     previews.push(groupRow.id);
+
+    // Notify every member: "the notification IS the UX" (spec screen 09).
+    const now = Date.now();
+    const weeks = g.mates
+      .map((u) => weeksOld(u.baby_dob, now))
+      .filter((w): w is number => w !== null);
+    const wLo = weeks.length ? Math.min(...weeks) : null;
+    const wHi = weeks.length ? Math.max(...weeks) : null;
+    const hood = majorityNeighbourhood(g.mates);
+
+    for (const u of g.mates) {
+      const others = g.mates.length - 1;
+      const body = matchBody(others, hood, wLo, wHi);
+      if (u.expo_push_token) {
+        pushMessages.push({
+          to: u.expo_push_token,
+          title: 'Your group is ready',
+          body,
+          sound: 'default',
+          data: { type: 'group_matched_preview', groupId: groupRow.id, route: '/group-preview' },
+        });
+      }
+      if (u.email) {
+        emailJobs.push(sendMatchEmail(u.email, body));
+      }
+    }
   }
 
-  return jsonResp({ ok: true, run_at: nowIso, candidates: eligible.length, groups_created: previews.length });
+  await sendPushChunked(pushMessages);
+  await Promise.allSettled(emailJobs);
+
+  return jsonResp({
+    ok: true,
+    run_at: nowIso,
+    candidates: eligible.length,
+    groups_created: previews.length,
+    pushed: pushMessages.length,
+  });
 });
+
+function weeksOld(dob: string | null, now: number): number | null {
+  if (!dob) return null;
+  const t = new Date(dob).getTime();
+  if (Number.isNaN(t)) return null;
+  return Math.max(0, Math.floor((now - t) / (7 * 24 * 60 * 60 * 1000)));
+}
+
+function majorityNeighbourhood(members: UserRow[]): string {
+  const counts = new Map<string, number>();
+  for (const m of members) {
+    const key = m.neighbourhood ?? m.city;
+    if (key) counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  let best = 'your area';
+  let bestN = 0;
+  for (const [k, n] of counts) {
+    if (n > bestN) {
+      best = k;
+      bestN = n;
+    }
+  }
+  return best;
+}
+
+function matchBody(others: number, hood: string, wLo: number | null, wHi: number | null): string {
+  const who = others === 1 ? '1 mom' : `${others} moms`;
+  if (wLo === null || wHi === null) {
+    return `We matched you with ${who} in ${hood}. Tap to meet them.`;
+  }
+  const weeks = wLo === wHi ? `week ${wLo}` : `week ${wLo}–${wHi}`;
+  return `We matched you with ${who} in ${hood}, all at ${weeks}. Tap to meet them.`;
+}
+
+async function sendPushChunked(items: PushMessage[], size = 100) {
+  for (let i = 0; i < items.length; i += size) {
+    const chunk = items.slice(i, i + size);
+    try {
+      await fetch(EXPO_PUSH_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(chunk),
+      });
+    } catch (e) {
+      console.error('[match-users] push send failed', e);
+    }
+  }
+}
+
+// Email at match, isolated behind one function. Uses Resend if RESEND_API_KEY is
+// configured on the function; otherwise no-ops (logs) so a missing key never
+// breaks the matcher. Skips silently when the address is null (Apple relay).
+async function sendMatchEmail(to: string, body: string): Promise<void> {
+  const key = Deno.env.get('RESEND_API_KEY');
+  const from = Deno.env.get('MATCH_EMAIL_FROM') ?? 'møma <hello@joinmoma.org>';
+  if (!key) {
+    console.log('[match-users] RESEND_API_KEY not set — skipping email to', to);
+    return;
+  }
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${key}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        from,
+        to,
+        subject: 'Your group is ready',
+        text: `${body}\n\nOpen møma to meet your group.`,
+      }),
+    });
+  } catch (e) {
+    console.error('[match-users] email send failed', e);
+  }
+}
 
 function scorePair(a: UserRow, b: UserRow): number | null {
   if (a.life_stage !== b.life_stage) return null;
