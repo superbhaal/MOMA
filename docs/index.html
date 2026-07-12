@@ -108,6 +108,7 @@
     <h1>møma <span style="color:var(--muted);font-weight:400">admin</span></h1>
     <span class="grow"></span>
     <button class="btn-ghost" id="refreshBtn">Refresh</button>
+    <button class="btn-ghost" id="cleanBtn">Clean empty groups</button>
     <button class="btn-primary" id="matchBtn">Run matching</button>
     <button class="btn-ghost" id="logoutBtn">Log out</button>
   </header>
@@ -265,9 +266,10 @@ function actionsCell(u){
   const w = el("div",{class:"row-actions"});
   const edit = el("button",{class:"btn-ghost btn-sm"}, "Edit"); edit.onclick=()=>openEdit(u);
   w.append(edit);
-  if (u.queue_status && u.queue_status !== "waiting") {
-    const rq = el("button",{class:"btn-ghost btn-sm"}, "→ waiting");
-    rq.onclick=async()=>{ try{ await api("set_queue",{id:u.id,status:"waiting"}); banner("Re-queued "+u.display_name); load(); }catch(e){ banner(e.message,"err"); } };
+  if ((u.queue_status && u.queue_status !== "waiting") || (u.groups && u.groups.length)) {
+    const rq = el("button",{class:"btn-ghost btn-sm"}, "Reset");
+    rq.title = "Set to waiting and remove from all groups";
+    rq.onclick=async()=>{ try{ await api("set_queue",{id:u.id,status:"waiting"}); banner("Reset "+u.display_name+" (waiting, left all groups)"); load(); }catch(e){ banner(e.message,"err"); } };
     w.append(rq);
   }
   const del = el("button",{class:"btn-danger btn-sm"}, "Delete");
@@ -374,6 +376,7 @@ $("#loginBtn").onclick=tryLogin;
 $("#p").addEventListener("keydown",e=>{ if(e.key==="Enter") tryLogin(); });
 $("#refreshBtn").onclick=load;
 $("#matchBtn").onclick=runMatch;
+$("#cleanBtn").onclick=async()=>{ try{ const d=await api("cleanup_groups"); banner(`Cleaned ${d.deleted} empty group(s)`); load(); }catch(e){ banner(e.message,"err"); } };
 $("#logoutBtn").onclick=logout;
 $("#addBtn").onclick=addTest;
 $("#scoreBtn").onclick=computeScores;

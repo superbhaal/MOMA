@@ -56,6 +56,7 @@ Deno.serve(async (req) => {
       case 'delete_user':  return json(await deleteUser(body.id));
       case 'add_test_user':return json(await addTestUser(body.fields ?? {}));
       case 'set_queue':    return json(await setQueue(body.id, body.status));
+      case 'cleanup_groups': return json({ ok: true, deleted: await cleanupEmptyGroups() });
       case 'run_matching': return json(await runMatching());
       case 'score_matrix': return json(await scoreMatrix(body.only_waiting === true));
       default:             return json({ ok: false, error: `unknown action: ${action}` }, 400);
@@ -142,6 +143,7 @@ async function deleteUser(id: string) {
   // auth.users delete cascades to public.users and all its children.
   const { error } = await admin.auth.admin.deleteUser(id);
   if (error) throw error;
+  await cleanupEmptyGroups();
   return { ok: true };
 }
 
@@ -189,12 +191,32 @@ async function setQueue(id: string, status: string) {
     return { ok: false, error: 'valid id and status required' };
   }
   const patch: Record<string, unknown> = { status };
-  if (status === 'waiting') { patch.current_preview_group_id = null; patch.matched_at = null; }
+  if (status === 'waiting') {
+    // A full reset for testing: pull the user out of every group (the matcher
+    // pre-joins candidates, so "waiting" must undo that) and clear the preview.
+    patch.current_preview_group_id = null;
+    patch.matched_at = null;
+    await admin.from('group_members').delete().eq('user_id', id);
+    await cleanupEmptyGroups();
+  }
   const { error } = await admin.from('matching_queue').upsert(
     { user_id: id, ...patch }, { onConflict: 'user_id' },
   );
   if (error) throw error;
   return { ok: true };
+}
+
+// Delete groups that no longer have any members. All group children cascade,
+// so a single delete per empty group cleans messages/proposals/votes/dm_threads.
+async function cleanupEmptyGroups(): Promise<number> {
+  const [{ data: groups }, { data: members }] = await Promise.all([
+    admin.from('groups').select('id'),
+    admin.from('group_members').select('group_id'),
+  ]);
+  const alive = new Set((members ?? []).map((m: any) => m.group_id));
+  const empty = (groups ?? []).map((g: any) => g.id).filter((gid: string) => !alive.has(gid));
+  if (empty.length) await admin.from('groups').delete().in('id', empty);
+  return empty.length;
 }
 
 async function runMatching() {
