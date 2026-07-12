@@ -1,41 +1,96 @@
-import { View, FlatList, StyleSheet } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
-import { Avatar } from '@/components/ui/Avatar';
+import { MemberRow } from '@/components/groups/MemberRow';
+import { MeetupBanner } from '@/components/groups/MeetupBanner';
 import { colors } from '@/constants/colors';
-import { spacing, radius } from '@/constants/spacing';
+import { spacing } from '@/constants/spacing';
+import { useGroupDetail } from '@/hooks/useGroupDetail';
+import { useProposals } from '@/hooks/useProposals';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function GroupDetailScreen() {
-  const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const router = useRouter();
+  const { groupId } = useLocalSearchParams<{ groupId: string }>();
+  const insets = useSafeAreaInsets();
+  const { user } = useAuth();
+  const { group, members, open_proposal, open_votes, loading } = useGroupDetail(groupId);
+  const { vote } = useProposals(groupId);
 
-  // TODO: fetch group details, members, next meetup from Supabase
+  const myVote = open_votes.find((v) => v.user_id === user?.id)?.vote ?? null;
 
   return (
-    <View style={styles.container}>
-      <Typography variant="displayL" color={colors.cobalt} style={styles.header}>
-        Group
-      </Typography>
-
-      {/* Meetup banner placeholder */}
-      <View style={styles.meetupBanner}>
-        <Typography variant="bodyM" color={colors.blushText}>
-          Next meetup coming soon
-        </Typography>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.header}>
+        <Pressable onPress={() => router.back()} hitSlop={10}>
+          <Typography variant="labelS" color={colors.cobalt}>
+            ← BACK
+          </Typography>
+        </Pressable>
       </View>
 
-      {/* Members placeholder */}
-      <Typography variant="label" color={colors.muted} style={styles.sectionLabel}>
-        MEMBERS
-      </Typography>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        {loading || !group ? (
+          <Typography variant="bodyL" color={colors.muted}>
+            loading...
+          </Typography>
+        ) : (
+          <>
+            <Typography variant="displayL" color={colors.text}>
+              {group.name}
+            </Typography>
+            {group.neighbourhood ? (
+              <Typography variant="bodyL" color={colors.muted} style={{ marginTop: 2 }}>
+                {group.neighbourhood.toLowerCase()}
+              </Typography>
+            ) : null}
 
-      <View style={styles.actions}>
-        <Button
-          title="OPEN CHAT"
-          onPress={() => router.push(`/group/${groupId}/chat`)}
-        />
-      </View>
+            {open_proposal ? (
+              <View style={{ marginTop: spacing.xl }}>
+                <MeetupBanner
+                  proposal={open_proposal}
+                  votes={open_votes}
+                  totalMembers={members.length}
+                  myVote={myVote}
+                  onRsvp={() =>
+                    open_proposal && vote(open_proposal.id, myVote === 'going' ? 'maybe' : 'going')
+                  }
+                />
+              </View>
+            ) : null}
+
+            <View style={{ marginTop: spacing.xl }}>
+              <Typography variant="label" color={colors.muted}>
+                {members.length} MEMBERS
+              </Typography>
+              <View style={{ marginTop: spacing.sm }}>
+                {members.map((m) => (
+                  <MemberRow
+                    key={m.id}
+                    member={m}
+                    onPress={() => router.push(`/member/${m.user.id}`)}
+                    onMessage={
+                      m.user.id === user?.id
+                        ? undefined
+                        : () => router.push(`/group/dm/${m.user.id}?fromGroup=${groupId}`)
+                    }
+                  />
+                ))}
+              </View>
+            </View>
+
+            <View style={{ marginTop: spacing.xl }}>
+              <Button
+                title="open chat"
+                onPress={() => router.push(`/group/${groupId}/chat`)}
+                size="lg"
+              />
+            </View>
+          </>
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -44,23 +99,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
-    paddingHorizontal: spacing.xl,
   },
   header: {
-    paddingTop: 60,
-    paddingBottom: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
   },
-  meetupBanner: {
-    backgroundColor: colors.blush,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.xl,
-  },
-  sectionLabel: {
-    marginBottom: spacing.md,
-  },
-  actions: {
-    marginTop: 'auto',
-    paddingBottom: 40,
+  scroll: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xxxl,
   },
 });

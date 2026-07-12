@@ -42,3 +42,15 @@ yarn-error.*
 
 # Claude Code
 .claude/
+
+# shared credentials — never commit
+secret.txt
+
+# local build archives
+*.zip
+
+# supabase CLI local state
+supabase/.temp/
+
+# vendored agent skills
+.agents/

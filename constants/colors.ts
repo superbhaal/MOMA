@@ -1,18 +1,26 @@
+// Source of truth: design/moma-enhanced.html + design/moma-palette.pdf
+// Update only when the design changes.
+
 export const colors = {
   // Base
   white: '#FFFFFF',
   cream: '#FAF6F1',
+  butter: '#F5EDB8',
+  pistachio: '#D8E8C8',
   cobalt: '#1A4BCC',
+  cobaltDeep: '#0F3AA8',
   text: '#111118',
-  muted: '#9090A8',
+  muted: '#6F6F88',
+  mutedStrong: '#4A4A5E',
   line: 'rgba(17,17,24,0.07)',
+  lineStrong: 'rgba(17,17,24,0.12)',
 
-  // Accent — Blush system
+  // Blush system (meetups)
   blush: '#F4D1D1',
   blushText: '#6A1A2A',
-  blushMuted: '#B05A6A',
+  blushMuted: '#8C2238',
 
-  // Bold accents
+  // Bold accents (user colours + signal roles)
   fuchsia: '#E8389C',
   orange: '#FF7A00',
   soleil: '#FFC800',
@@ -22,14 +30,32 @@ export const colors = {
   klein: '#0038FF',
   lime: '#B8D830',
 
-  // Soft accents
+  // Soft accents (user colours)
   peche: '#FADCB8',
   citron: '#F9F0A0',
   menthe: '#C8E8D8',
   ciel: '#C8DCF0',
+  lavSoft: '#D8C8E8',
   rose: '#F0C8D8',
   sable: '#E8DCD0',
-  lavSoft: '#D8C8E8',
 } as const;
 
 export type ColorName = keyof typeof colors;
+
+// Profile-colour palette offered at Q4 of onboarding.
+// The user's chosen value is stored on users.profile_color (hex).
+export const PROFILE_COLOR_OPTIONS: ColorName[] = [
+  'fuchsia',
+  'orange',
+  'soleil',
+  'cherry',
+  'lavender',
+  'pool',
+  'lime',
+  'peche',
+  'citron',
+  'menthe',
+  'ciel',
+  'lavSoft',
+  'rose',
+];

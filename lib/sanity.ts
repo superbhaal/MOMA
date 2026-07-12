@@ -1,18 +1,62 @@
+import type { LearnArticle, LearnDoc, LearnRecommendation, LearnReel } from '@/types';
+
 const PROJECT_ID = process.env.EXPO_PUBLIC_SANITY_PROJECT_ID!;
 const DATASET = process.env.EXPO_PUBLIC_SANITY_DATASET || 'production';
 const API_VERSION = '2024-01-01';
 
 const SANITY_API_URL = `https://${PROJECT_ID}.api.sanity.io/v${API_VERSION}/data/query/${DATASET}`;
 
-export async function sanityFetch<T>(query: string, params?: Record<string, string>): Promise<T> {
+export async function sanityFetch<T>(
+  query: string,
+  params?: Record<string, string | number | boolean>,
+): Promise<T> {
   const searchParams = new URLSearchParams({ query });
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
-      searchParams.set(`$${key}`, `"${value}"`);
+      searchParams.set(`$${key}`, JSON.stringify(value));
     });
   }
 
   const response = await fetch(`${SANITY_API_URL}?${searchParams.toString()}`);
+  if (!response.ok) {
+    throw new Error(`Sanity fetch failed: ${response.status} ${response.statusText}`);
+  }
   const data = await response.json();
   return data.result as T;
+}
+
+// ──────────────────────────────────────────────────────────────
+// Learn feed — discriminated union of three doc types
+// ──────────────────────────────────────────────────────────────
+
+const LEARN_FEED_QUERY = `
+  *[_type in ["learnArticle","learnReel","learnRecommendation"]
+    && (!defined($babyStage) || babyStage == $babyStage)
+    && (!defined($format) || _type == $format)]
+  | order(publishedAt desc)
+  [0...50]
+`;
+
+export interface LearnFeedFilters {
+  babyStage?: string; // T1 | T2 | ... | 3+yr
+  format?: 'learnArticle' | 'learnReel' | 'learnRecommendation';
+}
+
+export function fetchLearnFeed(filters: LearnFeedFilters = {}): Promise<LearnDoc[]> {
+  return sanityFetch<LearnDoc[]>(LEARN_FEED_QUERY, filters as Record<string, string>);
+}
+
+export function fetchLearnDoc(id: string): Promise<LearnDoc | null> {
+  return sanityFetch<LearnDoc | null>(`*[_id == $id][0]`, { id });
+}
+
+// Convenience helpers if a screen wants a single format
+export function fetchArticles(): Promise<LearnArticle[]> {
+  return sanityFetch(`*[_type == "learnArticle"] | order(publishedAt desc)`);
+}
+export function fetchReels(): Promise<LearnReel[]> {
+  return sanityFetch(`*[_type == "learnReel"] | order(publishedAt desc)`);
+}
+export function fetchRecommendations(): Promise<LearnRecommendation[]> {
+  return sanityFetch(`*[_type == "learnRecommendation"] | order(publishedAt desc)`);
 }

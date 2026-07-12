@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["ZF4H8SWR7L.org.joinmoma.moma"],
+        "components": [
+          {
+            "/": "/auth/*",
+            "comment": "møma email confirmation + OAuth callbacks"
+          }
+        ]
+      }
+    ]
+  }
+}

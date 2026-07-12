@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useAppStore } from '@/store/useAppStore';
-import { supabase } from '@/lib/supabase';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useAuth } from '@/hooks/useAuth';
 import { colors } from '@/constants/colors';
-import type { User } from '@/types';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -25,87 +25,108 @@ export default function RootLayout() {
     'Lora-Italic': require('../assets/fonts/Lora-Italic.ttf'),
   });
 
-  const { isAuthenticated, isOnboarded, setUser, setAuthenticated, setOnboarded, reset } = useAppStore();
+  const { isAuthenticated, isOnboarded, authLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+
+  // Latch: once the initial auth check completes, never unmount the Stack again.
+  // Subsequent authLoading toggles (during sign-in/sign-up actions) must not
+  // remount the navigator — that would wipe the user's current screen and reset
+  // them to the (auth) stack's initial route (welcome.tsx).
+  const [bootDone, setBootDone] = useState(false);
+  useEffect(() => {
+    if (!authLoading && fontsLoaded) setBootDone(true);
+  }, [authLoading, fontsLoaded]);
 
   useEffect(() => {
     if (fontError) throw fontError;
   }, [fontError]);
 
-  // Listen to auth state
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setAuthenticated(true);
-        fetchProfile(session.user.id);
-      } else {
-        setAuthenticated(false);
-        setOnboarded(false);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setAuthenticated(true);
-        fetchProfile(session.user.id);
-      } else {
-        reset();
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  async function fetchProfile(userId: string) {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (data) {
-      setUser(data as User);
-      setOnboarded(true);
-    } else {
-      setOnboarded(false);
-    }
-  }
-
-  // Auth gate: redirect based on auth/onboarding state
-  useEffect(() => {
-    if (!fontsLoaded) return;
-
-    const inAuthGroup = segments[0] === '(auth)';
-
-    if (!isAuthenticated && !inAuthGroup) {
-      router.replace('/(auth)/welcome');
-    } else if (isAuthenticated && !isOnboarded && !inAuthGroup) {
-      router.replace('/(auth)/onboarding/step1');
-    } else if (isAuthenticated && isOnboarded && inAuthGroup) {
-      router.replace('/(tabs)');
-    }
-  }, [isAuthenticated, isOnboarded, fontsLoaded, segments]);
-
-  useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded && !authLoading) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, authLoading]);
 
-  if (!fontsLoaded) return null;
+  useEffect(() => {
+    if (!fontsLoaded || authLoading) return;
+
+    const inAuth = segments[0] === '(auth)';
+    const inOnboarding = inAuth && segments[1] === 'onboarding';
+
+    console.log('[AuthGate] eval', {
+      segments,
+      isAuthenticated,
+      isOnboarded,
+      authLoading,
+      inAuth,
+      inOnboarding,
+    });
+
+    // Skip transient empty-segments state. Expo Router emits segments=[] briefly
+    // during native modal flows.
+    if (!segments[0]) {
+      console.log('[AuthGate] skip (empty segments)');
+      return;
+    }
+
+    if (!isAuthenticated) {
+      if (!inAuth || inOnboarding) {
+        console.log('[AuthGate] → /welcome');
+        router.replace('/(auth)/welcome');
+      }
+    } else if (!isOnboarded) {
+      if (!inOnboarding) {
+        console.log('[AuthGate] → /onboarding/resume');
+        router.replace('/(auth)/onboarding/resume');
+      }
+    } else if (inAuth) {
+      // Authenticated AND onboarded but still somewhere in the (auth) stack.
+      // Pull them into the app — this includes the onboarding sub-stack, so an
+      // onboarded user who momentarily got routed to resume/profile (e.g. a
+      // transient empty profile read on cold boot) is recovered instead of
+      // being stranded on the onboarding screens. The `final` celebration
+      // screen is the one onboarding route an onboarded user may legitimately
+      // sit on (it routes itself to /(tabs)), so leave that alone.
+      const onFinal = segments[1] === 'onboarding' && segments[2] === 'final';
+      if (!onFinal) {
+        console.log('[AuthGate] → /(tabs)');
+        router.replace('/(tabs)');
+      }
+    }
+  }, [isAuthenticated, isOnboarded, authLoading, fontsLoaded, segments, router]);
+
+  if (!bootDone) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.white,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.cobalt} />
+      </View>
+    );
+  }
 
   return (
-    <>
+    <SafeAreaProvider>
       <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="group"
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="group" />
+        <Stack.Screen name="member/[userId]" />
+        <Stack.Screen name="preferences" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="availability" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="group-preview" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="profile/edit" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="settings/notifications" />
+        <Stack.Screen name="settings/privacy" />
+        <Stack.Screen name="settings/help" />
       </Stack>
-    </>
+    </SafeAreaProvider>
   );
 }

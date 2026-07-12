@@ -1,18 +1,40 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useAppStore } from '@/store/useAppStore';
-import type { Message } from '@/types';
+import { useAuth } from './useAuth';
+import type {
+  AttachmentType,
+  Message,
+  PlaceAttachment,
+  ProposalRefAttachment,
+} from '@/types';
 
-export function useChat(groupId: string) {
-  const user = useAppStore((s) => s.user);
+/** Group chat: messages list + realtime + send helpers. */
+export function useChat(groupId: string | undefined) {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    if (!groupId) return;
+    setLoading(true);
+    const { data, error: e } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('group_id', groupId)
+      .order('created_at', { ascending: true })
+      .limit(200);
+    if (e) setError(e.message);
+    else setMessages((data ?? []) as Message[]);
+    setLoading(false);
+  }, [groupId]);
 
   useEffect(() => {
-    loadMessages();
+    refresh();
+    if (!groupId) return;
 
     const channel = supabase
-      .channel(`group:${groupId}`)
+      .channel(`group-chat:${groupId}`)
       .on(
         'postgres_changes',
         {
@@ -22,37 +44,48 @@ export function useChat(groupId: string) {
           filter: `group_id=eq.${groupId}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
-        }
+          const m = payload.new as Message;
+          setMessages((cur) => (cur.some((x) => x.id === m.id) ? cur : [...cur, m]));
+        },
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [groupId]);
+  }, [groupId, refresh]);
 
-  async function loadMessages() {
-    setLoading(true);
-    const { data } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('group_id', groupId)
-      .order('created_at', { ascending: true })
-      .limit(100);
+  const send = useCallback(
+    async (content: string) => {
+      if (!user || !groupId || !content.trim()) return { error: null };
+      const { error: e } = await supabase.from('messages').insert({
+        group_id: groupId,
+        sender_id: user.id,
+        content: content.trim(),
+      });
+      return { error: e };
+    },
+    [user?.id, groupId],
+  );
 
-    setMessages(data ?? []);
-    setLoading(false);
-  }
+  const sendAttachment = useCallback(
+    async (
+      content: string,
+      type: AttachmentType,
+      data: PlaceAttachment | ProposalRefAttachment,
+    ) => {
+      if (!user || !groupId) return { error: null };
+      const { error: e } = await supabase.from('messages').insert({
+        group_id: groupId,
+        sender_id: user.id,
+        content,
+        attachment_type: type,
+        attachment_data: data,
+      });
+      return { error: e };
+    },
+    [user?.id, groupId],
+  );
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!user) return;
-    await supabase.from('messages').insert({
-      group_id: groupId,
-      sender_id: user.id,
-      content,
-    });
-  }, [groupId, user]);
-
-  return { messages, loading, sendMessage };
+  return { messages, loading, error, refresh, send, sendAttachment };
 }

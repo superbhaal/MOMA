@@ -1,0 +1,80 @@
+import { Pressable, StyleSheet, View } from 'react-native';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Typography } from './Typography';
+import { colors } from '@/constants/colors';
+
+// Routes that should appear as tabs, in display order.
+const TABS: { name: string; label: string }[] = [
+  { name: 'index', label: 'Home' },
+  { name: 'chats', label: 'Chats' },
+  { name: 'learn', label: 'Learn' },
+  { name: 'me', label: 'Me' },
+];
+
+/**
+ * Bottom tab bar matching `.bottom-nav` in design/moma standalone:
+ * label-only, no icon. Active item gets bolder text + a 4px cobalt dot.
+ */
+export function MomaTabBar({ state, navigation }: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={[styles.bar, { paddingBottom: 14 + insets.bottom * 0.6 }]}>
+      {TABS.map((tab) => {
+        const routeIndex = state.routes.findIndex((r) => r.name === tab.name);
+        if (routeIndex === -1) return null;
+        const focused = state.index === routeIndex;
+        return (
+          <Pressable
+            key={tab.name}
+            onPress={() => navigation.navigate(tab.name)}
+            style={styles.item}
+            hitSlop={6}
+          >
+            <Typography
+              color={focused ? colors.text : colors.muted}
+              style={[styles.label, focused && styles.labelActive]}
+            >
+              {tab.label}
+            </Typography>
+            {focused ? <View style={styles.dot} /> : null}
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  bar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingTop: 14,
+    paddingHorizontal: 8,
+    backgroundColor: colors.white,
+    borderTopWidth: 1,
+    borderTopColor: colors.line,
+  },
+  item: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    alignItems: 'center',
+    position: 'relative',
+  },
+  label: {
+    fontFamily: 'DMSans-Medium',
+    fontSize: 11,
+    letterSpacing: 0.2,
+  },
+  labelActive: {
+    fontFamily: 'DMSans-SemiBold',
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.cobalt,
+    marginTop: 4,
+  },
+});

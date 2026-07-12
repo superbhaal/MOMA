@@ -1,0 +1,181 @@
+import { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Typography } from '@/components/ui/Typography';
+import { useAuth } from '@/hooks/useAuth';
+import { getQuizProgress, TOTAL_QUIZ_STEPS } from '@/hooks/useOnboarding';
+import { colors } from '@/constants/colors';
+import { spacing, radius } from '@/constants/spacing';
+import { fonts } from '@/constants/typography';
+
+const TOTAL_STEPS = TOTAL_QUIZ_STEPS;
+
+/**
+ * Resume screen — reached from the auth gate when the user is authenticated
+ * but not onboarded. If they've already answered ≥ 1 quiz question, show the
+ * "you were almost there" card so they can pick up or start over. Otherwise
+ * (fresh signup or fully complete) auto-redirect.
+ */
+export default function ResumeScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { user, authLoading } = useAuth();
+  const [starting, setStarting] = useState(false);
+
+  const progress = useMemo(() => getQuizProgress(user), [user]);
+  const showResumeCard =
+    !authLoading && progress.answered > 0 && progress.answered < TOTAL_STEPS;
+
+  // Auto-redirect when there's nothing to "resume" (fresh signup or already done).
+  useEffect(() => {
+    if (authLoading) return;
+    if (progress.answered === 0 || progress.answered >= TOTAL_STEPS) {
+      router.replace(progress.nextRoute);
+    }
+  }, [authLoading, progress, router]);
+
+  if (authLoading || !showResumeCard) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color={colors.white} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.container, { paddingTop: insets.top + spacing.xxl, paddingBottom: insets.bottom + spacing.xl }]}>
+      <View style={styles.body}>
+        <Typography variant="labelS" color="rgba(255,255,255,0.6)" style={styles.eyebrow}>
+          WELCOME BACK
+        </Typography>
+        <Typography style={styles.heading}>
+          You were{'\n'}almost there.
+        </Typography>
+        <Typography variant="bodyL" color="rgba(255,255,255,0.75)" style={styles.sub}>
+          You answered {progress.answered} of {TOTAL_STEPS} questions. Pick up where you left off. We kept your answers safe.
+        </Typography>
+
+        <View style={styles.progressCard}>
+          <View style={styles.progressTop}>
+            <Typography variant="labelS" color="rgba(255,255,255,0.7)">
+              PROGRESS
+            </Typography>
+            <Typography variant="labelS" color={colors.white}>
+              {progress.answered} / {TOTAL_STEPS}
+            </Typography>
+          </View>
+          <View style={styles.segments}>
+            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+              <View
+                key={i}
+                style={[styles.seg, i < progress.answered && styles.segDone]}
+              />
+            ))}
+          </View>
+          <Typography variant="bodyM" color="rgba(255,255,255,0.75)" style={styles.nextUp}>
+            Next up: {progress.nextLabel}
+          </Typography>
+        </View>
+      </View>
+
+      <View style={styles.actions}>
+        <Pressable
+          onPress={() => router.replace(progress.nextRoute)}
+          style={styles.continueBtn}
+        >
+          <Typography variant="label" color={colors.cobalt}>
+            CONTINUE WHERE I LEFT OFF
+          </Typography>
+        </Pressable>
+        <Pressable
+          onPress={async () => {
+            setStarting(true);
+            // Route to q1 — saving q1 overwrites is_first_baby and subsequent
+            // steps cascade-overwrite from there.
+            router.replace('/(auth)/onboarding/q1');
+          }}
+          style={styles.startOverBtn}
+          disabled={starting}
+        >
+          <Typography variant="bodyL" color={colors.white}>
+            Start over instead
+          </Typography>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.cobalt,
+    paddingHorizontal: spacing.xl,
+  },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  body: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  eyebrow: {
+    marginBottom: spacing.md,
+  },
+  heading: {
+    fontFamily: fonts.serif,
+    fontSize: 48,
+    lineHeight: 52,
+    letterSpacing: -0.5,
+    color: colors.white,
+  },
+  sub: {
+    marginTop: spacing.xl,
+  },
+  progressCard: {
+    marginTop: spacing.xxl,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+  },
+  progressTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  segments: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  seg: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+  },
+  segDone: {
+    backgroundColor: colors.white,
+  },
+  nextUp: {
+    fontStyle: 'italic',
+    marginTop: spacing.md,
+  },
+  actions: {
+    gap: spacing.md,
+    alignItems: 'center',
+  },
+  continueBtn: {
+    backgroundColor: colors.white,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xxl,
+    alignItems: 'center',
+    alignSelf: 'stretch',
+  },
+  startOverBtn: {
+    paddingVertical: spacing.sm,
+  },
+});
