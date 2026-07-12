@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>møma · admin</title>
+<style>
+  :root{
+    --cream:#FAF6F1; --white:#fff; --text:#111118; --muted:#6F6F88;
+    --line:rgba(17,17,24,.10); --cobalt:#1A4BCC; --cobaltDeep:#0F3AA8;
+    --fuchsia:#E8389C; --soleil:#FFC800; --lime:#B8D830; --cherry:#E82030;
+    --pool:#00B8C8; --blush:#F4D1D1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--cream);color:var(--text);font-size:14px;line-height:1.4}
+  h1,h2,h3{margin:0;font-weight:600}
+  button{font:inherit;cursor:pointer;border:none;border-radius:10px;padding:8px 14px;font-weight:600}
+  button:disabled{opacity:.45;cursor:default}
+  input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--white);width:100%}
+  a{color:var(--cobalt)}
+  .btn-primary{background:var(--cobalt);color:#fff}
+  .btn-ghost{background:var(--white);border:1px solid var(--line);color:var(--text)}
+  .btn-danger{background:var(--white);border:1px solid var(--cherry);color:var(--cherry)}
+  .btn-sm{padding:4px 9px;font-size:12px;border-radius:8px}
+  .pill{display:inline-block;padding:1px 8px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.3px}
+  .pill-test{background:#EEF2FF;color:var(--cobalt)}
+  .pill-real{background:var(--blush);color:#6A1A2A}
+  .pill-waiting{background:#f0f0f5;color:var(--muted)}
+  .pill-previewing{background:#FFF3CC;color:#8a6d00}
+  .pill-matched{background:#E4F7D6;color:#3f6b12}
+  .hidden{display:none!important}
+
+  /* login */
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  #login .card{background:#fff;border-radius:20px;padding:32px;max-width:360px;width:100%;
+    box-shadow:0 20px 60px rgba(17,17,24,.12)}
+  #login h1{font-size:26px;letter-spacing:-.5px;margin-bottom:4px}
+  #login .sub{color:var(--muted);margin-bottom:22px;font-size:13px}
+  #login label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);
+    text-transform:uppercase;margin:14px 0 6px}
+  #login button{width:100%;margin-top:20px;padding:11px}
+  #loginErr{color:var(--cherry);font-size:12px;margin-top:10px;min-height:16px}
+
+  /* app */
+  header{background:#fff;border-bottom:1px solid var(--line);padding:14px 22px;
+    display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5;flex-wrap:wrap}
+  header h1{font-size:20px;letter-spacing:-.4px}
+  header .grow{flex:1}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px}
+  .section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:20px}
+  .section h2{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .banner{padding:10px 14px;border-radius:12px;font-size:13px;margin-bottom:14px}
+  .banner-ok{background:#E4F7D6;color:#3f6b12}
+  .banner-err{background:#FBE0E3;color:var(--cherry)}
+
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
+  td .dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:6px;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+  .row-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .tablewrap{overflow-x:auto}
+  small.mono{font-family:ui-monospace,Menlo,monospace;color:var(--muted);font-size:11px}
+
+  .grid-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+  .field label{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);
+    text-transform:uppercase;margin-bottom:5px}
+
+  /* modal */
+  #modal{position:fixed;inset:0;background:rgba(17,17,24,.45);display:flex;align-items:center;
+    justify-content:center;padding:20px;z-index:20}
+  #modal .box{background:#fff;border-radius:18px;padding:22px;max-width:640px;width:100%;max-height:88vh;overflow:auto}
+  #modal h2{font-size:16px;text-transform:none;letter-spacing:-.2px;color:var(--text);margin-bottom:16px}
+  #modal .foot{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+
+  /* score matrix */
+  .matrix{overflow-x:auto}
+  .matrix table{border-collapse:collapse;min-width:max-content}
+  .matrix th,.matrix td{border:1px solid var(--line);text-align:center;padding:7px 9px;font-size:12px;white-space:nowrap}
+  .matrix td.self{background:#f4f4f7;color:var(--muted)}
+  .cell-pass{background:#E4F7D6;color:#2f5410;font-weight:700}
+  .cell-low{background:#FFF3CC;color:#8a6d00;font-weight:700}
+  .cell-null{background:#FBE0E3;color:#b3283a}
+  .legend{display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login">
+  <div class="card">
+    <h1>møma admin</h1>
+    <div class="sub">Manage users · run matching · inspect scores</div>
+    <label for="u">Username</label>
+    <input id="u" autocomplete="username" value="admin_moma" />
+    <label for="p">Password</label>
+    <input id="p" type="password" autocomplete="current-password" />
+    <button class="btn-primary" id="loginBtn">Sign in</button>
+    <div id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="hidden">
+  <header>
+    <h1>møma <span style="color:var(--muted);font-weight:400">admin</span></h1>
+    <span class="grow"></span>
+    <button class="btn-ghost" id="refreshBtn">Refresh</button>
+    <button class="btn-primary" id="matchBtn">Run matching</button>
+    <button class="btn-ghost" id="logoutBtn">Log out</button>
+  </header>
+
+  <div class="wrap">
+    <div id="banner"></div>
+
+    <!-- Users -->
+    <div class="section">
+      <h2>Users (<span id="userCount">0</span>)</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr>
+            <th>Name</th><th>Type</th><th>Stage</th><th>Baby DOB</th>
+            <th>Location</th><th>Lang</th><th>Queue</th><th>Groups</th><th></th>
+          </tr></thead>
+          <tbody id="userRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Add test user -->
+    <div class="section">
+      <h2>Add test user</h2>
+      <div class="grid-form" id="addForm">
+        <div class="field"><label>Name</label><input data-f="display_name" placeholder="Test Mom"/></div>
+        <div class="field"><label>Life stage</label>
+          <select data-f="life_stage">
+            <option value="expecting">expecting</option>
+            <option value="newborn">newborn</option>
+            <option value="growing">growing</option>
+            <option value="veteran">veteran</option>
+          </select></div>
+        <div class="field"><label>Baby DOB</label><input data-f="baby_dob" type="date"/></div>
+        <div class="field"><label>City</label><input data-f="city" value="Paris"/></div>
+        <div class="field"><label>Neighbourhood</label><input data-f="neighbourhood" value="Paris"/></div>
+        <div class="field"><label>Primary language</label><input data-f="primary_language" value="French"/></div>
+        <div class="field"><label>Kid count</label>
+          <select data-f="kid_count"><option value="one">one</option><option value="two">two</option><option value="three_plus">three_plus</option></select></div>
+        <div class="field"><label>Profile color</label><input data-f="profile_color" type="color" value="#E8389C"/></div>
+      </div>
+      <button class="btn-primary" id="addBtn" style="margin-top:14px">Create test user</button>
+    </div>
+
+    <!-- Score matrix -->
+    <div class="section">
+      <h2>Match scores
+        <label style="text-transform:none;font-weight:400;margin-left:12px;font-size:12px;color:var(--text)">
+          <input type="checkbox" id="onlyWaiting" style="width:auto;margin-right:4px"/> only waiting
+        </label>
+        <button class="btn-ghost btn-sm" id="scoreBtn" style="margin-left:10px">Compute</button>
+      </h2>
+      <div id="matrix" class="matrix"><span style="color:var(--muted)">Threshold ≥ 5 to form a group. Click “Compute”.</span></div>
+      <div class="legend hidden" id="legend">
+        <span><i class="swatch" style="background:#E4F7D6"></i> passes (≥ threshold)</span>
+        <span><i class="swatch" style="background:#FFF3CC"></i> below threshold</span>
+        <span><i class="swatch" style="background:#FBE0E3"></i> hard-filtered out</span>
+        <span>hover a cell for the reason</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDIT MODAL ============ -->
+<div id="modal" class="hidden">
+  <div class="box">
+    <h2 id="modalTitle">Edit user</h2>
+    <div class="grid-form" id="editForm"></div>
+    <div class="foot">
+      <button class="btn-ghost" id="editCancel">Cancel</button>
+      <button class="btn-primary" id="editSave">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = "https://rqesqrlrlxetnvihpoxt.supabase.co/functions/v1/admin-api";
+const CREDS_KEY = "moma_admin_creds";
+let USERS = [];
+
+const $ = (s) => document.querySelector(s);
+const el = (t, props={}, ...kids) => {
+  const n = document.createElement(t);
+  Object.entries(props).forEach(([k,v])=>{ if(k==="class")n.className=v; else if(k==="html")n.innerHTML=v; else n.setAttribute(k,v); });
+  kids.forEach(k=>n.append(k)); return n;
+};
+
+async function api(action, extra={}) {
+  const creds = sessionStorage.getItem(CREDS_KEY);
+  const res = await fetch(API, {
+    method:"POST",
+    headers:{ "content-type":"application/json", "x-admin-credentials": creds },
+    body: JSON.stringify({ action, ...extra }),
+  });
+  if (res.status === 401) { logout(); throw new Error("Unauthorized"); }
+  const data = await res.json().catch(()=>({ok:false,error:"bad response"}));
+  if (!data.ok) throw new Error(data.error || "request failed");
+  return data;
+}
+
+function banner(msg, kind="ok") {
+  const b = $("#banner");
+  b.innerHTML = "";
+  b.append(el("div",{class:"banner "+(kind==="ok"?"banner-ok":"banner-err"),html:msg}));
+  setTimeout(()=>{ b.innerHTML=""; }, kind==="ok"?4000:8000);
+}
+
+// ---- login ----
+async function tryLogin() {
+  const u = $("#u").value.trim(), p = $("#p").value;
+  sessionStorage.setItem(CREDS_KEY, btoa(u+":"+p));
+  $("#loginErr").textContent = "…";
+  try {
+    await api("list_users");
+    $("#login").classList.add("hidden");
+    $("#app").classList.remove("hidden");
+    $("#loginErr").textContent = "";
+    await load();
+  } catch (e) {
+    sessionStorage.removeItem(CREDS_KEY);
+    $("#loginErr").textContent = e.message === "Unauthorized" ? "Wrong username or password." : e.message;
+  }
+}
+function logout(){ sessionStorage.removeItem(CREDS_KEY); $("#app").classList.add("hidden"); $("#login").classList.remove("hidden"); }
+
+// ---- users table ----
+async function load() {
+  const d = await api("list_users");
+  USERS = d.users;
+  $("#userCount").textContent = USERS.length;
+  const tb = $("#userRows"); tb.innerHTML = "";
+  for (const u of USERS) {
+    const groups = (u.groups||[]).map(g=>g.name + (g.role==="mentor"?" ★":"")).join(", ") || "—";
+    const tr = el("tr", {},
+      el("td",{}, nameCell(u)),
+      el("td",{html: u.is_test ? '<span class="pill pill-test">TEST</span>' : '<span class="pill pill-real">REAL</span>'}),
+      el("td",{html: u.life_stage || "—"}),
+      el("td",{html: u.baby_dob || "—"}),
+      el("td",{html: (u.neighbourhood||u.city||"—")}),
+      el("td",{html: u.primary_language || "—"}),
+      el("td",{html: u.queue_status ? `<span class="pill pill-${u.queue_status}">${u.queue_status}</span>` : "—"}),
+      el("td",{html: groups}),
+      el("td",{}, actionsCell(u)),
+    );
+    tb.append(tr);
+  }
+}
+function nameCell(u){
+  const wrap = el("span",{});
+  wrap.append(el("span",{class:"dot",style:`background:${u.profile_color||"#ccc"}`}));
+  wrap.append(document.createTextNode(u.display_name || "(no name)"));
+  return wrap;
+}
+function actionsCell(u){
+  const w = el("div",{class:"row-actions"});
+  const edit = el("button",{class:"btn-ghost btn-sm"}, "Edit"); edit.onclick=()=>openEdit(u);
+  w.append(edit);
+  if (u.queue_status && u.queue_status !== "waiting") {
+    const rq = el("button",{class:"btn-ghost btn-sm"}, "→ waiting");
+    rq.onclick=async()=>{ try{ await api("set_queue",{id:u.id,status:"waiting"}); banner("Re-queued "+u.display_name); load(); }catch(e){ banner(e.message,"err"); } };
+    w.append(rq);
+  }
+  const del = el("button",{class:"btn-danger btn-sm"}, "Delete");
+  del.onclick=async()=>{
+    if(!confirm(`Delete ${u.display_name}? This removes their auth account and all data. This cannot be undone.`)) return;
+    try{ await api("delete_user",{id:u.id}); banner("Deleted "+u.display_name); load(); }catch(e){ banner(e.message,"err"); }
+  };
+  w.append(del);
+  return w;
+}
+
+// ---- edit modal ----
+const EDIT_FIELDS = [
+  ["display_name","Name","text"],["last_name","Last name","text"],["age","Age","number"],
+  ["life_stage","Life stage","select-stage"],["baby_dob","Baby DOB","date"],
+  ["kid_count","Kid count","select-kid"],["is_first_baby","First baby","select-bool"],
+  ["city","City","text"],["neighbourhood","Neighbourhood","text"],
+  ["primary_language","Primary language","text"],["secondary_languages","Secondary langs (comma)","csv"],
+  ["profile_color","Profile color","color"],
+  ["pref_age_window_weeks","Age window (weeks)","number"],["pref_distance_minutes","Distance (min, -1=city)","number"],
+];
+let editingId = null;
+function openEdit(u){
+  editingId = u.id;
+  $("#modalTitle").textContent = "Edit · " + (u.display_name||u.id);
+  const f = $("#editForm"); f.innerHTML = "";
+  for (const [key,label,type] of EDIT_FIELDS){
+    const field = el("div",{class:"field"});
+    field.append(el("label",{html:label}));
+    let input;
+    if(type==="select-stage"){ input=el("select",{}); ["expecting","newborn","growing","veteran"].forEach(o=>input.append(el("option",{value:o},o))); input.value=u[key]||"expecting"; }
+    else if(type==="select-kid"){ input=el("select",{}); ["","one","two","three_plus"].forEach(o=>input.append(el("option",{value:o},o||"—"))); input.value=u[key]||""; }
+    else if(type==="select-bool"){ input=el("select",{}); [["","—"],["true","true"],["false","false"]].forEach(([v,t])=>input.append(el("option",{value:v},t))); input.value=(u[key]===null||u[key]===undefined)?"":String(u[key]); }
+    else if(type==="csv"){ input=el("input",{type:"text"}); input.value=(u[key]||[]).join(", "); }
+    else if(type==="color"){ input=el("input",{type:"color"}); input.value=u[key]||"#E8389C"; }
+    else { input=el("input",{type:type}); input.value=(u[key]===null||u[key]===undefined)?"":u[key]; }
+    input.dataset.k=key; input.dataset.t=type;
+    field.append(input); f.append(field);
+  }
+  $("#modal").classList.remove("hidden");
+}
+function closeEdit(){ $("#modal").classList.add("hidden"); editingId=null; }
+async function saveEdit(){
+  const patch = {};
+  $("#editForm").querySelectorAll("[data-k]").forEach(inp=>{
+    const k=inp.dataset.k, t=inp.dataset.t; let v=inp.value;
+    if(t==="csv") v = v.split(",").map(s=>s.trim()).filter(Boolean);
+    else if(t==="select-bool") v = v===""?null:(v==="true");
+    else if(t==="number") v = v===""?null:Number(v);
+    patch[k]=v;
+  });
+  try{ await api("update_user",{id:editingId,patch}); banner("Saved changes"); closeEdit(); load(); }
+  catch(e){ banner(e.message,"err"); }
+}
+
+// ---- add test user ----
+async function addTest(){
+  const fields = {};
+  $("#addForm").querySelectorAll("[data-f]").forEach(inp=>{ if(inp.value!=="") fields[inp.dataset.f]=inp.value; });
+  if(fields.age) fields.age=Number(fields.age);
+  try{ const d=await api("add_test_user",{fields}); banner(`Created test user (${d.email})`); load(); }
+  catch(e){ banner(e.message,"err"); }
+}
+
+// ---- run matching ----
+async function runMatch(){
+  $("#matchBtn").disabled=true; $("#matchBtn").textContent="Matching…";
+  try{
+    const d=await api("run_matching"); const r=d.result||{};
+    banner(`Matcher ran · candidates: ${r.candidates??"?"} · groups created: ${r.groups_created??"?"} · pushed: ${r.pushed??"?"}`);
+    load();
+  }catch(e){ banner(e.message,"err"); }
+  finally{ $("#matchBtn").disabled=false; $("#matchBtn").textContent="Run matching"; }
+}
+
+// ---- score matrix ----
+async function computeScores(){
+  const only = $("#onlyWaiting").checked;
+  const box = $("#matrix"); box.innerHTML = "computing…";
+  try{
+    const d = await api("score_matrix",{only_waiting:only});
+    const us = d.users; if(us.length<2){ box.innerHTML="<span style='color:var(--muted)'>Need ≥ 2 users with a life stage.</span>"; $("#legend").classList.add("hidden"); return; }
+    const key = (a,b)=>a<b?a+"|"+b:b+"|"+a;
+    const map = new Map(); d.pairs.forEach(p=>map.set(key(p.a_id,p.b_id),p));
+    const tbl = el("table",{});
+    const head = el("tr",{}, el("th",{html:""})); us.forEach(u=>head.append(el("th",{html:u.name}))); tbl.append(head);
+    us.forEach(rowU=>{
+      const tr = el("tr",{}, el("th",{html:rowU.name}));
+      us.forEach(colU=>{
+        if(rowU.id===colU.id){ tr.append(el("td",{class:"self"},"·")); return; }
+        const p = map.get(key(rowU.id,colU.id));
+        let cls="cell-null", txt="✕";
+        if(p && p.score!==null){ txt=String(p.score); cls = p.pass?"cell-pass":"cell-low"; }
+        const td = el("td",{class:cls, title: p?p.reason:""}, txt); tr.append(td);
+      });
+      tbl.append(tr);
+    });
+    box.innerHTML=""; box.append(tbl); $("#legend").classList.remove("hidden");
+  }catch(e){ box.innerHTML="<span style='color:var(--cherry)'>"+e.message+"</span>"; }
+}
+
+// ---- wire ----
+$("#loginBtn").onclick=tryLogin;
+$("#p").addEventListener("keydown",e=>{ if(e.key==="Enter") tryLogin(); });
+$("#refreshBtn").onclick=load;
+$("#matchBtn").onclick=runMatch;
+$("#logoutBtn").onclick=logout;
+$("#addBtn").onclick=addTest;
+$("#scoreBtn").onclick=computeScores;
+$("#editCancel").onclick=closeEdit;
+$("#editSave").onclick=saveEdit;
+$("#modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeEdit(); });
+
+// auto-resume session
+if (sessionStorage.getItem(CREDS_KEY)) {
+  api("list_users").then(()=>{ $("#login").classList.add("hidden"); $("#app").classList.remove("hidden"); load(); })
+    .catch(()=>logout());
+}
+</script>
+</body>
+</html>
