@@ -148,7 +148,7 @@
         <div class="field"><label>Longitude</label><input data-f="longitude" type="number" step="any" placeholder="2.3522"/></div>
         <div class="field"><label>Primary language</label><input data-f="primary_language" value="French"/></div>
         <div class="field"><label>Kid count</label>
-          <select data-f="kid_count"><option value="one">one</option><option value="two">two</option><option value="three_plus">three_plus</option></select></div>
+          <select data-f="kid_count"><option value="none">none</option><option value="one">one</option><option value="two">two</option><option value="many">many</option></select></div>
         <div class="field"><label>Profile color</label><input data-f="profile_color" type="color" value="#E8389C"/></div>
       </div>
       <button class="btn-primary" id="addBtn" style="margin-top:14px">Create test user</button>
@@ -303,7 +303,7 @@ function openEdit(u){
     field.append(el("label",{html:label}));
     let input;
     if(type==="select-stage"){ input=el("select",{}); ["expecting","newborn","growing","veteran"].forEach(o=>input.append(el("option",{value:o},o))); input.value=u[key]||"expecting"; }
-    else if(type==="select-kid"){ input=el("select",{}); ["","one","two","three_plus"].forEach(o=>input.append(el("option",{value:o},o||"—"))); input.value=u[key]||""; }
+    else if(type==="select-kid"){ input=el("select",{}); ["","none","one","two","many"].forEach(o=>input.append(el("option",{value:o},o||"—"))); input.value=u[key]||""; }
     else if(type==="select-bool"){ input=el("select",{}); [["","—"],["true","true"],["false","false"]].forEach(([v,t])=>input.append(el("option",{value:v},t))); input.value=(u[key]===null||u[key]===undefined)?"":String(u[key]); }
     else if(type==="csv"){ input=el("input",{type:"text"}); input.value=(u[key]||[]).join(", "); }
     else if(type==="color"){ input=el("input",{type:"color"}); input.value=u[key]||"#E8389C"; }
