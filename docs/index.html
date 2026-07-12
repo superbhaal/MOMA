@@ -144,7 +144,8 @@
           </select></div>
         <div class="field"><label>Baby DOB</label><input data-f="baby_dob" type="date"/></div>
         <div class="field"><label>City</label><input data-f="city" value="Paris"/></div>
-        <div class="field"><label>Neighbourhood</label><input data-f="neighbourhood" value="Paris"/></div>
+        <div class="field"><label>Latitude</label><input data-f="latitude" type="number" step="any" placeholder="48.8566"/></div>
+        <div class="field"><label>Longitude</label><input data-f="longitude" type="number" step="any" placeholder="2.3522"/></div>
         <div class="field"><label>Primary language</label><input data-f="primary_language" value="French"/></div>
         <div class="field"><label>Kid count</label>
           <select data-f="kid_count"><option value="one">one</option><option value="two">two</option><option value="three_plus">three_plus</option></select></div>
@@ -287,6 +288,7 @@ const EDIT_FIELDS = [
   ["life_stage","Life stage","select-stage"],["baby_dob","Baby DOB","date"],
   ["kid_count","Kid count","select-kid"],["is_first_baby","First baby","select-bool"],
   ["city","City","text"],["neighbourhood","Neighbourhood","text"],
+  ["latitude","Latitude","number"],["longitude","Longitude","number"],
   ["primary_language","Primary language","text"],["secondary_languages","Secondary langs (comma)","csv"],
   ["profile_color","Profile color","color"],
   ["pref_age_window_weeks","Age window (weeks)","number"],["pref_distance_minutes","Distance (min, -1=city)","number"],
