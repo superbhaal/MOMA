@@ -1,5 +1,12 @@
-import { useState } from 'react';
-import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
@@ -22,6 +29,18 @@ export default function LearnIndex() {
     format: format === 'all' ? undefined : format,
     babyStage: stage === 'all' ? undefined : stage,
   });
+
+  // Pull-to-refresh spinner reflects only an explicit pull, decoupled from the
+  // hook's `loading` (which also flips on filter changes / initial load).
+  const [pulling, setPulling] = useState(false);
+  const onPullRefresh = useCallback(async () => {
+    setPulling(true);
+    try {
+      await refresh();
+    } finally {
+      setPulling(false);
+    }
+  }, [refresh]);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.lg }]}>
@@ -78,7 +97,7 @@ export default function LearnIndex() {
         keyExtractor={(d) => d._id}
         contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.cobalt} />
+          <RefreshControl refreshing={pulling} onRefresh={onPullRefresh} tintColor={colors.cobalt} />
         }
         renderItem={({ item }) => {
           const open = () => router.push(`/(tabs)/learn/${item._id}`);
@@ -91,7 +110,9 @@ export default function LearnIndex() {
           return <View style={styles.cardWrap}><RecommendationCard recco={item as LearnRecommendation} onPress={open} /></View>;
         }}
         ListEmptyComponent={
-          !loading ? (
+          loading ? (
+            <ActivityIndicator color={colors.cobalt} style={{ marginTop: spacing.xxl }} />
+          ) : (
             <Typography
               variant="bodyL"
               color={colors.muted}
@@ -99,7 +120,7 @@ export default function LearnIndex() {
             >
               nothing here yet — content lands as we publish it.
             </Typography>
-          ) : null
+          )
         }
       />
     </View>

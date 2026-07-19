@@ -27,7 +27,7 @@ export function useMatching() {
 
   const refresh = useCallback(async () => {
     if (!user) return;
-    setLoading(true);
+    // First-load flag only — realtime queue changes refresh silently.
 
     const { data: row } = await supabase
       .from('matching_queue')

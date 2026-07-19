@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
@@ -19,9 +19,23 @@ export default function HomeScreen() {
   const { groups, loading, refresh } = useGroups();
   const matching = useMatching();
 
+  // The pull-to-refresh spinner must reflect ONLY an explicit user pull — never
+  // the background refreshes triggered by focus/realtime/mount. Tying it to the
+  // hook's `loading` made a focus-return refresh render the RefreshControl in its
+  // offset "programmatic" position, which reads as a stuck spinner.
+  const [pulling, setPulling] = useState(false);
+  const onPullRefresh = useCallback(async () => {
+    setPulling(true);
+    try {
+      await Promise.all([refresh(), matching.refresh()]);
+    } finally {
+      setPulling(false);
+    }
+  }, [refresh, matching.refresh]);
+
   // Home stays mounted in the tab navigator, so joining a group on another
   // screen wouldn't update it. Re-fetch groups + queue every time Home regains
-  // focus (belt-and-suspenders alongside realtime).
+  // focus (belt-and-suspenders alongside realtime). Silent — no spinner.
   useFocusEffect(
     useCallback(() => {
       refresh();
@@ -70,7 +84,7 @@ export default function HomeScreen() {
         keyExtractor={(g) => g.id}
         contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.cobalt} />
+          <RefreshControl refreshing={pulling} onRefresh={onPullRefresh} tintColor={colors.cobalt} />
         }
         ListHeaderComponent={
           <>
@@ -106,6 +120,10 @@ export default function HomeScreen() {
                   </Typography>
                 </Card>
               </View>
+            ) : null}
+
+            {!previewing && groups.length === 0 && loading ? (
+              <ActivityIndicator color={colors.cobalt} style={{ marginTop: spacing.xxl }} />
             ) : null}
 
             {!previewing && groups.length === 0 && !loading ? (

@@ -22,8 +22,9 @@ export function useDmThreads() {
       setLoading(false);
       return;
     }
-    setLoading(true);
-
+    // `loading` = first-load flag only; realtime refreshes stay silent so
+    // returning to the Chats tab never re-shows the pull spinner.
+    try {
     const { data: rows } = await supabase
       .from('dm_threads')
       .select('*')
@@ -31,7 +32,6 @@ export function useDmThreads() {
     const list = rows ?? [];
     if (!list.length) {
       setThreads([]);
-      setLoading(false);
       return;
     }
 
@@ -71,7 +71,9 @@ export function useDmThreads() {
       );
 
     setThreads(items);
-    setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   }, [user?.id]);
 
   useEffect(() => {

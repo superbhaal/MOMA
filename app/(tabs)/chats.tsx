@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
@@ -22,7 +22,20 @@ export default function ChatsScreen() {
   const { groups, loading, refresh } = useGroups();
   const { threads, loading: dmLoading, refresh: refreshDms } = useDmThreads();
 
-  // Tab stays mounted — refresh both lists whenever it regains focus.
+  // Pull-to-refresh spinner reflects ONLY an explicit user pull — never the
+  // silent focus/realtime refreshes (those would otherwise leave the spinner
+  // stuck when returning to the tab with the back button).
+  const [pulling, setPulling] = useState(false);
+  const onPullRefresh = useCallback(async () => {
+    setPulling(true);
+    try {
+      await Promise.all([refresh(), refreshDms()]);
+    } finally {
+      setPulling(false);
+    }
+  }, [refresh, refreshDms]);
+
+  // Tab stays mounted — refresh both lists whenever it regains focus. Silent.
   useFocusEffect(
     useCallback(() => {
       refresh();
@@ -56,11 +69,8 @@ export default function ChatsScreen() {
         keyExtractor={(r) => r.key}
         refreshControl={
           <RefreshControl
-            refreshing={loading || dmLoading}
-            onRefresh={() => {
-              refresh();
-              refreshDms();
-            }}
+            refreshing={pulling}
+            onRefresh={onPullRefresh}
             tintColor={colors.cobalt}
           />
         }
@@ -73,7 +83,9 @@ export default function ChatsScreen() {
           )
         }
         ListEmptyComponent={
-          !loading && !dmLoading ? (
+          loading || dmLoading ? (
+            <ActivityIndicator color={colors.cobalt} style={{ marginTop: spacing.xxl }} />
+          ) : (
             <Typography
               variant="bodyL"
               color={colors.muted}
@@ -81,7 +93,7 @@ export default function ChatsScreen() {
             >
               your group chats land here once you&rsquo;re matched.
             </Typography>
-          ) : null
+          )
         }
       />
     </View>
