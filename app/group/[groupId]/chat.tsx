@@ -15,6 +15,7 @@ import { ChatInput } from '@/components/chat/ChatInput';
 import { ProposalCard } from '@/components/chat/ProposalCard';
 import { OpenerChips } from '@/components/chat/OpenerChips';
 import { PlacePicker } from '@/components/chat/PlacePicker';
+import { ActionSheet } from '@/components/ui/ActionSheet';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { useGroupDetail } from '@/hooks/useGroupDetail';
@@ -33,6 +34,7 @@ export default function GroupChatScreen() {
   const { vote } = useProposals(groupId);
 
   const [placeOpen, setPlaceOpen] = useState(false);
+  const [dmTarget, setDmTarget] = useState<User | null>(null);
   const listRef = useRef<FlatList<Message>>(null);
 
   const userById = useMemo<Record<string, User>>(() => {
@@ -107,12 +109,15 @@ export default function GroupChatScreen() {
         renderItem={({ item, index }) => {
           const prev = messages[index - 1];
           const showAvatar = !prev || prev.sender_id !== item.sender_id;
+          const isMine = item.sender_id === user?.id;
+          const sender = userById[item.sender_id] ?? null;
           return (
             <ChatBubble
               message={item}
-              isMine={item.sender_id === user?.id}
-              sender={userById[item.sender_id] ?? null}
+              isMine={isMine}
+              sender={sender}
               showAvatar={showAvatar}
+              onLongPress={!isMine && sender ? () => setDmTarget(sender) : undefined}
             />
           );
         }}
@@ -134,6 +139,37 @@ export default function GroupChatScreen() {
           await sendAttachment(place.name, 'place', place);
         }}
       />
+
+      <ActionSheet
+        visible={!!dmTarget}
+        onClose={() => setDmTarget(null)}
+        title={dmTarget?.display_name ?? ''}
+      >
+        <Pressable
+          style={styles.dmAction}
+          onPress={() => {
+            const id = dmTarget?.id;
+            setDmTarget(null);
+            if (id) router.push(`/group/dm/${id}?fromGroup=${groupId}`);
+          }}
+        >
+          <Typography variant="bodyL" color={colors.cobalt}>
+            Message {dmTarget?.display_name?.split(' ')[0] ?? 'them'} privately
+          </Typography>
+        </Pressable>
+        <Pressable
+          style={styles.dmAction}
+          onPress={() => {
+            const id = dmTarget?.id;
+            setDmTarget(null);
+            if (id) router.push(`/member/${id}`);
+          }}
+        >
+          <Typography variant="bodyL" color={colors.text}>
+            View profile
+          </Typography>
+        </Pressable>
+      </ActionSheet>
     </KeyboardAvoidingView>
   );
 }
@@ -155,6 +191,11 @@ const styles = StyleSheet.create({
   listContent: {
     flexGrow: 1,
     paddingVertical: spacing.md,
+  },
+  dmAction: {
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
   },
   holding: {
     paddingHorizontal: spacing.xl,

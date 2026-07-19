@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
@@ -11,11 +11,18 @@ interface ChatBubbleProps {
   sender: User | null;
   /** Hide the avatar when the previous message has the same sender. */
   showAvatar?: boolean;
+  /** Long-press handler (e.g. open a "message privately" sheet on others' messages). */
+  onLongPress?: () => void;
 }
 
-export function ChatBubble({ message, isMine, sender, showAvatar = true }: ChatBubbleProps) {
+export function ChatBubble({ message, isMine, sender, showAvatar = true, onLongPress }: ChatBubbleProps) {
   return (
-    <View style={[styles.row, isMine && styles.rowMine]}>
+    <Pressable
+      onLongPress={onLongPress}
+      delayLongPress={300}
+      disabled={!onLongPress}
+      style={[styles.row, isMine && styles.rowMine]}
+    >
       {!isMine && showAvatar ? (
         <Avatar
           name={sender?.display_name ?? '?'}
@@ -48,7 +55,7 @@ export function ChatBubble({ message, isMine, sender, showAvatar = true }: ChatB
           {message.content}
         </Typography>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
