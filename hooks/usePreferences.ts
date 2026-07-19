@@ -24,7 +24,11 @@ export interface PreferencesPatch {
   bio?: string | null;
   interests?: string[] | null;
   instagram_handle?: string | null;
+  address?: string | null;
+  city?: string | null;
   neighbourhood?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   avatar_url?: string | null;
   // State
   paused_until?: string | null;
@@ -80,6 +84,11 @@ export function usePreferences() {
           primary_language: user.primary_language,
           secondary_languages: user.secondary_languages ?? [],
           paused_until: user.paused_until,
+          address: user.address,
+          city: user.city,
+          neighbourhood: user.neighbourhood,
+          latitude: user.latitude,
+          longitude: user.longitude,
         }
       : null,
     update,

@@ -54,3 +54,6 @@ supabase/.temp/
 
 # vendored agent skills
 .agents/
+
+# Local reference material (specs, PDFs) — not app source
+Claude COWORK/

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -22,10 +23,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { resolveCurrentLocation, resolveTypedAddress } from '@/lib/geocode';
 import { uploadAvatar } from '@/lib/avatar';
+import { supabase } from '@/lib/supabase';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { signOut } = useAuth();
   const { onboardingData, saveProgress } = useOnboarding();
 
   const [avatarUri, setAvatarUri] = useState<string | null>(onboardingData.avatarUrl);
@@ -33,6 +35,9 @@ export default function ProfileScreen() {
   const [displayName, setDisplayName] = useState(onboardingData.displayName);
   const [lastName, setLastName] = useState(onboardingData.lastName ?? '');
   const [age, setAge] = useState(onboardingData.age ? String(onboardingData.age) : '');
+  const [bio, setBio] = useState(onboardingData.bio ?? '');
+  const [interests, setInterests] = useState((onboardingData.interests ?? []).join(', '));
+  const [instagram, setInstagram] = useState(onboardingData.instagramHandle ?? '');
   const [address, setAddress] = useState(onboardingData.address ?? '');
   const [resolved, setResolved] = useState<{
     city: string | null;
@@ -46,17 +51,35 @@ export default function ProfileScreen() {
     longitude: onboardingData.longitude,
   });
   const [locating, setLocating] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const ageNum = age ? parseInt(age, 10) : NaN;
   const ageValid = Number.isFinite(ageNum) && ageNum >= 16 && ageNum <= 60;
 
+  // Photo is required and must be an uploaded (remote) URL — a local file:// URI
+  // means the upload failed and wouldn't persist for the group to see.
+  const photoValid = !!avatarUri && /^https?:/.test(avatarUri);
+
+  // A verified location = we successfully resolved coordinates for the address.
+  // Matching needs these coords (distance is the hard filter), so the address is
+  // required AND must geocode before the user can continue.
+  const locationVerified = resolved.latitude != null && resolved.longitude != null;
+  const resolvedLabel = resolved.neighbourhood
+    ? `${resolved.neighbourhood}, ${resolved.city ?? ''}`.replace(/, $/, '')
+    : resolved.city;
+
   const canContinue =
+    photoValid &&
     displayName.trim().length > 0 &&
+    lastName.trim().length > 0 &&
     ageValid &&
+    address.trim().length > 0 &&
     !saving &&
-    !uploadingAvatar;
+    !uploadingAvatar &&
+    !locating &&
+    !verifying;
 
   async function handlePickPhoto() {
     setError(null);
@@ -75,17 +98,27 @@ export default function ProfileScreen() {
 
     const localUri = result.assets[0].uri;
     setAvatarUri(localUri);
-    if (!user?.id) return;
+
+    // Use the auth session id — during onboarding the public.users row doesn't
+    // exist yet, so useAuth().user is null. The Storage RLS path is keyed on the
+    // auth uid, which is present the moment the user is signed up.
+    const { data: { session } } = await supabase.auth.getSession();
+    const uid = session?.user?.id;
+    if (!uid) {
+      setError('your session expired — please sign in again.');
+      setAvatarUri(null);
+      return;
+    }
 
     setUploadingAvatar(true);
-    const { url, error: upErr } = await uploadAvatar(user.id, localUri);
+    const { url, error: upErr } = await uploadAvatar(uid, localUri);
     setUploadingAvatar(false);
     if (upErr || !url) {
       setError(upErr ?? 'upload failed');
+      setAvatarUri(null); // keep photoValid false so the requirement is honest
       return;
     }
     setAvatarUri(url);
-    await saveProgress({ avatar_url: url });
   }
 
   async function handleUseLocation() {
@@ -106,24 +139,67 @@ export default function ProfileScreen() {
     });
   }
 
+  /** Geocode the typed address; returns the resolved geo or null on failure. */
+  async function verifyAddress(): Promise<typeof resolved | null> {
+    const addrTyped = address.trim();
+    if (!addrTyped) return null;
+    if (resolved.latitude != null) return resolved; // already verified
+    setError(null);
+    setVerifying(true);
+    const r = await resolveTypedAddress(addrTyped);
+    setVerifying(false);
+    if (!r.ok || r.result.latitude == null) {
+      setError(
+        "we couldn't find that address. check the spelling, or tap the location icon to use where you are.",
+      );
+      return null;
+    }
+    const geo = {
+      city: r.result.city,
+      neighbourhood: r.result.neighbourhood,
+      latitude: r.result.latitude,
+      longitude: r.result.longitude,
+    };
+    setResolved(geo);
+    return geo;
+  }
+
+  function handleBack() {
+    // profile is the first onboarding screen, so there's no stack entry to pop
+    // (router.back() throws GO_BACK-not-handled). Going back means abandoning the
+    // sign-up: clear everything entered (signOut resets the store) and return to
+    // the welcome / login-signup screen.
+    Alert.alert(
+      'Start over?',
+      'This clears everything you entered and takes you back to sign in.',
+      [
+        { text: 'Keep editing', style: 'cancel' },
+        {
+          text: 'Discard',
+          style: 'destructive',
+          onPress: async () => {
+            await signOut();
+            router.replace('/(auth)/welcome');
+          },
+        },
+      ],
+    );
+  }
+
   async function handleContinue() {
     setError(null);
-    setSaving(true);
 
-    let geo = resolved;
+    // Address is required and must resolve to real coordinates — matching is
+    // distance-based, so we don't let anyone through without a verified location.
     const addrTyped = address.trim();
-    if (addrTyped && !geo.latitude) {
-      const r = await resolveTypedAddress(addrTyped);
-      if (r.ok) {
-        geo = {
-          city: r.result.city,
-          neighbourhood: r.result.neighbourhood,
-          latitude: r.result.latitude,
-          longitude: r.result.longitude,
-        };
-      }
+    if (!addrTyped) {
+      setError('please add where you live so we can match you with nearby moms.');
+      return;
     }
+    const geo = resolved.latitude != null ? resolved : await verifyAddress();
+    if (!geo || geo.latitude == null) return; // verifyAddress already set the error
 
+    setSaving(true);
     const { error: saveError } = await saveProgress({
       display_name: displayName.trim(),
       last_name: lastName.trim() || null,
@@ -134,6 +210,9 @@ export default function ProfileScreen() {
       latitude: geo.latitude,
       longitude: geo.longitude,
       avatar_url: avatarUri,
+      bio: bio.trim() || null,
+      interests: interests.split(',').map((s) => s.trim()).filter(Boolean),
+      instagram_handle: instagram.trim().replace(/^@+/, '') || null,
     });
     setSaving(false);
     if (saveError) {
@@ -150,7 +229,7 @@ export default function ProfileScreen() {
     >
       <View style={styles.header}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={handleBack}
           hitSlop={12}
           style={styles.backBtn}
         >
@@ -194,8 +273,8 @@ export default function ProfileScreen() {
               <Ionicons name="camera-outline" size={32} color="rgba(26,75,204,0.55)" />
             )}
           </View>
-          <Typography variant="label" color={colors.muted} style={styles.avatarLabel}>
-            {avatarUri ? 'TAP TO CHANGE PHOTO' : 'TAP TO UPLOAD A PHOTO'}
+          <Typography variant="label" color={photoValid ? colors.muted : colors.cobalt} style={styles.avatarLabel}>
+            {photoValid ? 'TAP TO CHANGE PHOTO' : 'TAP TO UPLOAD A PHOTO · REQUIRED'}
           </Typography>
         </Pressable>
 
@@ -252,7 +331,7 @@ export default function ProfileScreen() {
 
         <View style={styles.field}>
           <Typography variant="label" color={colors.muted}>
-            YOUR NEIGHBOURHOOD OR CITY
+            WHERE YOU LIVE · REQUIRED
           </Typography>
           <View style={styles.inputWithIcon}>
             <TextInput
@@ -260,6 +339,8 @@ export default function ProfileScreen() {
               value={address}
               onChangeText={(v) => {
                 setAddress(v);
+                if (error) setError(null);
+                // Editing invalidates the previously verified location.
                 setResolved({
                   city: null,
                   neighbourhood: null,
@@ -267,18 +348,88 @@ export default function ProfileScreen() {
                   longitude: null,
                 });
               }}
-              placeholder="e.g. Jordaan, Amsterdam"
+              onSubmitEditing={verifyAddress}
+              returnKeyType="search"
+              placeholder="e.g. Rue de Rivoli, Paris"
               placeholderTextColor={colors.muted}
               textContentType="fullStreetAddress"
               autoCapitalize="words"
             />
-            <Pressable onPress={handleUseLocation} disabled={locating} hitSlop={10}>
-              {locating ? (
-                <ActivityIndicator size="small" color={colors.cobalt} />
-              ) : (
-                <Ionicons name="location-outline" size={20} color={colors.cobalt} />
-              )}
-            </Pressable>
+            {verifying ? (
+              <ActivityIndicator size="small" color={colors.cobalt} />
+            ) : (
+              <Pressable onPress={handleUseLocation} disabled={locating} hitSlop={10}>
+                {locating ? (
+                  <ActivityIndicator size="small" color={colors.cobalt} />
+                ) : (
+                  <Ionicons name="location-outline" size={20} color={colors.cobalt} />
+                )}
+              </Pressable>
+            )}
+          </View>
+          {locationVerified ? (
+            <View style={styles.verifiedRow}>
+              <Ionicons name="checkmark-circle" size={15} color={colors.cobalt} />
+              <Typography variant="bodyM" color={colors.cobalt} style={styles.verifiedText}>
+                {resolvedLabel ?? 'location verified'}
+              </Typography>
+            </View>
+          ) : (
+            <Typography variant="bodyM" color={colors.muted} style={styles.helper}>
+              We match you with moms within walking distance, so we verify your address. Only your group sees it.
+            </Typography>
+          )}
+        </View>
+
+        <View style={styles.field}>
+          <Typography variant="label" color={colors.muted}>
+            A LITTLE ABOUT YOU
+          </Typography>
+          <TextInput
+            style={[styles.input, styles.multiline]}
+            value={bio}
+            onChangeText={setBio}
+            placeholder="A sentence or two your group will see."
+            placeholderTextColor={colors.muted}
+            multiline
+            maxLength={280}
+          />
+        </View>
+
+        <View style={styles.field}>
+          <Typography variant="label" color={colors.muted}>
+            INTERESTS
+          </Typography>
+          <TextInput
+            style={styles.input}
+            value={interests}
+            onChangeText={setInterests}
+            placeholder="yoga, cooking, long walks"
+            placeholderTextColor={colors.muted}
+            autoCapitalize="none"
+          />
+          <Typography variant="bodyM" color={colors.muted} style={styles.helper}>
+            Separate with commas.
+          </Typography>
+        </View>
+
+        <View style={styles.field}>
+          <Typography variant="label" color={colors.muted}>
+            INSTAGRAM · OPTIONAL
+          </Typography>
+          <View style={styles.inputWithIcon}>
+            <Typography variant="bodyL" color={colors.muted}>
+              @
+            </Typography>
+            <TextInput
+              style={[styles.input, { flex: 1, borderBottomWidth: 0 }]}
+              value={instagram}
+              onChangeText={(v) => setInstagram(v.replace(/^@+/, ''))}
+              placeholder="yourhandle"
+              placeholderTextColor={colors.muted}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
           </View>
         </View>
       </ScrollView>
@@ -401,6 +552,15 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: 4,
   },
+  verifiedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 6,
+  },
+  verifiedText: {
+    fontFamily: fonts.bodyMed,
+  },
   input: {
     fontFamily: fonts.body,
     fontSize: 16,
@@ -408,6 +568,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
     paddingVertical: spacing.md,
+  },
+  multiline: {
+    minHeight: 72,
+    textAlignVertical: 'top',
   },
   inputWithIcon: {
     flexDirection: 'row',

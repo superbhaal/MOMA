@@ -40,7 +40,7 @@ export default function Q1FirstBabyScreen() {
 
   return (
     <View style={styles.container}>
-      <OnboardingHeader current={1} total={4} onSkip={() => advance(true)} />
+      <OnboardingHeader current={1} total={4} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>
           Is this your{'\n'}first baby?

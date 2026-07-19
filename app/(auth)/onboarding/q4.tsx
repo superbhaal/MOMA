@@ -45,7 +45,7 @@ export default function Q4ColourScreen() {
 
   return (
     <View style={styles.container}>
-      <OnboardingHeader current={4} total={4} onSkip={() => advance(true)} />
+      <OnboardingHeader current={4} total={4} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>Pick a colour.</Typography>
         <Typography style={styles.sub}>

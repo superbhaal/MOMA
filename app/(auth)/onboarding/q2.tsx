@@ -84,7 +84,7 @@ export default function Q2BabyDobScreen() {
 
   return (
     <View style={styles.container}>
-      <OnboardingHeader current={2} total={4} onSkip={() => advance(true)} />
+      <OnboardingHeader current={2} total={4} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>{heading}</Typography>
         <Typography style={styles.sub}>Roughly. Doesn&rsquo;t have to be exact.</Typography>

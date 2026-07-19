@@ -115,7 +115,7 @@ export default function Q3LanguagesScreen() {
 
   return (
     <View style={styles.container}>
-      <OnboardingHeader current={3} total={4} onSkip={() => advance(true)} />
+      <OnboardingHeader current={3} total={4} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>
           What languages{'\n'}do you speak?
