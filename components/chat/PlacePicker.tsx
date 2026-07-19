@@ -1,41 +1,53 @@
-import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { ActionSheet } from '@/components/ui/ActionSheet';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { searchPlaces } from '@/lib/places';
 import type { PlaceAttachment } from '@/types';
 
 interface PlacePickerProps {
   visible: boolean;
   onClose: () => void;
+  /** The group's city — scopes the place search. */
+  city: string | null;
   onPick: (place: PlaceAttachment) => Promise<void> | void;
 }
 
-// MVP: hardcoded suggestions. Swap for a real geo search when we wire google places.
-const SUGGESTIONS: PlaceAttachment[] = [
-  { name: 'Bocca Coffee', address: 'Kerkstraat 96, Amsterdam', lat: null, lng: null, category: 'coffee' },
-  { name: 'Vondelpark — south entrance', address: 'Amsterdam', lat: null, lng: null, category: 'park' },
-  { name: 'Toki', address: 'Binnen Dommersstraat 15, Amsterdam', lat: null, lng: null, category: 'coffee' },
-  { name: 'Sarphatipark', address: 'De Pijp, Amsterdam', lat: null, lng: null, category: 'park' },
-  { name: 'CoffeeConcepts', address: 'Singel 67, Amsterdam', lat: null, lng: null, category: 'coffee' },
-];
-
-export function PlacePicker({ visible, onClose, onPick }: PlacePickerProps) {
+export function PlacePicker({ visible, onClose, city, onPick }: PlacePickerProps) {
   const [query, setQuery] = useState('');
+  const [results, setResults] = useState<PlaceAttachment[]>([]);
+  const [searching, setSearching] = useState(false);
   const [busy, setBusy] = useState(false);
+  const reqId = useRef(0);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return SUGGESTIONS;
-    return SUGGESTIONS.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        (p.address ?? '').toLowerCase().includes(q),
-    );
-  }, [query]);
+  // Debounced OpenStreetMap (Nominatim) search, scoped to the group's city.
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setResults([]);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const id = ++reqId.current;
+    const t = setTimeout(async () => {
+      const found = await searchPlaces(q, city);
+      if (id === reqId.current) {
+        setResults(found);
+        setSearching(false);
+      }
+    }, 450); // Nominatim asks for ≤1 req/s — debounce keeps us well under.
+    return () => clearTimeout(t);
+  }, [query, city]);
+
+  const hint = useMemo(
+    () => `search a café, park, spot${city ? ` in ${city}` : ''}…`,
+    [city],
+  );
 
   async function pick(place: PlaceAttachment) {
     setBusy(true);
@@ -43,45 +55,47 @@ export function PlacePicker({ visible, onClose, onPick }: PlacePickerProps) {
       await onPick(place);
       onClose();
       setQuery('');
+      setResults([]);
     } finally {
       setBusy(false);
     }
   }
 
   async function pickCustom() {
-    if (!query.trim()) return;
-    await pick({
-      name: query.trim(),
-      address: null,
-      lat: null,
-      lng: null,
-      category: null,
-    });
+    const q = query.trim();
+    if (!q) return;
+    await pick({ name: q, address: city, lat: null, lng: null, category: null });
   }
 
   return (
-    <ActionSheet visible={visible} onClose={onClose} title="share a place">
+    <ActionSheet visible={visible} onClose={onClose} title="share a place you love">
       <TextInput
         value={query}
         onChangeText={setQuery}
-        placeholder="search a café, park, class…"
+        placeholder={hint}
         placeholderTextColor={colors.muted}
         style={styles.input}
+        autoCorrect={false}
       />
 
+      {searching ? (
+        <View style={styles.searchingRow}>
+          <ActivityIndicator size="small" color={colors.cobalt} />
+          <Typography variant="bodyM" color={colors.muted}>
+            searching {city ?? 'nearby'}…
+          </Typography>
+        </View>
+      ) : null}
+
       <View style={styles.list}>
-        {filtered.map((p) => (
-          <Pressable key={p.name} onPress={() => pick(p)} style={styles.row}>
+        {results.map((p, i) => (
+          <Pressable key={`${p.name}-${i}`} onPress={() => pick(p)} style={styles.row} disabled={busy}>
             <View style={{ flex: 1 }}>
               <Typography variant="displayS" color={colors.text}>
                 {p.name}
               </Typography>
               {p.address ? (
-                <Typography
-                  variant="bodyM"
-                  color={colors.muted}
-                  style={{ marginTop: 2 }}
-                >
+                <Typography variant="bodyM" color={colors.muted} style={{ marginTop: 2 }} numberOfLines={1}>
                   {p.address}
                 </Typography>
               ) : null}
@@ -97,10 +111,13 @@ export function PlacePicker({ visible, onClose, onPick }: PlacePickerProps) {
         ))}
       </View>
 
-      {query.trim() && filtered.length === 0 ? (
-        <View style={{ marginTop: spacing.lg }}>
+      {query.trim().length >= 2 && !searching && results.length === 0 ? (
+        <View style={{ marginTop: spacing.md }}>
+          <Typography variant="bodyM" color={colors.muted} style={{ marginBottom: spacing.sm }}>
+            No match found — share it by name anyway.
+          </Typography>
           <Button
-            title={`use "${query.trim()}"`}
+            title={`Share "${query.trim()}"`}
             onPress={pickCustom}
             disabled={busy}
             size="lg"
@@ -121,6 +138,12 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
+  },
+  searchingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.md,
   },
   list: { marginTop: spacing.md, maxHeight: 320 },
   row: {

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
@@ -63,18 +63,28 @@ export default function GroupPreviewScreen() {
   const headlineSub = useMemo(() => composeHeadlineSub(others, me), [others, me]);
 
   async function handleAccept() {
+    const groupId = previewMembers[0]?.group_id;
     setBusy(true);
     const { error } = await accept();
     setBusy(false);
-    if (error) return;
-    router.replace('/(tabs)');
+    if (error) {
+      Alert.alert("Couldn't join this group", error.message);
+      return;
+    }
+    // New flow: capture busy windows before the chat opens, then land in chat.
+    if (groupId) router.replace(`/group/${groupId}/busy`);
+    else router.replace('/(tabs)');
   }
 
   async function handleDeclineConfirm() {
     if (!declineReason) return;
     setBusy(true);
-    await declineWithReason(declineReason);
+    const { error } = await declineWithReason(declineReason);
     setBusy(false);
+    if (error) {
+      Alert.alert("Couldn't update your match", error.message);
+      return;
+    }
     setDeclineOpen(false);
     router.replace('/(tabs)');
   }

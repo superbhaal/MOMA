@@ -14,7 +14,6 @@ import { ChatBubble } from '@/components/chat/ChatBubble';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { ProposalCard } from '@/components/chat/ProposalCard';
 import { OpenerChips } from '@/components/chat/OpenerChips';
-import { CounterProposalSheet } from '@/components/chat/CounterProposalSheet';
 import { PlacePicker } from '@/components/chat/PlacePicker';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
@@ -29,11 +28,10 @@ export default function GroupChatScreen() {
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { group, members, open_proposal, open_votes } = useGroupDetail(groupId);
+  const { group, members, open_proposal, open_votes, refresh: refreshDetail } = useGroupDetail(groupId);
   const { messages, send, sendAttachment } = useChat(groupId);
-  const { vote, propose } = useProposals(groupId);
+  const { vote } = useProposals(groupId);
 
-  const [proposeOpen, setProposeOpen] = useState(false);
   const [placeOpen, setPlaceOpen] = useState(false);
   const listRef = useRef<FlatList<Message>>(null);
 
@@ -56,7 +54,7 @@ export default function GroupChatScreen() {
     <KeyboardAvoidingView
       style={[styles.container, { paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={insets.top + 8}
+      keyboardVerticalOffset={0}
     >
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
@@ -76,9 +74,30 @@ export default function GroupChatScreen() {
           votes={open_votes}
           myVote={myVote}
           totalMembers={members.length}
-          onVote={(v) => open_proposal && vote(open_proposal.id, v)}
+          onVote={async (v) => {
+            if (!open_proposal) return;
+            await vote(open_proposal.id, v);
+            // Reflect our own vote immediately; realtime also refreshes for others.
+            refreshDetail();
+          }}
         />
-      ) : null}
+      ) : (
+        <View style={styles.holding}>
+          <View style={styles.holdingCard}>
+            <Typography style={styles.holdingText} color={colors.mutedStrong}>
+              We&rsquo;re holding the chat for a moment. Once everyone shares their
+              availability, m&oslash;ma will drop a time and place into the chat. Feel
+              free to share a place you love in the meantime.
+            </Typography>
+          </View>
+          <View style={styles.findingPill}>
+            <View style={styles.findingDot} />
+            <Typography style={styles.findingText} color={colors.blushMuted}>
+              FINDING A TIME
+            </Typography>
+          </View>
+        </View>
+      )}
 
       <FlatList
         ref={listRef}
@@ -104,26 +123,13 @@ export default function GroupChatScreen() {
 
       <ChatInput
         onSend={send}
-        onSuggestTime={() => setProposeOpen(true)}
         onSharePlace={() => setPlaceOpen(true)}
-      />
-
-      <CounterProposalSheet
-        visible={proposeOpen}
-        onClose={() => setProposeOpen(false)}
-        isCounter={!!open_proposal}
-        onSubmit={async ({ scheduled_at, note }) => {
-          await propose({
-            scheduled_at,
-            note,
-            parent_proposal_id: open_proposal?.id ?? null,
-          });
-        }}
       />
 
       <PlacePicker
         visible={placeOpen}
         onClose={() => setPlaceOpen(false)}
+        city={group?.city ?? null}
         onPick={async (place) => {
           await sendAttachment(place.name, 'place', place);
         }}
@@ -149,5 +155,42 @@ const styles = StyleSheet.create({
   listContent: {
     flexGrow: 1,
     paddingVertical: spacing.md,
+  },
+  holding: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.md,
+    gap: spacing.md,
+  },
+  holdingCard: {
+    backgroundColor: colors.cream,
+    borderRadius: 16,
+    padding: spacing.lg,
+  },
+  holdingText: {
+    fontFamily: 'Lora-Italic',
+    fontSize: 15,
+    lineHeight: 23,
+    textAlign: 'center',
+  },
+  findingPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 14,
+    paddingVertical: spacing.md,
+  },
+  findingDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: colors.blushMuted,
+  },
+  findingText: {
+    fontFamily: 'DMSans-SemiBold',
+    fontSize: 12,
+    letterSpacing: 1.4,
   },
 });
