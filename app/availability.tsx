@@ -67,7 +67,7 @@ export default function AvailabilityScreen() {
             <View key={iso} style={styles.row}>
               <View style={styles.dayLabel}>
                 <Typography variant="labelS" color={colors.muted}>
-                  {d.toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase()}
+                  {d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
                 </Typography>
                 <Typography variant="displayS" color={colors.text}>
                   {d.getDate()}

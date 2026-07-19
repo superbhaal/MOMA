@@ -104,7 +104,7 @@ function formatWhen(iso: string): string {
     minute: '2-digit',
     ...(sameYear ? {} : { year: 'numeric' }),
   };
-  return d.toLocaleString(undefined, opts).toLowerCase();
+  return d.toLocaleString('en-US', opts).toLowerCase();
 }
 
 const styles = StyleSheet.create({

@@ -155,7 +155,7 @@ export default function MeScreen() {
               </Typography>
               <Typography style={[styles.meetupMon, meetupDecided && { color: colors.meadowMuted }]}>
                 {new Date(nextMeetup.proposal.scheduled_at)
-                  .toLocaleDateString(undefined, { month: 'short' })
+                  .toLocaleDateString('en-US', { month: 'short' })
                   .toUpperCase()}
               </Typography>
             </View>
@@ -166,7 +166,7 @@ export default function MeScreen() {
               </Typography>
               <Typography style={[styles.meetupSub, meetupDecided && { color: colors.meadowMuted }]}>
                 {new Date(nextMeetup.proposal.scheduled_at)
-                  .toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+                  .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
                   .toLowerCase()}
                 {nextMeetup.proposal.location_name ? ` · ${nextMeetup.proposal.location_name}` : ''}
               </Typography>

@@ -8,7 +8,7 @@ export function babyBornLabel(dob: string | null | undefined): string | null {
   if (!dob) return null;
   const d = new Date(dob);
   if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 /** "Week 3" / "Due in 4 weeks" / "3 months" / "1 year" — concise age chip. */

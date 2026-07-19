@@ -75,7 +75,7 @@ export function CounterProposalSheet({
                 variant="labelS"
                 color={active ? colors.white : colors.muted}
               >
-                {d.toLocaleDateString(undefined, { weekday: 'short' }).toLowerCase()}
+                {d.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()}
               </Typography>
               <Typography
                 variant="displayS"
