@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Pill } from '@/components/ui/Pill';
 import { ProposalVoteRow } from './ProposalVoteRow';
+import { MeetupMap } from '@/components/groups/MeetupMap';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
 import { addToCalendar } from '@/lib/calendar';
@@ -53,26 +54,38 @@ export function ProposalCard({
         {decided ? <Pill label="✓ DECIDED" tone="meadow" active /> : null}
       </View>
 
-      <Typography
-        variant="displayM"
-        color={strong}
-        style={{ marginTop: 2 }}
-      >
-        {formatDay(proposal.scheduled_at)}
-      </Typography>
-      <Typography variant="bodyL" color={strong} style={{ marginTop: 2 }}>
-        {formatTime(proposal.scheduled_at)}
-        {proposal.location_name ? ` · ${proposal.location_name}` : ''}
-      </Typography>
-      {proposal.note ? (
-        <Typography
-          variant="bodyM"
-          color={mid}
-          style={{ marginTop: spacing.sm }}
-        >
-          {proposal.note}
-        </Typography>
-      ) : null}
+      <View style={styles.body}>
+        <View style={styles.info}>
+          <Typography
+            variant="displayM"
+            color={strong}
+            style={{ marginTop: 2 }}
+          >
+            {formatDay(proposal.scheduled_at)}
+          </Typography>
+          <Typography variant="bodyL" color={strong} style={{ marginTop: 2 }}>
+            {formatTime(proposal.scheduled_at)}
+            {proposal.location_name ? ` · ${proposal.location_name}` : ''}
+          </Typography>
+          {proposal.note ? (
+            <Typography
+              variant="bodyM"
+              color={mid}
+              style={{ marginTop: spacing.sm }}
+            >
+              {proposal.note}
+            </Typography>
+          ) : null}
+        </View>
+
+        <MeetupMap
+          name={proposal.location_name}
+          lat={proposal.location_lat}
+          lng={proposal.location_lng}
+          accentColor={decided ? colors.meadowText : colors.cobalt}
+          size={88}
+        />
+      </View>
 
       {proposal.state === 'open' ? (
         <ProposalVoteRow votes={votes} myVote={myVote} onVote={onVote} />
@@ -105,7 +118,7 @@ export function ProposalCard({
 
 function formatDay(iso: string): string {
   return new Date(iso)
-    .toLocaleDateString(undefined, {
+    .toLocaleDateString('en-US', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
@@ -114,7 +127,7 @@ function formatDay(iso: string): string {
 }
 function formatTime(iso: string): string {
   return new Date(iso)
-    .toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+    .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     .toLowerCase();
 }
 
@@ -127,6 +140,8 @@ const styles = StyleSheet.create({
   },
   cardMuted: { opacity: 0.65 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  body: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, marginTop: spacing.xs },
+  info: { flex: 1 },
   calendarLink: {
     marginTop: spacing.md,
     paddingTop: spacing.md,

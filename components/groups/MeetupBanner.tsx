@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
+import { MeetupMap } from '@/components/groups/MeetupMap';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
 import { addToCalendar } from '@/lib/calendar';
@@ -37,13 +38,26 @@ export function MeetupBanner({
       <Typography variant="label" color={mid}>
         {decided ? 'MEETUP LOCKED IN' : 'NEXT MEETUP'}
       </Typography>
-      <Typography variant="displayL" color={strong} style={{ marginTop: 2 }}>
-        {formatDay(proposal.scheduled_at)}
-      </Typography>
-      <Typography variant="bodyL" color={strong} style={{ marginTop: 4 }}>
-        {formatTime(proposal.scheduled_at)}
-        {proposal.location_name ? ` · ${proposal.location_name}` : ''}
-      </Typography>
+
+      <View style={styles.body}>
+        <View style={styles.info}>
+          <Typography variant="displayL" color={strong} style={{ marginTop: 2 }}>
+            {formatDay(proposal.scheduled_at)}
+          </Typography>
+          <Typography variant="bodyL" color={strong} style={{ marginTop: 4 }}>
+            {formatTime(proposal.scheduled_at)}
+            {proposal.location_name ? ` · ${proposal.location_name}` : ''}
+          </Typography>
+        </View>
+
+        <MeetupMap
+          name={proposal.location_name}
+          lat={proposal.location_lat}
+          lng={proposal.location_lng}
+          accentColor={decided ? colors.meadowText : colors.cobalt}
+          size={96}
+        />
+      </View>
 
       <Typography variant="bodyM" color={mid} style={{ marginTop: spacing.md }}>
         {goingCount} of {totalMembers} going
@@ -74,7 +88,7 @@ export function MeetupBanner({
 
 function formatDay(iso: string): string {
   return new Date(iso)
-    .toLocaleDateString(undefined, {
+    .toLocaleDateString('en-US', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
@@ -83,7 +97,7 @@ function formatDay(iso: string): string {
 }
 function formatTime(iso: string): string {
   return new Date(iso)
-    .toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+    .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     .toLowerCase();
 }
 
@@ -93,6 +107,8 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderRadius: radius.lg,
   },
+  body: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, marginTop: spacing.xs },
+  info: { flex: 1 },
   calendarLink: {
     marginTop: spacing.md,
     paddingTop: spacing.md,
