@@ -30,6 +30,7 @@ const CORS = {
 // Columns an admin may edit on public.users. Anything else in a patch is ignored.
 const EDITABLE = new Set([
   'display_name', 'last_name', 'age', 'city', 'neighbourhood', 'address',
+  'latitude', 'longitude',
   'baby_dob', 'life_stage', 'kid_count', 'is_first_baby', 'is_mentor_eligible',
   'primary_language', 'secondary_languages', 'profile_color', 'bio',
   'instagram_handle', 'interests', 'pref_age_window_weeks', 'pref_distance_minutes',
@@ -57,6 +58,9 @@ Deno.serve(async (req) => {
       case 'add_test_user':return json(await addTestUser(body.fields ?? {}));
       case 'set_queue':    return json(await setQueue(body.id, body.status));
       case 'cleanup_groups': return json({ ok: true, deleted: await cleanupEmptyGroups() });
+      case 'list_groups':  return json(await listGroups());
+      case 'group_meetup_data': return json(await groupMeetupData(body.group_id));
+      case 'create_meetup': return json(await createMeetup(body));
       case 'run_matching': return json(await runMatching());
       case 'score_matrix': return json(await scoreMatrix(body.only_waiting === true));
       default:             return json({ ok: false, error: `unknown action: ${action}` }, 400);
@@ -169,6 +173,8 @@ async function addTestUser(fields: Record<string, any>) {
     age: fields.age ?? null,
     city: fields.city ?? null,
     neighbourhood: fields.neighbourhood ?? null,
+    latitude: fields.latitude != null && fields.latitude !== '' ? Number(fields.latitude) : null,
+    longitude: fields.longitude != null && fields.longitude !== '' ? Number(fields.longitude) : null,
     baby_dob: fields.baby_dob ?? null,
     life_stage: fields.life_stage ?? null,
     kid_count: fields.kid_count ?? null,
@@ -219,6 +225,167 @@ async function cleanupEmptyGroups(): Promise<number> {
   return empty.length;
 }
 
+// ---- meetup scheduling -----------------------------------------------------
+
+const BLOCK_HOURS: Record<string, number> = { morning: 9, afternoon: 14, evening: 18 };
+
+async function listGroups() {
+  const { data: groups } = await admin
+    .from('groups')
+    .select('id, name, city, status, created_at')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
+  const { data: members } = await admin.from('group_members').select('group_id');
+  const counts = new Map<string, number>();
+  for (const m of members ?? []) counts.set(m.group_id, (counts.get(m.group_id) ?? 0) + 1);
+  return {
+    ok: true,
+    groups: (groups ?? []).map((g: any) => ({ ...g, member_count: counts.get(g.id) ?? 0 })),
+  };
+}
+
+async function groupMeetupData(groupId: string) {
+  if (!groupId) return { ok: false, error: 'group_id required' };
+
+  const { data: memberRows } = await admin
+    .from('group_members')
+    .select('user_id, role, user:users(id, display_name, profile_color)')
+    .eq('group_id', groupId);
+  const members = (memberRows ?? []).map((m: any) => ({
+    id: m.user.id,
+    name: m.user.display_name,
+    color: m.user.profile_color,
+    role: m.role,
+  }));
+  const memberIds = members.map((m) => m.id);
+  const memberCount = members.length;
+
+  // Busy windows (availability_slots with available=false) for the next 14 days.
+  const today = new Date().toISOString().slice(0, 10);
+  const to = new Date();
+  to.setDate(to.getDate() + 13);
+  const toIso = to.toISOString().slice(0, 10);
+
+  const busyByCell = new Map<string, number>();
+  if (memberIds.length) {
+    const { data: slots } = await admin
+      .from('availability_slots')
+      .select('date, block, available')
+      .in('user_id', memberIds)
+      .eq('available', false)
+      .gte('date', today)
+      .lte('date', toIso);
+    for (const s of slots ?? []) {
+      const k = `${s.date}|${s.block}`;
+      busyByCell.set(k, (busyByCell.get(k) ?? 0) + 1);
+    }
+  }
+
+  // Build the 14-day × 3-block grid with free counts, ranked for the admin.
+  const blocks = ['morning', 'afternoon', 'evening'];
+  const grid: any[] = [];
+  for (let i = 0; i < 14; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    const date = d.toISOString().slice(0, 10);
+    for (const block of blocks) {
+      const busy = busyByCell.get(`${date}|${block}`) ?? 0;
+      grid.push({ date, block, busy, free: memberCount - busy, all_free: busy === 0 });
+    }
+  }
+
+  // Shared places (place-card messages) posted in this group.
+  const { data: placeMsgs } = await admin
+    .from('messages')
+    .select('attachment_data, sender_id, created_at')
+    .eq('group_id', groupId)
+    .eq('attachment_type', 'place')
+    .order('created_at', { ascending: false });
+  const nameById = new Map(members.map((m) => [m.id, m.name]));
+  const places = (placeMsgs ?? []).map((m: any) => ({
+    ...(m.attachment_data ?? {}),
+    shared_by: nameById.get(m.sender_id) ?? 'someone',
+    shared_at: m.created_at,
+  }));
+
+  const { data: openProposal } = await admin
+    .from('meetup_proposals')
+    .select('*')
+    .eq('group_id', groupId)
+    .eq('state', 'open')
+    .maybeSingle();
+
+  return { ok: true, member_count: memberCount, members, grid, places, open_proposal: openProposal };
+}
+
+async function createMeetup(body: any) {
+  const { group_id, date, block, note, location_name, location_lat, location_lng } = body;
+  if (!group_id || !date || !block) {
+    return { ok: false, error: 'group_id, date and block are required' };
+  }
+  // Compose the scheduled timestamp from the chosen day + block hour.
+  const hour = BLOCK_HOURS[block] ?? 12;
+  const scheduled_at = `${date}T${String(hour).padStart(2, '0')}:00:00`;
+
+  // One open proposal per group — retire any existing open one first.
+  await admin
+    .from('meetup_proposals')
+    .update({ state: 'expired' })
+    .eq('group_id', group_id)
+    .eq('state', 'open');
+
+  const { data: proposal, error } = await admin
+    .from('meetup_proposals')
+    .insert({
+      group_id,
+      proposed_by: null, // system/admin-generated
+      scheduled_at,
+      location_name: location_name ?? null,
+      location_lat: location_lat ?? null,
+      location_lng: location_lng ?? null,
+      note: note ?? null,
+      state: 'open',
+    })
+    .select('*')
+    .maybeSingle();
+  if (error) throw error;
+
+  // Notify members that møma dropped a time + place.
+  const { data: memberRows } = await admin
+    .from('group_members')
+    .select('user_id')
+    .eq('group_id', group_id);
+  const ids = (memberRows ?? []).map((m: any) => m.user_id);
+  const { data: recips } = await admin
+    .from('users')
+    .select('expo_push_token, notif_meetup_reminders')
+    .in('id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000']);
+  const tokens = (recips ?? [])
+    .filter((r: any) => r.expo_push_token && r.notif_meetup_reminders !== false)
+    .map((r: any) => r.expo_push_token);
+  if (tokens.length) {
+    const when = new Date(scheduled_at).toLocaleDateString('en-US', {
+      weekday: 'long', month: 'short', day: 'numeric',
+    });
+    const push = tokens.map((to: string) => ({
+      to,
+      title: 'møma picked a time',
+      body: `${when}${location_name ? ` · ${location_name}` : ''}. Tap to RSVP.`,
+      sound: 'default',
+      data: { type: 'proposal_decided', groupId: group_id, route: `/group/${group_id}/chat` },
+    }));
+    try {
+      await fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(push),
+      });
+    } catch (_e) { /* best-effort */ }
+  }
+
+  return { ok: true, proposal, pushed: tokens.length };
+}
+
 async function runMatching() {
   const res = await fetch(`${SUPABASE_URL}/functions/v1/match-users`, {
     method: 'POST',
@@ -230,8 +397,21 @@ async function runMatching() {
 }
 
 // ---- scoring (mirror of match-users/scorePair) -----------------------------
-
-const SCORE_THRESHOLD = 5;
+// Distance is the only hard filter. Criterion 1: distance + language.
+// Criterion 2: birth stage + kid count. Keep in sync with match-users.
+const SCORE_THRESHOLD = 30;
+const WALK_M_PER_MIN = 80;
+const CITY_RADIUS_M = 25000;
+const DIST_MAX_PTS = 40;
+const CITY_FALLBACK_PTS = 20;
+const LANG_PRIMARY_PTS = 30;
+const LANG_SHARED_PTS = 15;
+const LANG_EXTRA_PTS = 5;
+const STAGE_SAME_PTS = 15;
+const STAGE_ADJ_PTS = 8;
+const KID_SAME_PTS = 10;
+const AVAIL_CAP = 6;
+const LIFE_STAGE_ORDER = ['expecting', 'newborn', 'growing', 'veteran'];
 
 async function scoreMatrix(onlyWaiting: boolean) {
   let q = admin.from('users').select('*').not('life_stage', 'is', null);
@@ -260,41 +440,72 @@ async function scoreMatrix(onlyWaiting: boolean) {
 }
 
 function scorePairDetailed(a: any, b: any): { score: number | null; reason: string } {
-  if (a.life_stage !== b.life_stage) return { score: null, reason: `life_stage ≠ (${a.life_stage} vs ${b.life_stage})` };
-  const win = Math.max(a.pref_age_window_weeks ?? 4, b.pref_age_window_weeks ?? 4);
-  if (!withinAgeWindow(a.baby_dob, b.baby_dob, win)) return { score: null, reason: `baby age > ±${win}w` };
-  if (!geoCompatible(a, b)) return { score: null, reason: 'geo mismatch' };
-  if (!langCompatible(a, b)) return { score: null, reason: 'no shared language' };
+  const g = geoScore(a, b);
+  if (!g.ok) return { score: null, reason: g.label };
 
-  let score = 0;
-  const parts: string[] = [];
-  if (a.neighbourhood && a.neighbourhood === b.neighbourhood) { score += 10; parts.push('+10 hood'); }
-  if (a.kid_count && a.kid_count === b.kid_count) { score += 5; parts.push('+5 kids'); }
-  const av = availabilityOverlap(a.recurring_availability, b.recurring_availability);
-  if (av) { score += av; parts.push(`+${av} avail`); }
-  const langA = new Set([a.primary_language ?? '', ...(a.secondary_languages ?? [])].filter(Boolean));
-  let langPts = 0;
-  for (const l of [b.primary_language ?? '', ...(b.secondary_languages ?? [])]) if (l && langA.has(l)) langPts++;
-  if (langPts) { score += langPts; parts.push(`+${langPts} lang`); }
-  return { score, reason: parts.join(', ') || 'passes filters' };
+  const parts: string[] = [`dist +${g.score} (${g.label})`];
+  let score = g.score;
+
+  const lang = langScore(a, b);
+  parts.push(lang ? `lang +${lang}` : 'lang +0 (no shared)');
+  score += lang;
+
+  const st = stageScore(a, b);
+  if (st) { score += st; parts.push(`stage +${st}`); }
+
+  if (a.kid_count && a.kid_count === b.kid_count) { score += KID_SAME_PTS; parts.push(`kids +${KID_SAME_PTS}`); }
+
+  const av = Math.min(availabilityOverlap(a.recurring_availability, b.recurring_availability), AVAIL_CAP);
+  if (av) { score += av; parts.push(`avail +${av}`); }
+
+  return { score, reason: parts.join(', ') };
 }
 
-function withinAgeWindow(dobA: string | null, dobB: string | null, weeks: number): boolean {
-  if (!dobA || !dobB) return false;
-  const days = Math.abs((new Date(dobA).getTime() - new Date(dobB).getTime()) / 86400000);
-  return days <= weeks * 7;
+function geoScore(a: any, b: any): { ok: boolean; score: number; label: string } {
+  const anywhere = a.pref_distance_minutes === -1 || b.pref_distance_minutes === -1;
+  const hasCoords = a.latitude != null && a.longitude != null && b.latitude != null && b.longitude != null;
+  if (hasCoords) {
+    const d = haversineMeters(a.latitude, a.longitude, b.latitude, b.longitude);
+    const effR = anywhere ? CITY_RADIUS_M : Math.max(radiusMeters(a.pref_distance_minutes), radiusMeters(b.pref_distance_minutes));
+    const ok = anywhere || d <= effR;
+    const ref = anywhere ? CITY_RADIUS_M : effR;
+    const score = ok ? Math.round(DIST_MAX_PTS * Math.max(0, 1 - d / ref)) : 0;
+    return { ok, score, label: `${(d / 1000).toFixed(1)}km${ok ? '' : ' — out of range'}` };
+  }
+  const sameCity = !!a.city && !!b.city && String(a.city).toLowerCase() === String(b.city).toLowerCase();
+  return {
+    ok: sameCity,
+    score: sameCity ? CITY_FALLBACK_PTS : 0,
+    label: sameCity ? `same city (${a.city}), no coords` : `diff city (${a.city} vs ${b.city})`,
+  };
 }
-function geoCompatible(a: any, b: any): boolean {
-  if (a.pref_distance_minutes === -1 || b.pref_distance_minutes === -1) return !!a.city && a.city === b.city;
-  return !!a.neighbourhood && a.neighbourhood === b.neighbourhood;
+function radiusMeters(minutes: number): number {
+  if (minutes === -1) return CITY_RADIUS_M;
+  return (minutes || 20) * WALK_M_PER_MIN;
 }
-function langCompatible(a: any, b: any): boolean {
-  if (!a.primary_language || !b.primary_language) return true;
-  if (a.primary_language === b.primary_language) return true;
-  const aSet = new Set([a.primary_language, ...(a.secondary_languages ?? [])]);
-  if (aSet.has(b.primary_language)) return true;
-  const bSet = new Set([b.primary_language, ...(b.secondary_languages ?? [])]);
-  return bSet.has(a.primary_language);
+function haversineMeters(aLat: number, aLng: number, bLat: number, bLng: number): number {
+  const R = 6371000;
+  const dLat = ((bLat - aLat) * Math.PI) / 180;
+  const dLng = ((bLng - aLng) * Math.PI) / 180;
+  const s = Math.sin(dLat / 2) ** 2 +
+    Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+}
+function langScore(a: any, b: any): number {
+  const setA = new Set([a.primary_language ?? '', ...(a.secondary_languages ?? [])].filter(Boolean));
+  const shared = [b.primary_language ?? '', ...(b.secondary_languages ?? [])].filter(Boolean).filter((l: string) => setA.has(l));
+  if (shared.length === 0) return 0;
+  const base = a.primary_language && a.primary_language === b.primary_language ? LANG_PRIMARY_PTS : LANG_SHARED_PTS;
+  return base + Math.min(shared.length - 1, 2) * LANG_EXTRA_PTS;
+}
+function stageScore(a: any, b: any): number {
+  const ia = LIFE_STAGE_ORDER.indexOf(a.life_stage ?? '');
+  const ib = LIFE_STAGE_ORDER.indexOf(b.life_stage ?? '');
+  if (ia < 0 || ib < 0) return 0;
+  const diff = Math.abs(ia - ib);
+  if (diff === 0) return STAGE_SAME_PTS;
+  if (diff === 1) return STAGE_ADJ_PTS;
+  return 0;
 }
 function availabilityOverlap(a: any, b: any): number {
   if (!a || !b) return 0;

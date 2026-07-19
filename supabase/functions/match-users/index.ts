@@ -16,7 +16,25 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const MIN_GROUP = 3;
 const MAX_GROUP = 5;
-const SCORE_THRESHOLD = 5;
+
+// ---- scoring weights -------------------------------------------------------
+// Only geography is a HARD filter. Everything else is soft weighting.
+//   Criterion 1 (dominant): distance proximity + shared language.
+//   Criterion 2 (secondary): same birth stage + same kid count.
+const SCORE_THRESHOLD = 30;     // min total score for a pair to be groupable
+const WALK_M_PER_MIN = 80;      // ~4.8 km/h walking → metres per minute
+const CITY_RADIUS_M = 25000;    // radius used when a user picks "anywhere in city" (-1)
+const DIST_MAX_PTS = 40;        // full proximity points at distance 0
+const CITY_FALLBACK_PTS = 20;   // proximity points when we only know "same city" (no coords)
+const LANG_PRIMARY_PTS = 30;    // same primary language
+const LANG_SHARED_PTS = 15;     // shared language but not the primary
+const LANG_EXTRA_PTS = 5;       // per additional shared language (max 2)
+const STAGE_SAME_PTS = 15;      // identical life_stage
+const STAGE_ADJ_PTS = 8;        // adjacent life_stage (expecting↔newborn, etc.)
+const KID_SAME_PTS = 10;        // same kid_count
+const AVAIL_CAP = 6;            // availability overlap is a minor tiebreaker
+
+const LIFE_STAGE_ORDER = ['expecting', 'newborn', 'growing', 'veteran'];
 
 interface RecurringAvailability {
   weekday_morning: boolean;
@@ -35,6 +53,8 @@ interface UserRow {
   baby_dob: string;
   city: string | null;
   neighbourhood: string | null;
+  latitude: number | null;
+  longitude: number | null;
   life_stage: string | null;
   kid_count: string | null;
   recurring_availability: RecurringAvailability | null;
@@ -113,7 +133,7 @@ Deno.serve(async () => {
   const pushMessages: PushMessage[] = [];
   const emailJobs: Promise<void>[] = [];
   for (const g of formedGroups) {
-    const groupName = `${g.seed.neighbourhood ?? g.seed.city ?? 'møma'} ${g.seed.life_stage ?? 'group'}`.toLowerCase();
+    const groupName = `${g.seed.city ?? 'møma'} ${g.seed.life_stage ?? 'group'}`.toLowerCase();
     const { data: groupRow, error: gErr } = await supabase
       .from('groups')
       .insert({
@@ -187,7 +207,7 @@ function weeksOld(dob: string | null, now: number): number | null {
 function majorityNeighbourhood(members: UserRow[]): string {
   const counts = new Map<string, number>();
   for (const m of members) {
-    const key = m.neighbourhood ?? m.city;
+    const key = m.city ?? m.neighbourhood;
     if (key) counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   let best = 'your area';
@@ -254,42 +274,78 @@ async function sendMatchEmail(to: string, body: string): Promise<void> {
   }
 }
 
+// Distance is the ONLY hard filter. Returns null when the pair is out of range;
+// otherwise a total soft score. Kept in sync with admin-api/scorePairDetailed.
 function scorePair(a: UserRow, b: UserRow): number | null {
-  if (a.life_stage !== b.life_stage) return null;
-  if (!withinAgeWindow(a.baby_dob, b.baby_dob, Math.max(a.pref_age_window_weeks, b.pref_age_window_weeks))) {
-    return null;
-  }
-  if (!geoCompatible(a, b)) return null;
-  if (!langCompatible(a, b)) return null;
-
-  let score = 0;
-  if (a.neighbourhood && a.neighbourhood === b.neighbourhood) score += 10;
-  if (a.kid_count && a.kid_count === b.kid_count) score += 5;
-  score += availabilityOverlap(a.recurring_availability, b.recurring_availability);
-
-  const langA = new Set([
-    a.primary_language ?? '',
-    ...(a.secondary_languages ?? []),
-  ].filter(Boolean));
-  for (const l of [b.primary_language ?? '', ...(b.secondary_languages ?? [])]) {
-    if (l && langA.has(l)) score += 1;
-  }
-
-  return score;
+  const g = geoScore(a, b);
+  if (!g.ok) return null;
+  return g.score + langScore(a, b) + stageScore(a, b) + kidScore(a, b)
+    + Math.min(availabilityOverlap(a.recurring_availability, b.recurring_availability), AVAIL_CAP);
 }
 
-function withinAgeWindow(dobA: string, dobB: string, weeks: number): boolean {
-  const diffDays = Math.abs(
-    (new Date(dobA).getTime() - new Date(dobB).getTime()) / (1000 * 60 * 60 * 24),
-  );
-  return diffDays <= weeks * 7;
+// Hard geo filter + proximity score. Uses real lat/long distance when both users
+// have coordinates; falls back to "same city" when either lacks them (e.g. seeded
+// test users), so coordinate-less rows are still matchable within their city.
+function geoScore(a: UserRow, b: UserRow): { ok: boolean; score: number } {
+  const anywhere = a.pref_distance_minutes === -1 || b.pref_distance_minutes === -1;
+  const hasCoords =
+    a.latitude != null && a.longitude != null && b.latitude != null && b.longitude != null;
+
+  if (hasCoords) {
+    const d = haversineMeters(a.latitude!, a.longitude!, b.latitude!, b.longitude!);
+    const effR = anywhere
+      ? CITY_RADIUS_M
+      : Math.max(radiusMeters(a.pref_distance_minutes), radiusMeters(b.pref_distance_minutes));
+    const ok = anywhere || d <= effR;
+    const ref = anywhere ? CITY_RADIUS_M : effR;
+    const score = ok ? Math.round(DIST_MAX_PTS * Math.max(0, 1 - d / ref)) : 0;
+    return { ok, score };
+  }
+
+  const sameCity =
+    !!a.city && !!b.city && a.city.toLowerCase() === b.city.toLowerCase();
+  return { ok: sameCity, score: sameCity ? CITY_FALLBACK_PTS : 0 };
 }
 
-function geoCompatible(a: UserRow, b: UserRow): boolean {
-  if (a.pref_distance_minutes === -1 || b.pref_distance_minutes === -1) {
-    return !!a.city && a.city === b.city;
-  }
-  return !!a.neighbourhood && a.neighbourhood === b.neighbourhood;
+function radiusMeters(minutes: number): number {
+  if (minutes === -1) return CITY_RADIUS_M;
+  return (minutes || 20) * WALK_M_PER_MIN;
+}
+
+function haversineMeters(aLat: number, aLng: number, bLat: number, bLng: number): number {
+  const R = 6371000;
+  const dLat = ((bLat - aLat) * Math.PI) / 180;
+  const dLng = ((bLng - aLng) * Math.PI) / 180;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+}
+
+function langScore(a: UserRow, b: UserRow): number {
+  const setA = new Set([a.primary_language ?? '', ...(a.secondary_languages ?? [])].filter(Boolean));
+  const listB = [b.primary_language ?? '', ...(b.secondary_languages ?? [])].filter(Boolean);
+  const shared = listB.filter((l) => setA.has(l));
+  if (shared.length === 0) return 0;
+  const base =
+    a.primary_language && a.primary_language === b.primary_language
+      ? LANG_PRIMARY_PTS
+      : LANG_SHARED_PTS;
+  return base + Math.min(shared.length - 1, 2) * LANG_EXTRA_PTS;
+}
+
+function stageScore(a: UserRow, b: UserRow): number {
+  const ia = LIFE_STAGE_ORDER.indexOf(a.life_stage ?? '');
+  const ib = LIFE_STAGE_ORDER.indexOf(b.life_stage ?? '');
+  if (ia < 0 || ib < 0) return 0;
+  const diff = Math.abs(ia - ib);
+  if (diff === 0) return STAGE_SAME_PTS;
+  if (diff === 1) return STAGE_ADJ_PTS;
+  return 0;
+}
+
+function kidScore(a: UserRow, b: UserRow): number {
+  return a.kid_count && a.kid_count === b.kid_count ? KID_SAME_PTS : 0;
 }
 
 function availabilityOverlap(
@@ -302,16 +358,6 @@ function availabilityOverlap(
     if (a[k] && b[k]) n++;
   }
   return n;
-}
-
-function langCompatible(a: UserRow, b: UserRow): boolean {
-  if (!a.primary_language || !b.primary_language) return true;
-  if (a.primary_language === b.primary_language) return true;
-  const aSet = new Set([a.primary_language, ...(a.secondary_languages ?? [])]);
-  if (aSet.has(b.primary_language)) return true;
-  const bSet = new Set([b.primary_language, ...(b.secondary_languages ?? [])]);
-  if (bSet.has(a.primary_language)) return true;
-  return false;
 }
 
 function jsonResp(body: unknown, status = 200) {
