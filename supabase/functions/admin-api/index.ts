@@ -308,12 +308,18 @@ async function groupMeetupData(groupId: string) {
     shared_at: m.created_at,
   }));
 
-  const { data: openProposal } = await admin
+  // Current meetup = the active proposal: open (gathering RSVPs) or decided
+  // (locked in). Prefer open when both somehow exist.
+  const { data: activeProposals } = await admin
     .from('meetup_proposals')
     .select('*')
     .eq('group_id', groupId)
-    .eq('state', 'open')
-    .maybeSingle();
+    .in('state', ['open', 'decided'])
+    .order('created_at', { ascending: false });
+  const openProposal =
+    (activeProposals ?? []).find((p: any) => p.state === 'open') ??
+    (activeProposals ?? []).find((p: any) => p.state === 'decided') ??
+    null;
 
   return { ok: true, member_count: memberCount, members, grid, places, open_proposal: openProposal };
 }
@@ -327,12 +333,13 @@ async function createMeetup(body: any) {
   const hour = BLOCK_HOURS[block] ?? 12;
   const scheduled_at = `${date}T${String(hour).padStart(2, '0')}:00:00`;
 
-  // One open proposal per group — retire any existing open one first.
+  // Only one meetup at a time: a new admin place overwrites whatever's active —
+  // retire ANY existing open OR decided (locked-in) proposal before inserting.
   await admin
     .from('meetup_proposals')
     .update({ state: 'expired' })
     .eq('group_id', group_id)
-    .eq('state', 'open');
+    .in('state', ['open', 'decided']);
 
   const { data: proposal, error } = await admin
     .from('meetup_proposals')
