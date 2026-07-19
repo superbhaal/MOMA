@@ -54,6 +54,7 @@ export default function GroupDetailScreen() {
                   votes={open_votes}
                   totalMembers={members.length}
                   myVote={myVote}
+                  groupName={group?.name ?? null}
                   onRsvp={() =>
                     open_proposal && vote(open_proposal.id, myVote === 'going' ? 'maybe' : 'going')
                   }

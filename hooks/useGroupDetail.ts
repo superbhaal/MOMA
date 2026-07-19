@@ -27,7 +27,8 @@ export function useGroupDetail(groupId: string | undefined) {
 
   const refresh = useCallback(async () => {
     if (!groupId) return;
-    setLoading(true);
+    // `loading` is the first-load flag only; background/realtime refreshes stay
+    // silent so returning to the screen never re-shows the loading overlay.
     setError(null);
 
     const [groupRes, membersRes, proposalRes] = await Promise.all([
@@ -36,12 +37,14 @@ export function useGroupDetail(groupId: string | undefined) {
         .from('group_members')
         .select('*, user:users(*)')
         .eq('group_id', groupId),
+      // The current pinned meetup is either open (still gathering RSVPs) or
+      // decided (quorum reached, locked in). Prefer an open counter-proposal
+      // over an existing decided one when both exist.
       supabase
         .from('meetup_proposals')
         .select('*')
         .eq('group_id', groupId)
-        .eq('state', 'open')
-        .maybeSingle(),
+        .in('state', ['open', 'decided']),
     ]);
 
     if (groupRes.error) {
@@ -50,19 +53,25 @@ export function useGroupDetail(groupId: string | undefined) {
       return;
     }
 
+    const currentProposals = (proposalRes.data ?? []) as MeetupProposal[];
+    const current =
+      currentProposals.find((p) => p.state === 'open') ??
+      currentProposals.find((p) => p.state === 'decided') ??
+      null;
+
     let openVotes: ProposalVote[] = [];
-    if (proposalRes.data) {
+    if (current) {
       const { data: votes } = await supabase
         .from('proposal_votes')
         .select('*')
-        .eq('proposal_id', proposalRes.data.id);
+        .eq('proposal_id', current.id);
       openVotes = votes ?? [];
     }
 
     setDetail({
       group: groupRes.data ?? null,
       members: (membersRes.data ?? []) as GroupMemberWithUser[],
-      open_proposal: proposalRes.data ?? null,
+      open_proposal: current,
       open_votes: openVotes,
     });
     setLoading(false);

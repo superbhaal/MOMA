@@ -3,7 +3,7 @@ import { Typography } from './Typography';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
 
-type Tone = 'pool' | 'lime' | 'cobalt' | 'soleil' | 'fuchsia' | 'blush';
+type Tone = 'pool' | 'lime' | 'cobalt' | 'soleil' | 'fuchsia' | 'blush' | 'meadow';
 
 interface PillProps {
   label: string;
@@ -59,6 +59,8 @@ function toneToColor(tone: Tone): string {
       return colors.fuchsia;
     case 'blush':
       return colors.blush;
+    case 'meadow':
+      return colors.meadowText;
   }
 }
 

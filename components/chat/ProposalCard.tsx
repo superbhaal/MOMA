@@ -1,9 +1,10 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Pill } from '@/components/ui/Pill';
 import { ProposalVoteRow } from './ProposalVoteRow';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
+import { addToCalendar } from '@/lib/calendar';
 import type { MeetupProposal, ProposalVote, Vote } from '@/types';
 
 interface ProposalCardProps {
@@ -12,6 +13,7 @@ interface ProposalCardProps {
   myVote: Vote | null;
   totalMembers: number;
   onVote: (v: Vote) => void;
+  groupName?: string | null;
 }
 
 /**
@@ -24,42 +26,48 @@ export function ProposalCard({
   myVote,
   totalMembers,
   onVote,
+  groupName,
 }: ProposalCardProps) {
   const goingCount = votes.filter((v) => v.vote === 'going').length;
+
+  // A locked-in meetup wears the green "validated" scheme; open/expired stay blush.
+  const decided = proposal.state === 'decided';
+  const surface = decided ? colors.meadow : colors.blush;
+  const strong = decided ? colors.meadowText : colors.blushText;
+  const mid = decided ? colors.meadowMuted : colors.blushMuted;
 
   return (
     <View
       style={[
         styles.card,
+        { backgroundColor: surface },
         proposal.state === 'expired' && styles.cardMuted,
       ]}
     >
       <View style={styles.header}>
-        <Typography variant="label" color={colors.blushMuted}>
+        <Typography variant="label" color={mid}>
           {proposal.state === 'open' && 'PROPOSED'}
           {proposal.state === 'decided' && 'LOCKED IN'}
           {proposal.state === 'expired' && 'PAST MEETUP'}
         </Typography>
-        {proposal.state === 'decided' ? (
-          <Pill label="✓ DECIDED" tone="cobalt" active />
-        ) : null}
+        {decided ? <Pill label="✓ DECIDED" tone="meadow" active /> : null}
       </View>
 
       <Typography
         variant="displayM"
-        color={colors.blushText}
+        color={strong}
         style={{ marginTop: 2 }}
       >
         {formatDay(proposal.scheduled_at)}
       </Typography>
-      <Typography variant="bodyL" color={colors.blushText} style={{ marginTop: 2 }}>
+      <Typography variant="bodyL" color={strong} style={{ marginTop: 2 }}>
         {formatTime(proposal.scheduled_at)}
         {proposal.location_name ? ` · ${proposal.location_name}` : ''}
       </Typography>
       {proposal.note ? (
         <Typography
           variant="bodyM"
-          color={colors.blushMuted}
+          color={mid}
           style={{ marginTop: spacing.sm }}
         >
           {proposal.note}
@@ -71,14 +79,26 @@ export function ProposalCard({
       ) : (
         <Typography
           variant="bodyL"
-          color={colors.blushMuted}
+          color={mid}
           style={{ marginTop: spacing.md }}
         >
-          {proposal.state === 'decided'
+          {decided
             ? `${goingCount} of ${totalMembers} going.`
             : `${goingCount} went.`}
         </Typography>
       )}
+
+      {decided ? (
+        <Pressable
+          style={[styles.calendarLink, { borderTopColor: 'rgba(30,70,32,0.15)' }]}
+          onPress={() => addToCalendar(proposal, groupName)}
+          hitSlop={8}
+        >
+          <Typography variant="labelS" color={colors.meadowText}>
+            + ADD TO CALENDAR
+          </Typography>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -107,4 +127,10 @@ const styles = StyleSheet.create({
   },
   cardMuted: { opacity: 0.65 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  calendarLink: {
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(106,26,42,0.12)',
+  },
 });

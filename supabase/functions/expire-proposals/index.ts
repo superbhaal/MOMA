@@ -12,10 +12,12 @@ Deno.serve(async () => {
 
   const nowIso = new Date().toISOString();
 
+  // Both open (never reached quorum) and decided (locked in) meetups become
+  // past meetups once their scheduled time passes.
   const { data, error } = await supabase
     .from('meetup_proposals')
     .update({ state: 'expired' })
-    .eq('state', 'open')
+    .in('state', ['open', 'decided'])
     .lt('scheduled_at', nowIso)
     .select('id');
 

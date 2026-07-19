@@ -69,6 +69,12 @@
         {
           "locationWhenInUsePermission": "møma uses your location to match you with moms in your neighbourhood."
         }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "møma adds your group meetups to your calendar so you don't miss them."
+        }
       ]
     ],
     "experiments": {

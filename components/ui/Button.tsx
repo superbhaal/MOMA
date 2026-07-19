@@ -4,7 +4,7 @@ import { Typography } from './Typography';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'blush';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'blush' | 'meadow';
 type Size = 'sm' | 'md' | 'lg';
 
 interface ButtonProps {
@@ -56,6 +56,8 @@ function textColor(variant: Variant): string {
       return colors.white;
     case 'blush':
       return colors.blushText;
+    case 'meadow':
+      return colors.meadowText;
     case 'secondary':
     case 'ghost':
     default:
@@ -90,4 +92,5 @@ const variantStyles = StyleSheet.create({
   },
   ghost: { backgroundColor: 'transparent' },
   blush: { backgroundColor: colors.blush },
+  meadow: { backgroundColor: colors.meadow },
 });

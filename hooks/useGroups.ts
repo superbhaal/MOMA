@@ -17,9 +17,14 @@ export function useGroups() {
       return;
     }
 
-    setLoading(true);
+    // `loading` reflects the FIRST load only — it starts true and is cleared in
+    // the finally below. Background refreshes (focus/realtime/pull) must NOT flip
+    // it back to true, or every focus-return would re-show a spinner/overlay.
     setError(null);
 
+    // finally guarantees loading resets even if a query rejects or enrichment
+    // throws — otherwise a stuck `loading` freezes the pull-to-refresh spinner.
+    try {
     const { data: memberships, error: mErr } = await supabase
       .from('group_members')
       .select('group_id')
@@ -27,14 +32,12 @@ export function useGroups() {
 
     if (mErr) {
       setError(mErr.message);
-      setLoading(false);
       return;
     }
 
     const groupIds = (memberships ?? []).map((m) => m.group_id);
     if (groupIds.length === 0) {
       setGroups([]);
-      setLoading(false);
       return;
     }
 
@@ -52,7 +55,6 @@ export function useGroups() {
 
     if (gErr) {
       setError(gErr.message);
-      setLoading(false);
       return;
     }
 
@@ -62,7 +64,12 @@ export function useGroups() {
       const lastMessage = messages
         .slice()
         .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))[0] ?? null;
-      const openProposal = proposals.find((p) => p.state === 'open') ?? null;
+      // Current meetup: open (gathering RSVPs) or decided (locked in). Prefer
+      // an open counter-proposal over an existing decided one.
+      const openProposal =
+        proposals.find((p) => p.state === 'open') ??
+        proposals.find((p) => p.state === 'decided') ??
+        null;
       return {
         ...g,
         members: g.members ?? [],
@@ -73,7 +80,9 @@ export function useGroups() {
     });
 
     setGroups(enriched);
-    setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   }, [user?.id]);
 
   /** Leave a group: removes our membership row. Frees one of the two slots. */

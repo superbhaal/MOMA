@@ -76,6 +76,7 @@ export default function GroupChatScreen() {
           votes={open_votes}
           myVote={myVote}
           totalMembers={members.length}
+          groupName={group?.name ?? null}
           onVote={async (v) => {
             if (!open_proposal) return;
             await vote(open_proposal.id, v);

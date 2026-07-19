@@ -51,8 +51,13 @@ export function useProposals(groupId: string | undefined) {
     }
 
     setBundle({
-      open: list.find((p) => p.state === 'open') ?? null,
-      past: list.filter((p) => p.state !== 'open'),
+      // `open` holds the current pinned meetup — open (gathering RSVPs) or
+      // decided (locked in). Only expired proposals count as past meetups.
+      open:
+        list.find((p) => p.state === 'open') ??
+        list.find((p) => p.state === 'decided') ??
+        null,
+      past: list.filter((p) => p.state === 'expired'),
       votes_by_proposal: votesByProposal,
     });
     setLoading(false);

@@ -15,10 +15,15 @@ export const colors = {
   line: 'rgba(17,17,24,0.07)',
   lineStrong: 'rgba(17,17,24,0.12)',
 
-  // Blush system (meetups)
+  // Blush system (meetups — proposed / open / past)
   blush: '#F4D1D1',
   blushText: '#6A1A2A',
   blushMuted: '#8C2238',
+
+  // Meadow system (meetup locked in / validated) — green counterpart to blush
+  meadow: '#D3E7BF',
+  meadowText: '#1E4620',
+  meadowMuted: '#3E6B3A',
 
   // Bold accents (user colours + signal roles)
   fuchsia: '#E8389C',

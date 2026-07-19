@@ -14,6 +14,11 @@ interface GroupCardProps {
 
 export function GroupCard({ group, onPress }: GroupCardProps) {
   const meetup = group.open_proposal;
+  // A locked-in meetup turns the block green; open meetups stay blush.
+  const decided = meetup?.state === 'decided';
+  const meetupSurface = decided ? colors.meadow : colors.blush;
+  const meetupStrong = decided ? colors.meadowText : colors.blushText;
+  const meetupMuted = decided ? colors.meadowMuted : colors.blushMuted;
   return (
     <Card onPress={onPress} padded={false} style={styles.card}>
       <View style={styles.header}>
@@ -37,19 +42,19 @@ export function GroupCard({ group, onPress }: GroupCardProps) {
       </View>
 
       {meetup ? (
-        <View style={styles.meetupBlock}>
-          <Typography variant="label" color={colors.blushMuted}>
-            NEXT MEETUP
+        <View style={[styles.meetupBlock, { backgroundColor: meetupSurface }]}>
+          <Typography variant="label" color={meetupMuted}>
+            {decided ? 'MEETUP LOCKED IN' : 'NEXT MEETUP'}
           </Typography>
           <Typography
             variant="displayM"
-            color={colors.blushText}
+            color={meetupStrong}
             style={{ marginTop: 2 }}
           >
             {formatWhen(meetup.scheduled_at)}
           </Typography>
           {meetup.location_name ? (
-            <Typography variant="bodyL" color={colors.blushText} style={{ marginTop: 2 }}>
+            <Typography variant="bodyL" color={meetupStrong} style={{ marginTop: 2 }}>
               {meetup.location_name}
             </Typography>
           ) : null}

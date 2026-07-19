@@ -1,8 +1,9 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
+import { addToCalendar } from '@/lib/calendar';
 import type { MeetupProposal, ProposalVote, Vote } from '@/types';
 
 interface MeetupBannerProps {
@@ -11,6 +12,7 @@ interface MeetupBannerProps {
   totalMembers: number;
   myVote: Vote | null;
   onRsvp: () => void;
+  groupName?: string | null;
 }
 
 /** Blush meetup banner shown in group detail. */
@@ -20,33 +22,52 @@ export function MeetupBanner({
   totalMembers,
   myVote,
   onRsvp,
+  groupName,
 }: MeetupBannerProps) {
   const goingCount = votes.filter((v) => v.vote === 'going').length;
 
+  // Locked-in meetups wear the green "validated" scheme; open/expired stay blush.
+  const decided = proposal.state === 'decided';
+  const surface = decided ? colors.meadow : colors.blush;
+  const strong = decided ? colors.meadowText : colors.blushText;
+  const mid = decided ? colors.meadowMuted : colors.blushMuted;
+
   return (
-    <View style={styles.banner}>
-      <Typography variant="label" color={colors.blushMuted}>
-        NEXT MEETUP
+    <View style={[styles.banner, { backgroundColor: surface }]}>
+      <Typography variant="label" color={mid}>
+        {decided ? 'MEETUP LOCKED IN' : 'NEXT MEETUP'}
       </Typography>
-      <Typography variant="displayL" color={colors.blushText} style={{ marginTop: 2 }}>
+      <Typography variant="displayL" color={strong} style={{ marginTop: 2 }}>
         {formatDay(proposal.scheduled_at)}
       </Typography>
-      <Typography variant="bodyL" color={colors.blushText} style={{ marginTop: 4 }}>
+      <Typography variant="bodyL" color={strong} style={{ marginTop: 4 }}>
         {formatTime(proposal.scheduled_at)}
         {proposal.location_name ? ` · ${proposal.location_name}` : ''}
       </Typography>
 
-      <Typography variant="bodyM" color={colors.blushMuted} style={{ marginTop: spacing.md }}>
+      <Typography variant="bodyM" color={mid} style={{ marginTop: spacing.md }}>
         {goingCount} of {totalMembers} going
       </Typography>
 
       <View style={{ marginTop: spacing.md }}>
         <Button
           title={myVote === 'going' ? 'going ✓' : 'i’m going'}
-          variant="blush"
+          variant={decided ? 'meadow' : 'blush'}
           onPress={onRsvp}
         />
       </View>
+
+      {decided ? (
+        <Pressable
+          style={styles.calendarLink}
+          onPress={() => addToCalendar(proposal, groupName)}
+          hitSlop={8}
+        >
+          <Typography variant="labelS" color={colors.meadowText}>
+            + ADD TO CALENDAR
+          </Typography>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -71,5 +92,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.blush,
     padding: spacing.lg,
     borderRadius: radius.lg,
+  },
+  calendarLink: {
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(30,70,32,0.15)',
+    alignItems: 'center',
   },
 });

@@ -76,6 +76,8 @@ export default function MeScreen() {
   const meetupVotes = nextMeetup ? votes_by_proposal[nextMeetup.proposal.id] ?? [] : [];
   const myVote = meetupVotes.find((v) => v.user_id === user?.id)?.vote ?? null;
   const goingCount = meetupVotes.filter((v) => v.vote === 'going').length;
+  // Green "validated" scheme once the meetup is locked in.
+  const meetupDecided = nextMeetup?.proposal.state === 'decided';
 
   async function onRsvp() {
     if (!nextMeetup) return;
@@ -146,12 +148,12 @@ export default function MeScreen() {
       {nextMeetup ? (
         <>
           <MeSectionLabel label="Next meetup" />
-          <View style={styles.meetupCard}>
+          <View style={[styles.meetupCard, meetupDecided && { backgroundColor: colors.meadow }]}>
             <View style={styles.meetupDateBlock}>
-              <Typography style={styles.meetupDay}>
+              <Typography style={[styles.meetupDay, meetupDecided && { color: colors.meadowText }]}>
                 {new Date(nextMeetup.proposal.scheduled_at).getDate()}
               </Typography>
-              <Typography style={styles.meetupMon}>
+              <Typography style={[styles.meetupMon, meetupDecided && { color: colors.meadowMuted }]}>
                 {new Date(nextMeetup.proposal.scheduled_at)
                   .toLocaleDateString(undefined, { month: 'short' })
                   .toUpperCase()}
@@ -159,21 +161,27 @@ export default function MeScreen() {
             </View>
             <View style={styles.meetupDivider} />
             <View style={styles.meetupInfo}>
-              <Typography style={styles.meetupTitle}>{nextMeetup.group.name}</Typography>
-              <Typography style={styles.meetupSub}>
+              <Typography style={[styles.meetupTitle, meetupDecided && { color: colors.meadowText }]}>
+                {nextMeetup.group.name}
+              </Typography>
+              <Typography style={[styles.meetupSub, meetupDecided && { color: colors.meadowMuted }]}>
                 {new Date(nextMeetup.proposal.scheduled_at)
                   .toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
                   .toLowerCase()}
                 {nextMeetup.proposal.location_name ? ` · ${nextMeetup.proposal.location_name}` : ''}
               </Typography>
               {myVote === 'going' ? (
-                <Typography style={styles.rsvpConfirm}>
+                <Typography style={[styles.rsvpConfirm, meetupDecided && { color: colors.meadowText }]}>
                   You&rsquo;re in — {goingCount} going.
                 </Typography>
               ) : null}
             </View>
             <Pressable
-              style={({ pressed }) => [styles.meetupRsvp, pressed && { opacity: 0.85 }]}
+              style={({ pressed }) => [
+                styles.meetupRsvp,
+                meetupDecided && { backgroundColor: colors.meadowText },
+                pressed && { opacity: 0.85 },
+              ]}
               onPress={onRsvp}
             >
               <Typography style={styles.meetupRsvpText}>
