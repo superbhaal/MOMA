@@ -24,7 +24,8 @@ export function PlacePicker({ visible, onClose, city, onPick }: PlacePickerProps
   const [busy, setBusy] = useState(false);
   const reqId = useRef(0);
 
-  // Debounced OpenStreetMap (Nominatim) search, scoped to the group's city.
+  // Debounced Google Places search (via the places-search Edge Function),
+  // scoped to the group's city.
   useEffect(() => {
     const q = query.trim();
     if (q.length < 2) {
@@ -40,7 +41,7 @@ export function PlacePicker({ visible, onClose, city, onPick }: PlacePickerProps
         setResults(found);
         setSearching(false);
       }
-    }, 450); // Nominatim asks for ≤1 req/s — debounce keeps us well under.
+    }, 450); // Debounce to limit Places API calls (and cost) while typing.
     return () => clearTimeout(t);
   }, [query, city]);
 

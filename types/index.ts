@@ -156,6 +156,8 @@ export interface PlaceAttachment {
   lat: number | null;
   lng: number | null;
   category: string | null;
+  rating?: number | null;
+  place_id?: string | null;
 }
 
 export interface ProposalRefAttachment {

@@ -1,9 +1,10 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
+import { PlaceCard } from './PlaceCard';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
-import type { Message, User } from '@/types';
+import type { Message, PlaceAttachment, User } from '@/types';
 
 interface ChatBubbleProps {
   message: Message;
@@ -16,6 +17,18 @@ interface ChatBubbleProps {
 }
 
 export function ChatBubble({ message, isMine, sender, showAvatar = true, onLongPress }: ChatBubbleProps) {
+  const isPlace = message.attachment_type === 'place' && !!message.attachment_data;
+  const senderLabel =
+    !isMine && showAvatar && sender ? (
+      <Typography
+        variant="labelS"
+        color={sender.profile_color ?? colors.muted}
+        style={{ marginBottom: 2 }}
+      >
+        {sender.display_name.toUpperCase()}
+      </Typography>
+    ) : null;
+
   return (
     <Pressable
       onLongPress={onLongPress}
@@ -33,28 +46,27 @@ export function ChatBubble({ message, isMine, sender, showAvatar = true, onLongP
       ) : (
         <View style={{ width: 28 }} />
       )}
-      <View
-        style={[
-          styles.bubble,
-          isMine ? styles.bubbleMine : styles.bubbleOther,
-        ]}
-      >
-        {!isMine && showAvatar && sender ? (
-          <Typography
-            variant="labelS"
-            color={sender.profile_color ?? colors.muted}
-            style={{ marginBottom: 2 }}
-          >
-            {sender.display_name.toUpperCase()}
-          </Typography>
-        ) : null}
-        <Typography
-          variant="bodyL"
-          color={isMine ? colors.white : colors.text}
+      {isPlace ? (
+        <View style={[styles.placeWrap, isMine && styles.placeWrapMine]}>
+          {senderLabel}
+          <PlaceCard place={message.attachment_data as PlaceAttachment} />
+        </View>
+      ) : (
+        <View
+          style={[
+            styles.bubble,
+            isMine ? styles.bubbleMine : styles.bubbleOther,
+          ]}
         >
-          {message.content}
-        </Typography>
-      </View>
+          {senderLabel}
+          <Typography
+            variant="bodyL"
+            color={isMine ? colors.white : colors.text}
+          >
+            {message.content}
+          </Typography>
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -82,4 +94,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cobalt,
     borderBottomRightRadius: 4,
   },
+  placeWrap: { alignItems: 'flex-start' },
+  placeWrapMine: { alignItems: 'flex-end' },
 });
