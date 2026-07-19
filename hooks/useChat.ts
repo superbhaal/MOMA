@@ -55,17 +55,25 @@ export function useChat(groupId: string | undefined) {
     };
   }, [groupId, refresh]);
 
+  // Append our own just-sent message immediately (deduped against the realtime
+  // INSERT that also arrives) so the sender never has to wait on realtime.
+  const appendOwn = useCallback((m: Message | null) => {
+    if (!m) return;
+    setMessages((cur) => (cur.some((x) => x.id === m.id) ? cur : [...cur, m]));
+  }, []);
+
   const send = useCallback(
     async (content: string) => {
       if (!user || !groupId || !content.trim()) return { error: null };
-      const { error: e } = await supabase.from('messages').insert({
-        group_id: groupId,
-        sender_id: user.id,
-        content: content.trim(),
-      });
+      const { data, error: e } = await supabase
+        .from('messages')
+        .insert({ group_id: groupId, sender_id: user.id, content: content.trim() })
+        .select('*')
+        .maybeSingle();
+      appendOwn(data as Message | null);
       return { error: e };
     },
-    [user?.id, groupId],
+    [user?.id, groupId, appendOwn],
   );
 
   const sendAttachment = useCallback(
@@ -75,16 +83,21 @@ export function useChat(groupId: string | undefined) {
       data: PlaceAttachment | ProposalRefAttachment,
     ) => {
       if (!user || !groupId) return { error: null };
-      const { error: e } = await supabase.from('messages').insert({
-        group_id: groupId,
-        sender_id: user.id,
-        content,
-        attachment_type: type,
-        attachment_data: data,
-      });
+      const { data: row, error: e } = await supabase
+        .from('messages')
+        .insert({
+          group_id: groupId,
+          sender_id: user.id,
+          content,
+          attachment_type: type,
+          attachment_data: data,
+        })
+        .select('*')
+        .maybeSingle();
+      appendOwn(row as Message | null);
       return { error: e };
     },
-    [user?.id, groupId],
+    [user?.id, groupId, appendOwn],
   );
 
   return { messages, loading, error, refresh, send, sendAttachment };

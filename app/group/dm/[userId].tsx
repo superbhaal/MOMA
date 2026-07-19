@@ -60,7 +60,7 @@ export default function DmScreen() {
     <KeyboardAvoidingView
       style={[styles.container, { paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={insets.top + 8}
+      keyboardVerticalOffset={0}
     >
       <Pressable
         onPress={() => other && router.push(`/member/${other.id}`)}

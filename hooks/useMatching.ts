@@ -68,7 +68,10 @@ export function useMatching() {
     };
   }, [user?.id, refresh]);
 
-  /** Accept the previewed group: insert group_members rows + flip queue to 'matched'. */
+  /** Accept the previewed group: ensure a group_members row exists + flip queue to 'matched'.
+   *  The matcher pre-inserts every candidate as a member, so this is normally a no-op
+   *  insert — upsert with ignoreDuplicates keeps it idempotent (and still works if a
+   *  future flow stops pre-joining). */
   const accept = useCallback(async () => {
     if (!user || !state.queueRow?.current_preview_group_id) {
       return { error: { message: 'no preview to accept' } };
@@ -76,7 +79,10 @@ export function useMatching() {
     const groupId = state.queueRow.current_preview_group_id;
     const { error: gmErr } = await supabase
       .from('group_members')
-      .insert({ group_id: groupId, user_id: user.id });
+      .upsert(
+        { group_id: groupId, user_id: user.id },
+        { onConflict: 'group_id,user_id', ignoreDuplicates: true },
+      );
     if (gmErr) return { error: gmErr };
     const { error: qErr } = await supabase
       .from('matching_queue')
@@ -97,6 +103,17 @@ export function useMatching() {
         reason,
       });
       if (dErr) return { error: dErr };
+
+      // The matcher pre-joined us to the candidate group. Declining must remove
+      // that membership row, otherwise the rejected group lingers on Home and
+      // eats one of the two group slots.
+      if (previewGroupId) {
+        await supabase
+          .from('group_members')
+          .delete()
+          .eq('group_id', previewGroupId)
+          .eq('user_id', user.id);
+      }
 
       const { error: qErr } = await supabase
         .from('matching_queue')

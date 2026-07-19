@@ -18,9 +18,17 @@ export default function HomeScreen() {
   const { groups, loading, refresh } = useGroups();
   const matching = useMatching();
 
-  const atCap = groups.length >= 2;
-  const showFindAnother = groups.length === 1 && matching.status === 'waiting';
   const previewing = matching.status === 'previewing';
+  // While previewing, the matcher has already pre-joined us to the candidate
+  // group. Hide it from the joined list so the "Meet your group" preview card
+  // is the only surface for it — otherwise the same group shows twice.
+  const previewGroupId = matching.queueRow?.current_preview_group_id ?? null;
+  const visibleGroups = previewing
+    ? groups.filter((g) => g.id !== previewGroupId)
+    : groups;
+
+  const atCap = visibleGroups.length >= 2;
+  const showFindAnother = visibleGroups.length === 1 && matching.status === 'waiting';
 
   const greeting = currentGreeting();
   const firstName = user?.display_name?.split(' ')[0] ?? '';
@@ -47,7 +55,7 @@ export default function HomeScreen() {
       <View style={styles.divider} />
 
       <FlatList
-        data={groups}
+        data={visibleGroups}
         keyExtractor={(g) => g.id}
         contentContainerStyle={styles.list}
         refreshControl={

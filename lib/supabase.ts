@@ -12,65 +12,94 @@ console.log('[Supabase] Anon key:', supabaseAnonKey ? 'SET (' + supabaseAnonKey.
 // SecureStore adapter that chunks large values to stay under 2048-byte limit
 const CHUNK_SIZE = 1800;
 
+// AFTER_FIRST_UNLOCK lets the Supabase auto-refresh timer read the auth token
+// while the device is locked (once it's been unlocked at least once since boot).
+// The default (WHEN_UNLOCKED) throws errSecInteractionNotAllowed —
+// "User interaction is not allowed." — on background refreshes, which surfaced
+// as spurious getItem errors and could drop the session.
+const WRITE_OPTS: SecureStore.SecureStoreOptions = {
+  keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK,
+};
+
+// In-memory mirror of everything we've written/read this JS session. If a
+// Keychain read transiently fails (e.g. errSecInteractionNotAllowed while the
+// device is briefly locked), we serve the last-known value from here instead of
+// returning null — returning null would make Supabase think the session is gone
+// and sign the user out (phantom logout).
+const memoryCache = new Map<string, string>();
+// Keys already re-written with AFTER_FIRST_UNLOCK this session (self-heal guard).
+const migrated = new Set<string>();
+
+async function writeChunks(key: string, value: string): Promise<void> {
+  const chunks = value.match(new RegExp(`.{1,${CHUNK_SIZE}}`, 'g')) ?? [value];
+  // Clean up old chunks that may exceed the new count.
+  const oldCountStr = await SecureStore.getItemAsync(`${key}_count`);
+  if (oldCountStr !== null) {
+    const oldCount = parseInt(oldCountStr, 10);
+    for (let i = chunks.length; i < oldCount; i++) {
+      await SecureStore.deleteItemAsync(`${key}_${i}`);
+    }
+  }
+  await SecureStore.setItemAsync(`${key}_count`, chunks.length.toString(), WRITE_OPTS);
+  await Promise.all(
+    chunks.map((chunk, i) => SecureStore.setItemAsync(`${key}_${i}`, chunk, WRITE_OPTS)),
+  );
+}
+
 const SecureStoreAdapter = {
   getItem: async (key: string): Promise<string | null> => {
-    console.log('[SecureStore] getItem:', key);
     try {
       if (Platform.OS === 'web') return localStorage.getItem(key);
+      let result: string | null = null;
       const countStr = await SecureStore.getItemAsync(`${key}_count`);
       if (countStr !== null) {
         const count = parseInt(countStr, 10);
-        console.log('[SecureStore] Reading', count, 'chunks for', key);
         const chunks: string[] = [];
         for (let i = 0; i < count; i++) {
           const chunk = await SecureStore.getItemAsync(`${key}_${i}`);
-          if (chunk === null) {
-            console.warn('[SecureStore] Missing chunk', i, 'for', key);
-            return null;
-          }
+          if (chunk === null) return memoryCache.get(key) ?? null;
           chunks.push(chunk);
         }
-        const result = chunks.join('');
-        console.log('[SecureStore] getItem OK:', key, '(' + result.length + ' bytes)');
-        return result;
+        result = chunks.join('');
+      } else {
+        // Fallback: single-value (migration from old format).
+        result = await SecureStore.getItemAsync(key);
       }
-      // Fallback: try reading as a single value (migration from old format)
-      const val = await SecureStore.getItemAsync(key);
-      console.log('[SecureStore] getItem fallback:', key, val ? '(' + val.length + ' bytes)' : 'null');
-      return val;
+
+      if (result !== null) {
+        memoryCache.set(key, result);
+        // Self-heal: the existing item may have been stored with the old
+        // WHEN_UNLOCKED accessibility. Now that we've read it (device unlocked),
+        // rewrite it once with AFTER_FIRST_UNLOCK so future locked reads succeed.
+        if (!migrated.has(key)) {
+          migrated.add(key);
+          writeChunks(key, result).catch(() => {});
+        }
+      }
+      return result;
     } catch (e) {
-      console.error('[SecureStore] getItem ERROR:', key, e);
-      return null;
+      // Handled: fall back to the in-memory value so we don't drop the session.
+      // Logged as a warning (not console.error) so it doesn't trip the dev error overlay.
+      console.warn('[SecureStore] getItem soft-fail:', key, String((e as Error)?.message ?? e));
+      return memoryCache.get(key) ?? null;
     }
   },
   setItem: async (key: string, value: string): Promise<void> => {
-    console.log('[SecureStore] setItem:', key, '(' + value.length + ' bytes)');
+    memoryCache.set(key, value);
+    migrated.add(key); // freshly written with WRITE_OPTS — no migration needed
     try {
       if (Platform.OS === 'web') {
         localStorage.setItem(key, value);
         return;
       }
-      const chunks = value.match(new RegExp(`.{1,${CHUNK_SIZE}}`, 'g')) ?? [value];
-      console.log('[SecureStore] Writing', chunks.length, 'chunks for', key);
-      // Clean up old chunks that may exceed new count
-      const oldCountStr = await SecureStore.getItemAsync(`${key}_count`);
-      if (oldCountStr !== null) {
-        const oldCount = parseInt(oldCountStr, 10);
-        for (let i = chunks.length; i < oldCount; i++) {
-          await SecureStore.deleteItemAsync(`${key}_${i}`);
-        }
-      }
-      await SecureStore.setItemAsync(`${key}_count`, chunks.length.toString());
-      await Promise.all(
-        chunks.map((chunk, i) => SecureStore.setItemAsync(`${key}_${i}`, chunk))
-      );
-      console.log('[SecureStore] setItem OK:', key);
+      await writeChunks(key, value);
     } catch (e) {
-      console.error('[SecureStore] setItem ERROR:', key, e);
+      console.warn('[SecureStore] setItem soft-fail:', key, String((e as Error)?.message ?? e));
     }
   },
   removeItem: async (key: string): Promise<void> => {
-    console.log('[SecureStore] removeItem:', key);
+    memoryCache.delete(key);
+    migrated.delete(key);
     try {
       if (Platform.OS === 'web') {
         localStorage.removeItem(key);
@@ -80,17 +109,14 @@ const SecureStoreAdapter = {
       if (countStr !== null) {
         const count = parseInt(countStr, 10);
         await Promise.all(
-          Array.from({ length: count }, (_, i) =>
-            SecureStore.deleteItemAsync(`${key}_${i}`)
-          )
+          Array.from({ length: count }, (_, i) => SecureStore.deleteItemAsync(`${key}_${i}`)),
         );
         await SecureStore.deleteItemAsync(`${key}_count`);
       }
-      // Also remove single-value key (migration cleanup)
+      // Also remove single-value key (migration cleanup).
       await SecureStore.deleteItemAsync(key);
-      console.log('[SecureStore] removeItem OK:', key);
     } catch (e) {
-      console.error('[SecureStore] removeItem ERROR:', key, e);
+      console.warn('[SecureStore] removeItem soft-fail:', key, String((e as Error)?.message ?? e));
     }
   },
 };

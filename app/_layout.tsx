@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, LogBox, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as Notifications from 'expo-notifications';
@@ -13,6 +13,12 @@ import { colors } from '@/constants/colors';
 export { ErrorBoundary } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
+
+// A stored session whose account was deleted server-side (e.g. a dev DB purge)
+// makes supabase-js throw "Invalid Refresh Token" on boot while it auto-refreshes.
+// useAuth already handles this correctly (signs out → routes to /welcome); this
+// only silences the dev-only LogBox overlay so it doesn't fire on every purge.
+LogBox.ignoreLogs([/Invalid Refresh Token/, /Refresh Token Not Found/]);
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({

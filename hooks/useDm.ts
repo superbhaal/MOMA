@@ -85,15 +85,26 @@ export function useDm(otherUserId: string | undefined, fromGroupId?: string) {
 
   const send = useCallback(
     async (content: string) => {
-      if (!user || !thread || !content.trim()) return { error: null };
-      const { error: e } = await supabase.from('messages').insert({
-        dm_thread_id: thread.id,
-        sender_id: user.id,
-        content: content.trim(),
-      });
+      if (!user || !content.trim()) return { error: null };
+      // Ensure the thread exists even if the user sends before refresh() resolved
+      // it (the first message in a brand-new DM). Previously this silently no-op'd.
+      const t = thread ?? (await ensureThread());
+      if (!t) return { error: { message: 'could not open this conversation' } };
+      if (!thread) setThread(t);
+
+      const { data, error: e } = await supabase
+        .from('messages')
+        .insert({ dm_thread_id: t.id, sender_id: user.id, content: content.trim() })
+        .select('*')
+        .maybeSingle();
+      // Optimistically show our own message immediately (deduped against the
+      // realtime INSERT that will also arrive) — don't depend on realtime alone.
+      if (!e && data) {
+        setMessages((cur) => (cur.some((x) => x.id === (data as Message).id) ? cur : [...cur, data as Message]));
+      }
       return { error: e };
     },
-    [user?.id, thread?.id],
+    [user?.id, thread?.id, ensureThread],
   );
 
   return { thread, messages, loading, error, refresh, send };
