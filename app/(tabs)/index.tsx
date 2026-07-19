@@ -1,5 +1,6 @@
+import { useCallback } from 'react';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { Card } from '@/components/ui/Card';
@@ -17,6 +18,16 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const { groups, loading, refresh } = useGroups();
   const matching = useMatching();
+
+  // Home stays mounted in the tab navigator, so joining a group on another
+  // screen wouldn't update it. Re-fetch groups + queue every time Home regains
+  // focus (belt-and-suspenders alongside realtime).
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+      matching.refresh();
+    }, [refresh, matching.refresh]),
+  );
 
   const previewing = matching.status === 'previewing';
   // While previewing, the matcher has already pre-joined us to the candidate
