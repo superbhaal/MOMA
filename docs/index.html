@@ -9,7 +9,8 @@
     --cream:#FAF6F1; --white:#fff; --text:#111118; --muted:#6F6F88;
     --line:rgba(17,17,24,.10); --cobalt:#1A4BCC; --cobaltDeep:#0F3AA8;
     --fuchsia:#E8389C; --soleil:#FFC800; --lime:#B8D830; --cherry:#E82030;
-    --pool:#00B8C8; --blush:#F4D1D1;
+    --pool:#00B8C8; --blush:#F4D1D1; --blushText:#6A1A2A;
+    --ok:#E4F7D6; --okText:#3f6b12; --warn:#FFF3CC; --warnText:#8a6d00; --bad:#FBE0E3; --badText:#b3283a;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
@@ -17,12 +18,13 @@
   h1,h2,h3{margin:0;font-weight:600}
   button{font:inherit;cursor:pointer;border:none;border-radius:10px;padding:8px 14px;font-weight:600}
   button:disabled{opacity:.45;cursor:default}
-  input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--white);width:100%}
+  input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--white);width:100%}
   a{color:var(--cobalt)}
   .btn-primary{background:var(--cobalt);color:#fff}
   .btn-ghost{background:var(--white);border:1px solid var(--line);color:var(--text)}
   .btn-danger{background:var(--white);border:1px solid var(--cherry);color:var(--cherry)}
   .btn-sm{padding:4px 9px;font-size:12px;border-radius:8px}
+  .muted{color:var(--muted);font-weight:400}
   .pill{display:inline-block;padding:1px 8px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.3px}
   .pill-test{background:#EEF2FF;color:var(--cobalt)}
   .pill-real{background:var(--blush);color:#6A1A2A}
@@ -47,6 +49,14 @@
     display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5;flex-wrap:wrap}
   header h1{font-size:20px;letter-spacing:-.4px}
   header .grow{flex:1}
+
+  /* tabs */
+  .tabs{display:flex;gap:4px;background:#fff;border-bottom:1px solid var(--line);
+    padding:0 22px;position:sticky;top:57px;z-index:4}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;border-radius:0;
+    padding:12px 14px;color:var(--muted);font-weight:600}
+  .tab.active{color:var(--cobalt);border-bottom-color:var(--cobalt)}
+
   .wrap{max-width:1180px;margin:0 auto;padding:22px}
   .section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:20px}
   .section h2{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
@@ -57,7 +67,7 @@
   table{width:100%;border-collapse:collapse}
   th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
   th{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:700}
-  td .dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:6px;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+  td .dot,.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:6px;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
   .row-actions{display:flex;gap:6px;flex-wrap:wrap}
   .tablewrap{overflow-x:auto}
   small.mono{font-family:ui-monospace,Menlo,monospace;color:var(--muted);font-size:11px}
@@ -65,6 +75,7 @@
   .grid-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
   .field label{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);
     text-transform:uppercase;margin-bottom:5px}
+  .field{margin-bottom:12px}
 
   /* modal */
   #modal{position:fixed;inset:0;background:rgba(17,17,24,.45);display:flex;align-items:center;
@@ -83,7 +94,35 @@
   .cell-null{background:#FBE0E3;color:#b3283a}
   .legend{display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
   .legend span{display:inline-flex;align-items:center;gap:6px}
-  .swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .swatch,.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+  /* meetups */
+  .cols{display:grid;grid-template-columns:1.2fr 1fr;gap:20px}
+  @media(max-width:820px){.cols{grid-template-columns:1fr}}
+  .members{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:var(--cream);border-radius:100px;padding:4px 11px;font-size:12px;display:inline-flex;align-items:center}
+  .gridtbl th,.gridtbl td{border:1px solid var(--line);padding:0;text-align:center}
+  .gridtbl th{font-size:10px;text-transform:uppercase;color:var(--muted);padding:6px 4px}
+  .gridtbl td.daylabel{font-size:12px;padding:4px 8px;white-space:nowrap;text-align:left;font-weight:600}
+  .cell{width:100%;height:36px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;border:2px solid transparent}
+  .c-ok{background:var(--ok);color:var(--okText)} .c-warn{background:var(--warn);color:var(--warnText)} .c-bad{background:var(--bad);color:var(--badText)}
+  .cell.sel{border-color:var(--cobalt)}
+  .place{border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px;cursor:pointer}
+  .place.sel{border-color:var(--cobalt);background:#EEF2FF}
+  .place .name{font-weight:600} .place .meta{color:var(--muted);font-size:12px;margin-top:2px}
+  .summary{background:var(--cream);border-radius:12px;padding:12px 14px;margin:12px 0;font-size:13px}
+
+  /* responses */
+  .resp-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .resp-row .who{flex:1;min-width:140px;font-weight:600}
+  .vote{padding:2px 9px;border-radius:100px;font-size:11px;font-weight:700}
+  .vote-going{background:var(--ok);color:var(--okText)} .vote-maybe{background:var(--warn);color:var(--warnText)}
+  .vote-cant{background:var(--bad);color:var(--badText)} .vote-none{background:#f0f0f5;color:var(--muted)}
+  .vote-actions{display:flex;gap:5px;flex-wrap:wrap}
+  .vbtn{padding:4px 9px;border-radius:8px;font-size:12px;border:1px solid var(--line);background:#fff;color:var(--text)}
+  .vbtn.on-going{background:var(--ok);color:var(--okText);border-color:transparent}
+  .vbtn.on-maybe{background:var(--warn);color:var(--warnText);border-color:transparent}
+  .vbtn.on-cant{background:var(--bad);color:var(--badText);border-color:transparent}
 </style>
 </head>
 <body>
@@ -92,7 +131,7 @@
 <div id="login">
   <div class="card">
     <h1>møma admin</h1>
-    <div class="sub">Manage users · run matching · inspect scores</div>
+    <div class="sub">Users · matching · meetups</div>
     <label for="u">Username</label>
     <input id="u" autocomplete="username" value="admin_moma" />
     <label for="p">Password</label>
@@ -106,69 +145,194 @@
 <div id="app" class="hidden">
   <header>
     <h1>møma <span style="color:var(--muted);font-weight:400">admin</span></h1>
-    <a href="./meetup.html" style="font-size:13px">meetups →</a>
     <span class="grow"></span>
     <button class="btn-ghost" id="refreshBtn">Refresh</button>
-    <button class="btn-ghost" id="cleanBtn">Clean empty groups</button>
-    <button class="btn-primary" id="matchBtn">Run matching</button>
     <button class="btn-ghost" id="logoutBtn">Log out</button>
   </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="users">Users</button>
+    <button class="tab" data-tab="matching">Matching</button>
+    <button class="tab" data-tab="meetups">Meetups</button>
+    <button class="tab" data-tab="sandbox">Sandbox</button>
+  </nav>
 
   <div class="wrap">
     <div id="banner"></div>
 
-    <!-- Users -->
-    <div class="section">
-      <h2>Users (<span id="userCount">0</span>)</h2>
-      <div class="tablewrap">
-        <table>
-          <thead><tr>
-            <th>Name</th><th>Type</th><th>Stage</th><th>Baby DOB</th>
-            <th>Location</th><th>Lang</th><th>Queue</th><th>Groups</th><th></th>
-          </tr></thead>
-          <tbody id="userRows"></tbody>
-        </table>
+    <!-- ============ USERS TAB ============ -->
+    <div id="view-users" class="view">
+      <div class="section">
+        <h2>Users (<span id="userCount">0</span>)</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr>
+              <th>Name</th><th>Type</th><th>Stage</th><th>Baby DOB</th>
+              <th>Location</th><th>Lang</th><th>Queue</th><th>Groups</th><th></th>
+            </tr></thead>
+            <tbody id="userRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Add test user</h2>
+        <div class="grid-form" id="addForm">
+          <div class="field"><label>Name</label><input data-f="display_name" placeholder="Test Mom"/></div>
+          <div class="field"><label>Life stage</label>
+            <select data-f="life_stage">
+              <option value="expecting">expecting</option>
+              <option value="newborn">newborn</option>
+              <option value="growing">growing</option>
+              <option value="veteran">veteran</option>
+            </select></div>
+          <div class="field"><label>Baby DOB</label><input data-f="baby_dob" type="date"/></div>
+          <div class="field"><label>City</label><input data-f="city" value="Paris"/></div>
+          <div class="field"><label>Latitude</label><input data-f="latitude" type="number" step="any" placeholder="48.8566"/></div>
+          <div class="field"><label>Longitude</label><input data-f="longitude" type="number" step="any" placeholder="2.3522"/></div>
+          <div class="field"><label>Primary language</label><input data-f="primary_language" value="French"/></div>
+          <div class="field"><label>Kid count</label>
+            <select data-f="kid_count"><option value="none">none</option><option value="one">one</option><option value="two">two</option><option value="many">many</option></select></div>
+          <div class="field"><label>Profile color</label><input data-f="profile_color" type="color" value="#E8389C"/></div>
+        </div>
+        <button class="btn-primary" id="addBtn" style="margin-top:14px">Create test user</button>
       </div>
     </div>
 
-    <!-- Add test user -->
-    <div class="section">
-      <h2>Add test user</h2>
-      <div class="grid-form" id="addForm">
-        <div class="field"><label>Name</label><input data-f="display_name" placeholder="Test Mom"/></div>
-        <div class="field"><label>Life stage</label>
-          <select data-f="life_stage">
-            <option value="expecting">expecting</option>
-            <option value="newborn">newborn</option>
-            <option value="growing">growing</option>
-            <option value="veteran">veteran</option>
-          </select></div>
-        <div class="field"><label>Baby DOB</label><input data-f="baby_dob" type="date"/></div>
-        <div class="field"><label>City</label><input data-f="city" value="Paris"/></div>
-        <div class="field"><label>Latitude</label><input data-f="latitude" type="number" step="any" placeholder="48.8566"/></div>
-        <div class="field"><label>Longitude</label><input data-f="longitude" type="number" step="any" placeholder="2.3522"/></div>
-        <div class="field"><label>Primary language</label><input data-f="primary_language" value="French"/></div>
-        <div class="field"><label>Kid count</label>
-          <select data-f="kid_count"><option value="none">none</option><option value="one">one</option><option value="two">two</option><option value="many">many</option></select></div>
-        <div class="field"><label>Profile color</label><input data-f="profile_color" type="color" value="#E8389C"/></div>
+    <!-- ============ MATCHING TAB ============ -->
+    <div id="view-matching" class="view hidden">
+      <div class="section">
+        <h2>Run matching</h2>
+        <div style="color:var(--muted);font-size:13px;margin-bottom:12px">
+          Score every waiting user, form candidate groups (threshold ≥ 5), set them to previewing and push.
+        </div>
+        <div class="row-actions">
+          <button class="btn-primary" id="matchBtn">Run matching</button>
+          <button class="btn-ghost" id="cleanBtn">Clean empty groups</button>
+        </div>
       </div>
-      <button class="btn-primary" id="addBtn" style="margin-top:14px">Create test user</button>
+
+      <div class="section">
+        <h2>Match scores
+          <label style="text-transform:none;font-weight:400;margin-left:12px;font-size:12px;color:var(--text)">
+            <input type="checkbox" id="onlyWaiting" style="width:auto;margin-right:4px"/> only waiting
+          </label>
+          <button class="btn-ghost btn-sm" id="scoreBtn" style="margin-left:10px">Compute</button>
+        </h2>
+        <div id="matrix" class="matrix"><span style="color:var(--muted)">Threshold ≥ 5 to form a group. Click “Compute”.</span></div>
+        <div class="legend hidden" id="legend">
+          <span><i class="swatch" style="background:#E4F7D6"></i> passes (≥ threshold)</span>
+          <span><i class="swatch" style="background:#FFF3CC"></i> below threshold</span>
+          <span><i class="swatch" style="background:#FBE0E3"></i> hard-filtered out</span>
+          <span>hover a cell for the reason</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Score matrix -->
-    <div class="section">
-      <h2>Match scores
-        <label style="text-transform:none;font-weight:400;margin-left:12px;font-size:12px;color:var(--text)">
-          <input type="checkbox" id="onlyWaiting" style="width:auto;margin-right:4px"/> only waiting
-        </label>
-        <button class="btn-ghost btn-sm" id="scoreBtn" style="margin-left:10px">Compute</button>
-      </h2>
-      <div id="matrix" class="matrix"><span style="color:var(--muted)">Threshold ≥ 5 to form a group. Click “Compute”.</span></div>
-      <div class="legend hidden" id="legend">
-        <span><i class="swatch" style="background:#E4F7D6"></i> passes (≥ threshold)</span>
-        <span><i class="swatch" style="background:#FFF3CC"></i> below threshold</span>
-        <span><i class="swatch" style="background:#FBE0E3"></i> hard-filtered out</span>
-        <span>hover a cell for the reason</span>
+    <!-- ============ MEETUPS TAB ============ -->
+    <div id="view-meetups" class="view hidden">
+      <div class="section">
+        <h2>Group</h2>
+        <select id="groupSel"><option value="">Select a group…</option></select>
+        <div id="members" class="members" style="margin-top:12px"></div>
+      </div>
+
+      <div id="detail" class="hidden">
+        <!-- Responses -->
+        <div class="section">
+          <h2>Responses <span class="muted" id="respMeta"></span></h2>
+          <div id="responses"></div>
+        </div>
+
+        <div class="cols">
+          <div class="section">
+            <h2>Group availability · next 2 weeks</h2>
+            <div style="color:var(--muted);font-size:12px;margin-bottom:10px">Green = everyone free. Tap a slot to pick it.</div>
+            <div id="grid"></div>
+            <div class="legend">
+              <span><i class="sw" style="background:var(--ok)"></i>all free</span>
+              <span><i class="sw" style="background:var(--warn)"></i>1 busy</span>
+              <span><i class="sw" style="background:var(--bad)"></i>2+ busy</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Place</h2>
+            <div style="color:var(--muted);font-size:12px;margin-bottom:10px">Suggested by the group</div>
+            <div id="places"></div>
+            <div class="field" style="margin-top:12px">
+              <label>Or enter a place manually</label>
+              <input id="manualPlace" placeholder="e.g. Café de Jaren, Amsterdam"/>
+            </div>
+            <div class="field">
+              <label>Note (optional)</label>
+              <input id="note" placeholder="e.g. strollers welcome"/>
+            </div>
+            <div class="summary" id="summary">Pick a time slot and a place.</div>
+            <button class="btn-primary" id="dropBtn" style="width:100%;padding:12px" disabled>Drop time & place into the chat</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SANDBOX TAB ============ -->
+    <div id="view-sandbox" class="view hidden">
+      <div class="section">
+        <h2>How it works</h2>
+        <div style="color:var(--muted);font-size:13px">
+          One row per real signup. <b>Make group</b> mints fake moms next door and drops them
+          in a group with that user — no waiting for the matcher. <b>Meetup</b> puts a time and
+          place on the calendar in one click. <b>Delete</b> wipes the account for good, so the
+          same person signs up again as a brand-new user.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Settings <span class="muted" style="text-transform:none;letter-spacing:0">— used by the buttons below</span></h2>
+        <div class="grid-form">
+          <div class="field"><label>Fake moms</label>
+            <select id="simCount"><option>2</option><option selected>3</option><option>4</option></select></div>
+          <div class="field"><label>Group state</label>
+            <select id="simState">
+              <option value="joined">joined — group is live</option>
+              <option value="preview">previewing — user must accept</option>
+            </select></div>
+          <div class="field"><label>Seed chat openers</label>
+            <select id="simChat"><option value="yes">yes</option><option value="no">no</option></select></div>
+          <div class="field"><label>Meetup in (days)</label>
+            <input id="simDays" type="number" min="0" max="30" value="3"/></div>
+          <div class="field"><label>Block</label>
+            <select id="simBlock"><option value="morning">morning</option><option value="afternoon">afternoon</option><option value="evening">evening</option></select></div>
+          <div class="field"><label>Place (optional)</label>
+            <input id="simPlace" placeholder="auto — a café nearby"/></div>
+          <div class="field"><label>RSVPs</label>
+            <select id="simVotes">
+              <option value="all">everyone going — locked in</option>
+              <option value="fakes">fake moms only</option>
+              <option value="none">nobody yet</option>
+            </select></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Real users (<span id="realCount">0</span>)</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr>
+              <th>Name</th><th>Email</th><th>Stage</th><th>Location</th><th>Group</th><th>Queue</th><th></th>
+            </tr></thead>
+            <tbody id="simRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Cleanup</h2>
+        <div style="color:var(--muted);font-size:13px;margin-bottom:12px">
+          Removes every simulated account (<span class="pill pill-test">TEST</span>) and the groups
+          they leave empty. Real signups are untouched.
+        </div>
+        <button class="btn-danger" id="wipeTestBtn">Delete all simulated users (<span id="testCount">0</span>)</button>
       </div>
     </div>
   </div>
@@ -189,7 +353,8 @@
 <script>
 const API = "https://rqesqrlrlxetnvihpoxt.supabase.co/functions/v1/admin-api";
 const CREDS_KEY = "moma_admin_creds";
-let USERS = [];
+const BLOCKS = [["morning","MORNING"],["afternoon","AFTERNOON"],["evening","EVENING"]];
+let USERS = [], MDATA = null, SELSLOT = null, SELPLACE = null, GROUPS_LOADED = false;
 
 const $ = (s) => document.querySelector(s);
 const el = (t, props={}, ...kids) => {
@@ -217,6 +382,15 @@ function banner(msg, kind="ok") {
   b.append(el("div",{class:"banner "+(kind==="ok"?"banner-ok":"banner-err"),html:msg}));
   setTimeout(()=>{ b.innerHTML=""; }, kind==="ok"?4000:8000);
 }
+
+// ---- tabs ----
+function showTab(name){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
+  document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
+  $("#view-"+name).classList.remove("hidden");
+  if(name==="meetups" && !GROUPS_LOADED) loadGroups();
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showTab(t.dataset.tab));
 
 // ---- login ----
 async function tryLogin() {
@@ -257,11 +431,16 @@ async function load() {
     );
     tb.append(tr);
   }
+  renderSandbox();
 }
 function nameCell(u){
   const wrap = el("span",{});
   wrap.append(el("span",{class:"dot",style:`background:${u.profile_color||"#ccc"}`}));
   wrap.append(document.createTextNode(u.display_name || "(no name)"));
+  if(u.role && u.role !== "reader"){
+    const c = u.role === "admin" ? "#1A4BCC" : "#00838f";
+    wrap.append(el("span",{class:"pill",style:`margin-left:6px;background:${c};color:#fff;font-size:10px`}, u.role));
+  }
   return wrap;
 }
 function actionsCell(u){
@@ -283,6 +462,108 @@ function actionsCell(u){
   return w;
 }
 
+// ============ SANDBOX ============
+// One row per real signup, with the three one-click test moves:
+// make a group, drop a meetup, delete the account for good.
+function simSettings(){
+  return {
+    count: Number($("#simCount").value),
+    state: $("#simState").value,
+    seed_chat: $("#simChat").value === "yes",
+    in_days: Number($("#simDays").value),
+    block: $("#simBlock").value,
+    location_name: $("#simPlace").value.trim() || null,
+    votes: $("#simVotes").value,
+  };
+}
+
+function renderSandbox(){
+  const real = USERS.filter(u=>!u.is_test);
+  const tests = USERS.filter(u=>u.is_test);
+  $("#realCount").textContent = real.length;
+  $("#testCount").textContent = tests.length;
+  const tb = $("#simRows"); tb.innerHTML = "";
+  if(!real.length){
+    tb.append(el("tr",{}, el("td",{colspan:"7",style:"color:var(--muted)"},"No real signups yet.")));
+    return;
+  }
+  for(const u of real){
+    const groups = u.groups || [];
+    tb.append(el("tr",{},
+      el("td",{}, nameCell(u)),
+      el("td",{}, el("small",{class:"mono"}, u.email || "—")),
+      el("td",{html:u.life_stage || "—"}),
+      el("td",{html:u.neighbourhood || u.city || "—"}),
+      el("td",{html: groups.length ? groups.map(g=>g.name).join(", ") : '<span class="muted">none</span>'}),
+      el("td",{html: u.queue_status ? `<span class="pill pill-${u.queue_status}">${u.queue_status}</span>` : "—"}),
+      el("td",{}, simActions(u)),
+    ));
+  }
+}
+
+function simActions(u){
+  const w = el("div",{class:"row-actions"});
+  const groups = u.groups || [];
+
+  const mk = el("button",{class:"btn-primary btn-sm"}, "Make group");
+  if(groups.length >= 2){ mk.disabled = true; mk.title = "Already in 2 groups (the cap)"; }
+  mk.onclick = ()=>run(mk,"Making…",async()=>{
+    const s = simSettings();
+    const d = await api("sim_group",{ user_id:u.id, count:s.count, state:s.state, seed_chat:s.seed_chat });
+    banner(`Group “${d.group_name}” · ${d.members} members (${d.created.join(", ")}) · ${d.state}`);
+    await load(); if(GROUPS_LOADED) loadGroups();
+  });
+  w.append(mk);
+
+  const mt = el("button",{class:"btn-ghost btn-sm"}, "Meetup");
+  if(!groups.length){ mt.disabled = true; mt.title = "Make a group first"; }
+  else mt.title = "Drop a meetup into " + groups[0].name;
+  mt.onclick = ()=>run(mt,"Dropping…",async()=>{
+    const s = simSettings();
+    const d = await api("sim_meetup",{ group_id:groups[0].group_id, in_days:s.in_days, block:s.block, location_name:s.location_name, votes:s.votes });
+    const when = new Date(d.scheduled_at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    banner(`Meetup ${d.state === "decided" ? "locked in" : "proposed"} · ${when} · ${d.location_name} · ${d.going} going · pushed to ${d.pushed}`);
+    if(GROUPS_LOADED && $("#groupSel").value === groups[0].group_id) loadGroup(groups[0].group_id);
+  });
+  w.append(mt);
+
+  const del = el("button",{class:"btn-danger btn-sm"}, "Delete");
+  del.onclick = ()=>{
+    if(!confirm(`Delete ${u.display_name || u.email} for good?\n\nAccount, profile, photos, groups, messages and RSVPs are all removed. Signing up again starts from scratch. This cannot be undone.`)) return;
+    run(del,"Deleting…",async()=>{
+      await api("delete_user",{id:u.id});
+      banner(`Deleted ${u.display_name || u.email} — they can sign up again as new.`);
+      await load(); if(GROUPS_LOADED) loadGroups();
+    });
+  };
+  w.append(del);
+  return w;
+}
+
+// Disable a button while its action runs, restore it after (even on error).
+async function run(btn, busyLabel, fn){
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = busyLabel;
+  try{ await fn(); }
+  catch(e){ banner(e.message,"err"); }
+  finally{ btn.disabled = false; btn.textContent = label; }
+}
+
+async function wipeTestUsers(){
+  const n = USERS.filter(u=>u.is_test).length;
+  if(!n) return banner("No simulated users to delete.");
+  if(!confirm(`Delete ${n} simulated user(s) and the groups they empty out?`)) return;
+  const btn = $("#wipeTestBtn"), html = btn.innerHTML;   // keep the #testCount span
+  btn.disabled = true; btn.textContent = "Deleting…";
+  try{
+    const d = await api("delete_test_users");
+    btn.innerHTML = html;
+    banner(`Deleted ${d.deleted} simulated user(s) · cleaned ${d.cleaned_groups} group(s)`);
+    await load(); if(GROUPS_LOADED) loadGroups();
+  }catch(e){ btn.innerHTML = html; banner(e.message,"err"); }
+  finally{ btn.disabled = false; }
+}
+
 // ---- edit modal ----
 const EDIT_FIELDS = [
   ["display_name","Name","text"],["last_name","Last name","text"],["age","Age","number"],
@@ -292,6 +573,7 @@ const EDIT_FIELDS = [
   ["latitude","Latitude","number"],["longitude","Longitude","number"],
   ["primary_language","Primary language","text"],["secondary_languages","Secondary langs (comma)","csv"],
   ["profile_color","Profile color","color"],
+  ["role","Discover role","select-role"],
   ["pref_age_window_weeks","Age window (weeks)","number"],["pref_distance_minutes","Distance (min, -1=city)","number"],
 ];
 let editingId = null;
@@ -305,6 +587,7 @@ function openEdit(u){
     let input;
     if(type==="select-stage"){ input=el("select",{}); ["expecting","newborn","growing","veteran"].forEach(o=>input.append(el("option",{value:o},o))); input.value=u[key]||"expecting"; }
     else if(type==="select-kid"){ input=el("select",{}); ["","none","one","two","many"].forEach(o=>input.append(el("option",{value:o},o||"—"))); input.value=u[key]||""; }
+    else if(type==="select-role"){ input=el("select",{}); ["reader","contributor","admin"].forEach(o=>input.append(el("option",{value:o},o))); input.value=u[key]||"reader"; }
     else if(type==="select-bool"){ input=el("select",{}); [["","—"],["true","true"],["false","false"]].forEach(([v,t])=>input.append(el("option",{value:v},t))); input.value=(u[key]===null||u[key]===undefined)?"":String(u[key]); }
     else if(type==="csv"){ input=el("input",{type:"text"}); input.value=(u[key]||[]).join(", "); }
     else if(type==="color"){ input=el("input",{type:"color"}); input.value=u[key]||"#E8389C"; }
@@ -374,18 +657,143 @@ async function computeScores(){
   }catch(e){ box.innerHTML="<span style='color:var(--cherry)'>"+e.message+"</span>"; }
 }
 
+// ============ MEETUPS ============
+async function loadGroups(){
+  const d = await api("list_groups");
+  GROUPS_LOADED = true;
+  const sel = $("#groupSel");
+  sel.innerHTML = '<option value="">Select a group…</option>' +
+    d.groups.map(g=>`<option value="${g.id}">${g.name} · ${g.city??''} · ${g.member_count} members</option>`).join("");
+}
+
+async function loadGroup(gid){
+  SELSLOT=null; SELPLACE=null; $("#manualPlace").value=""; $("#note").value="";
+  $("#detail").classList.add("hidden");
+  if(!gid){ $("#members").innerHTML=""; return; }
+  MDATA = await api("group_meetup_data",{group_id:gid});
+  $("#members").innerHTML = MDATA.members.map(m=>`<span class="chip"><i class="dot" style="background:${m.color||'#ccc'}"></i>${m.name}${m.role==='mentor'?' ★':''}</span>`).join("");
+  renderResponses(); renderGrid(); renderPlaces(); updateSummary();
+  $("#detail").classList.remove("hidden");
+}
+
+const VOTE_LABEL = { going:"Going", maybe:"Maybe", cant:"Can't", none:"No reply" };
+function renderResponses(){
+  const box = $("#responses"); const meta = $("#respMeta");
+  const p = MDATA.open_proposal;
+  if(!p){
+    meta.textContent = "";
+    box.innerHTML = '<div style="color:var(--muted);font-size:13px">No active meetup for this group. Pick a time & place below to start collecting RSVPs.</div>';
+    return;
+  }
+  const going = Object.values(MDATA.votes||{}).filter(v=>v==="going").length;
+  const when = new Date(p.scheduled_at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  const stateLbl = p.state==="decided" ? '<span class="pill vote-going">LOCKED IN</span>' : '<span class="pill pill-previewing">PROPOSED</span>';
+  meta.innerHTML = ` — ${stateLbl} · ${when}${p.location_name?' · '+p.location_name:''} · ${going}/${MDATA.member_count} going`;
+  box.innerHTML = "";
+  for(const m of MDATA.members){
+    const cur = (MDATA.votes||{})[m.id] || "none";
+    const row = el("div",{class:"resp-row"});
+    const who = el("div",{class:"who"});
+    who.append(el("span",{class:"dot",style:`background:${m.color||'#ccc'}`}));
+    who.append(document.createTextNode(m.name + (m.role==='mentor'?' ★':'')));
+    row.append(who);
+    row.append(el("span",{class:"vote vote-"+cur, html: VOTE_LABEL[cur]}));
+    const actions = el("div",{class:"vote-actions"});
+    for(const v of ["going","maybe","cant"]){
+      const b = el("button",{class:"vbtn"+(cur===v?" on-"+v:"")}, VOTE_LABEL[v]);
+      b.onclick=()=>setVote(p.id, m.id, cur===v?null:v);
+      actions.append(b);
+    }
+    const clr = el("button",{class:"vbtn", title:"Clear response"}, "Clear");
+    clr.onclick=()=>setVote(p.id, m.id, null);
+    actions.append(clr);
+    row.append(actions);
+    box.append(row);
+  }
+}
+async function setVote(proposalId, userId, vote){
+  try{
+    await api("set_vote",{proposal_id:proposalId, user_id:userId, vote});
+    await loadGroup($("#groupSel").value);
+  }catch(e){ banner(e.message,"err"); }
+}
+
+function cellClass(free,total){ const busy=total-free; if(busy<=0) return "c-ok"; if(busy===1) return "c-warn"; return "c-bad"; }
+function renderGrid(){
+  const byDate = {};
+  MDATA.grid.forEach(c=>{ (byDate[c.date] ||= {})[c.block]=c; });
+  const dates = Object.keys(byDate).sort();
+  const total = MDATA.member_count;
+  let html = '<table class="gridtbl"><thead><tr><th></th>'+BLOCKS.map(b=>`<th>${b[1]}</th>`).join("")+'</tr></thead><tbody>';
+  for(const date of dates){
+    const d=new Date(date+"T00:00:00");
+    const lbl = d.toLocaleDateString('en-US',{weekday:'short',day:'numeric',month:'short'});
+    html+=`<tr><td class="daylabel">${lbl}</td>`;
+    for(const [bk] of BLOCKS){
+      const c=byDate[date][bk];
+      const sel = SELSLOT && SELSLOT.date===date && SELSLOT.block===bk ? " sel":"";
+      html+=`<td><div class="cell ${cellClass(c.free,total)}${sel}" data-date="${date}" data-block="${bk}">${c.free}/${total}</div></td>`;
+    }
+    html+="</tr>";
+  }
+  html+="</tbody></table>";
+  $("#grid").innerHTML=html;
+  $("#grid").querySelectorAll(".cell").forEach(cell=>{
+    cell.onclick=()=>{ SELSLOT={date:cell.dataset.date,block:cell.dataset.block}; renderGrid(); updateSummary(); };
+  });
+}
+
+function renderPlaces(){
+  const box=$("#places");
+  if(!MDATA.places.length){ box.innerHTML='<div style="color:var(--muted);font-size:13px">No places shared yet — enter one manually below.</div>'; return; }
+  box.innerHTML = MDATA.places.map((p,i)=>{
+    const sel = SELPLACE && SELPLACE._i===i ? " sel":"";
+    return `<div class="place${sel}" data-i="${i}"><div class="name">${p.name||'(unnamed)'}</div><div class="meta">${p.address?p.address+' · ':''}shared by ${p.shared_by}</div></div>`;
+  }).join("");
+  box.querySelectorAll(".place").forEach(pl=>{
+    pl.onclick=()=>{ const i=+pl.dataset.i; SELPLACE={...MDATA.places[i],_i:i}; $("#manualPlace").value=""; renderPlaces(); updateSummary(); };
+  });
+}
+function currentPlace(){
+  const manual=$("#manualPlace").value.trim();
+  if(manual) return { location_name:manual, location_lat:null, location_lng:null };
+  if(SELPLACE) return { location_name:SELPLACE.name, location_lat:SELPLACE.lat??null, location_lng:SELPLACE.lng??null };
+  return null;
+}
+function updateSummary(){
+  const place=currentPlace();
+  const slotTxt = SELSLOT ? new Date(SELSLOT.date+"T00:00:00").toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long'})+" · "+SELSLOT.block : "—";
+  $("#summary").innerHTML = `<b>When:</b> ${slotTxt}<br><b>Where:</b> ${place? place.location_name : "—"}`;
+  $("#dropBtn").disabled = !(SELSLOT && place);
+}
+async function drop(){
+  const place=currentPlace();
+  if(!SELSLOT||!place) return;
+  $("#dropBtn").disabled=true; $("#dropBtn").textContent="Dropping…";
+  try{
+    const d = await api("create_meetup",{ group_id:$("#groupSel").value, date:SELSLOT.date, block:SELSLOT.block, note:$("#note").value.trim()||null, ...place });
+    banner(`Meetup dropped into the chat · pushed to ${d.pushed} member(s). It replaces any previous meetup.`);
+    loadGroup($("#groupSel").value);
+  }catch(e){ banner(e.message,"err"); }
+  finally{ $("#dropBtn").textContent="Drop time & place into the chat"; }
+}
+
 // ---- wire ----
 $("#loginBtn").onclick=tryLogin;
 $("#p").addEventListener("keydown",e=>{ if(e.key==="Enter") tryLogin(); });
-$("#refreshBtn").onclick=load;
+$("#refreshBtn").onclick=()=>{ load(); if(GROUPS_LOADED){ loadGroups(); if($("#groupSel").value) loadGroup($("#groupSel").value); } };
 $("#matchBtn").onclick=runMatch;
-$("#cleanBtn").onclick=async()=>{ try{ const d=await api("cleanup_groups"); banner(`Cleaned ${d.deleted} empty group(s)`); load(); }catch(e){ banner(e.message,"err"); } };
+$("#cleanBtn").onclick=async()=>{ try{ const d=await api("cleanup_groups"); banner(`Cleaned ${d.deleted} empty group(s)`); load(); if(GROUPS_LOADED) loadGroups(); }catch(e){ banner(e.message,"err"); } };
 $("#logoutBtn").onclick=logout;
 $("#addBtn").onclick=addTest;
 $("#scoreBtn").onclick=computeScores;
+$("#wipeTestBtn").onclick=wipeTestUsers;
 $("#editCancel").onclick=closeEdit;
 $("#editSave").onclick=saveEdit;
 $("#modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeEdit(); });
+$("#groupSel").onchange=()=>loadGroup($("#groupSel").value);
+$("#dropBtn").onclick=drop;
+$("#manualPlace").oninput=()=>{ if($("#manualPlace").value.trim()){SELPLACE=null;renderPlaces();} updateSummary(); };
 
 // auto-resume session
 if (sessionStorage.getItem(CREDS_KEY)) {

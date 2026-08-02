@@ -35,6 +35,7 @@ const EDITABLE = new Set([
   'primary_language', 'secondary_languages', 'profile_color', 'bio',
   'instagram_handle', 'interests', 'pref_age_window_weeks', 'pref_distance_minutes',
   'pref_baby_at_meetups', 'pref_meetup_formats', 'pref_free_blocks', 'paused_until',
+  'role',
 ]);
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
@@ -61,6 +62,10 @@ Deno.serve(async (req) => {
       case 'list_groups':  return json(await listGroups());
       case 'group_meetup_data': return json(await groupMeetupData(body.group_id));
       case 'create_meetup': return json(await createMeetup(body));
+      case 'set_vote':     return json(await setVote(body.proposal_id, body.user_id, body.vote ?? null));
+      case 'sim_group':    return json(await simGroup(body));
+      case 'sim_meetup':   return json(await simMeetup(body));
+      case 'delete_test_users': return json(await deleteTestUsers());
       case 'run_matching': return json(await runMatching());
       case 'score_matrix': return json(await scoreMatrix(body.only_waiting === true));
       default:             return json({ ok: false, error: `unknown action: ${action}` }, 400);
@@ -144,11 +149,41 @@ async function updateUser(id: string, patch: Record<string, unknown>) {
 
 async function deleteUser(id: string) {
   if (!id) return { ok: false, error: 'id required' };
-  // auth.users delete cascades to public.users and all its children.
+  // Profile photos live outside the DB, so the cascade below can't reach them.
+  await purgeAvatars(id);
+  // auth.users delete cascades to public.users and all its children
+  // (group_members, messages, votes, saved_tips, matching_queue, …), so the
+  // person is fully gone: signing up again starts from a blank slate.
   const { error } = await admin.auth.admin.deleteUser(id);
   if (error) throw error;
   await cleanupEmptyGroups();
   return { ok: true };
+}
+
+// Remove every file in the user's own avatars/<uid>/ folder. Best-effort:
+// a missing folder or a storage hiccup must not block the account deletion.
+async function purgeAvatars(id: string) {
+  try {
+    const { data } = await admin.storage.from('avatars').list(id, { limit: 100 });
+    const paths = (data ?? []).map((f: any) => `${id}/${f.name}`);
+    if (paths.length) await admin.storage.from('avatars').remove(paths);
+  } catch (_e) { /* best-effort */ }
+}
+
+// Bulk cleanup of everything the sandbox minted (*.test@moma.dev / *@moma.dev).
+// Real accounts are never touched — the filter is the same isTest() the UI uses.
+async function deleteTestUsers() {
+  const { data: users, error } = await admin.from('users').select('id, email');
+  if (error) throw error;
+  const targets = (users ?? []).filter((u: any) => isTest(u.email));
+  let deleted = 0;
+  for (const u of targets) {
+    await purgeAvatars(u.id);
+    const { error: dErr } = await admin.auth.admin.deleteUser(u.id);
+    if (!dErr) deleted++;
+  }
+  const cleaned = await cleanupEmptyGroups();
+  return { ok: true, deleted, cleaned_groups: cleaned };
 }
 
 async function addTestUser(fields: Record<string, any>) {
@@ -321,7 +356,47 @@ async function groupMeetupData(groupId: string) {
     (activeProposals ?? []).find((p: any) => p.state === 'decided') ??
     null;
 
-  return { ok: true, member_count: memberCount, members, grid, places, open_proposal: openProposal };
+  // Each member's RSVP on the active proposal (for the admin responses panel).
+  const votes: Record<string, string> = {};
+  if (openProposal) {
+    const { data: voteRows } = await admin
+      .from('proposal_votes')
+      .select('user_id, vote')
+      .eq('proposal_id', openProposal.id);
+    for (const v of voteRows ?? []) votes[v.user_id] = v.vote;
+  }
+
+  return {
+    ok: true,
+    member_count: memberCount,
+    members,
+    grid,
+    places,
+    open_proposal: openProposal,
+    votes,
+  };
+}
+
+// Admin override of a member's RSVP on a proposal. vote null/'' clears it.
+// Runs with the service role, so it bypasses RLS; the quorum trigger still
+// fires, so setting enough 'going' votes can lock the meetup in.
+async function setVote(proposalId: string, userId: string, vote: string | null) {
+  if (!proposalId || !userId) return { ok: false, error: 'proposal_id and user_id required' };
+  if (!vote || vote === 'none') {
+    const { error } = await admin
+      .from('proposal_votes')
+      .delete()
+      .eq('proposal_id', proposalId)
+      .eq('user_id', userId);
+    if (error) throw error;
+    return { ok: true, cleared: true };
+  }
+  if (!['going', 'maybe', 'cant'].includes(vote)) return { ok: false, error: 'invalid vote' };
+  const { error } = await admin
+    .from('proposal_votes')
+    .upsert({ proposal_id: proposalId, user_id: userId, vote }, { onConflict: 'proposal_id,user_id' });
+  if (error) throw error;
+  return { ok: true, vote };
 }
 
 async function createMeetup(body: any) {
@@ -370,27 +445,283 @@ async function createMeetup(body: any) {
   const tokens = (recips ?? [])
     .filter((r: any) => r.expo_push_token && r.notif_meetup_reminders !== false)
     .map((r: any) => r.expo_push_token);
-  if (tokens.length) {
-    const when = new Date(scheduled_at).toLocaleDateString('en-US', {
-      weekday: 'long', month: 'short', day: 'numeric',
-    });
-    const push = tokens.map((to: string) => ({
-      to,
-      title: 'møma picked a time',
-      body: `${when}${location_name ? ` · ${location_name}` : ''}. Tap to RSVP.`,
-      sound: 'default',
-      data: { type: 'proposal_decided', groupId: group_id, route: `/group/${group_id}/chat` },
-    }));
-    try {
-      await fetch('https://exp.host/--/api/v2/push/send', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(push),
-      });
-    } catch (_e) { /* best-effort */ }
-  }
+  const when = new Date(scheduled_at).toLocaleDateString('en-US', {
+    weekday: 'long', month: 'short', day: 'numeric',
+  });
+  await sendPush(tokens, {
+    title: 'møma picked a time',
+    body: `${when}${location_name ? ` · ${location_name}` : ''}. Tap to RSVP.`,
+    data: { type: 'proposal_decided', groupId: group_id, route: `/group/${group_id}/chat` },
+  });
 
   return { ok: true, proposal, pushed: tokens.length };
+}
+
+// Best-effort fan-out to the Expo push service. Never throws.
+async function sendPush(
+  tokens: string[],
+  msg: { title: string; body: string; data?: Record<string, unknown> },
+) {
+  if (!tokens.length) return;
+  try {
+    await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(tokens.map((to) => ({ to, sound: 'default', ...msg }))),
+    });
+  } catch (_e) { /* best-effort */ }
+}
+
+// ---- sandbox: one-click group + meetup simulation ---------------------------
+//
+// The point is to reproduce, without waiting for the nightly matcher, the exact
+// state a real user lands in: a group of 3–5 with plausible neighbours, then a
+// meetup on the calendar. Every user minted here gets a *.test@moma.dev address
+// so the panel (and `delete_test_users`) can always tell them apart from real
+// signups.
+
+const SIM_NAMES = [
+  'Chloé', 'Manon', 'Inès', 'Léa', 'Camille', 'Sarah', 'Jade', 'Louise',
+  'Anaïs', 'Émilie', 'Nour', 'Yasmine', 'Clara', 'Alice', 'Maëlys', 'Zoé',
+];
+const SIM_COLORS = ['#E8389C', '#FF7A00', '#9878C8', '#00B8C8', '#B8D830', '#0038FF', '#FFC800', '#E82030'];
+const SIM_BIOS = [
+  'first-time mom, mostly running on coffee.',
+  'here for the walks and the honest conversations.',
+  'new to the neighbourhood, looking for a village.',
+  'sleep-deprived but up for a park bench chat.',
+];
+const SIM_OPENERS = [
+  'hi everyone! so glad we got matched',
+  'I’m around most mornings this week if anyone fancies a walk',
+  'same here — coffee somewhere central?',
+];
+
+const rand = (n: number) => Math.floor(Math.random() * n);
+const pick = <T>(arr: T[]) => arr[rand(arr.length)];
+function shuffled<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = rand(i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+// ±deg/2 of noise — used to scatter the fake moms a few hundred metres around
+// the real user so distance scoring stays well inside every pref_distance.
+const jitter = (v: number, deg: number) => v + (Math.random() - 0.5) * deg;
+
+function shiftDays(iso: string, days: number): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+async function simGroup(body: any) {
+  const userId = String(body.user_id ?? '');
+  if (!userId) return { ok: false, error: 'user_id required' };
+  const fakeCount = Math.max(1, Math.min(4, Number(body.count ?? 3)));
+  const preview = body.state === 'preview';
+  const seedChat = body.seed_chat !== false;
+
+  const { data: target } = await admin.from('users').select('*').eq('id', userId).maybeSingle();
+  if (!target) return { ok: false, error: 'user not found' };
+
+  const { data: mems } = await admin.from('group_members').select('group_id').eq('user_id', userId);
+  if ((mems ?? []).length >= 2) {
+    return { ok: false, error: `${target.display_name ?? 'This user'} is already in 2 groups (the cap). Reset them first.` };
+  }
+
+  const names = shuffled(SIM_NAMES).slice(0, fakeCount);
+  const colors = shuffled(SIM_COLORS);
+  const madeIds: string[] = [];
+
+  try {
+    // 1. Mint the fake moms as clones of the target's matching signals, so a
+    //    scoring run would pair them (same city/language/stage, nearby coords,
+    //    baby born within a fortnight of theirs).
+    for (let i = 0; i < fakeCount; i++) {
+      const name = names[i];
+      const slug = name.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '') || 'sim';
+      const email = `${slug}.${Date.now().toString(36)}${i}.test@moma.dev`;
+
+      const { data: created, error: aErr } = await admin.auth.admin.createUser({
+        email, password: crypto.randomUUID(), email_confirm: true,
+      });
+      if (aErr) throw aErr;
+      const id = created.user!.id;
+      madeIds.push(id);
+
+      // One mentor in the group when the target is a first-time mom.
+      const mentor = i === 0 && target.is_first_baby !== false;
+
+      const { error: uErr } = await admin.from('users').insert({
+        id,
+        email,
+        display_name: name,
+        age: target.age != null ? Math.max(18, Number(target.age) + rand(5) - 2) : null,
+        city: target.city,
+        neighbourhood: target.neighbourhood,
+        latitude: target.latitude != null ? jitter(Number(target.latitude), 0.012) : null,
+        longitude: target.longitude != null ? jitter(Number(target.longitude), 0.018) : null,
+        baby_dob: target.baby_dob ? shiftDays(target.baby_dob, rand(29) - 14) : null,
+        life_stage: target.life_stage,
+        kid_count: target.kid_count,
+        is_first_baby: mentor ? false : target.is_first_baby,
+        is_mentor_eligible: mentor,
+        primary_language: target.primary_language,
+        secondary_languages: target.secondary_languages,
+        profile_color: colors[i % colors.length],
+        bio: pick(SIM_BIOS),
+        recurring_availability: target.recurring_availability,
+        pref_age_window_weeks: target.pref_age_window_weeks,
+        pref_distance_minutes: target.pref_distance_minutes,
+        pref_baby_at_meetups: target.pref_baby_at_meetups,
+        pref_meetup_formats: target.pref_meetup_formats,
+        pref_free_blocks: target.pref_free_blocks,
+      });
+      if (uErr) throw uErr;
+    }
+
+    // 2. The group itself — same naming the matcher uses.
+    const groupName = `${target.city ?? 'møma'} ${target.life_stage ?? 'group'}`.toLowerCase();
+    const { data: group, error: gErr } = await admin
+      .from('groups')
+      .insert({
+        name: groupName,
+        city: target.city,
+        neighbourhood: target.neighbourhood,
+        type: 'neighbourhood',
+        status: 'active',
+      })
+      .select('id, name')
+      .maybeSingle();
+    if (gErr || !group) throw gErr ?? new Error('group insert failed');
+
+    // 3. Everyone joins (the matcher pre-joins candidates too, so preview mode
+    //    and joined mode differ only by the queue status).
+    const { error: mErr } = await admin
+      .from('group_members')
+      .insert([userId, ...madeIds].map((uid) => ({ group_id: group.id, user_id: uid })));
+    if (mErr) {
+      await admin.from('groups').delete().eq('id', group.id);
+      throw mErr;
+    }
+
+    await admin.from('matching_queue').upsert(
+      madeIds.map((uid) => ({ user_id: uid, status: 'matched' })),
+      { onConflict: 'user_id' },
+    );
+    await admin.from('matching_queue').upsert(
+      {
+        user_id: userId,
+        status: preview ? 'previewing' : 'matched',
+        current_preview_group_id: preview ? group.id : null,
+      },
+      { onConflict: 'user_id' },
+    );
+
+    // 4. A couple of opener messages so the group isn't a dead room (and Home
+    //    shows a last-message preview + pulse).
+    if (seedChat && !preview) {
+      const now = Date.now();
+      const msgs = madeIds.slice(0, SIM_OPENERS.length).map((uid, i) => ({
+        group_id: group.id,
+        sender_id: uid,
+        content: SIM_OPENERS[i],
+        created_at: new Date(now - (madeIds.length - i) * 7 * 60_000).toISOString(),
+      }));
+      if (msgs.length) await admin.from('messages').insert(msgs);
+    }
+
+    if (target.expo_push_token) {
+      await sendPush([target.expo_push_token], preview
+        ? {
+          title: 'Your group is ready',
+          body: `${fakeCount} moms near you${target.neighbourhood ? ` in ${target.neighbourhood}` : ''}. Take a look.`,
+          data: { type: 'group_matched_preview', groupId: group.id, route: '/group-preview' },
+        }
+        : {
+          title: 'You’re in a group',
+          body: `Say hi to your ${fakeCount} new neighbours.`,
+          data: { type: 'group_matched_joined', groupId: group.id, route: `/group/${group.id}/chat` },
+        });
+    }
+
+    return {
+      ok: true,
+      group_id: group.id,
+      group_name: group.name,
+      members: madeIds.length + 1,
+      state: preview ? 'previewing' : 'matched',
+      created: names,
+    };
+  } catch (e) {
+    // Never leave half-built fakes behind.
+    for (const id of madeIds) await admin.auth.admin.deleteUser(id).catch(() => {});
+    throw e;
+  }
+}
+
+async function simMeetup(body: any) {
+  const groupId = String(body.group_id ?? '');
+  if (!groupId) return { ok: false, error: 'group_id required' };
+
+  const inDays = Math.max(0, Math.min(30, Number(body.in_days ?? 3)));
+  const block = ['morning', 'afternoon', 'evening'].includes(body.block) ? body.block : 'morning';
+  const d = new Date();
+  d.setDate(d.getDate() + inDays);
+  const date = d.toISOString().slice(0, 10);
+
+  const { data: memberRows } = await admin
+    .from('group_members')
+    .select('user_id, user:users(id, email, latitude, longitude, neighbourhood, city)')
+    .eq('group_id', groupId);
+  const members = (memberRows ?? []).map((m: any) => m.user).filter(Boolean);
+  if (!members.length) return { ok: false, error: 'group has no members' };
+
+  // Put the place a short walk from the group, so the map preview renders.
+  const anchor = members.find((m: any) => m.latitude != null && m.longitude != null);
+  const name = String(body.location_name ?? '').trim() ||
+    `café ${anchor?.neighbourhood ?? anchor?.city ?? 'downtown'}`.toLowerCase();
+  const meetup: any = await createMeetup({
+    group_id: groupId,
+    date,
+    block,
+    note: body.note ?? null,
+    location_name: name,
+    location_lat: anchor ? jitter(Number(anchor.latitude), 0.006) : null,
+    location_lng: anchor ? jitter(Number(anchor.longitude), 0.009) : null,
+  });
+  if (!meetup.ok || !meetup.proposal) return meetup;
+
+  // RSVPs. 'all' locks the meetup in via the quorum trigger; 'fakes' leaves the
+  // real user something to tap in the app; 'none' keeps it fully open.
+  const who = ['all', 'fakes', 'none'].includes(body.votes) ? body.votes : 'all';
+  let voters: any[] = [];
+  if (who === 'all') voters = members;
+  else if (who === 'fakes') voters = members.filter((m: any) => isTest(m.email));
+
+  for (const v of voters) {
+    await admin.from('proposal_votes').upsert(
+      { proposal_id: meetup.proposal.id, user_id: v.id, vote: 'going' },
+      { onConflict: 'proposal_id,user_id' },
+    );
+  }
+
+  // Re-read: the quorum trigger may have flipped it to `decided` mid-loop.
+  const { data: fresh } = await admin
+    .from('meetup_proposals')
+    .select('*')
+    .eq('id', meetup.proposal.id)
+    .maybeSingle();
+
+  return {
+    ok: true,
+    proposal: fresh ?? meetup.proposal,
+    pushed: meetup.pushed,
+    going: voters.length,
+    state: fresh?.state ?? 'open',
+    scheduled_at: (fresh ?? meetup.proposal).scheduled_at,
+    location_name: name,
+  };
 }
 
 async function runMatching() {
