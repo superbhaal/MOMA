@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { Card } from '@/components/ui/Card';
+import { Illustration } from '@/components/ui/Illustration';
 import { GroupCard } from '@/components/groups/GroupCard';
 import { WaitingForMatchCard } from '@/components/groups/WaitingForMatchCard';
 import { colors } from '@/constants/colors';
@@ -61,23 +62,24 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Page header */}
+      {/* Page header — v11 menu style: centred, serif italic cobalt name */}
       <View style={styles.header}>
-        <Typography style={styles.eyebrow} color={colors.muted}>
+        <Typography style={styles.eyebrow} color={colors.mutedStrong}>
           {greeting.toUpperCase()}
         </Typography>
-        <Typography style={styles.title} color={colors.text}>
+        <Typography style={styles.title} color={colors.cobalt}>
           {firstName}
         </Typography>
         {babyLabel ? (
-          <View style={styles.weekPill}>
-            <Typography style={styles.weekPillText} color={colors.white}>
-              {babyLabel}
-            </Typography>
-          </View>
+          <Typography style={styles.babyLabel} color={colors.mutedStrong}>
+            {babyLabel}
+          </Typography>
         ) : null}
+        <Typography style={styles.motif} color={colors.cobalt}>
+          ❖
+        </Typography>
+        <Illustration name="dancer" size="lg" style={styles.illo} />
       </View>
-      <View style={styles.divider} />
 
       <FlatList
         data={visibleGroups}
@@ -88,7 +90,7 @@ export default function HomeScreen() {
         }
         ListHeaderComponent={
           <>
-            <Typography style={styles.sectionLabel} color={colors.muted}>
+            <Typography style={styles.sectionLabel} color={colors.cobalt}>
               YOUR GROUPS
             </Typography>
 
@@ -192,34 +194,51 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   header: {
+    alignItems: 'center',
     paddingHorizontal: spacing.xl,
-    paddingTop: 14,
+    paddingTop: 26,
+    position: 'relative',
+  },
+  // Sits in the right margin, level with the baby line — the greeting stays
+  // optically centred because the drawing is out of the text flow.
+  illo: {
+    position: 'absolute',
+    right: spacing.md,
+    bottom: 0,
   },
   eyebrow: {
-    fontFamily: 'DMSans-Regular',
-    fontSize: 11,
-    letterSpacing: 1.6,
-    marginBottom: 2,
+    fontFamily: 'DMSans-Medium',
+    fontSize: 9,
+    letterSpacing: 3,
+    textAlign: 'center',
+    marginBottom: 4,
   },
   title: {
-    fontFamily: 'CormorantGaramond-Light',
-    fontSize: 36,
-    lineHeight: 38,
-    letterSpacing: -0.4,
+    fontFamily: 'CormorantGaramond-LightItalic',
+    fontSize: 38,
+    lineHeight: 44,
+    letterSpacing: -0.6,
+    textAlign: 'center',
   },
-  divider: {
-    height: 1,
-    backgroundColor: colors.line,
-    marginHorizontal: spacing.xl,
-    marginTop: 10,
+  babyLabel: {
+    fontFamily: 'DMSans-SemiBold',
+    fontSize: 11,
+    letterSpacing: 0.3,
+    textAlign: 'center',
+    marginTop: 6,
+  },
+  motif: {
+    fontSize: 13,
+    marginTop: spacing.lg,
+    marginBottom: 2,
   },
   sectionLabel: {
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: 10,
-    letterSpacing: 1.6,
-    paddingTop: 14,
-    paddingBottom: 8,
-    paddingHorizontal: 4,
+    fontFamily: 'DMSans-Medium',
+    fontSize: 8.5,
+    letterSpacing: 2.4,
+    textAlign: 'center',
+    paddingTop: 12,
+    paddingBottom: 4,
   },
   list: {
     paddingHorizontal: spacing.lg,

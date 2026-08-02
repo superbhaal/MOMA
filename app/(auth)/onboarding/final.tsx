@@ -74,7 +74,7 @@ export default function FinalScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.hero}>
         {queueing ? (
-          <ActivityIndicator size="large" color={colors.white} />
+          <ActivityIndicator size="large" color={colors.cobalt} />
         ) : (
           <>
             <Typography style={styles.name}>{firstName}.</Typography>
@@ -96,7 +96,7 @@ export default function FinalScreen() {
                     ringColor={a.ring}
                     size={40}
                     ringWidth={2}
-                    outlineColor={colors.cobalt}
+                    outlineColor={colors.white}
                   />
                 </View>
               ))}
@@ -125,7 +125,7 @@ export default function FinalScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.cobalt,
+    backgroundColor: colors.white,
     justifyContent: 'space-between',
   },
   hero: {
@@ -135,21 +135,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xxl,
   },
   name: {
-    fontFamily: fonts.serif,
-    fontWeight: '300',
+    fontFamily: fonts.serifItal,
     fontSize: 56,
-    lineHeight: 60,
-    letterSpacing: -0.8,
-    color: colors.white,
+    lineHeight: 62,
+    letterSpacing: -1,
+    color: colors.cobalt,
     textAlign: 'center',
     marginBottom: spacing.lg,
   },
   sub: {
     fontFamily: fonts.body,
-    fontWeight: '300',
-    fontSize: 17,
-    lineHeight: 26,
-    color: 'rgba(255,255,255,0.60)',
+    fontSize: 16,
+    lineHeight: 25,
+    color: colors.mutedStrong,
     textAlign: 'center',
     maxWidth: 320,
     marginBottom: spacing.xxl,
@@ -160,20 +158,20 @@ const styles = StyleSheet.create({
   },
   avRing: {},
   cta: {
-    backgroundColor: colors.white,
-    borderRadius: radius.md,
-    paddingVertical: 14,
-    paddingHorizontal: 32,
+    backgroundColor: colors.cobalt,
+    borderRadius: radius.pill,
+    paddingVertical: 15,
+    paddingHorizontal: 34,
     alignSelf: 'center',
   },
   ctaText: {
-    fontFamily: fonts.bodySemi,
-    fontSize: 13,
-    color: colors.cobalt,
-    letterSpacing: 1.4,
+    fontFamily: fonts.bodyMed,
+    fontSize: 12,
+    color: colors.white,
+    letterSpacing: 2.4,
   },
   footer: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 26,
     paddingTop: spacing.sm,
     position: 'relative',
     minHeight: 28,

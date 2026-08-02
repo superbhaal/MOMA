@@ -112,19 +112,18 @@ export default function Q4ColourScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.cobalt },
+  container: { flex: 1, backgroundColor: colors.white },
   scroll: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 26,
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
   },
   heading: {
-    fontFamily: fonts.serif,
-    fontWeight: '300',
-    fontSize: 38,
-    lineHeight: 42,
-    letterSpacing: -0.5,
-    color: colors.white,
+    fontFamily: fonts.serifItal,
+    fontSize: 40,
+    lineHeight: 46,
+    letterSpacing: -0.8,
+    color: colors.cobalt,
     marginBottom: spacing.md,
   },
   sub: {
@@ -132,14 +131,14 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     fontSize: 17,
     lineHeight: 24,
-    color: 'rgba(255,255,255,0.65)',
-    marginBottom: spacing.xl,
+    color: colors.mutedStrong,
+    marginBottom: spacing.xxl,
   },
   groupLabel: {
-    fontFamily: fonts.bodySemi,
-    fontSize: 11,
-    letterSpacing: 2,
-    color: 'rgba(255,255,255,0.55)',
+    fontFamily: fonts.bodyMed,
+    fontSize: 10,
+    letterSpacing: 2.4,
+    color: colors.cobalt,
     marginBottom: spacing.sm,
   },
   swatches: {
@@ -157,28 +156,28 @@ const styles = StyleSheet.create({
   captionPicked: {
     fontFamily: fonts.bodySemi,
     fontSize: 14,
-    color: colors.white,
+    color: colors.text,
     letterSpacing: 0.2,
   },
   captionDash: {
     fontFamily: fonts.bodyMed,
     fontSize: 14,
-    color: 'rgba(255,255,255,0.60)',
+    color: colors.muted,
   },
   captionName: {
     fontFamily: fonts.bodySemi,
     fontSize: 14,
-    color: colors.white,
+    color: colors.cobalt,
     letterSpacing: 0.2,
   },
   captionEmpty: {
     fontFamily: fonts.body,
     fontStyle: 'italic',
     fontSize: 14,
-    color: 'rgba(255,255,255,0.45)',
+    color: colors.muted,
   },
   footer: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 26,
     paddingTop: spacing.sm,
     position: 'relative',
   },

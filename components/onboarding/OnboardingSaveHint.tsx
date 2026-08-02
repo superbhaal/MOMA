@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
+import { colors } from '@/constants/colors';
 
 /**
  * Italic "Auto-saved · close anytime…" footer hint with a small leading dot.
@@ -32,11 +33,11 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: 'rgba(255,255,255,0.4)',
+    backgroundColor: colors.lineStrong,
   },
   text: {
     fontSize: 10,
-    color: 'rgba(255,255,255,0.55)',
+    color: colors.muted,
     letterSpacing: 0.4,
   },
 });

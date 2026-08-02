@@ -99,7 +99,7 @@ export default function Q2BabyDobScreen() {
           <Typography style={[styles.dateText, babyDob ? styles.dateTextFilled : null]}>
             {babyDob ? formatDob(babyDob) : 'mm / dd / yyyy'}
           </Typography>
-          <Ionicons name="calendar-outline" size={20} color="rgba(26,75,204,0.55)" />
+          <Ionicons name="calendar-outline" size={20} color={colors.cobalt} />
         </Pressable>
       </ScrollView>
 
@@ -154,31 +154,31 @@ export default function Q2BabyDobScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.cobalt },
+  container: { flex: 1, backgroundColor: colors.white },
   scroll: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 26,
     paddingTop: spacing.lg,
     paddingBottom: spacing.lg,
   },
   heading: {
-    fontFamily: fonts.serif,
-    fontWeight: '300',
-    fontSize: 38,
-    lineHeight: 42,
-    letterSpacing: -0.5,
-    color: colors.white,
+    fontFamily: fonts.serifItal,
+    fontSize: 40,
+    lineHeight: 46,
+    letterSpacing: -0.8,
+    color: colors.cobalt,
     marginBottom: spacing.md,
   },
   sub: {
     fontFamily: fonts.body,
-    fontWeight: '300',
-    fontSize: 17,
-    lineHeight: 24,
-    color: 'rgba(255,255,255,0.60)',
-    marginBottom: spacing.xl,
+    fontSize: 16,
+    lineHeight: 23,
+    color: colors.mutedStrong,
+    marginBottom: spacing.xxl,
   },
   dateInput: {
     backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.lineStrong,
     borderRadius: radius.pill,
     paddingVertical: 18,
     paddingHorizontal: spacing.xl,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   dateText: {
     fontFamily: fonts.bodyMed,
     fontSize: 20,
-    color: 'rgba(26,75,204,0.45)',
+    color: colors.muted,
     letterSpacing: 0.5,
   },
   dateTextFilled: {
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0,
   },
   footer: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 26,
     paddingTop: spacing.sm,
     position: 'relative',
   },

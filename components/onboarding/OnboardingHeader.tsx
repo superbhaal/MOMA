@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
+import { colors } from '@/constants/colors';
+import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 
 interface OnboardingHeaderProps {
@@ -13,37 +15,29 @@ interface OnboardingHeaderProps {
 }
 
 /**
- * Cobalt-bg onboarding header: "STEP X OF 4" + Skip + segmented progress bar.
- * The auto-saved hint is rendered separately at the bottom of the screen via
- * OnboardingSaveHint — see standalone .ob-save-hint (absolute bottom 12px).
+ * v11 quiz header on the white ground: serif "STEP X OF 4", a quiet Skip link
+ * and one thin rule that fills in cobalt as the quiz advances — the segmented
+ * bar of the cobalt-ground design is gone.
+ * Ref: design/moma-v11.html · #screen-onboard (Refined skin).
  */
 export function OnboardingHeader({ current, total = 4, onSkip }: OnboardingHeaderProps) {
   const insets = useSafeAreaInsets();
+  const progress = Math.min(1, Math.max(0, current / total));
   return (
     <View style={[styles.wrap, { paddingTop: insets.top + spacing.sm }]}>
       <View style={styles.row}>
-        <Typography variant="labelS" style={styles.step}>
+        <Typography style={styles.step}>
           STEP {current} OF {total}
         </Typography>
         {onSkip ? (
           <Pressable onPress={onSkip} hitSlop={10}>
-            <Typography variant="labelS" style={styles.skip}>
-              Skip
-            </Typography>
+            <Typography style={styles.skip}>SKIP</Typography>
           </Pressable>
         ) : null}
-      </View>
-      <View style={styles.bar}>
-        {Array.from({ length: total }).map((_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.seg,
-              i < current - 1 && styles.segDone,
-              i === current - 1 && styles.segCur,
-            ]}
-          />
-        ))}
+        <View style={styles.bar}>
+          <View style={[styles.barFill, { flex: progress }]} />
+          <View style={{ flex: 1 - progress }} />
+        </View>
       </View>
     </View>
   );
@@ -51,39 +45,37 @@ export function OnboardingHeader({ current, total = 4, onSkip }: OnboardingHeade
 
 const styles = StyleSheet.create({
   wrap: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.md,
+    paddingHorizontal: 26,
+    paddingBottom: spacing.lg,
+    backgroundColor: colors.white,
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.sm,
+    gap: spacing.md,
   },
   step: {
-    color: 'rgba(255,255,255,0.60)',
-    letterSpacing: 2,
+    fontFamily: fonts.serifReg,
+    fontSize: 13,
+    letterSpacing: 2.4,
+    color: colors.text,
   },
   skip: {
-    color: 'rgba(255,255,255,0.60)',
-    letterSpacing: 0,
-    textTransform: 'none',
-    fontSize: 13,
+    fontFamily: fonts.bodyMed,
+    fontSize: 10,
+    letterSpacing: 1.6,
+    color: colors.muted,
   },
   bar: {
-    flexDirection: 'row',
-    gap: 4,
-  },
-  seg: {
     flex: 1,
+    flexDirection: 'row',
     height: 2,
     borderRadius: 2,
-    backgroundColor: 'rgba(255,255,255,0.20)',
+    backgroundColor: colors.lineStrong,
+    overflow: 'hidden',
   },
-  segCur: {
-    backgroundColor: 'rgba(255,255,255,0.50)',
-  },
-  segDone: {
-    backgroundColor: 'rgba(255,255,255,0.85)',
+  barFill: {
+    backgroundColor: colors.cobalt,
+    borderRadius: 2,
   },
 });

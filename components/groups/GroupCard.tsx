@@ -1,10 +1,11 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
-import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { GroupPulse } from './GroupPulse';
 import { colors } from '@/constants/colors';
-import { radius, spacing } from '@/constants/spacing';
+import { fonts } from '@/constants/typography';
+import { spacing } from '@/constants/spacing';
 import type { GroupWithDetails } from '@/types';
 
 interface GroupCardProps {
@@ -12,83 +13,99 @@ interface GroupCardProps {
   onPress: () => void;
 }
 
+/**
+ * v11 "menu listing" group card — the group set like a dish on a menu:
+ * centred, transparent (no card chrome), serif cobalt name over small-caps
+ * meta, the meetup as a serif line, the last message in Lora italic.
+ * Ref: design/moma-v11.html · #screen-home .group-card.group-plate.
+ */
 export function GroupCard({ group, onPress }: GroupCardProps) {
   const meetup = group.open_proposal;
-  // A locked-in meetup turns the block green; open meetups stay blush.
   const decided = meetup?.state === 'decided';
-  const meetupSurface = decided ? colors.meadow : colors.blush;
-  const meetupStrong = decided ? colors.meadowText : colors.blushText;
-  const meetupMuted = decided ? colors.meadowMuted : colors.blushMuted;
+  const memberCount = group.members.length;
+  const meta = [group.neighbourhood, `${memberCount} member${memberCount === 1 ? '' : 's'}`]
+    .filter(Boolean)
+    .join(' · ');
+  // Resolve the last message's sender from the member list (no extra join).
+  const senderName = group.last_message
+    ? group.members.find((m) => m.user_id === group.last_message!.sender_id)?.user.display_name
+    : undefined;
+
   return (
-    <Card onPress={onPress} padded={false} style={styles.card}>
-      <View style={styles.header}>
-        <View style={{ flex: 1 }}>
-          <Typography variant="displayM" color={colors.text}>
-            {group.name}
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
+      {group.unread_count > 0 ? <View style={styles.unreadPip} /> : null}
+
+      <Typography style={styles.name} color={colors.cobalt}>
+        {group.name}
+      </Typography>
+      <Typography style={styles.meta} color={colors.mutedStrong}>
+        {meta.toUpperCase()}
+      </Typography>
+
+      {meetup ? (
+        <View style={styles.meetup}>
+          <View style={styles.rule} />
+          <Typography style={styles.meetupLabel} color={colors.mutedStrong}>
+            {decided ? 'MEETUP LOCKED IN' : 'NEXT MEETUP'}
           </Typography>
-          {group.neighbourhood ? (
-            <Typography variant="bodyM" color={colors.muted} style={{ marginTop: 2 }}>
-              {group.neighbourhood.toLowerCase()}
-            </Typography>
+          <Typography style={styles.meetupTime} color={colors.mutedStrong}>
+            {formatWhen(meetup.scheduled_at)}
+          </Typography>
+          {/* The place gets its own pinned, underlined line — it reads as the
+              destination rather than as a tail on the date. */}
+          {meetup.location_name ? (
+            <View style={styles.placeRow}>
+              <Ionicons name="location-outline" size={12} color={colors.mutedStrong} />
+              <Typography style={styles.placeText} color={colors.mutedStrong} numberOfLines={1}>
+                {meetup.location_name}
+              </Typography>
+            </View>
           ) : null}
+          <Typography style={styles.countdown} color={colors.cobalt}>
+            {countdownLabel(meetup.scheduled_at).toUpperCase()}
+          </Typography>
         </View>
-        {group.unread_count > 0 ? (
-          <View style={styles.unreadPip}>
-            <Typography variant="labelS" color={colors.white}>
-              {group.unread_count}
+      ) : null}
+
+      <View style={styles.avatars}>
+        {group.members.slice(0, 4).map((m, i) => (
+          <View key={m.id} style={{ marginLeft: i === 0 ? 0 : -8 }}>
+            <Avatar
+              name={m.user.display_name}
+              ringColor={m.user.profile_color ?? colors.fuchsia}
+              photoUrl={m.user.avatar_url ?? undefined}
+              size={28}
+              outlineColor={colors.white}
+            />
+          </View>
+        ))}
+        {memberCount > 4 ? (
+          <View style={styles.avCount}>
+            <Typography style={styles.avCountText} color={colors.muted}>
+              +{memberCount - 4}
             </Typography>
           </View>
         ) : null}
       </View>
 
-      {meetup ? (
-        <View style={[styles.meetupBlock, { backgroundColor: meetupSurface }]}>
-          <Typography variant="label" color={meetupMuted}>
-            {decided ? 'MEETUP LOCKED IN' : 'NEXT MEETUP'}
+      {group.last_message ? (
+        <>
+          <View style={styles.rule} />
+          <Typography style={styles.lastMsg} color={colors.mutedStrong} numberOfLines={2}>
+            {senderName ? (
+              <Typography style={styles.lastMsgSender} color={colors.text}>
+                {senderName}:{' '}
+              </Typography>
+            ) : null}
+            “{group.last_message.content}”
           </Typography>
-          <Typography
-            variant="displayM"
-            color={meetupStrong}
-            style={{ marginTop: 2 }}
-          >
-            {formatWhen(meetup.scheduled_at)}
-          </Typography>
-          {meetup.location_name ? (
-            <Typography variant="bodyL" color={meetupStrong} style={{ marginTop: 2 }}>
-              {meetup.location_name}
-            </Typography>
-          ) : null}
-        </View>
+        </>
       ) : null}
 
-      <View style={styles.footer}>
-        <View style={styles.stack}>
-          {group.members.slice(0, 4).map((m, i) => (
-            <View key={m.id} style={[styles.stackItem, { marginLeft: i === 0 ? 0 : -10 }]}>
-              <Avatar
-                name={m.user.display_name}
-                ringColor={m.user.profile_color ?? colors.fuchsia}
-                photoUrl={m.user.avatar_url ?? undefined}
-                size={32}
-                outlineColor={colors.cream}
-              />
-            </View>
-          ))}
-        </View>
+      <View style={styles.pulseRow}>
         <GroupPulse lastMessage={group.last_message} lastActiveAt={group.last_active_at} />
       </View>
-
-      {group.last_message ? (
-        <Typography
-          variant="bodyM"
-          color={colors.muted}
-          numberOfLines={1}
-          style={styles.lastMessage}
-        >
-          “{group.last_message.content}”
-        </Typography>
-      ) : null}
-    </Card>
+    </Pressable>
   );
 }
 
@@ -96,48 +113,128 @@ function formatWhen(iso: string): string {
   const d = new Date(iso);
   const now = new Date();
   const sameYear = d.getFullYear() === now.getFullYear();
-  const opts: Intl.DateTimeFormatOptions = {
+  return d.toLocaleString('en-US', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
     hour: 'numeric',
     minute: '2-digit',
     ...(sameYear ? {} : { year: 'numeric' }),
-  };
-  return d.toLocaleString('en-US', opts).toLowerCase();
+  });
+}
+
+function countdownLabel(iso: string): string {
+  const days = Math.ceil((new Date(iso).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  if (days <= 0) return 'Today';
+  if (days === 1) return 'Tomorrow';
+  return `In ${days} days`;
 }
 
 const styles = StyleSheet.create({
   card: {
-    padding: spacing.lg,
-    gap: spacing.md,
+    alignItems: 'center',
+    paddingTop: 26,
+    paddingBottom: 24,
+    paddingHorizontal: spacing.xl,
+    position: 'relative',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
+  pressed: { opacity: 0.65 },
   unreadPip: {
-    minWidth: 22,
-    height: 22,
-    paddingHorizontal: 6,
-    borderRadius: 11,
+    position: 'absolute',
+    top: 30,
+    right: spacing.xl,
+    width: 7,
+    height: 7,
+    borderRadius: 4,
     backgroundColor: colors.fuchsia,
+  },
+  name: {
+    fontFamily: fonts.serif, // Cormorant Light 300
+    fontSize: 28,
+    lineHeight: 32,
+    letterSpacing: -0.14,
+    textAlign: 'center',
+  },
+  meta: {
+    fontFamily: fonts.body,
+    fontSize: 9,
+    letterSpacing: 2.5,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  rule: {
+    alignSelf: 'center',
+    width: '58%',
+    height: 1,
+    backgroundColor: colors.line,
+    marginVertical: spacing.md,
+  },
+  meetup: { alignItems: 'center', alignSelf: 'stretch' },
+  meetupLabel: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 8.5,
+    letterSpacing: 2.5,
+    textAlign: 'center',
+  },
+  meetupTime: {
+    fontFamily: fonts.serif,
+    fontSize: 18,
+    lineHeight: 24,
+    textAlign: 'center',
+    marginTop: 3,
+  },
+  placeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    alignSelf: 'center',
+    marginTop: 3,
+    paddingBottom: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.lineStrong,
+    borderStyle: 'dotted',
+    maxWidth: '85%',
+  },
+  placeText: {
+    fontFamily: fonts.serifReg,
+    fontSize: 17,
+    lineHeight: 22,
+  },
+  countdown: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 9,
+    letterSpacing: 0.6,
+    marginTop: 8,
+    alignSelf: 'flex-end',
+  },
+  avatars: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.lg,
+  },
+  avCount: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    marginLeft: -8,
+    backgroundColor: '#EEECE7',
+    borderWidth: 2,
+    borderColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  meetupBlock: {
-    backgroundColor: colors.blush,
-    padding: spacing.md,
-    borderRadius: radius.md,
+  avCountText: { fontFamily: fonts.bodySemi, fontSize: 8.5 },
+  lastMsg: {
+    fontFamily: fonts.readingItal,
+    fontSize: 12.5,
+    lineHeight: 18,
+    textAlign: 'center',
+    maxWidth: '86%',
   },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  lastMsgSender: {
+    fontFamily: fonts.bodySemi,
+    fontSize: 11,
   },
-  stack: { flexDirection: 'row' },
-  stackItem: {},
-  lastMessage: {
-    marginTop: -spacing.xs,
-  },
+  pulseRow: { marginTop: spacing.md, alignItems: 'center' },
 });

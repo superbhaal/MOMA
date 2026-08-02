@@ -491,13 +491,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xxxl,
   },
+  // Same masthead as the quiz steps that follow it: serif italic, cobalt.
   heading: {
-    fontFamily: fonts.serifReg,
-    fontSize: 36,
-    lineHeight: 40,
-    color: colors.text,
+    fontFamily: fonts.serifItal,
+    fontSize: 38,
+    lineHeight: 44,
+    color: colors.cobalt,
     marginTop: spacing.md,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
   subhead: {
     marginTop: spacing.sm,

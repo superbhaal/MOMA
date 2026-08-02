@@ -57,12 +57,14 @@ export default function Q1FirstBabyScreen() {
 
         <View style={styles.options}>
           <OptionCard
+            letter="a"
             title="Yes"
             desc="Doing this for the first time."
             selected={isFirst === true}
             onPress={() => setIsFirst(true)}
           />
           <OptionCard
+            letter="b"
             title="No"
             desc="Been here before."
             selected={isFirst === false}
@@ -83,12 +85,18 @@ export default function Q1FirstBabyScreen() {
   );
 }
 
+/**
+ * One answer per line: a serif letter marker, the answer, then its gloss —
+ * the whole row inside a hairline pill. Ref: design/moma-v11.html quiz options.
+ */
 function OptionCard({
+  letter,
   title,
   desc,
   selected,
   onPress,
 }: {
+  letter: string;
   title: string;
   desc: string;
   selected: boolean;
@@ -99,10 +107,13 @@ function OptionCard({
       onPress={onPress}
       style={[styles.optCard, selected && styles.optCardSel]}
     >
+      <Typography style={[styles.optLetter, selected && styles.optLetterSel]}>
+        {letter}
+      </Typography>
       <Typography style={[styles.optTitle, selected && styles.optTitleSel]}>
         {title}
       </Typography>
-      <Typography style={[styles.optDesc, selected && styles.optDescSel]}>
+      <Typography style={styles.optDesc} numberOfLines={2}>
         {desc}
       </Typography>
     </Pressable>
@@ -110,66 +121,71 @@ function OptionCard({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.cobalt },
+  container: { flex: 1, backgroundColor: colors.white },
   scroll: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 26,
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
   },
   heading: {
-    fontFamily: fonts.serif,
-    fontWeight: '300',
-    fontSize: 38,
-    lineHeight: 42,
-    letterSpacing: -0.5,
-    color: colors.white,
+    fontFamily: fonts.serifItal,
+    fontSize: 40,
+    lineHeight: 46,
+    letterSpacing: -0.8,
+    color: colors.cobalt,
     marginBottom: spacing.md,
   },
   sub: {
     fontFamily: fonts.body,
-    fontWeight: '300',
-    fontSize: 17,
-    lineHeight: 24,
-    color: 'rgba(255,255,255,0.60)',
-    marginBottom: spacing.xl,
+    fontSize: 16,
+    lineHeight: 23,
+    color: colors.mutedStrong,
+    marginBottom: spacing.xxl,
   },
   options: {
     gap: 10,
   },
   optCard: {
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.40)',
-    borderRadius: radius.lg,
-    paddingVertical: 22,
-    paddingHorizontal: 20,
+    borderColor: colors.lineStrong,
+    borderRadius: radius.pill,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
   },
   optCardSel: {
-    backgroundColor: colors.white,
-    borderColor: colors.white,
+    backgroundColor: colors.cobaltSoft,
+    borderWidth: 1.5,
+    borderColor: colors.cobalt,
+  },
+  optLetter: {
+    fontFamily: fonts.serifItal,
+    fontSize: 18,
+    color: colors.muted,
+  },
+  optLetterSel: {
+    color: colors.cobalt,
   },
   optTitle: {
     fontFamily: fonts.bodySemi,
-    fontSize: 19,
-    lineHeight: 24,
-    color: colors.white,
-    marginBottom: 4,
+    fontSize: 17,
+    color: colors.text,
   },
   optTitleSel: {
     color: colors.cobalt,
   },
   optDesc: {
+    flex: 1,
     fontFamily: fonts.body,
-    fontWeight: '300',
-    fontSize: 15,
-    lineHeight: 22,
-    color: 'rgba(255,255,255,0.60)',
-  },
-  optDescSel: {
-    color: 'rgba(26,75,204,0.62)',
+    fontSize: 14,
+    lineHeight: 19,
+    color: colors.muted,
   },
   footer: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 26,
     paddingTop: spacing.sm,
     position: 'relative',
   },

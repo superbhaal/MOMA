@@ -38,7 +38,7 @@ export default function ResumeScreen() {
   if (authLoading || !showResumeCard) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color={colors.white} />
+        <ActivityIndicator size="large" color={colors.cobalt} />
       </View>
     );
   }
@@ -46,22 +46,22 @@ export default function ResumeScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.xxl, paddingBottom: insets.bottom + spacing.xl }]}>
       <View style={styles.body}>
-        <Typography variant="labelS" color="rgba(255,255,255,0.6)" style={styles.eyebrow}>
+        <Typography variant="labelS" color={colors.muted} style={styles.eyebrow}>
           WELCOME BACK
         </Typography>
         <Typography style={styles.heading}>
           You were{'\n'}almost there.
         </Typography>
-        <Typography variant="bodyL" color="rgba(255,255,255,0.75)" style={styles.sub}>
+        <Typography variant="bodyL" color={colors.mutedStrong} style={styles.sub}>
           You answered {progress.answered} of {TOTAL_STEPS} questions. Pick up where you left off. We kept your answers safe.
         </Typography>
 
         <View style={styles.progressCard}>
           <View style={styles.progressTop}>
-            <Typography variant="labelS" color="rgba(255,255,255,0.7)">
+            <Typography variant="labelS" color={colors.muted}>
               PROGRESS
             </Typography>
-            <Typography variant="labelS" color={colors.white}>
+            <Typography variant="labelS" color={colors.cobalt}>
               {progress.answered} / {TOTAL_STEPS}
             </Typography>
           </View>
@@ -73,7 +73,7 @@ export default function ResumeScreen() {
               />
             ))}
           </View>
-          <Typography variant="bodyM" color="rgba(255,255,255,0.75)" style={styles.nextUp}>
+          <Typography variant="bodyM" color={colors.mutedStrong} style={styles.nextUp}>
             Next up: {progress.nextLabel}
           </Typography>
         </View>
@@ -84,7 +84,7 @@ export default function ResumeScreen() {
           onPress={() => router.replace(progress.nextRoute)}
           style={styles.continueBtn}
         >
-          <Typography variant="label" color={colors.cobalt}>
+          <Typography variant="label" color={colors.white}>
             CONTINUE WHERE I LEFT OFF
           </Typography>
         </Pressable>
@@ -98,7 +98,7 @@ export default function ResumeScreen() {
           style={styles.startOverBtn}
           disabled={starting}
         >
-          <Typography variant="bodyL" color={colors.white}>
+          <Typography variant="bodyL" color={colors.muted}>
             Start over instead
           </Typography>
         </Pressable>
@@ -110,8 +110,8 @@ export default function ResumeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.cobalt,
-    paddingHorizontal: spacing.xl,
+    backgroundColor: colors.white,
+    paddingHorizontal: 26,
   },
   centered: {
     alignItems: 'center',
@@ -125,18 +125,18 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   heading: {
-    fontFamily: fonts.serif,
+    fontFamily: fonts.serifItal,
     fontSize: 48,
-    lineHeight: 52,
-    letterSpacing: -0.5,
-    color: colors.white,
+    lineHeight: 54,
+    letterSpacing: -0.9,
+    color: colors.cobalt,
   },
   sub: {
     marginTop: spacing.xl,
   },
   progressCard: {
     marginTop: spacing.xxl,
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: colors.cobaltSoft,
     borderRadius: radius.lg,
     padding: spacing.lg,
   },
@@ -154,10 +154,10 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 4,
     borderRadius: 2,
-    backgroundColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: colors.lineStrong,
   },
   segDone: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.cobalt,
   },
   nextUp: {
     fontStyle: 'italic',
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   continueBtn: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.cobalt,
     borderRadius: radius.pill,
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.xxl,

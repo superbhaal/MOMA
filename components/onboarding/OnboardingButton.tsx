@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
+import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 
 interface OnboardingButtonProps {
@@ -11,8 +12,10 @@ interface OnboardingButtonProps {
 }
 
 /**
- * White-fill button with cobalt text — the .ob-btn used at the bottom of
- * every cobalt-bg onboarding screen per design/moma-enhanced.html.
+ * The quiz's Continue pill on the v11 white ground: cobalt fill once the step
+ * can be answered, a pale block with muted letterspaced caps until then — so
+ * it reads as "not yet" rather than as a faded copy of itself.
+ * Ref: design/moma-v11.html · #screen-onboard (Refined skin).
  */
 export function OnboardingButton({ title, onPress, disabled, style }: OnboardingButtonProps) {
   return (
@@ -22,11 +25,11 @@ export function OnboardingButton({ title, onPress, disabled, style }: Onboarding
       style={({ pressed }) => [
         styles.btn,
         disabled && styles.disabled,
-        pressed && !disabled && { opacity: 0.85 },
+        pressed && !disabled && { opacity: 0.9 },
         style,
       ]}
     >
-      <Typography variant="label" color={colors.cobalt}>
+      <Typography style={[styles.label, disabled && styles.labelDisabled]}>
         {title.toUpperCase()}
       </Typography>
     </Pressable>
@@ -36,13 +39,22 @@ export function OnboardingButton({ title, onPress, disabled, style }: Onboarding
 const styles = StyleSheet.create({
   btn: {
     width: '100%',
-    backgroundColor: colors.white,
+    backgroundColor: colors.cobalt,
     paddingVertical: spacing.lg,
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   disabled: {
-    opacity: 0.22,
+    backgroundColor: '#F4F3F1',
+  },
+  label: {
+    fontFamily: fonts.bodyMed,
+    fontSize: 12,
+    letterSpacing: 2.4,
+    color: colors.white,
+  },
+  labelDisabled: {
+    color: colors.muted,
   },
 });
