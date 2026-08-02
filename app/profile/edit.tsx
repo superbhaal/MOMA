@@ -16,9 +16,11 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
+import { AddressField } from '@/components/ui/AddressField';
 import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { useAddressField } from '@/hooks/useAddressField';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import { uploadAvatar } from '@/lib/avatar';
@@ -32,7 +34,15 @@ export default function EditProfileScreen() {
   const [avatarUri, setAvatarUri] = useState<string | null>(user?.avatar_url ?? null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [displayName, setDisplayName] = useState(user?.display_name ?? '');
-  const [neighbourhood, setNeighbourhood] = useState(user?.neighbourhood ?? '');
+  // Same capture as Preferences: matching is distance-based, so editing where
+  // you live has to rewrite the coords too — a free-text city moved nobody.
+  const locField = useAddressField({
+    address: user?.address ?? user?.neighbourhood ?? null,
+    city: user?.city ?? null,
+    neighbourhood: user?.neighbourhood ?? null,
+    latitude: user?.latitude ?? null,
+    longitude: user?.longitude ?? null,
+  });
   const [bio, setBio] = useState(user?.bio ?? '');
   const [instagram, setInstagram] = useState(user?.instagram_handle?.replace(/^@/, '') ?? '');
   const [interests, setInterests] = useState<string[]>(user?.interests ?? []);
@@ -92,10 +102,27 @@ export default function EditProfileScreen() {
       setError('A first name is required.');
       return;
     }
+    // An address only counts once it resolves to coords; resolve() geocodes it
+    // if needed and surfaces its own error under the field. Left blank, we
+    // simply don't touch the location — this screen also edits bio and photo,
+    // and those edits shouldn't be held hostage by the address.
+    let location = {};
+    if (locField.address.trim()) {
+      const geo = await locField.resolve();
+      if (!geo || geo.latitude == null) return;
+      location = {
+        address: locField.address.trim(),
+        city: geo.city,
+        neighbourhood: geo.neighbourhood,
+        latitude: geo.latitude,
+        longitude: geo.longitude,
+      };
+    }
+
     setSaving(true);
     const { error: saveError } = await update({
       display_name: displayName.trim(),
-      neighbourhood: neighbourhood.trim() || null,
+      ...location,
       bio: bio.trim() || null,
       interests: interests.length ? interests : null,
       instagram_handle: instagram.trim() ? instagram.trim().replace(/^@/, '') : null,
@@ -161,14 +188,11 @@ export default function EditProfileScreen() {
           />
         </Field>
 
-        <Field label="NEIGHBOURHOOD OR CITY">
-          <TextInput
-            style={styles.input}
-            value={neighbourhood}
-            onChangeText={setNeighbourhood}
+        <Field label="WHERE YOU LIVE">
+          <AddressField
+            field={locField}
             placeholder="e.g. Jordaan, Amsterdam"
-            placeholderTextColor={colors.muted}
-            autoCapitalize="words"
+            hint="Moving? This is what we match you on — tap the pin to use your location."
           />
         </Field>
 

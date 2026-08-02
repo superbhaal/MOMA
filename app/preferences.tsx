@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
+import { AddressField } from '@/components/ui/AddressField';
 import { PrefsPill } from '@/components/preferences/PrefsPill';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
-import { fonts } from '@/constants/typography';
 import { LANGUAGES } from '@/constants/onboarding';
+import { useAddressField } from '@/hooks/useAddressField';
 import { usePreferences } from '@/hooks/usePreferences';
-import { resolveCurrentLocation, resolveTypedAddress } from '@/lib/geocode';
 import type { BabyAtMeetups } from '@/types';
 
 const AGE_WINDOWS = [2, 4, 6, 8];
@@ -50,80 +50,22 @@ export default function PreferencesScreen() {
 
   // Location (address + resolved coords). Matching is distance-based, so keeping
   // this up to date matters — mirror the onboarding capture (typed + geolocate).
-  const [address, setAddress] = useState(prefs.address ?? '');
-  const [loc, setLoc] = useState<{
-    city: string | null;
-    neighbourhood: string | null;
-    latitude: number | null;
-    longitude: number | null;
-  }>({
+  const locField = useAddressField({
+    address: prefs.address,
     city: prefs.city,
     neighbourhood: prefs.neighbourhood,
     latitude: prefs.latitude,
     longitude: prefs.longitude,
   });
-  const [locating, setLocating] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [locError, setLocError] = useState<string | null>(null);
-
-  const locVerified = loc.latitude != null && loc.longitude != null;
-  const locLabel = loc.neighbourhood
-    ? `${loc.neighbourhood}, ${loc.city ?? ''}`.replace(/, $/, '')
-    : loc.city;
 
   function toggleArr<T>(arr: T[], v: T): T[] {
     return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
   }
 
-  async function handleUseLocation() {
-    setLocError(null);
-    setLocating(true);
-    const r = await resolveCurrentLocation();
-    setLocating(false);
-    if (!r.ok) {
-      setLocError(r.error);
-      return;
-    }
-    setAddress(r.result.address);
-    setLoc({
-      city: r.result.city,
-      neighbourhood: r.result.neighbourhood,
-      latitude: r.result.latitude,
-      longitude: r.result.longitude,
-    });
-  }
-
-  async function verifyAddress(): Promise<typeof loc | null> {
-    const addr = address.trim();
-    if (!addr) return null;
-    if (loc.latitude != null) return loc;
-    setLocError(null);
-    setVerifying(true);
-    const r = await resolveTypedAddress(addr);
-    setVerifying(false);
-    if (!r.ok || r.result.latitude == null) {
-      setLocError("we couldn't find that address. check the spelling, or tap the location icon.");
-      return null;
-    }
-    const next = {
-      city: r.result.city,
-      neighbourhood: r.result.neighbourhood,
-      latitude: r.result.latitude,
-      longitude: r.result.longitude,
-    };
-    setLoc(next);
-    return next;
-  }
-
   async function handleSave() {
     // Location must resolve to coords — matching is distance-based.
-    const addr = address.trim();
-    if (!addr) {
-      setLocError('your address is needed so we can match you within walking distance.');
-      return;
-    }
-    const geo = loc.latitude != null ? loc : await verifyAddress();
-    if (!geo || geo.latitude == null) return; // verifyAddress set the error
+    const geo = await locField.resolve();
+    if (!geo || geo.latitude == null) return; // resolve() set the error
 
     setSaving(true);
     await update({
@@ -134,7 +76,7 @@ export default function PreferencesScreen() {
       pref_free_blocks: freeBlocks,
       pref_baby_at_meetups: babyAt,
       pref_meetup_formats: formats,
-      address: addr,
+      address: locField.address.trim(),
       city: geo.city,
       neighbourhood: geo.neighbourhood,
       latitude: geo.latitude,
@@ -152,8 +94,11 @@ export default function PreferencesScreen() {
             ← BACK
           </Typography>
         </Pressable>
-        <Typography variant="displayS" color={colors.text}>
-          preferences
+        <Typography
+          style={{ fontFamily: 'CormorantGaramond-LightItalic', fontSize: 20, lineHeight: 25 }}
+          color={colors.cobalt}
+        >
+          Preferences
         </Typography>
         <View style={{ width: 50 }} />
       </View>
@@ -167,49 +112,7 @@ export default function PreferencesScreen() {
         </Typography>
 
         <Section label="Where you live">
-          <View style={styles.inputWithIcon}>
-            <TextInput
-              style={styles.addrInput}
-              value={address}
-              onChangeText={(v) => {
-                setAddress(v);
-                if (locError) setLocError(null);
-                setLoc({ city: null, neighbourhood: null, latitude: null, longitude: null });
-              }}
-              onSubmitEditing={verifyAddress}
-              returnKeyType="search"
-              placeholder="e.g. Rue de Rivoli, Paris"
-              placeholderTextColor={colors.muted}
-              autoCapitalize="words"
-            />
-            {verifying ? (
-              <ActivityIndicator size="small" color={colors.cobalt} />
-            ) : (
-              <Pressable onPress={handleUseLocation} disabled={locating} hitSlop={10}>
-                {locating ? (
-                  <ActivityIndicator size="small" color={colors.cobalt} />
-                ) : (
-                  <Ionicons name="location-outline" size={20} color={colors.cobalt} />
-                )}
-              </Pressable>
-            )}
-          </View>
-          {locVerified ? (
-            <View style={styles.verifiedRow}>
-              <Ionicons name="checkmark-circle" size={15} color={colors.cobalt} />
-              <Typography variant="bodyM" color={colors.cobalt} style={styles.verifiedText}>
-                {locLabel ?? 'location verified'}
-              </Typography>
-            </View>
-          ) : locError ? (
-            <Typography variant="bodyM" color={colors.cherry} style={{ marginTop: 6 }}>
-              {locError}
-            </Typography>
-          ) : (
-            <Typography variant="bodyM" color={colors.muted} style={{ marginTop: 6, fontStyle: 'italic' }}>
-              Used to match you with moms within walking distance.
-            </Typography>
-          )}
+          <AddressField field={locField} />
         </Section>
 
         <Section label="Baby age window">
@@ -352,22 +255,6 @@ const styles = StyleSheet.create({
   },
   scroll: { paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, paddingBottom: spacing.xxxl },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  inputWithIcon: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  addrInput: {
-    flex: 1,
-    fontFamily: fonts.body,
-    fontSize: 16,
-    color: colors.text,
-    paddingVertical: spacing.md,
-  },
-  verifiedRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6 },
-  verifiedText: { fontFamily: fonts.bodyMed },
   footnote: {
     marginTop: spacing.xxl,
     fontStyle: 'italic',

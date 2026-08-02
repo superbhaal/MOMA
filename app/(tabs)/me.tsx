@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
+import { Illustration } from '@/components/ui/Illustration';
 import { ActionSheet } from '@/components/ui/ActionSheet';
 import { MeCard } from '@/components/me/MeCard';
 import { MeRow } from '@/components/me/MeRow';
@@ -60,6 +61,21 @@ export default function MeScreen() {
 
   const isPaused = !!user?.paused_until && new Date(user.paused_until) > new Date();
 
+  // The row's value must describe the *matching*, not the pause switch: a bare
+  // "On" next to "Pause matching" reads as "the pause is on" (a tester assumed
+  // she had been paused by default). Spell the state out instead, and say when
+  // an open-ended pause is actually going to lift.
+  const pauseValue = !isPaused
+    ? 'Matching on'
+    : (() => {
+        const until = new Date(user!.paused_until!);
+        const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+        // "Until I turn it back on" is stored as a far-future date — no point
+        // showing it as a calendar day.
+        if (until.getTime() - Date.now() > YEAR_MS) return 'Paused';
+        return `Paused until ${until.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}`;
+      })();
+
   // Soonest upcoming meetup across the user's groups (each group has ≤ 1 open proposal).
   const nextMeetup = useMemo(() => {
     const candidates = groups
@@ -98,6 +114,11 @@ export default function MeScreen() {
     >
       {/* Profile header */}
       <View style={[styles.profileTop, { paddingTop: insets.top + spacing.xl }]}>
+        {/* A pair of drawings up the left, a single one lower on the right —
+            they frame the avatar without touching it. Ref: v11 #screen-me. */}
+        <Illustration name="tomato" size="sm" style={[styles.illo, styles.illoTomato]} />
+        <Illustration name="stars" size="sm" style={[styles.illo, styles.illoStars]} />
+        <Illustration name="microphone" size="sm" style={[styles.illo, styles.illoMic]} />
         <View>
           <Avatar
             name={user?.display_name ?? '?'}
@@ -148,12 +169,12 @@ export default function MeScreen() {
       {nextMeetup ? (
         <>
           <MeSectionLabel label="Next meetup" />
-          <View style={[styles.meetupCard, meetupDecided && { backgroundColor: colors.meadow }]}>
+          <View style={[styles.meetupCard, meetupDecided && { borderColor: colors.cobalt }]}>
             <View style={styles.meetupDateBlock}>
-              <Typography style={[styles.meetupDay, meetupDecided && { color: colors.meadowText }]}>
+              <Typography style={[styles.meetupDay, meetupDecided && { color: colors.cobalt }]}>
                 {new Date(nextMeetup.proposal.scheduled_at).getDate()}
               </Typography>
-              <Typography style={[styles.meetupMon, meetupDecided && { color: colors.meadowMuted }]}>
+              <Typography style={[styles.meetupMon, meetupDecided && { color: colors.muted }]}>
                 {new Date(nextMeetup.proposal.scheduled_at)
                   .toLocaleDateString('en-US', { month: 'short' })
                   .toUpperCase()}
@@ -161,17 +182,17 @@ export default function MeScreen() {
             </View>
             <View style={styles.meetupDivider} />
             <View style={styles.meetupInfo}>
-              <Typography style={[styles.meetupTitle, meetupDecided && { color: colors.meadowText }]}>
+              <Typography style={[styles.meetupTitle, meetupDecided && { color: colors.cobalt }]}>
                 {nextMeetup.group.name}
               </Typography>
-              <Typography style={[styles.meetupSub, meetupDecided && { color: colors.meadowMuted }]}>
+              <Typography style={[styles.meetupSub, meetupDecided && { color: colors.muted }]}>
                 {new Date(nextMeetup.proposal.scheduled_at)
                   .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
                   .toLowerCase()}
                 {nextMeetup.proposal.location_name ? ` · ${nextMeetup.proposal.location_name}` : ''}
               </Typography>
               {myVote === 'going' ? (
-                <Typography style={[styles.rsvpConfirm, meetupDecided && { color: colors.meadowText }]}>
+                <Typography style={[styles.rsvpConfirm, meetupDecided && { color: colors.cobalt }]}>
                   You&rsquo;re in — {goingCount} going.
                 </Typography>
               ) : null}
@@ -179,7 +200,7 @@ export default function MeScreen() {
             <Pressable
               style={({ pressed }) => [
                 styles.meetupRsvp,
-                meetupDecided && { backgroundColor: colors.meadowText },
+                meetupDecided && { backgroundColor: colors.cobalt },
                 pressed && { opacity: 0.85 },
               ]}
               onPress={onRsvp}
@@ -258,7 +279,7 @@ export default function MeScreen() {
           iconTint="#a07000"
           iconBg="#fff8e0"
           label={isPaused ? 'Matching paused' : 'Pause matching'}
-          value={isPaused ? 'Paused' : 'On'}
+          value={pauseValue}
           onPress={() => setPauseOpen(true)}
         />
         {groups.length > 0 ? (
@@ -437,13 +458,18 @@ export default function MeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.white,
   },
   profileTop: {
     alignItems: 'center',
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.md,
+    position: 'relative',
   },
+  illo: { position: 'absolute' },
+  illoTomato: { left: spacing.lg, top: 54 },
+  illoStars: { left: spacing.xxl, top: 96 },
+  illoMic: { right: spacing.lg, top: 118 },
   colorDot: {
     position: 'absolute',
     bottom: 2,
@@ -452,14 +478,14 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     borderWidth: 2.5,
-    borderColor: colors.cream,
+    borderColor: colors.white,
   },
   name: {
-    fontFamily: fonts.serif,
+    fontFamily: fonts.serifItal,
     fontSize: 32,
-    lineHeight: 34,
+    lineHeight: 38,
     letterSpacing: -0.3,
-    color: colors.text,
+    color: colors.cobalt,
     marginTop: 14,
   },
   babyInfo: {
@@ -508,9 +534,9 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   interestPill: {
-    backgroundColor: colors.cream,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: colors.line,
+    borderColor: colors.lineStrong,
     borderRadius: radius.pill,
     paddingHorizontal: 11,
     paddingVertical: 5,
@@ -525,7 +551,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.blush,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.lineStrong,
     borderRadius: radius.lg,
     marginHorizontal: spacing.lg,
     padding: spacing.lg,
@@ -538,40 +566,40 @@ const styles = StyleSheet.create({
     fontFamily: fonts.serifReg,
     fontSize: 28,
     lineHeight: 30,
-    color: colors.blushText,
+    color: colors.cobalt,
   },
   meetupMon: {
     fontFamily: fonts.bodySemi,
     fontSize: 9,
     letterSpacing: 1.4,
-    color: colors.blushMuted,
+    color: colors.muted,
     marginTop: 2,
   },
   meetupDivider: {
     width: 1,
     height: 38,
-    backgroundColor: 'rgba(106,26,42,0.15)',
+    backgroundColor: colors.line,
   },
   meetupInfo: { flex: 1 },
   meetupTitle: {
     fontFamily: fonts.bodySemi,
     fontSize: 14,
-    color: colors.blushText,
+    color: colors.text,
     marginBottom: 2,
   },
   meetupSub: {
     fontFamily: fonts.bodyMed,
     fontSize: 12,
-    color: colors.blushMuted,
+    color: colors.muted,
   },
   rsvpConfirm: {
     fontFamily: fonts.bodyMed,
     fontSize: 11,
-    color: colors.blushText,
+    color: colors.cobalt,
     marginTop: 6,
   },
   meetupRsvp: {
-    backgroundColor: colors.blushText,
+    backgroundColor: colors.cobalt,
     borderRadius: radius.pill,
     paddingHorizontal: 16,
     paddingVertical: 9,
