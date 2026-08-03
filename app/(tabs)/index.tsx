@@ -9,6 +9,7 @@ import { GroupCard } from '@/components/groups/GroupCard';
 import { WaitingForMatchCard } from '@/components/groups/WaitingForMatchCard';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useGroups } from '@/hooks/useGroups';
 import { useMatching } from '@/hooks/useMatching';
@@ -78,7 +79,7 @@ export default function HomeScreen() {
         <Typography style={styles.motif} color={colors.cobalt}>
           ❖
         </Typography>
-        <Illustration name="dancer" size="lg" style={styles.illo} />
+        <Illustration name="dancer" size="feature" style={styles.illo} />
       </View>
 
       <FlatList
@@ -199,42 +200,44 @@ const styles = StyleSheet.create({
     paddingTop: 26,
     position: 'relative',
   },
-  // Sits in the right margin, level with the baby line — the greeting stays
-  // optically centred because the drawing is out of the text flow.
+  // Mockup placement: she overlaps the baby line, leans in towards the centre
+  // rather than hugging the edge, and drops past the ❖ into the groups label.
+  // Mirrored because the drawing faces the other way in the source file.
   illo: {
     position: 'absolute',
-    right: spacing.md,
-    bottom: 0,
+    right: '9%',
+    bottom: -28,
+    transform: [{ scaleX: -1 }],
   },
   eyebrow: {
     fontFamily: 'DMSans-Medium',
-    fontSize: 9,
+    fontSize: scaled(9),
     letterSpacing: 3,
     textAlign: 'center',
     marginBottom: 4,
   },
   title: {
     fontFamily: 'CormorantGaramond-LightItalic',
-    fontSize: 38,
-    lineHeight: 44,
+    fontSize: scaled(38),
+    lineHeight: scaled(44),
     letterSpacing: -0.6,
     textAlign: 'center',
   },
   babyLabel: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 11,
+    fontSize: scaled(11),
     letterSpacing: 0.3,
     textAlign: 'center',
     marginTop: 6,
   },
   motif: {
-    fontSize: 13,
+    fontSize: scaled(13),
     marginTop: spacing.lg,
     marginBottom: 2,
   },
   sectionLabel: {
     fontFamily: 'DMSans-Medium',
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 2.4,
     textAlign: 'center',
     paddingTop: 12,
@@ -265,12 +268,12 @@ const styles = StyleSheet.create({
   },
   previewEyebrow: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 10,
+    fontSize: scaled(10),
     letterSpacing: 1.6,
   },
   weekPillText: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 11,
+    fontSize: scaled(11),
     letterSpacing: 0.3,
   },
 });

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, LogBox, View } from 'react-native';
+import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as Notifications from 'expo-notifications';
@@ -9,6 +10,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
 import { registerAndSaveToken, routeFromNotificationData } from '@/lib/notifications';
 import { colors } from '@/constants/colors';
+import { ILLUSTRATION_SOURCES } from '@/components/ui/Illustration';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -32,6 +34,23 @@ export default function RootLayout() {
     'Lora-Regular': require('../assets/fonts/Lora-Regular.ttf'),
     'Lora-Italic': require('../assets/fonts/Lora-Italic.ttf'),
   });
+
+  // Warm the drawings alongside the fonts, so a screen never renders its text
+  // first and its illustration a beat later.
+  const [illosLoaded, setIllosLoaded] = useState(false);
+  useEffect(() => {
+    // Capped: a drawing still renders on demand, so a slow dev server must
+    // never be able to hold the splash screen hostage.
+    const done = () => setIllosLoaded(true);
+    const timer = setTimeout(done, 2500);
+    Asset.loadAsync(Object.values(ILLUSTRATION_SOURCES))
+      .catch(() => {})
+      .finally(() => {
+        clearTimeout(timer);
+        done();
+      });
+    return () => clearTimeout(timer);
+  }, []);
 
   const { user, isAuthenticated, isOnboarded, authLoading } = useAuth();
   const segments = useSegments();
@@ -81,10 +100,10 @@ export default function RootLayout() {
   }, [fontError]);
 
   useEffect(() => {
-    if (fontsLoaded && !authLoading) {
+    if (fontsLoaded && illosLoaded && !authLoading) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, authLoading]);
+  }, [fontsLoaded, illosLoaded, authLoading]);
 
   useEffect(() => {
     if (!fontsLoaded || authLoading) return;

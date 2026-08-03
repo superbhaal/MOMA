@@ -1,5 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
@@ -76,8 +77,15 @@ export default function AvailabilityScreen() {
                   <Pressable
                     key={b.value}
                     onPress={() => toggleBusy(iso, b.value)}
-                    style={[styles.cell, busy && styles.cellOn]}
-                  />
+                    style={[styles.cell, busy && styles.cellBusy]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: busy }}
+                    accessibilityLabel={`${b.label} — ${busy ? 'blocked' : 'free'}`}
+                  >
+                    {busy ? (
+                      <Ionicons name="close" size={18} color={colors.cherry} />
+                    ) : null}
+                  </Pressable>
                 );
               })}
             </View>
@@ -134,9 +142,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     borderRadius: radius.md,
     backgroundColor: colors.cream,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  cellOn: {
-    backgroundColor: colors.cobalt,
+  // Blocked out reads as a warm red, in the blush family the app already uses
+  // for meetups — a struck-through slot, not an alarm.
+  cellBusy: {
+    backgroundColor: colors.blush,
+    borderWidth: 1,
+    borderColor: colors.cherry,
   },
   footer: {
     flexDirection: 'row',

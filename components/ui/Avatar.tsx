@@ -27,7 +27,10 @@ export function Avatar({
   outlineColor,
 }: AvatarProps) {
   const initial = (name?.trim()?.[0] ?? '?').toUpperCase();
-  const inner = size - ringWidth * 2;
+  // The ring is a drawn circle standing off the face, not a thick edge on it:
+  // stroke, then a breath of the page, then the photo. Ref: v11 avatar stack.
+  const gap = Math.max(1.5, ringWidth * 0.9);
+  const inner = size - (ringWidth + gap) * 2;
 
   return (
     <View
@@ -37,12 +40,12 @@ export function Avatar({
           width: size,
           height: size,
           borderRadius: size / 2,
-          padding: ringWidth,
-          backgroundColor: ringColor,
+          padding: gap,
+          borderWidth: ringWidth,
+          borderColor: ringColor,
+          // The gap takes the colour of whatever the avatar is sitting on.
+          backgroundColor: outlineColor ?? colors.white,
         },
-        outlineColor
-          ? { borderWidth: 2, borderColor: outlineColor }
-          : undefined,
       ]}
     >
       {photoUrl ? (

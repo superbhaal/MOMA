@@ -79,17 +79,20 @@ export default function GroupDetailScreen() {
               </View>
             ) : null}
 
-            {/* Kept reachable here too: the chat only offers it while the
-                group is between meetups. */}
-            <Pressable
-              onPress={() => router.push('/availability')}
-              hitSlop={8}
-              style={styles.availabilityRow}
-            >
-              <Typography style={styles.availabilityLink} color={colors.cobalt}>
-                Mark when you can&rsquo;t make it
-              </Typography>
-            </Pressable>
+            {/* Kept reachable here too — the chat only offers it while the
+                group is between meetups. Once møma has locked a date in there
+                is nothing left to influence, so the offer goes away. */}
+            {open_proposal?.state === 'decided' ? null : (
+              <Pressable
+                onPress={() => router.push('/availability')}
+                hitSlop={8}
+                style={styles.availabilityRow}
+              >
+                <Typography style={styles.availabilityLink} color={colors.cobalt}>
+                  Mark when you can&rsquo;t make it
+                </Typography>
+              </Pressable>
+            )}
 
             <View style={styles.membersHead}>
               <Typography style={styles.membersLabel} color={colors.cobalt}>

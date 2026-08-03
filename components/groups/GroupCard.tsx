@@ -6,6 +6,7 @@ import { GroupPulse } from './GroupPulse';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import type { GroupWithDetails } from '@/types';
 
 interface GroupCardProps {
@@ -74,7 +75,7 @@ export function GroupCard({ group, onPress }: GroupCardProps) {
               name={m.user.display_name}
               ringColor={m.user.profile_color ?? colors.fuchsia}
               photoUrl={m.user.avatar_url ?? undefined}
-              size={28}
+              size={scaled(28)}
               outlineColor={colors.white}
             />
           </View>
@@ -150,14 +151,14 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: fonts.serif, // Cormorant Light 300
-    fontSize: 28,
-    lineHeight: 32,
+    fontSize: scaled(28),
+    lineHeight: scaled(32),
     letterSpacing: -0.14,
     textAlign: 'center',
   },
   meta: {
     fontFamily: fonts.body,
-    fontSize: 9,
+    fontSize: scaled(9),
     letterSpacing: 2.5,
     textAlign: 'center',
     marginTop: 4,
@@ -172,14 +173,14 @@ const styles = StyleSheet.create({
   meetup: { alignItems: 'center', alignSelf: 'stretch' },
   meetupLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 2.5,
     textAlign: 'center',
   },
   meetupTime: {
     fontFamily: fonts.serif,
-    fontSize: 18,
-    lineHeight: 24,
+    fontSize: scaled(18),
+    lineHeight: scaled(24),
     textAlign: 'center',
     marginTop: 3,
   },
@@ -197,12 +198,12 @@ const styles = StyleSheet.create({
   },
   placeText: {
     fontFamily: fonts.serifReg,
-    fontSize: 17,
-    lineHeight: 22,
+    fontSize: scaled(17),
+    lineHeight: scaled(22),
   },
   countdown: {
     fontFamily: fonts.bodySemi,
-    fontSize: 9,
+    fontSize: scaled(9),
     letterSpacing: 0.6,
     marginTop: 8,
     alignSelf: 'flex-end',
@@ -214,9 +215,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   avCount: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: scaled(28),
+    height: scaled(28),
+    borderRadius: scaled(14),
     marginLeft: -8,
     backgroundColor: '#EEECE7',
     borderWidth: 2,
@@ -224,17 +225,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avCountText: { fontFamily: fonts.bodySemi, fontSize: 8.5 },
+  avCountText: { fontFamily: fonts.bodySemi, fontSize: scaled(8.5) },
   lastMsg: {
     fontFamily: fonts.readingItal,
-    fontSize: 12.5,
-    lineHeight: 18,
+    fontSize: scaled(12.5),
+    lineHeight: scaled(18),
     textAlign: 'center',
     maxWidth: '86%',
   },
   lastMsgSender: {
     fontFamily: fonts.bodySemi,
-    fontSize: 11,
+    fontSize: scaled(11),
   },
   pulseRow: { marginTop: spacing.md, alignItems: 'center' },
 });
