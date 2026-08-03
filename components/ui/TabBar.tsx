@@ -8,7 +8,7 @@ import { colors } from '@/constants/colors';
 const TABS: { name: string; label: string }[] = [
   { name: 'index', label: 'Home' },
   { name: 'chats', label: 'Chats' },
-  { name: 'learn', label: 'Learn' },
+  { name: 'discover', label: 'Discover' },
   { name: 'me', label: 'Me' },
 ];
 

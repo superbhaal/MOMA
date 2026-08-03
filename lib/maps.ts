@@ -13,6 +13,33 @@ export function staticMapUri(place: Pick<PlaceAttachment, 'lat' | 'lng'>): strin
   return `${FUNCTIONS_BASE}/place-map?lat=${place.lat}&lng=${place.lng}`;
 }
 
+/**
+ * URL of the multi-pin static-map backdrop for the Explore canvas, served by the
+ * `discover-map` Edge Function. Renders every spot with coordinates as a dark
+ * pin; `me` (optional) drops the cobalt "you are here" marker. `size` is the
+ * canvas size in px. Returns null when there is nothing to plot.
+ */
+export function discoverMapUri(
+  spots: { lat: number | null; lng: number | null }[],
+  opts: {
+    me?: { lat: number; lng: number } | null;
+    width: number;
+    height: number;
+    /** Fixed zoom; omit to auto-fit the viewport to the pins. */
+    zoom?: number;
+  },
+): string | null {
+  const pts = spots
+    .filter((s) => s.lat != null && s.lng != null)
+    .map((s) => `pt=${s.lat},${s.lng}`);
+  const me = opts.me ? `&me=${opts.me.lat},${opts.me.lng}` : '';
+  if (!pts.length && !me) return null;
+  const w = Math.min(640, Math.round(opts.width));
+  const h = Math.min(640, Math.round(opts.height));
+  const zoom = opts.zoom ? `&zoom=${opts.zoom}` : '';
+  return `${FUNCTIONS_BASE}/discover-map?${pts.join('&')}${me}&w=${w}&h=${h}${zoom}`;
+}
+
 /** Open the place in Google Maps (app if installed, else browser). */
 export function openInGoogleMaps(place: PlaceAttachment): void {
   let query: string;

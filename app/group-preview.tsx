@@ -102,7 +102,7 @@ export default function GroupPreviewScreen() {
               YOUR GROUP IS READY
             </Typography>
           </View>
-          <Typography style={styles.title} color={colors.text}>
+          <Typography style={styles.title} color={colors.cobalt}>
             We found your{'\n'}
             {wordForCount(others.length + 1)} moms.
           </Typography>
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.6,
   },
   title: {
-    fontFamily: 'CormorantGaramond-Light',
+    fontFamily: 'CormorantGaramond-LightItalic',
     fontSize: 34,
     lineHeight: 36,
     letterSpacing: -0.4,
@@ -375,9 +375,9 @@ const styles = StyleSheet.create({
   },
   reasonList: { gap: 6 },
   reason: {
-    backgroundColor: colors.cream,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: colors.cream,
+    borderColor: colors.lineStrong,
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,

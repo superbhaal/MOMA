@@ -9,15 +9,15 @@ interface MeetupMapProps {
   name: string | null;
   lat: number | null;
   lng: number | null;
-  /** Text colour for the "maps" link (matches the host card). */
+  /** Colour of the fallback glyph when the thumbnail can't load. */
   accentColor?: string;
   /** Thumbnail edge length. */
   size?: number;
 }
 
-/** Compact Google-map thumbnail of a meetup location + a Google Maps link.
+/** Tappable Google-map thumbnail of a meetup location — opens Google Maps.
  *  Renders nothing when the meetup has no coordinates. */
-export function MeetupMap({ name, lat, lng, accentColor = colors.cobalt, size = 92 }: MeetupMapProps) {
+export function MeetupMap({ name, lat, lng, accentColor = colors.cobalt, size = 76 }: MeetupMapProps) {
   const [failed, setFailed] = useState(false);
   const uri = staticMapUri({ lat, lng });
   if (!uri) return null;
@@ -26,7 +26,7 @@ export function MeetupMap({ name, lat, lng, accentColor = colors.cobalt, size = 
     openInGoogleMaps({ name: name ?? 'Meetup', address: null, lat, lng, category: null });
 
   return (
-    <Pressable style={styles.wrap} onPress={open}>
+    <Pressable onPress={open}>
       {!failed ? (
         <Image
           source={{ uri }}
@@ -41,16 +41,11 @@ export function MeetupMap({ name, lat, lng, accentColor = colors.cobalt, size = 
           </Typography>
         </View>
       )}
-      <Typography variant="labelS" color={accentColor} style={styles.caption}>
-        MAPS →
-      </Typography>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { alignItems: 'center' },
   map: { borderRadius: radius.md, backgroundColor: colors.sable },
   fallback: { alignItems: 'center', justifyContent: 'center' },
-  caption: { marginTop: 4 },
 });

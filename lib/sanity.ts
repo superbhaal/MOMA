@@ -8,11 +8,15 @@ const SANITY_API_URL = `https://${PROJECT_ID}.api.sanity.io/v${API_VERSION}/data
 
 export async function sanityFetch<T>(
   query: string,
-  params?: Record<string, string | number | boolean>,
+  params?: Record<string, string | number | boolean | null | undefined>,
 ): Promise<T> {
   const searchParams = new URLSearchParams({ query });
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
+      // Skip undefined — JSON.stringify(undefined) is `undefined`, which
+      // URLSearchParams coerces to the literal string "undefined" and Sanity
+      // rejects with a 400. Pass `null` when you want a defined-but-empty param.
+      if (value === undefined) return;
       searchParams.set(`$${key}`, JSON.stringify(value));
     });
   }
@@ -43,7 +47,12 @@ export interface LearnFeedFilters {
 }
 
 export function fetchLearnFeed(filters: LearnFeedFilters = {}): Promise<LearnDoc[]> {
-  return sanityFetch<LearnDoc[]>(LEARN_FEED_QUERY, filters as Record<string, string>);
+  // Always send both params (null when unfiltered): the query references
+  // `$babyStage` / `$format` via defined(), so they must be provided.
+  return sanityFetch<LearnDoc[]>(LEARN_FEED_QUERY, {
+    babyStage: filters.babyStage ?? null,
+    format: filters.format ?? null,
+  });
 }
 
 export function fetchLearnDoc(id: string): Promise<LearnDoc | null> {

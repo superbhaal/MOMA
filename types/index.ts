@@ -28,6 +28,25 @@ export type ProposalState = 'open' | 'decided' | 'expired';
 export type Vote = 'going' | 'maybe' | 'cant';
 export type AvailabilityBlock = 'morning' | 'afternoon' | 'evening';
 export type SavedDocType = 'read_article' | 'watch_reel' | 'recommendation';
+
+export type DiscoverRole = 'reader' | 'contributor' | 'admin';
+
+/** Explore map: a loved spot is either a place or a practitioner. */
+export type LovedKind = 'place' | 'person';
+export type PlaceCategory =
+  | 'cafes'
+  | 'restaurants'
+  | 'parks'
+  | 'playgrounds'
+  | 'classes'
+  | 'shops';
+export type PersonCategory =
+  | 'pediatricians'
+  | 'gynecologists'
+  | 'midwives_doulas'
+  | 'lactation'
+  | 'physios';
+export type LovedCategory = PlaceCategory | PersonCategory;
 export type NotifChatCadence = 'every' | 'daily' | 'weekly' | 'off';
 export type DeclineReason =
   | 'wrong_neighbourhood'
@@ -56,6 +75,9 @@ export interface User {
   latitude: number | null;
   longitude: number | null;
   profile_color: string | null;
+
+  /** Discover write-access role (018_discover_roles). Default 'reader'. */
+  role: DiscoverRole;
 
   life_stage: LifeStage | null;
   kid_count: KidCount | null;
@@ -162,6 +184,50 @@ export interface PlaceAttachment {
 
 export interface ProposalRefAttachment {
   proposal_id: string;
+}
+
+/**
+ * A place or practitioner vouched for by one named contributor (Explore map,
+ * 019_loved_spots). The `note` is the payload. Joined with the poster for
+ * attribution (name + identity ring).
+ */
+export interface LovedSpot {
+  id: string;
+  kind: LovedKind;
+  poster_id: string;
+  name: string;
+  category: LovedCategory;
+  note: string;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  place_id: string | null;
+  city: string | null;
+  phone: string | null;
+  booking_url: string | null;
+  created_at: string;
+}
+
+/** Public contributor profile for the Explore trust anchor (021 RPC). */
+export interface Contributor {
+  id: string;
+  display_name: string;
+  profile_color: string | null;
+  neighbourhood: string | null;
+  city: string | null;
+  bio: string | null;
+  interests: string[] | null;
+  spot_count: number;
+}
+
+/** A loved spot joined with its contributor, for the sheet row + detail. */
+export interface LovedSpotWithPoster extends LovedSpot {
+  poster: {
+    id: string;
+    display_name: string;
+    profile_color: string | null;
+    neighbourhood: string | null;
+  } | null;
 }
 
 export interface DmThread {

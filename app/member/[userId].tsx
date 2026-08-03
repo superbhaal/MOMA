@@ -5,13 +5,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { colors } from '@/constants/colors';
-import { radius, spacing } from '@/constants/spacing';
+import { fonts } from '@/constants/typography';
+import { spacing } from '@/constants/spacing';
 import { supabase } from '@/lib/supabase';
 import { openInstagramProfile } from '@/lib/instagram';
 import type { User } from '@/types';
 
+/**
+ * Member profile — v11: centred hero (ringed avatar, serif-italic cobalt
+ * name, small-caps meta), Lora-italic bio on white, outlined interest pills,
+ * quiet cobalt links. Ref: design/moma-v11.html · #screen-member.
+ */
 export default function MemberScreen() {
   const router = useRouter();
   const { userId } = useLocalSearchParams<{ userId: string }>();
@@ -34,13 +39,13 @@ export default function MemberScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
-          <Typography variant="labelS" color={colors.cobalt}>
-            ← BACK
+          <Typography style={styles.back} color={colors.cobalt}>
+            ← Back
           </Typography>
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {!u ? (
           <Typography variant="bodyL" color={colors.muted}>
             loading...
@@ -52,39 +57,34 @@ export default function MemberScreen() {
                 name={u.display_name}
                 ringColor={u.profile_color ?? colors.fuchsia}
                 photoUrl={u.avatar_url ?? undefined}
-                size={96}
+                size={104}
                 ringWidth={3}
               />
-              <Typography
-                variant="displayL"
-                color={colors.text}
-                style={{ marginTop: spacing.md }}
-              >
+              <Typography style={styles.name} color={colors.cobalt}>
                 {u.display_name}
               </Typography>
               {u.neighbourhood ? (
-                <Typography variant="bodyL" color={colors.muted}>
-                  {u.neighbourhood.toLowerCase()}
+                <Typography style={styles.meta} color={colors.muted}>
+                  {u.neighbourhood.toUpperCase()}
                 </Typography>
               ) : null}
             </View>
 
             {u.bio ? (
-              <Card style={{ marginTop: spacing.xl }}>
-                <Typography variant="reading" color={colors.text}>
-                  {u.bio}
-                </Typography>
-              </Card>
+              <Typography style={styles.bio} color={colors.mutedStrong}>
+                {u.bio}
+              </Typography>
             ) : null}
 
             {u.interests && u.interests.length > 0 ? (
-              <View style={{ marginTop: spacing.xl }}>
-                <Typography variant="label" color={colors.muted}>
-                  INTERESTS
-                </Typography>
-                <Typography variant="bodyL" color={colors.text} style={{ marginTop: 4 }}>
-                  {u.interests.join(' · ')}
-                </Typography>
+              <View style={styles.interests}>
+                {u.interests.map((it) => (
+                  <View key={it} style={styles.interestPill}>
+                    <Typography style={styles.interestText} color={colors.text}>
+                      {it}
+                    </Typography>
+                  </View>
+                ))}
               </View>
             ) : null}
 
@@ -92,15 +92,9 @@ export default function MemberScreen() {
               <Pressable
                 onPress={() => openInstagramProfile(u.instagram_handle)}
                 style={styles.instagramRow}
+                hitSlop={8}
               >
-                <Typography variant="label" color={colors.muted}>
-                  INSTAGRAM
-                </Typography>
-                <Typography
-                  variant="bodyL"
-                  color={colors.cobalt}
-                  style={{ marginTop: 4 }}
-                >
+                <Typography style={styles.instagram} color={colors.cobalt}>
                   @{u.instagram_handle.replace(/^@/, '')} ↗
                 </Typography>
               </Pressable>
@@ -123,19 +117,51 @@ export default function MemberScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   header: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 26,
     paddingVertical: spacing.md,
   },
+  back: { fontFamily: fonts.bodyMed, fontSize: 13 },
   scroll: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 26,
     paddingBottom: spacing.xxxl,
   },
-  hero: { alignItems: 'center', marginTop: spacing.lg },
-  instagramRow: {
-    marginTop: spacing.xl,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.cream,
-    borderRadius: radius.lg,
+  hero: { alignItems: 'center', marginTop: spacing.xl },
+  name: {
+    fontFamily: fonts.serifItal,
+    fontSize: 32,
+    lineHeight: 38,
+    textAlign: 'center',
+    marginTop: spacing.lg,
   },
+  meta: {
+    fontFamily: fonts.bodyMed,
+    fontSize: 8.5,
+    letterSpacing: 2.4,
+    marginTop: 5,
+  },
+  bio: {
+    fontFamily: fonts.readingItal,
+    fontSize: 15,
+    lineHeight: 24,
+    textAlign: 'center',
+    marginTop: spacing.xl,
+    paddingHorizontal: spacing.md,
+  },
+  interests: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 9,
+    marginTop: spacing.xl,
+  },
+  interestPill: {
+    borderWidth: 1,
+    borderColor: colors.lineStrong,
+    borderRadius: 100,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+  },
+  interestText: { fontFamily: fonts.body, fontSize: 13 },
+  instagramRow: { alignItems: 'center', marginTop: spacing.xl },
+  instagram: { fontFamily: fonts.bodySemi, fontSize: 14 },
 });

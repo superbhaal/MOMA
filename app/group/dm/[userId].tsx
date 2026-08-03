@@ -62,32 +62,33 @@ export default function DmScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={0}
     >
-      <Pressable
-        onPress={() => other && router.push(`/member/${other.id}`)}
-        style={styles.header}
-      >
+      <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
-          <Typography variant="labelS" color={colors.cobalt}>
-            ← BACK
+          <Typography style={styles.headerArrow} color={colors.cobalt}>
+            ←
           </Typography>
         </Pressable>
-        <View style={styles.headerCenter}>
+        <Pressable
+          onPress={() => other && router.push(`/member/${other.id}`)}
+          style={styles.headerCenter}
+          hitSlop={6}
+        >
           <Avatar
             name={other?.display_name ?? '?'}
             ringColor={other?.profile_color ?? colors.fuchsia}
             photoUrl={other?.avatar_url ?? undefined}
-            size={32}
+            size={30}
           />
-          <Typography
-            variant="displayS"
-            color={colors.text}
-            style={{ marginLeft: spacing.sm }}
-          >
-            {other?.display_name ?? '...'}
-          </Typography>
-        </View>
-        <View style={{ width: 50 }} />
-      </Pressable>
+          <View style={{ marginLeft: spacing.md }}>
+            <Typography style={styles.headerName} color={colors.cobalt}>
+              {other?.display_name ?? '...'}
+            </Typography>
+            <Typography style={styles.headerMeta} color={colors.muted}>
+              DIRECT MESSAGE
+            </Typography>
+          </View>
+        </Pressable>
+      </View>
 
       <FlatList
         ref={listRef}
@@ -128,15 +129,26 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.xl,
+    gap: spacing.md,
+    paddingHorizontal: 26,
     paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
   },
+  headerArrow: { fontFamily: 'DMSans-Regular', fontSize: 18 },
   headerCenter: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+  },
+  headerName: {
+    fontFamily: 'CormorantGaramond-LightItalic',
+    fontSize: 20,
+    lineHeight: 25,
+  },
+  headerMeta: {
+    fontFamily: 'DMSans-Medium',
+    fontSize: 7.5,
+    letterSpacing: 1.6,
+    marginTop: 1,
   },
   listContent: {
     flexGrow: 1,

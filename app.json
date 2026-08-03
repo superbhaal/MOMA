@@ -2,7 +2,7 @@
   "expo": {
     "name": "møma",
     "slug": "moma",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "moma",
@@ -16,9 +16,13 @@
       "supportsTablet": false,
       "bundleIdentifier": "org.joinmoma.moma",
       "usesAppleSignIn": true,
-      "associatedDomains": ["applinks:joinmoma.org"],
+      "associatedDomains": [
+        "applinks:joinmoma.org"
+      ],
       "infoPlist": {
-        "LSApplicationQueriesSchemes": ["instagram"],
+        "LSApplicationQueriesSchemes": [
+          "instagram"
+        ],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -75,7 +79,8 @@
         {
           "calendarPermission": "møma adds your group meetups to your calendar so you don't miss them."
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

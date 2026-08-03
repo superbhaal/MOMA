@@ -9,7 +9,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="index" />
       <Tabs.Screen name="chats" />
-      <Tabs.Screen name="learn" />
+      <Tabs.Screen name="discover" />
       <Tabs.Screen name="me" />
     </Tabs>
   );

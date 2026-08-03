@@ -1,99 +1,103 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
-import { Avatar } from '@/components/ui/Avatar';
 import { PlaceCard } from './PlaceCard';
 import { colors } from '@/constants/colors';
-import { radius, spacing } from '@/constants/spacing';
+import { fonts } from '@/constants/typography';
+import { spacing } from '@/constants/spacing';
 import type { Message, PlaceAttachment, User } from '@/types';
 
 interface ChatBubbleProps {
   message: Message;
   isMine: boolean;
   sender: User | null;
-  /** Hide the avatar when the previous message has the same sender. */
+  /** Hide the sender column when the previous message has the same sender. */
   showAvatar?: boolean;
   /** Long-press handler (e.g. open a "message privately" sheet on others' messages). */
   onLongPress?: () => void;
 }
 
+/**
+ * v11 editorial transcript row — no bubbles: a narrow left column with the
+ * sender's identity dot + small-caps name, the message set in Lora serif on
+ * the right, a quiet timestamp underneath. Same layout for self ("YOU", in
+ * cobalt). Ref: design/moma-v11.html · #screen-chat.
+ */
 export function ChatBubble({ message, isMine, sender, showAvatar = true, onLongPress }: ChatBubbleProps) {
   const isPlace = message.attachment_type === 'place' && !!message.attachment_data;
-  const senderLabel =
-    !isMine && showAvatar && sender ? (
-      <Typography
-        variant="labelS"
-        color={sender.profile_color ?? colors.muted}
-        style={{ marginBottom: 2 }}
-      >
-        {sender.display_name.toUpperCase()}
-      </Typography>
-    ) : null;
+  const dotColor = isMine ? colors.cobalt : sender?.profile_color ?? colors.fuchsia;
+  const name = isMine ? 'You' : sender?.display_name ?? '?';
 
   return (
     <Pressable
       onLongPress={onLongPress}
       delayLongPress={300}
       disabled={!onLongPress}
-      style={[styles.row, isMine && styles.rowMine]}
+      style={styles.row}
     >
-      {!isMine && showAvatar ? (
-        <Avatar
-          name={sender?.display_name ?? '?'}
-          ringColor={sender?.profile_color ?? colors.fuchsia}
-          photoUrl={sender?.avatar_url ?? undefined}
-          size={28}
-        />
-      ) : (
-        <View style={{ width: 28 }} />
-      )}
-      {isPlace ? (
-        <View style={[styles.placeWrap, isMine && styles.placeWrapMine]}>
-          {senderLabel}
+      <View style={styles.senderCol}>
+        {showAvatar ? (
+          <>
+            <View style={[styles.dot, { backgroundColor: dotColor }]} />
+            <Typography
+              style={styles.senderName}
+              color={isMine ? colors.cobalt : colors.muted}
+              numberOfLines={1}
+            >
+              {name.toUpperCase()}
+            </Typography>
+          </>
+        ) : null}
+      </View>
+
+      <View style={styles.body}>
+        {isPlace ? (
           <PlaceCard place={message.attachment_data as PlaceAttachment} />
-        </View>
-      ) : (
-        <View
-          style={[
-            styles.bubble,
-            isMine ? styles.bubbleMine : styles.bubbleOther,
-          ]}
-        >
-          {senderLabel}
-          <Typography
-            variant="bodyL"
-            color={isMine ? colors.white : colors.text}
-          >
+        ) : (
+          <Typography style={styles.text} color={colors.text}>
             {message.content}
           </Typography>
-        </View>
-      )}
+        )}
+        <Typography style={styles.time} color={colors.muted}>
+          {timeShort(message.created_at)}
+        </Typography>
+      </View>
     </Pressable>
   );
+}
+
+function timeShort(iso: string): string {
+  return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
 
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginVertical: 2,
-    paddingHorizontal: spacing.lg,
-    gap: spacing.sm,
+    paddingHorizontal: 26,
+    marginVertical: 7,
+    gap: spacing.md,
   },
-  rowMine: { justifyContent: 'flex-end' },
-  bubble: {
-    maxWidth: '78%',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 2,
-    borderRadius: radius.lg,
+  senderCol: {
+    width: 56,
+    alignItems: 'flex-start',
+    paddingTop: 3,
+    gap: 3,
   },
-  bubbleOther: {
-    backgroundColor: colors.cream,
-    borderBottomLeftRadius: 4,
+  dot: { width: 7, height: 7, borderRadius: 4 },
+  senderName: {
+    fontFamily: fonts.bodyMed,
+    fontSize: 8,
+    letterSpacing: 1.2,
   },
-  bubbleMine: {
-    backgroundColor: colors.cobalt,
-    borderBottomRightRadius: 4,
+  body: { flex: 1 },
+  text: {
+    fontFamily: fonts.reading,
+    fontSize: 14,
+    lineHeight: 21,
   },
-  placeWrap: { alignItems: 'flex-start' },
-  placeWrapMine: { alignItems: 'flex-end' },
+  time: {
+    fontFamily: fonts.body,
+    fontSize: 8.5,
+    letterSpacing: 0.5,
+    marginTop: 3,
+  },
 });

@@ -56,9 +56,9 @@ export function ChatInput({
       {onSharePlace ? (
         <View style={styles.actions}>
           <Pressable onPress={onSharePlace} style={styles.placeChip}>
-            <Ionicons name="location-outline" size={15} color={colors.cobalt} />
+            <Ionicons name="location-outline" size={13} color={colors.cobalt} />
             <Typography style={styles.placeChipText} color={colors.cobalt}>
-              Share a place you love
+              SHARE A PLACE YOU LOVE
             </Typography>
           </Pressable>
         </View>
@@ -79,10 +79,9 @@ export function ChatInput({
             styles.sendBtn,
             (!text.trim() || busy) && { opacity: 0.4 },
           ]}
+          accessibilityLabel="Send"
         >
-          <Typography variant="labelS" color={colors.white}>
-            SEND
-          </Typography>
+          <Ionicons name="arrow-up" size={18} color={colors.white} />
         </Pressable>
       </View>
     </View>
@@ -98,48 +97,50 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   actions: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.xs,
+    alignItems: 'center',
     paddingBottom: spacing.sm,
   },
   placeChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    alignSelf: 'flex-start',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 1,
+    paddingHorizontal: spacing.lg,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.line,
+    borderColor: colors.lineStrong,
     backgroundColor: colors.white,
   },
   placeChipText: {
-    fontFamily: fonts.bodySemi,
-    fontSize: 13,
+    fontFamily: fonts.bodyMed,
+    fontSize: 10,
+    letterSpacing: 1.6,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: spacing.sm,
+    gap: spacing.md,
+    paddingHorizontal: spacing.md,
   },
+  // v11: quiet underlined field, serif-italic voice, no filled box.
   input: {
     flex: 1,
-    minHeight: 40,
+    minHeight: 38,
     maxHeight: 120,
-    fontFamily: fonts.body,
-    fontSize: 16,
+    fontFamily: fonts.readingItal,
+    fontSize: 15,
     color: colors.text,
-    backgroundColor: colors.cream,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.lineStrong,
+    paddingHorizontal: 2,
     paddingVertical: spacing.sm,
   },
   sendBtn: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: radius.pill,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: colors.cobalt,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -73,10 +73,10 @@ export function WaitingForMatchCard() {
 
       <View style={styles.body}>
         <Typography style={styles.title} color={colors.cobalt}>
-          Finding your group…
+          We&rsquo;re setting your table
         </Typography>
         <Typography style={styles.sub} color="rgba(26,75,204,0.65)">
-          Most groups assemble within 36 hours. You&rsquo;ll hear back within 48.
+          Most tables are set within 36 hours. You&rsquo;ll hear back within 48.
         </Typography>
         <View style={styles.progressRow}>
           <Typography style={styles.progressLabel} color={colors.cobalt}>
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     backgroundColor: '#F1F3FA',
-    borderRadius: radius.lg,
+    borderRadius: 22, // v11 measured
     padding: spacing.md,
     paddingHorizontal: spacing.lg,
   },
@@ -144,8 +144,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: 14,
+    fontFamily: 'CormorantGaramond-LightItalic',
+    fontSize: 21,
+    lineHeight: 25,
     marginBottom: 3,
   },
   sub: {

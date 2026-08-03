@@ -15,15 +15,29 @@ export const colors = {
   line: 'rgba(17,17,24,0.07)',
   lineStrong: 'rgba(17,17,24,0.12)',
 
+  // Discover section (Learn / Watch / Explore)
+  cobaltSoft: '#EEF2FF', // source pills, credential pills, selected rows, tints
+  pageBg: '#F5F5F7', // composer / full-screen flow background
+  soleilInk: '#F7F6F2', // large display title on the soleil band (≥24px only)
+  soleilInkSm: '#6A5500', // subtitle / small text on soleil (AA)
+  soleilInkStrong: '#2A2200', // map-header title on soleil
+  labelMuted: '#6E6E73', // card meta / secondary labels (handoff --label-muted)
+  labelTertiary: '#86868B', // eyebrows / inactive tabs (handoff --label-tertiary)
+
   // Blush system (meetups — proposed / open / past)
   blush: '#F4D1D1',
   blushText: '#6A1A2A',
   blushMuted: '#8C2238',
 
-  // Meadow system (meetup locked in / validated) — green counterpart to blush
+  // Meadow system (meetup locked in / validated) — green
   meadow: '#D3E7BF',
   meadowText: '#1E4620',
   meadowMuted: '#3E6B3A',
+
+  // Poppy system (meetup still a proposal / not yet decided) — red
+  poppy: '#F6CFC9',
+  poppyText: '#7A1C14',
+  poppyMuted: '#A5382C',
 
   // Bold accents (user colours + signal roles)
   fuchsia: '#E8389C',

@@ -48,8 +48,21 @@ export function useAuth() {
 
     async function init() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
         if (!mounted) return;
+
+        // A session left over from a server-side account delete (e.g. a dev DB
+        // reset) can't be refreshed → "Invalid Refresh Token: Refresh Token Not
+        // Found". Scrub it locally so the app boots into a clean signed-out state
+        // instead of erroring on every auto-refresh and blocking a fresh sign-up.
+        if (error) {
+          await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+          setAuthenticated(false);
+          setOnboarded(false);
+          setAuthLoading(false);
+          return;
+        }
+
         console.log('[init] getSession', { hasSession: !!session?.user, userId: session?.user?.id });
 
         if (session?.user) {
@@ -63,6 +76,8 @@ export function useAuth() {
         }
       } catch (e) {
         if (!mounted) return;
+        // Same scrub on a thrown refresh error, so a dead token can't strand boot.
+        await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
         setAuthenticated(false);
         setOnboarded(false);
       }
@@ -190,6 +205,10 @@ export function useAuth() {
 
   async function signUp(email: string, password: string) {
     setAuthLoading(true);
+    // Clear any stale local session (e.g. left over from a deleted account after
+    // a DB reset) so a dead refresh token can't interfere with creating the new
+    // account. No network call, no-op when there's nothing stored.
+    await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) {
       setAuthLoading(false);
@@ -210,6 +229,9 @@ export function useAuth() {
 
   async function signIn(email: string, password: string) {
     setAuthLoading(true);
+    // Drop any stale local session first (see signUp) so a dead refresh token
+    // can't surface an error mid sign-in.
+    await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setAuthLoading(false);
@@ -419,10 +441,19 @@ export function useAuth() {
   }
 
   /**
-   * Delete the user's account: best-effort removal of all owned rows, then the
-   * profile row, then sign out (clears the local session). The auth.users record
-   * is left for a server-side cleanup job — the app only holds the anon key, so it
-   * cannot remove auth identities directly.
+   * Permanently delete the user's account. Calls the `delete-account` edge
+   * function, which runs with the service_role key and removes the auth.users
+   * identity — that CASCADEs to public.users and every child row (group
+   * memberships, votes, messages, saved tips, matching queue, …). This is a
+   * complete deletion: unlike the old client-side approach, no orphaned auth
+   * identity is left behind (so the same email/SSO can sign up cleanly again).
+   *
+   * The app only holds the anon key and cannot delete auth identities directly,
+   * hence the server-side function. supabase.functions.invoke attaches the
+   * caller's JWT automatically, so the function deletes exactly this user.
+   *
+   * On success we sign out locally (clearing the dead session); the auth gate
+   * then routes back to /welcome.
    */
   async function deleteAccount() {
     const { data: sessionData } = await supabase.auth.getUser();
@@ -431,14 +462,18 @@ export function useAuth() {
       await signOut();
       return { error: null };
     }
-    await supabase.from('saved_tips').delete().eq('user_id', uid);
-    await supabase.from('matching_queue').delete().eq('user_id', uid);
-    await supabase.from('availability_slots').delete().eq('user_id', uid);
-    await supabase.from('match_decline_reasons').delete().eq('user_id', uid);
-    await supabase.from('group_members').delete().eq('user_id', uid);
-    const { error } = await supabase.from('users').delete().eq('id', uid);
+    const { data, error: invokeError } = await supabase.functions.invoke('delete-account');
+    // functions.invoke surfaces non-2xx as an error; the function itself returns
+    // { ok:false, error } on handled failures. Treat either as a failure and
+    // leave the session intact so the user can retry.
+    const failed = invokeError || (data && data.ok === false);
+    if (failed) {
+      const message =
+        (data && data.error) || invokeError?.message || 'Account deletion failed.';
+      return { error: { message } };
+    }
     await signOut();
-    return { error };
+    return { error: null };
   }
 
   /**
