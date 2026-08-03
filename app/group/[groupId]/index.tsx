@@ -79,6 +79,18 @@ export default function GroupDetailScreen() {
               </View>
             ) : null}
 
+            {/* Kept reachable here too: the chat only offers it while the
+                group is between meetups. */}
+            <Pressable
+              onPress={() => router.push('/availability')}
+              hitSlop={8}
+              style={styles.availabilityRow}
+            >
+              <Typography style={styles.availabilityLink} color={colors.cobalt}>
+                Mark when you can&rsquo;t make it
+              </Typography>
+            </Pressable>
+
             <View style={styles.membersHead}>
               <Typography style={styles.membersLabel} color={colors.cobalt}>
                 MEMBERS
@@ -140,10 +152,14 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginTop: 3,
   },
-  // Aligned with the group name above it, not centred on the page.
   wave: {
     marginTop: spacing.xl,
-    alignSelf: 'flex-start',
+  },
+  availabilityRow: { marginTop: spacing.xl, alignItems: 'center' },
+  availabilityLink: {
+    fontFamily: fonts.bodyMed,
+    fontSize: 12.5,
+    textDecorationLine: 'underline',
   },
   membersHead: { marginTop: spacing.xxl, marginBottom: spacing.xs },
   membersLabel: {

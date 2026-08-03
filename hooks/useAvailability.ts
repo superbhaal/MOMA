@@ -3,7 +3,15 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
 import type { AvailabilityBlock, AvailabilitySlot } from '@/types';
 
-/** Availability for the current user across a 14-day window starting today. */
+/**
+ * The slots a member has blocked out, over a 14-day window from today.
+ *
+ * The table records absences, not presence: no row means free, a row with
+ * `available = false` means "don't put a meetup here". That is the shape the
+ * admin meetup grid reads (it counts busy members per slot), and it keeps the
+ * ask small — nobody has to tick fourteen days of availability for the
+ * scheduler to have something to work with.
+ */
 export function useAvailability(daysAhead = 14) {
   const { user } = useAuth();
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
@@ -19,6 +27,7 @@ export function useAvailability(daysAhead = 14) {
       .from('availability_slots')
       .select('*')
       .eq('user_id', user.id)
+      .eq('available', false)
       .gte('date', fromDate)
       .lte('date', toDate);
     setSlots((data ?? []) as AvailabilitySlot[]);
@@ -29,43 +38,55 @@ export function useAvailability(daysAhead = 14) {
     refresh();
   }, [refresh]);
 
-  /** Toggle (or set) a single (date, block) slot. Optimistic. */
-  const toggle = useCallback(
+  const isBusy = useCallback(
+    (date: string, block: AvailabilityBlock) =>
+      slots.some((s) => s.date === date && s.block === block),
+    [slots],
+  );
+
+  /** Block a slot out, or hand it back. Optimistic. */
+  const toggleBusy = useCallback(
     async (date: string, block: AvailabilityBlock) => {
       if (!user) return;
-      const existing = slots.find((s) => s.date === date && s.block === block);
-      const nextAvailable = !(existing?.available ?? false);
+      const wasBusy = slots.some((s) => s.date === date && s.block === block);
 
-      // Optimistic
-      setSlots((cur) => {
-        const others = cur.filter((s) => !(s.date === date && s.block === block));
-        if (existing) {
-          return [...others, { ...existing, available: nextAvailable }];
-        }
-        return [
-          ...others,
-          {
-            id: 'tmp-' + Math.random().toString(36).slice(2),
-            user_id: user.id,
-            date,
-            block,
-            available: nextAvailable,
-          },
-        ];
-      });
+      setSlots((cur) =>
+        wasBusy
+          ? cur.filter((s) => !(s.date === date && s.block === block))
+          : [
+              ...cur,
+              {
+                id: 'tmp-' + Math.random().toString(36).slice(2),
+                user_id: user.id,
+                date,
+                block,
+                available: false,
+              },
+            ],
+      );
 
-      const { error } = await supabase
-        .from('availability_slots')
-        .upsert(
-          { user_id: user.id, date, block, available: nextAvailable },
-          { onConflict: 'user_id,date,block' },
-        );
+      // Freeing a slot deletes the row rather than flipping it back to true:
+      // "no row" is what means free everywhere else, so leaving `true` rows
+      // behind would only be noise.
+      const { error } = wasBusy
+        ? await supabase
+            .from('availability_slots')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('date', date)
+            .eq('block', block)
+        : await supabase
+            .from('availability_slots')
+            .upsert(
+              { user_id: user.id, date, block, available: false },
+              { onConflict: 'user_id,date,block' },
+            );
       if (error) refresh(); // roll back via re-fetch
     },
     [user?.id, slots, refresh],
   );
 
-  return { slots, loading, refresh, toggle };
+  return { slots, loading, refresh, isBusy, toggleBusy };
 }
 
 function todayISO(): string {

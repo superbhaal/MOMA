@@ -298,20 +298,16 @@ export default function MeScreen() {
       {/* Preferences */}
       <MeSectionLabel label="Preferences" />
       <MeCard>
+        {/* Blocking out dates lives with the group it affects, not in the
+            settings shelf — it's asked for when a group forms and again every
+            fortnight, so a permanent row here only read as clutter. */}
         <MeRow
           icon="options-outline"
           iconTint={colors.cobalt}
           iconBg="#eef2ff"
           label="Matching preferences"
-          onPress={() => router.push('/preferences')}
-        />
-        <MeRow
-          icon="calendar-outline"
-          iconTint={colors.cobalt}
-          iconBg="#eef2ff"
-          label="Availability"
           isLast
-          onPress={() => router.push('/availability')}
+          onPress={() => router.push('/preferences')}
         />
       </MeCard>
 

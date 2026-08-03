@@ -17,6 +17,7 @@ import { OpenerChips } from '@/components/chat/OpenerChips';
 import { PlacePicker } from '@/components/chat/PlacePicker';
 import { ActionSheet } from '@/components/ui/ActionSheet';
 import { colors } from '@/constants/colors';
+import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 import { useGroupDetail } from '@/hooks/useGroupDetail';
 import { useChat } from '@/hooks/useChat';
@@ -31,7 +32,7 @@ export default function GroupChatScreen() {
   const { user } = useAuth();
   const { group, members, open_proposal, open_votes, refresh: refreshDetail } = useGroupDetail(groupId);
   const { messages, send, sendAttachment } = useChat(groupId);
-  const { vote } = useProposals(groupId);
+  const { vote, unvote } = useProposals(groupId);
 
   const [placeOpen, setPlaceOpen] = useState(false);
   const [dmTarget, setDmTarget] = useState<User | null>(null);
@@ -59,44 +60,57 @@ export default function GroupChatScreen() {
       keyboardVerticalOffset={0}
     >
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={10}>
-          <Typography variant="labelS" color={colors.cobalt}>
-            ← BACK
+        <Pressable onPress={() => router.back()} hitSlop={10} style={styles.headerRow}>
+          <Typography style={styles.headerArrow} color={colors.cobalt}>
+            ←
           </Typography>
+          <View style={{ flex: 1 }}>
+            <Typography style={styles.headerName} color={colors.cobalt} numberOfLines={1}>
+              {group?.name ?? ''}
+            </Typography>
+            <Typography style={styles.headerMeta} color={colors.muted}>
+              {members.length > 0 ? `${members.length} MEMBERS` : ''}
+            </Typography>
+          </View>
         </Pressable>
-        <Typography variant="displayS" color={colors.text}>
-          {group?.name ?? ''}
-        </Typography>
-        <View style={{ width: 50 }} />
       </View>
 
       {open_proposal ? (
-        <ProposalCard
-          proposal={open_proposal}
-          votes={open_votes}
-          myVote={myVote}
-          totalMembers={members.length}
-          groupName={group?.name ?? null}
-          onVote={async (v) => {
-            if (!open_proposal) return;
-            await vote(open_proposal.id, v);
-            // Reflect our own vote immediately; realtime also refreshes for others.
-            refreshDetail();
-          }}
-        />
+        <View style={styles.proposalWrap}>
+          <ProposalCard
+            proposal={open_proposal}
+            votes={open_votes}
+            myVote={myVote}
+            totalMembers={members.length}
+            groupName={group?.name ?? null}
+            onToggleGoing={async () => {
+              if (!open_proposal) return;
+              if (myVote === 'going') await unvote(open_proposal.id);
+              else await vote(open_proposal.id, 'going');
+              // Reflect our own vote immediately; realtime also refreshes for others.
+              refreshDetail();
+            }}
+          />
+        </View>
       ) : (
         <View style={styles.holding}>
-          <View style={styles.holdingCard}>
-            <Typography style={styles.holdingText} color={colors.mutedStrong}>
-              We&rsquo;re holding the chat for a moment. Once everyone shares their
-              availability, m&oslash;ma will drop a time and place into the chat. Feel
-              free to share a place you love in the meantime.
+          <Typography style={styles.holdingText} color={colors.mutedStrong}>
+            We&rsquo;re holding the chat for a moment. Once everyone shares their
+            availability, m&oslash;ma will drop a time and place into the chat. Feel
+            free to share a place you love in the meantime.
+          </Typography>
+          {/* The copy above asks for availability, so give it a door here:
+              this is the moment the group forms and the slots matter. */}
+          <Pressable onPress={() => router.push('/availability')} hitSlop={8}>
+            <Typography style={styles.availabilityLink} color={colors.cobalt}>
+              Mark when you can&rsquo;t make it
             </Typography>
-          </View>
+          </Pressable>
+
           <View style={styles.findingPill}>
             <View style={styles.findingDot} />
-            <Typography style={styles.findingText} color={colors.blushMuted}>
-              FINDING A TIME
+            <Typography style={styles.findingText} color={colors.mutedStrong}>
+              SETTING THE TABLE
             </Typography>
           </View>
         </View>
@@ -181,11 +195,26 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 26,
     paddingVertical: spacing.md,
+  },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  headerArrow: { fontFamily: fonts.body, fontSize: 18 },
+  headerName: {
+    fontFamily: fonts.serifItal,
+    fontSize: 21,
+    lineHeight: 26,
+  },
+  headerMeta: {
+    fontFamily: fonts.bodyMed,
+    fontSize: 8,
+    letterSpacing: 1.6,
+    marginTop: 1,
+  },
+  proposalWrap: {
+    marginHorizontal: 26,
+    marginVertical: spacing.md,
+    paddingBottom: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
@@ -198,41 +227,39 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
+  // v11: quiet italic paragraph on white — no card fill, no bordered pill.
   holding: {
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
-    gap: spacing.md,
-  },
-  holdingCard: {
-    backgroundColor: colors.cream,
-    borderRadius: 16,
-    padding: spacing.lg,
+    paddingHorizontal: 34,
+    paddingTop: spacing.lg,
+    gap: spacing.lg,
+    alignItems: 'center',
   },
   holdingText: {
     fontFamily: 'Lora-Italic',
-    fontSize: 15,
-    lineHeight: 23,
+    fontSize: 13.5,
+    lineHeight: 21,
     textAlign: 'center',
+  },
+  availabilityLink: {
+    fontFamily: 'DMSans-Medium',
+    fontSize: 13,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
   findingPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 8,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 14,
-    paddingVertical: spacing.md,
   },
   findingDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: colors.blushMuted,
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: colors.mutedStrong,
   },
   findingText: {
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: 12,
-    letterSpacing: 1.4,
+    fontFamily: 'DMSans-Medium',
+    fontSize: 8.5,
+    letterSpacing: 2,
   },
 });

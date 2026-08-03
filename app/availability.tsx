@@ -17,7 +17,7 @@ const BLOCKS: { value: AvailabilityBlock; label: string }[] = [
 export default function AvailabilityScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { slots, toggle } = useAvailability(14);
+  const { slots, isBusy, toggleBusy } = useAvailability(14);
 
   const days = Array.from({ length: 14 }, (_, i) => {
     const d = new Date();
@@ -25,11 +25,7 @@ export default function AvailabilityScreen() {
     return d;
   });
 
-  function isAvailable(date: string, block: AvailabilityBlock): boolean {
-    return slots.some((s) => s.date === date && s.block === block && s.available);
-  }
-
-  const selectedCount = slots.filter((s) => s.available).length;
+  const blockedCount = slots.length;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -40,14 +36,15 @@ export default function AvailabilityScreen() {
           </Typography>
         </Pressable>
         <Typography variant="displayS" color={colors.text}>
-          availability
+          when you can&rsquo;t
         </Typography>
         <View style={{ width: 50 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
         <Typography variant="bodyL" color={colors.muted} style={styles.intro}>
-          tap the slots when you&rsquo;re usually free. carries forward week to week.
+          tap anything you already know you can&rsquo;t make. everything you leave
+          untouched counts as free, so m&oslash;ma only proposes times that work.
         </Typography>
 
         <View style={styles.gridHeader}>
@@ -74,12 +71,12 @@ export default function AvailabilityScreen() {
                 </Typography>
               </View>
               {BLOCKS.map((b) => {
-                const on = isAvailable(iso, b.value);
+                const busy = isBusy(iso, b.value);
                 return (
                   <Pressable
                     key={b.value}
-                    onPress={() => toggle(iso, b.value)}
-                    style={[styles.cell, on && styles.cellOn]}
+                    onPress={() => toggleBusy(iso, b.value)}
+                    style={[styles.cell, busy && styles.cellOn]}
                   />
                 );
               })}
@@ -90,7 +87,9 @@ export default function AvailabilityScreen() {
 
       <View style={styles.footer}>
         <Typography variant="bodyM" color={colors.muted} style={{ flex: 1 }}>
-          {selectedCount} slots selected
+          {blockedCount === 0
+            ? 'all free so far'
+            : `${blockedCount} slot${blockedCount === 1 ? '' : 's'} blocked`}
         </Typography>
         <Button title="done" onPress={() => router.back()} />
       </View>
