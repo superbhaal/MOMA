@@ -3,6 +3,7 @@ import { Animated, Easing, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 const RING_RADIUS = 18;
 
@@ -76,7 +77,8 @@ export function WaitingForMatchCard() {
           We&rsquo;re setting your table
         </Typography>
         <Typography style={styles.sub} color="rgba(26,75,204,0.65)">
-          Most tables are set within 36 hours. You&rsquo;ll hear back within 48.
+          We&rsquo;d rather get your table right than get it fast. You&rsquo;ll hear the
+          moment it&rsquo;s ready.
         </Typography>
         <View style={styles.progressRow}>
           <Typography style={styles.progressLabel} color={colors.cobalt}>
@@ -145,13 +147,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'CormorantGaramond-LightItalic',
-    fontSize: 21,
-    lineHeight: 25,
+    fontSize: scaled(21),
+    lineHeight: scaled(25),
     marginBottom: 3,
   },
   sub: {
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: scaled(12),
+    lineHeight: scaled(18),
     marginBottom: 6,
   },
   progressRow: {
@@ -161,7 +163,7 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 9,
+    fontSize: scaled(9),
     letterSpacing: 1.4,
   },
   progressDots: {

@@ -15,6 +15,7 @@ import { ChatBubble } from '@/components/chat/ChatBubble';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { useDm } from '@/hooks/useDm';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 26,
     paddingVertical: spacing.md,
   },
-  headerArrow: { fontFamily: 'DMSans-Regular', fontSize: 18 },
+  headerArrow: { fontFamily: 'DMSans-Regular', fontSize: scaled(18) },
   headerCenter: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -141,12 +142,12 @@ const styles = StyleSheet.create({
   },
   headerName: {
     fontFamily: 'CormorantGaramond-LightItalic',
-    fontSize: 20,
-    lineHeight: 25,
+    fontSize: scaled(20),
+    lineHeight: scaled(25),
   },
   headerMeta: {
     fontFamily: 'DMSans-Medium',
-    fontSize: 7.5,
+    fontSize: scaled(7.5),
     letterSpacing: 1.6,
     marginTop: 1,
   },

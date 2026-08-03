@@ -17,6 +17,7 @@ import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { discoverMapUri, openInGoogleMaps, staticMapUri } from '@/lib/maps';
 import { categoryLabel } from '@/constants/discover';
+import { scaled } from '@/constants/scale';
 import { useContributor } from '@/hooks/useLovedSpots';
 import type { LovedSpotWithPoster } from '@/types';
 
@@ -195,15 +196,15 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   center: { alignItems: 'center', justifyContent: 'center', gap: spacing.md, padding: spacing.xl },
   backRow: { marginBottom: spacing.md },
-  backLink: { fontFamily: fonts.bodySemi, fontSize: 15 },
+  backLink: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
 
   hero: { alignItems: 'center', gap: spacing.sm },
-  name: { fontFamily: fonts.serifItal, fontSize: 32, lineHeight: 38, marginTop: spacing.sm },
-  meta: { fontFamily: fonts.body, fontSize: 14 },
+  name: { fontFamily: fonts.serifItal, fontSize: scaled(32), lineHeight: scaled(38), marginTop: spacing.sm },
+  meta: { fontFamily: fonts.body, fontSize: scaled(14) },
   bio: {
     fontFamily: fonts.readingItal,
-    fontSize: 15.5,
-    lineHeight: 24,
+    fontSize: scaled(15.5),
+    lineHeight: scaled(24),
     textAlign: 'center',
     marginTop: spacing.lg,
   },
@@ -221,11 +222,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 9,
   },
-  interestText: { fontFamily: fonts.body, fontSize: 14 },
+  interestText: { fontFamily: fonts.body, fontSize: scaled(14) },
 
   sectionLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 12,
+    fontSize: scaled(12),
     letterSpacing: 0.96,
     marginTop: spacing.xxl,
     marginBottom: spacing.md,
@@ -244,8 +245,8 @@ const styles = StyleSheet.create({
   thumb: { width: 56, height: 56, borderRadius: radius.md, backgroundColor: colors.sable },
   thumbFallback: { alignItems: 'center', justifyContent: 'center' },
   rowMid: { flex: 1, gap: 3 },
-  rowName: { fontFamily: fonts.serifReg, fontSize: 19, lineHeight: 22 },
-  rowNote: { fontFamily: fonts.readingItal, fontSize: 14, lineHeight: 21 },
+  rowName: { fontFamily: fonts.serifReg, fontSize: scaled(19), lineHeight: scaled(22) },
+  rowNote: { fontFamily: fonts.readingItal, fontSize: scaled(14), lineHeight: scaled(21) },
   dot: { width: 10, height: 10, borderRadius: 5 },
   rowFoot: {
     flexDirection: 'row',
@@ -260,6 +261,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
-  catText: { fontFamily: fonts.bodySemi, fontSize: 10.5, letterSpacing: 0.6 },
-  openMaps: { fontFamily: fonts.bodySemi, fontSize: 13 },
+  catText: { fontFamily: fonts.bodySemi, fontSize: scaled(10.5), letterSpacing: 0.6 },
+  openMaps: { fontFamily: fonts.bodySemi, fontSize: scaled(13) },
 });

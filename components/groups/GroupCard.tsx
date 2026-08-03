@@ -7,6 +7,7 @@ import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
+import { isPastMeetup } from '@/lib/meetup';
 import type { GroupWithDetails } from '@/types';
 
 interface GroupCardProps {
@@ -22,7 +23,10 @@ interface GroupCardProps {
  */
 export function GroupCard({ group, onPress }: GroupCardProps) {
   const meetup = group.open_proposal;
-  const decided = meetup?.state === 'decided';
+  // A meetup that has been and gone stops counting down and starts asking for
+  // the next one — the group's turn to say when they can't.
+  const past = !!meetup && isPastMeetup(meetup);
+  const decided = meetup?.state === 'decided' && !past;
   const memberCount = group.members.length;
   const meta = [group.neighbourhood, `${memberCount} member${memberCount === 1 ? '' : 's'}`]
     .filter(Boolean)
@@ -47,7 +51,7 @@ export function GroupCard({ group, onPress }: GroupCardProps) {
         <View style={styles.meetup}>
           <View style={styles.rule} />
           <Typography style={styles.meetupLabel} color={colors.mutedStrong}>
-            {decided ? 'MEETUP LOCKED IN' : 'NEXT MEETUP'}
+            {past ? 'LAST MEETUP' : decided ? 'MEETUP LOCKED IN' : 'NEXT MEETUP'}
           </Typography>
           <Typography style={styles.meetupTime} color={colors.mutedStrong}>
             {formatWhen(meetup.scheduled_at)}
@@ -62,8 +66,11 @@ export function GroupCard({ group, onPress }: GroupCardProps) {
               </Typography>
             </View>
           ) : null}
-          <Typography style={styles.countdown} color={colors.cobalt}>
-            {countdownLabel(meetup.scheduled_at).toUpperCase()}
+          <Typography
+            style={[styles.countdown, past && styles.countdownPast]}
+            color={past ? colors.mutedStrong : colors.cobalt}
+          >
+            {past ? 'PICKING THE NEXT ONE' : countdownLabel(meetup.scheduled_at).toUpperCase()}
           </Typography>
         </View>
       ) : null}
@@ -124,8 +131,10 @@ function formatWhen(iso: string): string {
   });
 }
 
+// Only ever called for a meetup still ahead — `isPastMeetup` handles the rest.
 function countdownLabel(iso: string): string {
-  const days = Math.ceil((new Date(iso).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const ms = new Date(iso).getTime() - Date.now();
+  const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
   if (days <= 0) return 'Today';
   if (days === 1) return 'Tomorrow';
   return `In ${days} days`;
@@ -201,6 +210,7 @@ const styles = StyleSheet.create({
     fontSize: scaled(17),
     lineHeight: scaled(22),
   },
+  countdownPast: { alignSelf: 'center' },
   countdown: {
     fontFamily: fonts.bodySemi,
     fontSize: scaled(9),

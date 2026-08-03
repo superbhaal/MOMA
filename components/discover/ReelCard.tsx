@@ -7,6 +7,7 @@ import { SaveHeart } from './SaveHeart';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import type { LearnReel } from '@/types';
 
 interface ReelCardProps {
@@ -150,7 +151,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  durationText: { fontFamily: fonts.bodySemi, fontSize: 12 },
+  durationText: { fontFamily: fonts.bodySemi, fontSize: scaled(12) },
   body: { paddingTop: 12, alignItems: 'center' },
   topRow: {
     flexDirection: 'row',
@@ -161,11 +162,11 @@ const styles = StyleSheet.create({
   },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: colors.fuchsia },
-  meta: { fontFamily: fonts.bodySemi, fontSize: 8.5, letterSpacing: 1.8 },
+  meta: { fontFamily: fonts.bodySemi, fontSize: scaled(8.5), letterSpacing: 1.8 },
   title: {
     fontFamily: fonts.bodySemi,
-    fontSize: 13,
-    lineHeight: 17,
+    fontSize: scaled(13),
+    lineHeight: scaled(17),
     textAlign: 'center',
     marginTop: 7,
     maxWidth: '88%',
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     flexWrap: 'wrap',
   },
-  creatorName: { fontFamily: fonts.body, fontSize: 12.5 },
+  creatorName: { fontFamily: fonts.body, fontSize: scaled(12.5) },
   credential: {},
-  credentialText: { fontFamily: fonts.bodySemi, fontSize: 8, letterSpacing: 1.6 },
+  credentialText: { fontFamily: fonts.bodySemi, fontSize: scaled(8), letterSpacing: 1.6 },
 });

@@ -4,6 +4,7 @@ import { RsvpPill } from './RsvpPill';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { addToCalendar } from '@/lib/calendar';
 import { openInGoogleMaps } from '@/lib/maps';
 import type { MeetupProposal } from '@/types';
@@ -104,14 +105,14 @@ const styles = StyleSheet.create({
   muted: { opacity: 0.6 },
   label: {
     fontFamily: fonts.bodySemi,
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 2.5,
     textAlign: 'center',
   },
   when: {
     fontFamily: fonts.serifReg,
-    fontSize: 24,
-    lineHeight: 30,
+    fontSize: scaled(24),
+    lineHeight: scaled(30),
     textAlign: 'center',
     marginTop: 4,
   },
@@ -124,14 +125,14 @@ const styles = StyleSheet.create({
   },
   place: {
     fontFamily: fonts.readingItal,
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: scaled(13),
+    lineHeight: scaled(19),
   },
   placeLink: { textDecorationLine: 'underline' },
   rsvp: { marginTop: spacing.lg },
   calendar: {
     fontFamily: fonts.bodySemi,
-    fontSize: 11,
+    fontSize: scaled(11),
     marginTop: spacing.md,
     textAlign: 'center',
   },

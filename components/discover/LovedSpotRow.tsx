@@ -7,6 +7,7 @@ import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { staticMapUri } from '@/lib/maps';
 import { categoryLabel } from '@/constants/discover';
+import { scaled } from '@/constants/scale';
 import type { LovedSpotWithPoster } from '@/types';
 
 interface LovedSpotRowProps {
@@ -91,15 +92,15 @@ const styles = StyleSheet.create({
   thumb: { width: 48, height: 48, borderRadius: radius.md, backgroundColor: colors.sable },
   thumbFallback: { alignItems: 'center', justifyContent: 'center' },
   middle: { flex: 1, gap: 2 },
-  name: { fontFamily: fonts.bodyMed, fontSize: 15 },
+  name: { fontFamily: fonts.bodyMed, fontSize: scaled(15) },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' },
-  meta: { fontFamily: fonts.body, fontSize: 12.5, flexShrink: 1 },
+  meta: { fontFamily: fonts.body, fontSize: scaled(12.5), flexShrink: 1 },
   youTag: {
     backgroundColor: colors.cobaltSoft,
     borderRadius: radius.pill,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
-  youText: { fontFamily: fonts.bodySemi, fontSize: 10 },
+  youText: { fontFamily: fonts.bodySemi, fontSize: scaled(10) },
   dot: { width: 10, height: 10, borderRadius: 5 },
 });

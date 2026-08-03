@@ -19,6 +19,7 @@ import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { PLACE_CATEGORIES, PERSON_CATEGORIES } from '@/constants/discover';
+import { scaled } from '@/constants/scale';
 import { searchPlaces } from '@/lib/places';
 import {
   clearDraft,
@@ -500,8 +501,8 @@ const styles = StyleSheet.create({
   chrome: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingBottom: spacing.xl },
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: spacing.xxl },
-  title: { fontFamily: fonts.serifItal, fontSize: 30, lineHeight: 35, marginBottom: spacing.md },
-  helper: { fontFamily: fonts.body, fontSize: 14.5, lineHeight: 22, marginBottom: spacing.lg },
+  title: { fontFamily: fonts.serifItal, fontSize: scaled(30), lineHeight: scaled(35), marginBottom: spacing.md },
+  helper: { fontFamily: fonts.body, fontSize: scaled(14.5), lineHeight: scaled(22), marginBottom: spacing.lg },
 
   // step 0
   typeCard: {
@@ -512,8 +513,8 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   typeCardOn: { borderColor: colors.cobalt, backgroundColor: colors.cobaltSoft },
-  typeLabel: { fontFamily: fonts.bodySemi, fontSize: 17 },
-  typeHint: { fontFamily: fonts.body, fontSize: 13.5, marginTop: 3 },
+  typeLabel: { fontFamily: fonts.bodySemi, fontSize: scaled(17) },
+  typeHint: { fontFamily: fonts.body, fontSize: scaled(13.5), marginTop: 3 },
 
   // step 1
   search: {
@@ -522,7 +523,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 16,
     fontFamily: fonts.body,
-    fontSize: 17,
+    fontSize: scaled(17),
     color: colors.text,
   },
   searchingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.md },
@@ -543,8 +544,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  suggestionName: { fontFamily: fonts.bodyMed, fontSize: 16 },
-  suggestionMeta: { fontFamily: fonts.body, fontSize: 13, marginTop: 1 },
+  suggestionName: { fontFamily: fonts.bodyMed, fontSize: scaled(16) },
+  suggestionMeta: { fontFamily: fonts.body, fontSize: scaled(13), marginTop: 1 },
   manual: {
     borderWidth: 1.5,
     borderColor: colors.lineStrong,
@@ -553,8 +554,8 @@ const styles = StyleSheet.create({
     padding: 14,
     marginTop: spacing.lg,
   },
-  manualText: { fontFamily: fonts.bodySemi, fontSize: 14 },
-  selectedNote: { fontFamily: fonts.bodyMed, fontSize: 13, marginTop: spacing.lg },
+  manualText: { fontFamily: fonts.bodySemi, fontSize: scaled(14) },
+  selectedNote: { fontFamily: fonts.bodyMed, fontSize: scaled(13), marginTop: spacing.lg },
 
   // step 2
   chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
@@ -566,7 +567,7 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
   },
   catChipOn: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
-  catChipText: { fontFamily: fonts.bodyMed, fontSize: 14 },
+  catChipText: { fontFamily: fonts.bodyMed, fontSize: scaled(14) },
 
   // step 3
   textarea: {
@@ -577,11 +578,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     padding: 14,
     fontFamily: fonts.body,
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: scaled(16),
+    lineHeight: scaled(24),
     color: colors.text,
   },
-  counter: { fontFamily: fonts.body, fontSize: 12.5, marginTop: spacing.sm, textAlign: 'right' },
+  counter: { fontFamily: fonts.body, fontSize: scaled(12.5), marginTop: spacing.sm, textAlign: 'right' },
 
   // step 4
   previewCard: {
@@ -597,8 +598,8 @@ const styles = StyleSheet.create({
     paddingLeft: spacing.lg,
     marginTop: spacing.lg,
   },
-  previewNoteText: { fontFamily: fonts.readingItal, fontSize: 15, lineHeight: 23 },
-  editLink: { fontFamily: fonts.bodySemi, fontSize: 15 },
+  previewNoteText: { fontFamily: fonts.readingItal, fontSize: scaled(15), lineHeight: scaled(23) },
+  editLink: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
 
   // step 5
   done: { alignItems: 'center', paddingTop: spacing.xxxl, gap: spacing.md },
@@ -615,8 +616,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
     elevation: 8,
   },
-  doneTitle: { fontFamily: fonts.serifReg, fontSize: 30, lineHeight: 34, marginTop: spacing.sm },
-  doneBody: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, textAlign: 'center' },
+  doneTitle: { fontFamily: fonts.serifReg, fontSize: scaled(30), lineHeight: scaled(34), marginTop: spacing.sm },
+  doneBody: { fontFamily: fonts.body, fontSize: scaled(15), lineHeight: scaled(22), textAlign: 'center' },
 
   footer: { paddingTop: spacing.md },
   submitting: {

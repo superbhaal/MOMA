@@ -3,6 +3,7 @@ import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import type { GroupMemberWithUser } from '@/types';
 
 interface GroupPreviewCardProps {
@@ -80,8 +81,8 @@ const styles = StyleSheet.create({
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   name: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 15,
-    lineHeight: 20,
+    fontSize: scaled(15),
+    lineHeight: scaled(20),
   },
   mentorPill: {
     backgroundColor: colors.soleil,
@@ -91,18 +92,18 @@ const styles = StyleSheet.create({
   },
   mentorPillText: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 1,
   },
   detail: {
-    fontSize: 11,
-    lineHeight: 16,
+    fontSize: scaled(11),
+    lineHeight: scaled(16),
     marginTop: 2,
   },
   matchNote: {
     fontFamily: 'Lora-Italic',
-    fontSize: 11,
-    lineHeight: 15,
+    fontSize: scaled(11),
+    lineHeight: scaled(15),
     marginTop: 3,
   },
 });

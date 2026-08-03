@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { resolveCurrentLocation, resolveTypedAddress } from '@/lib/geocode';
@@ -464,7 +465,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   backText: {
-    fontSize: 15,
+    fontSize: scaled(15),
   },
   stepLabel: {
     color: colors.muted,
@@ -494,8 +495,8 @@ const styles = StyleSheet.create({
   // Same masthead as the quiz steps that follow it: serif italic, cobalt.
   heading: {
     fontFamily: fonts.serifItal,
-    fontSize: 38,
-    lineHeight: 44,
+    fontSize: scaled(38),
+    lineHeight: scaled(44),
     color: colors.cobalt,
     marginTop: spacing.md,
     letterSpacing: -0.8,
@@ -534,7 +535,7 @@ const styles = StyleSheet.create({
   avatarLabel: {
     marginTop: spacing.sm,
     letterSpacing: 2,
-    fontSize: 10,
+    fontSize: scaled(10),
   },
   nameRow: {
     flexDirection: 'row',
@@ -564,7 +565,7 @@ const styles = StyleSheet.create({
   },
   input: {
     fontFamily: fonts.body,
-    fontSize: 16,
+    fontSize: scaled(16),
     color: colors.text,
     borderBottomWidth: 1,
     borderBottomColor: colors.line,

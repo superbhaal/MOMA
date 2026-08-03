@@ -7,6 +7,7 @@ import { ActionSheet } from '@/components/ui/ActionSheet';
 import { GroupPreviewCard } from '@/components/groups/GroupPreviewCard';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useMatching } from '@/hooks/useMatching';
 import type { DeclineReason, GroupMemberWithUser, User } from '@/types';
@@ -319,20 +320,20 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 10,
+    fontSize: scaled(10),
     letterSpacing: 1.6,
   },
   title: {
     fontFamily: 'CormorantGaramond-LightItalic',
-    fontSize: 34,
-    lineHeight: 36,
+    fontSize: scaled(34),
+    lineHeight: scaled(36),
     letterSpacing: -0.4,
     textAlign: 'center',
     marginBottom: spacing.md,
   },
   sub: {
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: scaled(13),
+    lineHeight: scaled(19),
     textAlign: 'center',
     maxWidth: 280,
   },
@@ -356,20 +357,20 @@ const styles = StyleSheet.create({
   },
   joinBtnText: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 12,
+    fontSize: scaled(12),
     letterSpacing: 1,
   },
   findAnother: { alignItems: 'center', paddingVertical: spacing.xs },
   findAnotherText: {
-    fontSize: 13,
+    fontSize: scaled(13),
     fontFamily: 'DMSans-Medium',
   },
   underline: {
     textDecorationLine: 'underline',
   },
   declineSub: {
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: scaled(12),
+    lineHeight: scaled(17),
     marginTop: -spacing.sm,
     marginBottom: spacing.lg,
   },
@@ -388,10 +389,10 @@ const styles = StyleSheet.create({
   },
   reasonTitle: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 13,
+    fontSize: scaled(13),
   },
   reasonSub: {
-    fontSize: 11,
+    fontSize: scaled(11),
     marginTop: 2,
   },
   declineActions: {

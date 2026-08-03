@@ -8,6 +8,7 @@ import { OnboardingSaveHint } from '@/components/onboarding/OnboardingSaveHint';
 import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { Pressable } from 'react-native';
@@ -136,8 +137,8 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: fonts.serifItal,
-    fontSize: 56,
-    lineHeight: 62,
+    fontSize: scaled(56),
+    lineHeight: scaled(62),
     letterSpacing: -1,
     color: colors.cobalt,
     textAlign: 'center',
@@ -145,8 +146,8 @@ const styles = StyleSheet.create({
   },
   sub: {
     fontFamily: fonts.body,
-    fontSize: 16,
-    lineHeight: 25,
+    fontSize: scaled(16),
+    lineHeight: scaled(25),
     color: colors.mutedStrong,
     textAlign: 'center',
     maxWidth: 320,
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
   },
   ctaText: {
     fontFamily: fonts.bodyMed,
-    fontSize: 12,
+    fontSize: scaled(12),
     color: colors.white,
     letterSpacing: 2.4,
   },

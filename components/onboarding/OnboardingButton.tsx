@@ -3,6 +3,7 @@ import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 interface OnboardingButtonProps {
   title: string;
@@ -50,7 +51,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: fonts.bodyMed,
-    fontSize: 12,
+    fontSize: scaled(12),
     letterSpacing: 2.4,
     color: colors.white,
   },

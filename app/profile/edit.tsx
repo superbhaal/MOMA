@@ -20,6 +20,7 @@ import { AddressField } from '@/components/ui/AddressField';
 import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { useAddressField } from '@/hooks/useAddressField';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
@@ -291,7 +292,7 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 32, justifyContent: 'center' },
   headerTitle: {
     fontFamily: fonts.serif,
-    fontSize: 22,
+    fontSize: scaled(22),
     color: colors.text,
   },
   scroll: {
@@ -320,21 +321,21 @@ const styles = StyleSheet.create({
   avatarLabel: {
     marginTop: spacing.sm,
     fontFamily: fonts.bodySemi,
-    fontSize: 10,
+    fontSize: scaled(10),
     letterSpacing: 1.6,
     color: colors.muted,
   },
   field: { marginBottom: spacing.lg },
   fieldLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 11,
+    fontSize: scaled(11),
     letterSpacing: 1.4,
     color: colors.muted,
     marginBottom: spacing.xs,
   },
   input: {
     fontFamily: fonts.body,
-    fontSize: 16,
+    fontSize: scaled(16),
     color: colors.text,
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
@@ -346,7 +347,7 @@ const styles = StyleSheet.create({
   },
   counter: {
     fontFamily: fonts.body,
-    fontSize: 11,
+    fontSize: scaled(11),
     color: colors.muted,
     alignSelf: 'flex-end',
     marginTop: 4,
@@ -370,7 +371,7 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontFamily: fonts.bodyMed,
-    fontSize: 12,
+    fontSize: scaled(12),
     color: colors.text,
   },
   interestAddRow: {
@@ -388,7 +389,7 @@ const styles = StyleSheet.create({
   },
   igAt: {
     fontFamily: fonts.body,
-    fontSize: 16,
+    fontSize: scaled(16),
     color: colors.muted,
   },
   footer: {

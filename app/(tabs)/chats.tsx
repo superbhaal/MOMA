@@ -14,6 +14,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { useGroups } from '@/hooks/useGroups';
 import { useDmThreads } from '@/hooks/useDmThreads';
 import type { GroupWithDetails } from '@/types';
@@ -216,18 +217,18 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 26, paddingBottom: spacing.xxxl },
   title: {
     fontFamily: fonts.serifItal,
-    fontSize: 38,
-    lineHeight: 44,
+    fontSize: scaled(38),
+    lineHeight: scaled(44),
     letterSpacing: -0.6,
     textAlign: 'center',
   },
-  motif: { fontSize: 13, textAlign: 'center', marginTop: spacing.lg },
+  motif: { fontSize: scaled(13), textAlign: 'center', marginTop: spacing.lg },
   empty: { textAlign: 'center', marginTop: spacing.xxl },
 
   sectionWrap: { marginTop: spacing.xxl, marginBottom: spacing.xs },
   sectionLabel: {
     fontFamily: fonts.bodyMed,
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 2.4,
     textAlign: 'center',
   },
@@ -247,20 +248,20 @@ const styles = StyleSheet.create({
   rowName: {
     // Real italic cut — RN won't synthesise italics for custom fonts.
     fontFamily: fonts.serifItal,
-    fontSize: 18,
-    lineHeight: 22,
+    fontSize: scaled(18),
+    lineHeight: scaled(22),
   },
   rowPreview: {
     fontFamily: fonts.readingItal,
-    fontSize: 11.5,
-    lineHeight: 16,
+    fontSize: scaled(11.5),
+    lineHeight: scaled(16),
     marginTop: 2,
   },
-  rowSender: { fontFamily: fonts.bodySemi, fontSize: 10.5 },
+  rowSender: { fontFamily: fonts.bodySemi, fontSize: scaled(10.5) },
   rowEnd: { alignItems: 'flex-end', gap: 5 },
   rowTime: {
     fontFamily: fonts.bodyMed,
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 1.4,
   },
   unreadDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.fuchsia },

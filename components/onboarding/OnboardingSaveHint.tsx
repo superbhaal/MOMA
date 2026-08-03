@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
+import { scaled } from '@/constants/scale';
 
 /**
  * Italic "Auto-saved · close anytime…" footer hint with a small leading dot.
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.lineStrong,
   },
   text: {
-    fontSize: 10,
+    fontSize: scaled(10),
     color: colors.muted,
     letterSpacing: 0.4,
   },

@@ -3,6 +3,7 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from './Typography';
 import { colors } from '@/constants/colors';
+import { scaled } from '@/constants/scale';
 
 // Routes that should appear as tabs, in display order.
 const TABS: { name: string; label: string }[] = [
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'DMSans-Medium',
-    fontSize: 11,
+    fontSize: scaled(11),
     letterSpacing: 0.2,
   },
   labelActive: {

@@ -6,6 +6,7 @@ import { ActionSheet } from '@/components/ui/ActionSheet';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { searchPlaces } from '@/lib/places';
 import type { PlaceAttachment } from '@/types';
 
@@ -133,7 +134,7 @@ export function PlacePicker({ visible, onClose, city, onPick }: PlacePickerProps
 const styles = StyleSheet.create({
   input: {
     fontFamily: fonts.body,
-    fontSize: 16,
+    fontSize: scaled(16),
     color: colors.text,
     backgroundColor: colors.cream,
     borderRadius: radius.md,

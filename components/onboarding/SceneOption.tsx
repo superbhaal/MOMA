@@ -2,6 +2,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { radius } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 interface SceneOptionProps {
   label: string;
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
     borderColor: colors.cobalt,
   },
   label: {
-    fontSize: 14,
+    fontSize: scaled(14),
     fontWeight: '500',
   },
   labelSelected: {

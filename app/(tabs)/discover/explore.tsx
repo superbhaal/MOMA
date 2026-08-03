@@ -14,6 +14,7 @@ import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { categoryLabel } from '@/constants/discover';
+import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useDiscoverRole } from '@/hooks/useDiscoverRole';
 import { useLovedSpots } from '@/hooks/useLovedSpots';
@@ -70,10 +71,10 @@ export default function DiscoverExplore() {
       ? { lat: user.latitude, lng: user.longitude }
       : null;
 
-  // Sheet rest heights, bounded to the canvas: collapsed peek leaves ~55% of the
-  // map visible; expanded stops just short of the top so the map peeks and the
-  // grab handle + head stay on-screen (never clipped).
-  const collapsedHeight = canvasH ? Math.round(canvasH * 0.45) : 240;
+  // Sheet rest heights, bounded to the canvas: the collapsed peek is deliberately
+  // shallow — the map is what people came for — and expanded stops just short of
+  // the top so the map still peeks and the grab handle stays on-screen.
+  const collapsedHeight = canvasH ? Math.round(canvasH * 0.32) : 190;
   const expandedHeight = canvasH ? Math.round(canvasH * 0.9) : 480;
 
   const city = user?.city || 'your area';
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
-  badgeText: { fontFamily: fonts.bodySemi, fontSize: 11 },
+  badgeText: { fontFamily: fonts.bodySemi, fontSize: scaled(11) },
   fab: {
     position: 'absolute',
     right: 18,

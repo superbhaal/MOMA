@@ -9,6 +9,7 @@ import { OnboardingSaveHint } from '@/components/onboarding/OnboardingSaveHint';
 import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
 export default function Q1FirstBabyScreen() {
@@ -129,16 +130,16 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: fonts.serifItal,
-    fontSize: 40,
-    lineHeight: 46,
+    fontSize: scaled(40),
+    lineHeight: scaled(46),
     letterSpacing: -0.8,
     color: colors.cobalt,
     marginBottom: spacing.md,
   },
   sub: {
     fontFamily: fonts.body,
-    fontSize: 16,
-    lineHeight: 23,
+    fontSize: scaled(16),
+    lineHeight: scaled(23),
     color: colors.mutedStrong,
     marginBottom: spacing.xxl,
   },
@@ -163,7 +164,7 @@ const styles = StyleSheet.create({
   },
   optLetter: {
     fontFamily: fonts.serifItal,
-    fontSize: 18,
+    fontSize: scaled(18),
     color: colors.muted,
   },
   optLetterSel: {
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
   },
   optTitle: {
     fontFamily: fonts.bodySemi,
-    fontSize: 17,
+    fontSize: scaled(17),
     color: colors.text,
   },
   optTitleSel: {
@@ -180,8 +181,8 @@ const styles = StyleSheet.create({
   optDesc: {
     flex: 1,
     fontFamily: fonts.body,
-    fontSize: 14,
-    lineHeight: 19,
+    fontSize: scaled(14),
+    lineHeight: scaled(19),
     color: colors.muted,
   },
   footer: {

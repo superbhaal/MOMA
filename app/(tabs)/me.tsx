@@ -13,6 +13,7 @@ import { MeSectionLabel } from '@/components/me/MeSectionLabel';
 import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useGroups } from '@/hooks/useGroups';
 import { useProposals } from '@/hooks/useProposals';
@@ -57,6 +58,9 @@ export default function MeScreen() {
 
   const [pauseOpen, setPauseOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
+  // Leaving deletes the conversation with it, so the list only arms the choice —
+  // a second sheet says out loud what is about to be lost.
+  const [leaveTarget, setLeaveTarget] = useState<{ id: string; name: string } | null>(null);
   const [undoOpen, setUndoOpen] = useState(false);
 
   const isPaused = !!user?.paused_until && new Date(user.paused_until) > new Date();
@@ -406,9 +410,9 @@ export default function MeScreen() {
           <Pressable
             key={g.id}
             style={styles.sheetItem}
-            onPress={async () => {
-              await leaveGroup(g.id);
+            onPress={() => {
               setLeaveOpen(false);
+              setLeaveTarget({ id: g.id, name: g.name });
             }}
           >
             <Typography style={[styles.sheetItemTitle, { color: colors.cherry }]}>
@@ -419,6 +423,34 @@ export default function MeScreen() {
             </Typography>
           </Pressable>
         ))}
+      </ActionSheet>
+
+      {/* Leave confirmation — the chat goes with the group. */}
+      <ActionSheet
+        visible={!!leaveTarget}
+        onClose={() => setLeaveTarget(null)}
+        title={`Leave ${leaveTarget?.name ?? 'this group'}?`}
+      >
+        <Typography style={styles.sheetSub}>
+          Your whole conversation with them goes too — messages, photos, the places
+          you shared. It can&rsquo;t be brought back, and you&rsquo;d need a new match to
+          be in a group with them again.
+        </Typography>
+        <Pressable
+          style={styles.sheetItem}
+          onPress={async () => {
+            const id = leaveTarget?.id;
+            setLeaveTarget(null);
+            if (id) await leaveGroup(id);
+          }}
+        >
+          <Typography style={[styles.sheetItemTitle, { color: colors.cherry }]}>
+            Leave and delete the chat
+          </Typography>
+        </Pressable>
+        <Pressable style={[styles.sheetItem, styles.sheetItemLast]} onPress={() => setLeaveTarget(null)}>
+          <Typography style={styles.sheetItemTitle}>Stay in the group</Typography>
+        </Pressable>
       </ActionSheet>
 
       {/* RSVP undo sheet */}
@@ -478,15 +510,15 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: fonts.serifItal,
-    fontSize: 32,
-    lineHeight: 38,
+    fontSize: scaled(32),
+    lineHeight: scaled(38),
     letterSpacing: -0.3,
     color: colors.cobalt,
     marginTop: 14,
   },
   babyInfo: {
     fontFamily: fonts.body,
-    fontSize: 12,
+    fontSize: scaled(12),
     letterSpacing: 0.3,
     color: colors.muted,
     marginTop: 4,
@@ -504,7 +536,7 @@ const styles = StyleSheet.create({
   editBtnPressed: { backgroundColor: colors.cream },
   editBtnText: {
     fontFamily: fonts.bodySemi,
-    fontSize: 12,
+    fontSize: scaled(12),
     letterSpacing: 0.4,
     color: colors.text,
   },
@@ -512,14 +544,14 @@ const styles = StyleSheet.create({
   bio: {
     fontFamily: fonts.readingItal,
     fontStyle: 'italic',
-    fontSize: 14,
-    lineHeight: 23,
+    fontSize: scaled(14),
+    lineHeight: scaled(23),
     color: colors.text,
     marginBottom: spacing.md,
   },
   interestsLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 9,
+    fontSize: scaled(9),
     letterSpacing: 1.4,
     color: colors.muted,
     marginBottom: spacing.sm,
@@ -539,7 +571,7 @@ const styles = StyleSheet.create({
   },
   interestText: {
     fontFamily: fonts.bodyMed,
-    fontSize: 12,
+    fontSize: scaled(12),
     color: colors.text,
   },
   // Next meetup
@@ -560,13 +592,13 @@ const styles = StyleSheet.create({
   },
   meetupDay: {
     fontFamily: fonts.serifReg,
-    fontSize: 28,
-    lineHeight: 30,
+    fontSize: scaled(28),
+    lineHeight: scaled(30),
     color: colors.cobalt,
   },
   meetupMon: {
     fontFamily: fonts.bodySemi,
-    fontSize: 9,
+    fontSize: scaled(9),
     letterSpacing: 1.4,
     color: colors.muted,
     marginTop: 2,
@@ -579,18 +611,18 @@ const styles = StyleSheet.create({
   meetupInfo: { flex: 1 },
   meetupTitle: {
     fontFamily: fonts.bodySemi,
-    fontSize: 14,
+    fontSize: scaled(14),
     color: colors.text,
     marginBottom: 2,
   },
   meetupSub: {
     fontFamily: fonts.bodyMed,
-    fontSize: 12,
+    fontSize: scaled(12),
     color: colors.muted,
   },
   rsvpConfirm: {
     fontFamily: fonts.bodyMed,
-    fontSize: 11,
+    fontSize: scaled(11),
     color: colors.cobalt,
     marginTop: 6,
   },
@@ -604,13 +636,13 @@ const styles = StyleSheet.create({
   },
   meetupRsvpText: {
     fontFamily: fonts.bodySemi,
-    fontSize: 12,
+    fontSize: scaled(12),
     color: colors.white,
   },
   // Saved tips
   countBadge: {
     fontFamily: fonts.bodySemi,
-    fontSize: 10,
+    fontSize: scaled(10),
     letterSpacing: 1,
     color: colors.muted,
   },
@@ -632,15 +664,15 @@ const styles = StyleSheet.create({
   },
   savedCatText: {
     fontFamily: fonts.bodySemi,
-    fontSize: 9,
+    fontSize: scaled(9),
     letterSpacing: 0.8,
   },
   savedText: {
     flex: 1,
     fontFamily: fonts.readingItal,
     fontStyle: 'italic',
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: scaled(13),
+    lineHeight: scaled(20),
     color: colors.text,
   },
   savedEmpty: {
@@ -648,8 +680,8 @@ const styles = StyleSheet.create({
   },
   savedEmptyText: {
     fontFamily: fonts.reading,
-    fontSize: 13,
-    lineHeight: 21,
+    fontSize: scaled(13),
+    lineHeight: scaled(21),
     color: colors.muted,
   },
   savedEmptyStrong: {
@@ -663,15 +695,15 @@ const styles = StyleSheet.create({
   },
   signOutText: {
     fontFamily: fonts.body,
-    fontSize: 12,
+    fontSize: scaled(12),
     color: colors.muted,
     padding: spacing.md,
   },
   // Sheets
   sheetSub: {
     fontFamily: fonts.body,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: scaled(13),
+    lineHeight: scaled(20),
     color: colors.muted,
     marginBottom: spacing.md,
   },
@@ -683,13 +715,13 @@ const styles = StyleSheet.create({
   sheetItemLast: { borderBottomWidth: 0 },
   sheetItemTitle: {
     fontFamily: fonts.bodySemi,
-    fontSize: 15,
+    fontSize: scaled(15),
     color: colors.text,
   },
   sheetItemSub: {
     fontFamily: fonts.body,
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: scaled(12),
+    lineHeight: scaled(17),
     color: colors.muted,
     marginTop: 3,
   },

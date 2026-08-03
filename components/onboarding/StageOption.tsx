@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 interface StageOptionProps {
   label: string;
@@ -70,16 +71,16 @@ const styles = StyleSheet.create({
     borderColor: colors.cobalt,
   },
   title: {
-    fontSize: 16,
+    fontSize: scaled(16),
     fontWeight: '600',
-    lineHeight: 21,
+    lineHeight: scaled(21),
   },
   titleSelected: {
     fontWeight: '700',
   },
   hint: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: scaled(13),
+    lineHeight: scaled(18),
     fontWeight: '300',
     marginTop: 2,
   },

@@ -206,7 +206,9 @@ const styles = StyleSheet.create({
   illo: {
     position: 'absolute',
     right: '9%',
-    bottom: -28,
+    // Hung so her raised hand lands on the baby line and she trails down past
+    // the ❖ into the groups label — the mockup's placement.
+    bottom: -scaled(60),
     transform: [{ scaleX: -1 }],
   },
   eyebrow: {

@@ -6,6 +6,7 @@ import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 
 /** Shared top bar for the Me settings sub-screens (back chevron + centered title). */
 export function SettingsHeader({ title }: { title: string }) {
@@ -34,5 +35,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   side: { width: 40, height: 32, justifyContent: 'center' },
-  title: { fontFamily: fonts.serif, fontSize: 22, color: colors.text },
+  title: { fontFamily: fonts.serif, fontSize: scaled(22), color: colors.text },
 });

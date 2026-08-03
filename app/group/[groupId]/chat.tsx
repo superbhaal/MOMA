@@ -19,10 +19,12 @@ import { ActionSheet } from '@/components/ui/ActionSheet';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { useGroupDetail } from '@/hooks/useGroupDetail';
 import { useChat } from '@/hooks/useChat';
 import { useProposals } from '@/hooks/useProposals';
 import { useAuth } from '@/hooks/useAuth';
+import { hasUpcomingMeetup } from '@/lib/meetup';
 import type { Message, User } from '@/types';
 
 export default function GroupChatScreen() {
@@ -75,7 +77,7 @@ export default function GroupChatScreen() {
         </Pressable>
       </View>
 
-      {open_proposal ? (
+      {open_proposal && hasUpcomingMeetup(open_proposal) ? (
         <View style={styles.proposalWrap}>
           <ProposalCard
             proposal={open_proposal}
@@ -199,15 +201,15 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  headerArrow: { fontFamily: fonts.body, fontSize: 18 },
+  headerArrow: { fontFamily: fonts.body, fontSize: scaled(18) },
   headerName: {
     fontFamily: fonts.serifItal,
-    fontSize: 21,
-    lineHeight: 26,
+    fontSize: scaled(21),
+    lineHeight: scaled(26),
   },
   headerMeta: {
     fontFamily: fonts.bodyMed,
-    fontSize: 8,
+    fontSize: scaled(8),
     letterSpacing: 1.6,
     marginTop: 1,
   },
@@ -236,13 +238,13 @@ const styles = StyleSheet.create({
   },
   holdingText: {
     fontFamily: 'Lora-Italic',
-    fontSize: 13.5,
-    lineHeight: 21,
+    fontSize: scaled(13.5),
+    lineHeight: scaled(21),
     textAlign: 'center',
   },
   availabilityLink: {
     fontFamily: 'DMSans-Medium',
-    fontSize: 13,
+    fontSize: scaled(13),
     textAlign: 'center',
     textDecorationLine: 'underline',
   },
@@ -259,7 +261,7 @@ const styles = StyleSheet.create({
   },
   findingText: {
     fontFamily: 'DMSans-Medium',
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 2,
   },
 });

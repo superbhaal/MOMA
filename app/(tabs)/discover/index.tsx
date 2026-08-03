@@ -14,6 +14,7 @@ import { DiscoverSkeleton } from '@/components/discover/DiscoverSkeleton';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { useLearn } from '@/hooks/useLearn';
 import type { LearnArticle, LearnReel } from '@/types';
 
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
   list: { paddingBottom: spacing.xxxl },
   sectionLabel: {
     fontFamily: fonts.bodyMed,
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 2.4,
     textAlign: 'center',
     marginTop: spacing.lg,

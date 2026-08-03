@@ -29,17 +29,22 @@ export const EMPTY_AVAILABILITY: RecurringAvailability = {
 
 export interface LanguageOption {
   label: string;
+  /** Shown on the pill in Matching preferences. */
+  flag?: string;
 }
 
+// Order and flags follow the v11 Matching-preferences screen. Italian stays on
+// the end rather than being dropped — accounts already hold it.
 export const LANGUAGE_OPTIONS: LanguageOption[] = [
-  { label: 'English' },
-  { label: 'French' },
-  { label: 'Dutch' },
-  { label: 'Spanish' },
-  { label: 'German' },
-  { label: 'Italian' },
-  { label: 'Arabic' },
-  { label: 'Portuguese' },
+  { label: 'English',    flag: '🇬🇧' },
+  { label: 'Dutch',      flag: '🇳🇱' },
+  { label: 'Spanish',    flag: '🇪🇸' },
+  { label: 'French',     flag: '🇫🇷' },
+  { label: 'German',     flag: '🇩🇪' },
+  { label: 'Arabic',     flag: '🇸🇦' },
+  { label: 'Portuguese', flag: '🇵🇹' },
+  { label: 'Turkish',    flag: '🇹🇷' },
+  { label: 'Italian',    flag: '🇮🇹' },
 ];
 
 // Kept as a flat array for backwards compat (preferences screen uses it).

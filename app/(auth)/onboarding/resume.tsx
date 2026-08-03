@@ -8,6 +8,7 @@ import { getQuizProgress, TOTAL_QUIZ_STEPS } from '@/hooks/useOnboarding';
 import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 
 const TOTAL_STEPS = TOTAL_QUIZ_STEPS;
 
@@ -126,8 +127,8 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: fonts.serifItal,
-    fontSize: 48,
-    lineHeight: 54,
+    fontSize: scaled(48),
+    lineHeight: scaled(54),
     letterSpacing: -0.9,
     color: colors.cobalt,
   },

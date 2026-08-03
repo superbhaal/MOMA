@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { lifeStageFromDob } from '@/lib/lifeStage';
 
@@ -162,16 +163,16 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: fonts.serifItal,
-    fontSize: 40,
-    lineHeight: 46,
+    fontSize: scaled(40),
+    lineHeight: scaled(46),
     letterSpacing: -0.8,
     color: colors.cobalt,
     marginBottom: spacing.md,
   },
   sub: {
     fontFamily: fonts.body,
-    fontSize: 16,
-    lineHeight: 23,
+    fontSize: scaled(16),
+    lineHeight: scaled(23),
     color: colors.mutedStrong,
     marginBottom: spacing.xxl,
   },
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontFamily: fonts.bodyMed,
-    fontSize: 20,
+    fontSize: scaled(20),
     color: colors.muted,
     letterSpacing: 0.5,
   },

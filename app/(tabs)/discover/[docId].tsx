@@ -19,6 +19,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { useLearnDoc } from '@/hooks/useLearn';
 import { useSavedTips } from '@/hooks/useSavedTips';
 import type { LearnArticle, LearnReel, SanityBlock } from '@/types';
@@ -276,20 +277,20 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   backBtn: { flexDirection: 'row', alignItems: 'center', flexShrink: 1 },
-  backText: { fontFamily: fonts.bodySemi, fontSize: 14 },
+  backText: { fontFamily: fonts.bodySemi, fontSize: scaled(14) },
   progressPill: {
     backgroundColor: 'rgba(17,17,24,0.05)',
     borderRadius: radius.pill,
     paddingHorizontal: 11,
     paddingVertical: 6,
   },
-  progressText: { fontFamily: fonts.bodySemi, fontSize: 11, letterSpacing: 0.55 },
+  progressText: { fontFamily: fonts.bodySemi, fontSize: scaled(11), letterSpacing: 0.55 },
   progressTrack: { height: 2, backgroundColor: colors.line },
   progressFill: { height: 2, backgroundColor: colors.cobalt },
   scroll: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.xxxl },
-  eyebrow: { fontFamily: fonts.bodySemi, fontSize: 12, letterSpacing: 1.08 },
-  h1: { fontFamily: fonts.serif, fontSize: 33, lineHeight: 37, marginTop: spacing.sm },
-  deck: { fontFamily: fonts.readingItal, fontSize: 18, lineHeight: 27, marginTop: spacing.sm },
+  eyebrow: { fontFamily: fonts.bodySemi, fontSize: scaled(12), letterSpacing: 1.08 },
+  h1: { fontFamily: fonts.serif, fontSize: scaled(33), lineHeight: scaled(37), marginTop: spacing.sm },
+  deck: { fontFamily: fonts.readingItal, fontSize: scaled(18), lineHeight: scaled(27), marginTop: spacing.sm },
   byline: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -300,34 +301,34 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
   },
   bylineText: { flex: 1 },
-  bylineName: { fontFamily: fonts.body, fontSize: 14 },
-  bylineMeta: { fontFamily: fonts.body, fontSize: 12.5, marginTop: 2 },
+  bylineName: { fontFamily: fonts.body, fontSize: scaled(14) },
+  bylineMeta: { fontFamily: fonts.body, fontSize: scaled(12.5), marginTop: 2 },
   sourcePill: {
     backgroundColor: colors.cobaltSoft,
     borderRadius: radius.pill,
     paddingHorizontal: 11,
     paddingVertical: 5,
   },
-  sourceText: { fontFamily: fonts.bodySemi, fontSize: 12 },
-  body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 26, marginTop: 18 },
-  h2: { fontFamily: fonts.serif, fontSize: 24, lineHeight: 28, marginTop: spacing.xl },
+  sourceText: { fontFamily: fonts.bodySemi, fontSize: scaled(12) },
+  body: { fontFamily: fonts.body, fontSize: scaled(16), lineHeight: scaled(26), marginTop: 18 },
+  h2: { fontFamily: fonts.serif, fontSize: scaled(24), lineHeight: scaled(28), marginTop: spacing.xl },
   pullQuote: {
     borderLeftWidth: 4,
     borderLeftColor: colors.soleil,
     paddingLeft: 18,
     marginTop: spacing.xl,
   },
-  pullQuoteText: { fontFamily: fonts.readingItal, fontSize: 19, lineHeight: 28.5 },
+  pullQuoteText: { fontFamily: fonts.readingItal, fontSize: scaled(19), lineHeight: scaled(28.5) },
   keyPoints: {
     backgroundColor: colors.cream,
     borderRadius: radius.lg,
     padding: 18,
     marginTop: spacing.xl,
   },
-  keyLabel: { fontFamily: fonts.bodySemi, fontSize: 11, letterSpacing: 0.66 },
+  keyLabel: { fontFamily: fonts.bodySemi, fontSize: scaled(11), letterSpacing: 0.66 },
   keyRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
   keyDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.cobalt, marginTop: 7 },
-  keyText: { flex: 1, fontFamily: fonts.body, fontSize: 14.5, lineHeight: 21.75 },
+  keyText: { flex: 1, fontFamily: fonts.body, fontSize: scaled(14.5), lineHeight: scaled(21.75) },
   actions: {
     flexDirection: 'row',
     gap: spacing.md,
@@ -349,5 +350,5 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
   },
   actionBtnActive: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
-  actionText: { fontFamily: fonts.bodyMed, fontSize: 15 },
+  actionText: { fontFamily: fonts.bodyMed, fontSize: scaled(15) },
 });

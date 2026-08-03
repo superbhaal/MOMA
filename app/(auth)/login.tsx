@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginScreen() {
@@ -185,12 +186,12 @@ const styles = StyleSheet.create({
   },
   brand: {
     fontFamily: fonts.serif,
-    fontSize: 52,
-    lineHeight: 56,
+    fontSize: scaled(52),
+    lineHeight: scaled(56),
   },
   tagline: {
     fontFamily: fonts.bodyMed,
-    fontSize: 11,
+    fontSize: scaled(11),
     letterSpacing: 2,
     textTransform: 'uppercase',
     textAlign: 'center',
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
   },
   input: {
     fontFamily: fonts.body,
-    fontSize: 16,
+    fontSize: scaled(16),
     color: colors.text,
     borderBottomWidth: 1,
     borderBottomColor: colors.line,

@@ -4,6 +4,7 @@ import { PlaceCard } from './PlaceCard';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import type { Message, PlaceAttachment, User } from '@/types';
 
 interface ChatBubbleProps {
@@ -85,18 +86,18 @@ const styles = StyleSheet.create({
   dot: { width: 7, height: 7, borderRadius: 4 },
   senderName: {
     fontFamily: fonts.bodyMed,
-    fontSize: 8,
+    fontSize: scaled(8),
     letterSpacing: 1.2,
   },
   body: { flex: 1 },
   text: {
     fontFamily: fonts.reading,
-    fontSize: 14,
-    lineHeight: 21,
+    fontSize: scaled(14),
+    lineHeight: scaled(21),
   },
   time: {
     fontFamily: fonts.body,
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 0.5,
     marginTop: 3,
   },

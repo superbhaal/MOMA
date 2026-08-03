@@ -4,6 +4,7 @@ import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { categoryChips } from '@/constants/discover';
+import { scaled } from '@/constants/scale';
 import type { LovedKind, LovedCategory } from '@/types';
 
 interface ExploreCategoryChipsProps {
@@ -58,5 +59,5 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
   },
   chipActive: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
-  label: { fontFamily: fonts.bodyMed, fontSize: 12.5 },
+  label: { fontFamily: fonts.bodyMed, fontSize: scaled(12.5) },
 });

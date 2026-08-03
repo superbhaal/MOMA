@@ -8,6 +8,7 @@ import { Pill } from '@/components/ui/Pill';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import type { NotifChatCadence } from '@/types';
@@ -144,13 +145,13 @@ const styles = StyleSheet.create({
   switchText: { flex: 1 },
   rowTitle: {
     fontFamily: fonts.bodySemi,
-    fontSize: 14,
+    fontSize: scaled(14),
     color: colors.text,
   },
   rowSub: {
     fontFamily: fonts.body,
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: scaled(12),
+    lineHeight: scaled(18),
     color: colors.muted,
     marginTop: 2,
   },
@@ -163,7 +164,7 @@ const styles = StyleSheet.create({
   timeBlock: { marginTop: spacing.lg },
   timeLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 10,
+    fontSize: scaled(10),
     letterSpacing: 1.4,
     color: colors.muted,
     marginBottom: spacing.sm,
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
   timeRow: { gap: 8, paddingRight: spacing.lg },
   footnote: {
     fontFamily: fonts.body,
-    fontSize: 12,
+    fontSize: scaled(12),
     color: colors.muted,
     textAlign: 'center',
     marginTop: spacing.lg,

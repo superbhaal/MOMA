@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 interface MeRowProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -82,12 +83,12 @@ const styles = StyleSheet.create({
   label: {
     flex: 1,
     fontFamily: 'DMSans-Regular',
-    fontSize: 14,
+    fontSize: scaled(14),
     color: colors.text,
   },
   value: {
     fontFamily: 'DMSans-Regular',
-    fontSize: 12,
+    fontSize: scaled(12),
     color: colors.muted,
     marginRight: 2,
   },

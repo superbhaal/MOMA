@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -51,12 +52,12 @@ const styles = StyleSheet.create({
   },
   brand: {
     fontFamily: fonts.serif,
-    fontSize: 96,
-    lineHeight: 100,
+    fontSize: scaled(96),
+    lineHeight: scaled(100),
   },
   tagline: {
     fontFamily: fonts.bodyMed,
-    fontSize: 13,
+    fontSize: scaled(13),
     letterSpacing: 2.5,
     textTransform: 'uppercase',
     textAlign: 'center',

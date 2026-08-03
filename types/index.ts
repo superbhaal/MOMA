@@ -100,6 +100,8 @@ export interface User {
 
   notif_meetup_reminders: boolean;
   notif_chat_activity: NotifChatCadence;
+  notif_email: boolean;
+  notif_in_app: boolean;
   notif_quiet_hours_enabled: boolean;
   notif_quiet_start: string;
   notif_quiet_end: string;

@@ -6,6 +6,7 @@ import { ActionSheet } from '@/components/ui/ActionSheet';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 interface CounterProposalSheetProps {
   visible: boolean;
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 60,
     fontFamily: fonts.body,
-    fontSize: 16,
+    fontSize: scaled(16),
     color: colors.text,
     backgroundColor: colors.cream,
     borderRadius: radius.md,

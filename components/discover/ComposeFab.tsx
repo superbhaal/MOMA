@@ -5,6 +5,7 @@ import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { useDiscoverRole } from '@/hooks/useDiscoverRole';
 
 /**
@@ -54,5 +55,5 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   fabPressed: { backgroundColor: colors.cobaltDeep, transform: [{ translateY: 0.5 }] },
-  fabLabel: { fontFamily: fonts.bodySemi, fontSize: 14 },
+  fabLabel: { fontFamily: fonts.bodySemi, fontSize: scaled(14) },
 });

@@ -19,6 +19,7 @@ import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { discoverMapUri, openInGoogleMaps } from '@/lib/maps';
 import { categoryLabel } from '@/constants/discover';
+import { scaled } from '@/constants/scale';
 import { useLovedSpot } from '@/hooks/useLovedSpots';
 
 const HERO_H = 280;
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   center: { alignItems: 'center', justifyContent: 'center', gap: spacing.md, padding: spacing.xl },
   centerText: { textAlign: 'center' },
-  backLink: { fontFamily: fonts.bodySemi, fontSize: 15 },
+  backLink: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
 
   hero: { height: HERO_H, overflow: 'hidden' },
   heroImg: { width: '100%', height: '100%', backgroundColor: colors.sable },
@@ -223,8 +224,8 @@ const styles = StyleSheet.create({
   },
 
   body: { padding: spacing.xl },
-  name: { fontFamily: fonts.serifItal, fontSize: 30, lineHeight: 35 },
-  address: { fontFamily: fonts.body, fontSize: 14, marginTop: 4 },
+  name: { fontFamily: fonts.serifItal, fontSize: scaled(30), lineHeight: scaled(35) },
+  address: { fontFamily: fonts.body, fontSize: scaled(14), marginTop: 4 },
   catPill: {
     alignSelf: 'flex-start',
     backgroundColor: 'rgba(17,17,24,0.05)',
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     marginBottom: spacing.lg,
   },
-  catText: { fontFamily: fonts.bodySemi, fontSize: 11, letterSpacing: 0.66 },
+  catText: { fontFamily: fonts.bodySemi, fontSize: scaled(11), letterSpacing: 0.66 },
 
   postedRow: {
     flexDirection: 'row',
@@ -246,8 +247,8 @@ const styles = StyleSheet.create({
   },
   postedPressed: { opacity: 0.6 },
   postedMid: { flex: 1 },
-  postedName: { fontFamily: fonts.bodyMed, fontSize: 15 },
-  postedTime: { fontFamily: fonts.body, fontSize: 13, marginTop: 1 },
+  postedName: { fontFamily: fonts.bodyMed, fontSize: scaled(15) },
+  postedTime: { fontFamily: fonts.body, fontSize: scaled(13), marginTop: 1 },
 
   quote: {
     borderLeftWidth: 3,
@@ -257,10 +258,10 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     marginBottom: spacing.xxl,
   },
-  quoteText: { fontFamily: fonts.readingItal, fontSize: 17, lineHeight: 26 },
+  quoteText: { fontFamily: fonts.readingItal, fontSize: scaled(17), lineHeight: scaled(26) },
 
   phoneRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.lg },
-  phoneText: { fontFamily: fonts.bodySemi, fontSize: 15 },
+  phoneText: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
 
   disclaimer: {
     marginTop: spacing.xl,
@@ -268,5 +269,5 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.md,
   },
-  disclaimerText: { fontFamily: fonts.bodyMed, fontSize: 12, lineHeight: 18 },
+  disclaimerText: { fontFamily: fonts.bodyMed, fontSize: scaled(12), lineHeight: scaled(18) },
 });

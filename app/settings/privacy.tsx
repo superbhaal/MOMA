@@ -8,6 +8,7 @@ import { SettingsHeader } from '@/components/me/SettingsHeader';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 
 const PROMISES = [
@@ -126,13 +127,13 @@ const styles = StyleSheet.create({
   promiseText: {
     flex: 1,
     fontFamily: fonts.body,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: scaled(13),
+    lineHeight: scaled(20),
     color: colors.text,
   },
   footnote: {
     fontFamily: fonts.body,
-    fontSize: 12,
+    fontSize: scaled(12),
     color: colors.muted,
     textAlign: 'center',
     marginTop: spacing.lg,

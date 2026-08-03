@@ -4,6 +4,7 @@ import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 interface OnboardingHeaderProps {
   /** 1-based step number. */
@@ -56,13 +57,13 @@ const styles = StyleSheet.create({
   },
   step: {
     fontFamily: fonts.serifReg,
-    fontSize: 13,
+    fontSize: scaled(13),
     letterSpacing: 2.4,
     color: colors.text,
   },
   skip: {
     fontFamily: fonts.bodyMed,
-    fontSize: 10,
+    fontSize: scaled(10),
     letterSpacing: 1.6,
     color: colors.muted,
   },

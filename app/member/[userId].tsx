@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { supabase } from '@/lib/supabase';
 import { openInstagramProfile } from '@/lib/instagram';
 import type { User } from '@/types';
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 26,
     paddingVertical: spacing.md,
   },
-  back: { fontFamily: fonts.bodyMed, fontSize: 13 },
+  back: { fontFamily: fonts.bodyMed, fontSize: scaled(13) },
   scroll: {
     paddingHorizontal: 26,
     paddingBottom: spacing.xxxl,
@@ -128,21 +129,21 @@ const styles = StyleSheet.create({
   hero: { alignItems: 'center', marginTop: spacing.xl },
   name: {
     fontFamily: fonts.serifItal,
-    fontSize: 32,
-    lineHeight: 38,
+    fontSize: scaled(32),
+    lineHeight: scaled(38),
     textAlign: 'center',
     marginTop: spacing.lg,
   },
   meta: {
     fontFamily: fonts.bodyMed,
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 2.4,
     marginTop: 5,
   },
   bio: {
     fontFamily: fonts.readingItal,
-    fontSize: 15,
-    lineHeight: 24,
+    fontSize: scaled(15),
+    lineHeight: scaled(24),
     textAlign: 'center',
     marginTop: spacing.xl,
     paddingHorizontal: spacing.md,
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 8,
   },
-  interestText: { fontFamily: fonts.body, fontSize: 13 },
+  interestText: { fontFamily: fonts.body, fontSize: scaled(13) },
   instagramRow: { alignItems: 'center', marginTop: spacing.xl },
-  instagram: { fontFamily: fonts.bodySemi, fontSize: 14 },
+  instagram: { fontFamily: fonts.bodySemi, fontSize: scaled(14) },
 });

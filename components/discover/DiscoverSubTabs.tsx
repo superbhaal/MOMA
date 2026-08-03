@@ -3,6 +3,7 @@ import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 export type DiscoverTab = 'learn' | 'watch' | 'explore';
 
@@ -61,8 +62,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.lineStrong,
     borderRadius: radius.pill,
-    paddingHorizontal: 17,
-    paddingVertical: 9,
+    paddingHorizontal: 20,
+    paddingVertical: 11,
   },
   chipActive: {
     backgroundColor: colors.cobalt,
@@ -70,7 +71,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: fonts.bodyMed,
-    fontSize: 10,
-    letterSpacing: 1.6,
+    // Sized against the masthead rather than against a chip: the tester read
+    // the trio as an afterthought next to the title.
+    fontSize: scaled(13),
+    letterSpacing: 1.8,
   },
 });

@@ -4,6 +4,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Pill } from '@/components/ui/Pill';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import type { GroupMemberWithUser } from '@/types';
 
 interface MemberRowProps {
@@ -79,8 +80,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.line,
   },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  name: { fontFamily: 'DMSans-Medium', fontSize: 14, lineHeight: 18 },
-  you: { fontFamily: 'DMSans-Regular', fontSize: 11 },
+  name: { fontFamily: 'DMSans-Medium', fontSize: scaled(14), lineHeight: scaled(18) },
+  you: { fontFamily: 'DMSans-Regular', fontSize: scaled(11) },
   msgBtn: {
     borderWidth: 1,
     borderColor: colors.lineStrong,
@@ -88,5 +89,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 7,
   },
-  msgLabel: { fontFamily: 'DMSans-SemiBold', fontSize: 11.5 },
+  msgLabel: { fontFamily: 'DMSans-SemiBold', fontSize: scaled(11.5) },
 });

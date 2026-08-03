@@ -18,6 +18,7 @@ import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
 import { LANGUAGE_OPTIONS } from '@/constants/onboarding';
+import { scaled } from '@/constants/scale';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
 const MAX_SECONDARY = 2;
@@ -248,30 +249,30 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: fonts.serifItal,
-    fontSize: 40,
-    lineHeight: 46,
+    fontSize: scaled(40),
+    lineHeight: scaled(46),
     letterSpacing: -0.8,
     color: colors.cobalt,
     marginBottom: spacing.md,
   },
   sub: {
     fontFamily: fonts.body,
-    fontSize: 16,
-    lineHeight: 23,
+    fontSize: scaled(16),
+    lineHeight: scaled(23),
     color: colors.mutedStrong,
     marginBottom: spacing.xxl,
   },
   sectionLabel: {
     fontFamily: fonts.bodyMed,
-    fontSize: 10,
+    fontSize: scaled(10),
     letterSpacing: 2.4,
     color: colors.cobalt,
     marginBottom: 6,
   },
   sectionSub: {
     fontFamily: fonts.body,
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: scaled(13),
+    lineHeight: scaled(19),
     color: colors.muted,
     marginBottom: spacing.sm,
   },
@@ -285,7 +286,7 @@ const styles = StyleSheet.create({
   },
   alsoRight: {
     color: colors.muted,
-    fontSize: 9,
+    fontSize: scaled(9),
   },
   grid: {
     flexDirection: 'row',
@@ -314,7 +315,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontFamily: fonts.bodyMed,
-    fontSize: 15,
+    fontSize: scaled(15),
     color: colors.text,
   },
   pillTextSel: {
@@ -335,7 +336,7 @@ const styles = StyleSheet.create({
   },
   sheetInput: {
     fontFamily: fonts.body,
-    fontSize: 18,
+    fontSize: scaled(18),
     color: colors.text,
     borderBottomWidth: 1,
     borderBottomColor: colors.line,

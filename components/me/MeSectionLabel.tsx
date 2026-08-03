@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 interface MeSectionLabelProps {
   label: string;
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 10,
+    fontSize: scaled(10),
     letterSpacing: 1.7,
     color: colors.muted,
   },

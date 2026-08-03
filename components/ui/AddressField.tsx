@@ -4,6 +4,7 @@ import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import type { AddressFieldState } from '@/hooks/useAddressField';
 
 /**
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontFamily: fonts.body,
-    fontSize: 16,
+    fontSize: scaled(16),
     color: colors.text,
     paddingVertical: spacing.md,
   },

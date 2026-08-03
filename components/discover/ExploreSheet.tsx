@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react';
-import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef } from 'react';
+import { Animated, PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { LovedSpotRow } from '@/components/discover/LovedSpotRow';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import type { LovedKind, LovedSpotWithPoster } from '@/types';
 
 const DISCLAIMER =
@@ -37,8 +38,12 @@ interface ExploreSheetProps {
 
 /**
  * Persistent Explore sheet: count head, attributed spot rows, and the
- * always-present due-diligence disclaimer (escalated in People mode). Tapping
- * the grab handle or "See all" toggles collapsed peek ↔ expanded list.
+ * always-present due-diligence disclaimer (escalated in People mode).
+ *
+ * It's dragged, the way every other map sheet on the phone behaves — a tester
+ * found the See all / Collapse buttons unintuitive next to those. Pull the
+ * handle and the sheet follows the finger, then settles to whichever rest
+ * height the release was heading for; a plain tap still toggles.
  */
 export function ExploreSheet({
   mode,
@@ -59,6 +64,10 @@ export function ExploreSheet({
   expandedHeight = EXPANDED_DEFAULT,
 }: ExploreSheetProps) {
   const height = useRef(new Animated.Value(collapsedHeight)).current;
+  // Mirrors `height` for the gesture maths — an Animated.Value can't be read
+  // synchronously mid-drag.
+  const heightNow = useRef(collapsedHeight);
+  const dragStart = useRef(collapsedHeight);
 
   // Animate between the two rest heights when `expanded` flips.
   useEffect(() => {
@@ -69,6 +78,46 @@ export function ExploreSheet({
     }).start();
   }, [expanded, height, collapsedHeight, expandedHeight]);
 
+  useEffect(() => {
+    const id = height.addListener(({ value }) => {
+      heightNow.current = value;
+    });
+    return () => height.removeListener(id);
+  }, [height]);
+
+  const pan = useMemo(
+    () =>
+      PanResponder.create({
+        // Claim only a deliberate vertical drag, so a tap still reaches the handle.
+        onMoveShouldSetPanResponder: (_e, g) => Math.abs(g.dy) > 4,
+        onPanResponderGrant: () => {
+          dragStart.current = heightNow.current;
+          height.stopAnimation();
+        },
+        onPanResponderMove: (_e, g) => {
+          // Dragging up grows the sheet, hence the inverted sign.
+          const next = dragStart.current - g.dy;
+          height.setValue(Math.min(expandedHeight, Math.max(collapsedHeight, next)));
+        },
+        onPanResponderRelease: (_e, g) => {
+          // A flick wins over position; otherwise settle to the nearer rest.
+          const mid = (collapsedHeight + expandedHeight) / 2;
+          const wantExpanded =
+            g.vy < -0.5 ? true : g.vy > 0.5 ? false : heightNow.current > mid;
+          if (wantExpanded !== expanded) {
+            onToggle(); // parent flips `expanded`, the effect above animates
+          } else {
+            Animated.spring(height, {
+              toValue: wantExpanded ? expandedHeight : collapsedHeight,
+              useNativeDriver: false,
+              bounciness: 2,
+            }).start();
+          }
+        },
+      }),
+    [collapsedHeight, expandedHeight, expanded, height, onToggle],
+  );
+
   const count = spots.length;
   const countLabel =
     mode === 'place' ? 'places loved nearby' : 'people moms trust nearby';
@@ -76,15 +125,18 @@ export function ExploreSheet({
 
   return (
     <Animated.View style={[styles.sheet, { height, paddingBottom: bottomInset + spacing.lg }]}>
-      <Pressable
-        onPress={onToggle}
-        style={styles.handleHit}
-        accessibilityRole="button"
-        accessibilityLabel={expanded ? 'Collapse list' : 'Expand list'}
-        accessibilityState={{ expanded }}
-      >
-        <View style={styles.handle} />
-      </Pressable>
+      <View {...pan.panHandlers}>
+        <Pressable
+          onPress={onToggle}
+          style={styles.handleHit}
+          accessibilityRole="button"
+          accessibilityLabel={expanded ? 'Collapse list' : 'Expand list'}
+          accessibilityHint="Drag up for the full list, down for the map"
+          accessibilityState={{ expanded }}
+        >
+          <View style={styles.handle} />
+        </Pressable>
+      </View>
 
       <View style={styles.head}>
         <Typography style={styles.countText} color={colors.labelMuted}>
@@ -93,18 +145,7 @@ export function ExploreSheet({
           </Typography>
           {countLabel}
         </Typography>
-        {count > 0 ? (
-          <Pressable
-            onPress={onToggle}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel={expanded ? 'Collapse list' : 'See all'}
-          >
-            <Typography style={styles.seeAll} color={colors.cobalt}>
-              {expanded ? 'Collapse ↓' : 'See all ↑'}
-            </Typography>
-          </Pressable>
-        ) : null}
+
       </View>
 
       <ScrollView
@@ -200,9 +241,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingBottom: spacing.sm,
   },
-  countText: { fontFamily: fonts.body, fontSize: 14 },
-  countNum: { fontFamily: fonts.bodySemi, fontSize: 14 },
-  seeAll: { fontFamily: fonts.bodySemi, fontSize: 13 },
+  countText: { fontFamily: fonts.body, fontSize: scaled(14) },
+  countNum: { fontFamily: fonts.bodySemi, fontSize: scaled(14) },
   listContent: { paddingBottom: spacing.md },
   skeleton: {
     height: 64,
@@ -213,7 +253,7 @@ const styles = StyleSheet.create({
   state: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xl },
   stateText: { textAlign: 'center' },
   retryBtn: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.md },
-  retryText: { fontFamily: fonts.bodySemi, fontSize: 14 },
+  retryText: { fontFamily: fonts.bodySemi, fontSize: scaled(14) },
   disclaimer: { paddingTop: spacing.md },
   disclaimerPeople: {
     marginTop: spacing.sm,
@@ -221,6 +261,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.md,
   },
-  disclaimerText: { fontFamily: fonts.body, fontSize: 12, lineHeight: 18 },
+  disclaimerText: { fontFamily: fonts.body, fontSize: scaled(12), lineHeight: scaled(18) },
   disclaimerTextPeople: { fontFamily: fonts.bodyMed },
 });

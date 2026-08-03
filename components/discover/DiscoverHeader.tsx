@@ -5,6 +5,7 @@ import { Illustration, type IllustrationName } from '@/components/ui/Illustratio
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 interface DiscoverHeaderProps {
   /** Fixed section title across all sub-tabs. */
@@ -91,14 +92,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fonts.serifItal,
-    fontSize: 34,
-    lineHeight: 40,
+    fontSize: scaled(34),
+    lineHeight: scaled(40),
     letterSpacing: -0.4,
     textAlign: 'center',
   },
   titleMap: {
-    fontSize: 27,
-    lineHeight: 32,
+    fontSize: scaled(27),
+    lineHeight: scaled(32),
   },
   // Narrows the measured text box so "How to build a human" breaks over two
   // lines and leaves the right margin to the drawing.
@@ -117,8 +118,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontFamily: fonts.body,
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: scaled(12),
+    lineHeight: scaled(17),
     textAlign: 'center',
     marginTop: 4,
     marginBottom: spacing.lg,
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontFamily: fonts.body,
-    fontSize: 14,
+    fontSize: scaled(14),
     color: colors.text,
     padding: 0,
   },

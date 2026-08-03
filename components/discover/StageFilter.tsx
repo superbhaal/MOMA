@@ -5,6 +5,7 @@ import { ActionSheet } from '@/components/ui/ActionSheet';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 // Stage value === Sanity `babyStage` code so it filters content directly.
 // 'all' clears the filter.
@@ -133,13 +134,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: colors.line,
   },
-  rowLabel: { fontFamily: fonts.bodySemi, fontSize: 12, letterSpacing: 0.84 },
-  rowValue: { fontFamily: fonts.bodySemi, fontSize: 15 },
-  sheetSub: { fontFamily: fonts.body, fontSize: 13, lineHeight: 20, marginBottom: spacing.sm },
+  rowLabel: { fontFamily: fonts.bodySemi, fontSize: scaled(12), letterSpacing: 0.84 },
+  rowValue: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
+  sheetSub: { fontFamily: fonts.body, fontSize: scaled(13), lineHeight: scaled(20), marginBottom: spacing.sm },
   sheetScroll: { maxHeight: 380 },
   groupLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: 11,
+    fontSize: scaled(11),
     letterSpacing: 0.88,
     marginTop: spacing.md,
     marginBottom: 2,
@@ -151,6 +152,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
-  optLabel: { fontFamily: fonts.bodySemi, fontSize: 15 },
-  optSub: { fontFamily: fonts.body, fontSize: 12, marginTop: 2 },
+  optLabel: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
+  optSub: { fontFamily: fonts.body, fontSize: scaled(12), marginTop: 2 },
 });

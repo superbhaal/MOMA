@@ -11,6 +11,7 @@ import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
 import { PROFILE_COLOUR_SWATCHES } from '@/constants/onboarding';
+import { scaled } from '@/constants/scale';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
 export default function Q4ColourScreen() {
@@ -120,8 +121,8 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: fonts.serifItal,
-    fontSize: 40,
-    lineHeight: 46,
+    fontSize: scaled(40),
+    lineHeight: scaled(46),
     letterSpacing: -0.8,
     color: colors.cobalt,
     marginBottom: spacing.md,
@@ -129,14 +130,14 @@ const styles = StyleSheet.create({
   sub: {
     fontFamily: fonts.serifItal,
     fontStyle: 'italic',
-    fontSize: 17,
-    lineHeight: 24,
+    fontSize: scaled(17),
+    lineHeight: scaled(24),
     color: colors.mutedStrong,
     marginBottom: spacing.xxl,
   },
   groupLabel: {
     fontFamily: fonts.bodyMed,
-    fontSize: 10,
+    fontSize: scaled(10),
     letterSpacing: 2.4,
     color: colors.cobalt,
     marginBottom: spacing.sm,
@@ -155,25 +156,25 @@ const styles = StyleSheet.create({
   },
   captionPicked: {
     fontFamily: fonts.bodySemi,
-    fontSize: 14,
+    fontSize: scaled(14),
     color: colors.text,
     letterSpacing: 0.2,
   },
   captionDash: {
     fontFamily: fonts.bodyMed,
-    fontSize: 14,
+    fontSize: scaled(14),
     color: colors.muted,
   },
   captionName: {
     fontFamily: fonts.bodySemi,
-    fontSize: 14,
+    fontSize: scaled(14),
     color: colors.cobalt,
     letterSpacing: 0.2,
   },
   captionEmpty: {
     fontFamily: fonts.body,
     fontStyle: 'italic',
-    fontSize: 14,
+    fontSize: scaled(14),
     color: colors.muted,
   },
   footer: {

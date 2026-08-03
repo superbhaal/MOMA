@@ -15,6 +15,8 @@ export interface PreferencesPatch {
   pref_meetup_formats?: string[];
   // Notifications
   notif_meetup_reminders?: boolean;
+  notif_email?: boolean;
+  notif_in_app?: boolean;
   notif_chat_activity?: NotifChatCadence;
   notif_quiet_hours_enabled?: boolean;
   notif_quiet_start?: string;
@@ -23,6 +25,11 @@ export interface PreferencesPatch {
   display_name?: string;
   bio?: string | null;
   interests?: string[] | null;
+  is_first_baby?: boolean;
+  is_mentor_eligible?: boolean;
+  baby_dob?: string;
+  life_stage?: string;
+  profile_color?: string;
   instagram_handle?: string | null;
   address?: string | null;
   city?: string | null;

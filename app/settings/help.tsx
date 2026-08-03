@@ -10,6 +10,7 @@ import { SettingsHeader } from '@/components/me/SettingsHeader';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 
 const FAQ = [
   {
@@ -107,19 +108,19 @@ const styles = StyleSheet.create({
   faqQ: {
     flex: 1,
     fontFamily: fonts.bodySemi,
-    fontSize: 14,
+    fontSize: scaled(14),
     color: colors.text,
   },
   faqA: {
     fontFamily: fonts.reading,
-    fontSize: 13,
-    lineHeight: 21,
+    fontSize: scaled(13),
+    lineHeight: scaled(21),
     color: colors.muted,
     marginTop: spacing.sm,
   },
   version: {
     fontFamily: fonts.body,
-    fontSize: 12,
+    fontSize: scaled(12),
     color: colors.muted,
     textAlign: 'center',
     marginTop: spacing.xl,

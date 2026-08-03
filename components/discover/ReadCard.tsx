@@ -4,6 +4,7 @@ import { SaveHeart } from './SaveHeart';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import type { LearnArticle } from '@/types';
 
 interface ReadCardProps {
@@ -72,21 +73,21 @@ const styles = StyleSheet.create({
   dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: colors.cobalt },
   meta: {
     fontFamily: fonts.bodySemi,
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 1.8,
   },
   title: {
     fontFamily: fonts.bodySemi,
-    fontSize: 13,
-    lineHeight: 17,
+    fontSize: scaled(13),
+    lineHeight: scaled(17),
     textAlign: 'center',
     marginTop: 7,
     maxWidth: '88%',
   },
   takeaway: {
     fontFamily: fonts.body,
-    fontSize: 11.5,
-    lineHeight: 17,
+    fontSize: scaled(11.5),
+    lineHeight: scaled(17),
     textAlign: 'center',
     marginTop: 4,
     maxWidth: '86%',
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
   sourcePill: { marginTop: 7 },
   sourceText: {
     fontFamily: fonts.bodySemi,
-    fontSize: 8,
+    fontSize: scaled(8),
     letterSpacing: 1.8,
     textTransform: 'uppercase',
   },

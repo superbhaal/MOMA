@@ -1,262 +1,466 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useRef, useState } from 'react';
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  TextInput,
+  View,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
-import { AddressField } from '@/components/ui/AddressField';
-import { PrefsPill } from '@/components/preferences/PrefsPill';
+import { ActionSheet } from '@/components/ui/ActionSheet';
+import { ColorSwatch } from '@/components/onboarding/ColorSwatch';
 import { colors } from '@/constants/colors';
-import { spacing } from '@/constants/spacing';
-import { LANGUAGES } from '@/constants/onboarding';
-import { useAddressField } from '@/hooks/useAddressField';
+import { spacing, radius } from '@/constants/spacing';
+import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
+import { LANGUAGE_OPTIONS, PROFILE_COLOUR_SWATCHES } from '@/constants/onboarding';
 import { usePreferences } from '@/hooks/usePreferences';
-import type { BabyAtMeetups } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
+import { lifeStageFromDob } from '@/lib/lifeStage';
 
-const AGE_WINDOWS = [2, 4, 6, 8];
-const DISTANCES = [10, 20, 30, -1];
-const FREE_BLOCKS = ['morning', 'afternoon', 'evening'];
-const FORMATS = ['coffee', 'walk', 'park', 'class', 'home'];
-const BABY_OPTIONS: { value: BabyAtMeetups; label: string }[] = [
-  { value: 'always', label: 'always' },
-  { value: 'sometimes_without', label: 'sometimes without' },
-  { value: 'either', label: 'either is fine' },
-];
+const MAX_SECONDARY = 2;
+const DOB_MIN = new Date(Date.now() - 1000 * 60 * 60 * 24 * 365 * 6);
+const DOB_MAX = new Date(Date.now() + 1000 * 60 * 60 * 24 * 300);
 
+/**
+ * Matching preferences — v11. The screen mirrors the onboarding quiz rather
+ * than exposing the scoring knobs: a tester expected to find the same handful
+ * of answers she gave when she signed up, and instead met distance sliders and
+ * meetup formats she had never been asked about.
+ * Ref: design/moma-v11.html · #screen-prefs.
+ */
 export default function PreferencesScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { prefs, update } = usePreferences();
+  const { user } = useAuth();
+  const { update } = usePreferences();
+
+  const [isFirst, setIsFirst] = useState<boolean | null>(user?.is_first_baby ?? null);
+  const [babyDob, setBabyDob] = useState<string | null>(user?.baby_dob ?? null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  // One list, in pick order: the first is the language matching leans on, the
+  // rest are "also speak". Keeps the DB's primary/secondary split without
+  // asking twice.
+  const [languages, setLanguages] = useState<string[]>(() =>
+    [user?.primary_language, ...(user?.secondary_languages ?? [])].filter(Boolean) as string[],
+  );
+  const [custom, setCustom] = useState<string[]>(() => {
+    const known = new Set(LANGUAGE_OPTIONS.map((l) => l.label));
+    return [user?.primary_language, ...(user?.secondary_languages ?? [])]
+      .filter((l): l is string => !!l && !known.has(l));
+  });
+  const [addOpen, setAddOpen] = useState(false);
+  const [draft, setDraft] = useState('');
+  const draftRef = useRef<TextInput>(null);
+
+  const [colour, setColour] = useState<string | null>(user?.profile_color ?? null);
+
+  const [push, setPush] = useState(user?.notif_meetup_reminders ?? true);
+  const [email, setEmail] = useState(user?.notif_email ?? true);
+  const [inApp, setInApp] = useState(user?.notif_in_app ?? true);
+
   const [saving, setSaving] = useState(false);
 
-  if (!prefs) {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <Typography variant="bodyL" color={colors.muted}>
-          loading...
-        </Typography>
-      </View>
+  function toggleLanguage(label: string) {
+    setLanguages((cur) =>
+      cur.includes(label)
+        ? cur.filter((l) => l !== label)
+        : cur.length >= MAX_SECONDARY + 1
+          ? cur
+          : [...cur, label],
     );
   }
 
-  const [ageWindow, setAgeWindow] = useState(prefs.pref_age_window_weeks);
-  const [distance, setDistance] = useState(prefs.pref_distance_minutes);
-  const [primary, setPrimary] = useState(prefs.primary_language);
-  const [secondary, setSecondary] = useState<string[]>(prefs.secondary_languages);
-  const [freeBlocks, setFreeBlocks] = useState<string[]>(prefs.pref_free_blocks);
-  const [babyAt, setBabyAt] = useState(prefs.pref_baby_at_meetups);
-  const [formats, setFormats] = useState<string[]>(prefs.pref_meetup_formats);
-
-  // Location (address + resolved coords). Matching is distance-based, so keeping
-  // this up to date matters — mirror the onboarding capture (typed + geolocate).
-  const locField = useAddressField({
-    address: prefs.address,
-    city: prefs.city,
-    neighbourhood: prefs.neighbourhood,
-    latitude: prefs.latitude,
-    longitude: prefs.longitude,
-  });
-
-  function toggleArr<T>(arr: T[], v: T): T[] {
-    return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
+  function commitCustom() {
+    const value = draft.trim();
+    if (!value) return;
+    if (!custom.includes(value) && !LANGUAGE_OPTIONS.some((l) => l.label === value)) {
+      setCustom((cur) => [...cur, value]);
+    }
+    toggleLanguage(value);
+    setDraft('');
+    setAddOpen(false);
   }
 
   async function handleSave() {
-    // Location must resolve to coords — matching is distance-based.
-    const geo = await locField.resolve();
-    if (!geo || geo.latitude == null) return; // resolve() set the error
-
     setSaving(true);
+    const [primary, ...secondary] = languages;
     await update({
-      pref_age_window_weeks: ageWindow,
-      pref_distance_minutes: distance,
-      primary_language: primary ?? undefined,
-      secondary_languages: secondary,
-      pref_free_blocks: freeBlocks,
-      pref_baby_at_meetups: babyAt,
-      pref_meetup_formats: formats,
-      address: locField.address.trim(),
-      city: geo.city,
-      neighbourhood: geo.neighbourhood,
-      latitude: geo.latitude,
-      longitude: geo.longitude,
+      is_first_baby: isFirst ?? undefined,
+      ...(isFirst !== null && { is_mentor_eligible: !isFirst }),
+      ...(babyDob && { baby_dob: babyDob, life_stage: lifeStageFromDob(babyDob) }),
+      ...(primary && { primary_language: primary }),
+      secondary_languages: secondary.slice(0, MAX_SECONDARY),
+      ...(colour && { profile_color: colour }),
+      notif_meetup_reminders: push,
+      notif_email: email,
+      notif_in_app: inApp,
     });
     setSaving(false);
     router.back();
   }
 
+  const allLanguages = [
+    ...LANGUAGE_OPTIONS,
+    ...custom.map((label) => ({ label, flag: undefined })),
+  ];
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={10}>
-          <Typography variant="labelS" color={colors.cobalt}>
-            ← BACK
+        <Pressable onPress={() => router.back()} hitSlop={12}>
+          <Typography style={styles.back} color={colors.cobalt}>
+            ←
           </Typography>
         </Pressable>
-        <Typography
-          style={{ fontFamily: 'CormorantGaramond-LightItalic', fontSize: 20, lineHeight: 25 }}
-          color={colors.cobalt}
-        >
-          Preferences
+        <Typography style={styles.title} color={colors.cobalt}>
+          Matching{'\n'}preferences
         </Typography>
-        <View style={{ width: 50 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <Typography variant="label" color={colors.muted}>
-          HARD FILTERS
-        </Typography>
-        <Typography variant="bodyM" color={colors.muted} style={{ marginTop: 4 }}>
-          we won&rsquo;t match you outside these.
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Typography style={styles.sectionLabel} color={colors.cobalt}>
+          WHO YOU GET MATCHED WITH
         </Typography>
 
-        <Section label="Where you live">
-          <AddressField field={locField} />
-        </Section>
+        <Field
+          label="First baby"
+          hint="Whether this is your first time, or you&rsquo;ve been here before."
+        >
+          <View style={styles.pills}>
+            <Choice label="Yes, first" active={isFirst === true} onPress={() => setIsFirst(true)} />
+            <Choice
+              label="No, been here before"
+              active={isFirst === false}
+              onPress={() => setIsFirst(false)}
+            />
+          </View>
+        </Field>
 
-        <Section label="Baby age window">
-          <View style={styles.chips}>
-            {AGE_WINDOWS.map((w) => (
-              <PrefsPill
-                key={w}
-                label={`±${w} weeks`}
-                active={ageWindow === w}
-                onPress={() => setAgeWindow(w)}
+        <Field
+          label="Youngest baby born"
+          hint="Or due date if you&rsquo;re expecting. Drives life stage and matching."
+        >
+          <Pressable style={styles.dateRow} onPress={() => setPickerOpen(true)}>
+            <Typography style={[styles.dateText, !babyDob && styles.datePlaceholder]}>
+              {babyDob ? formatDob(babyDob) : 'dd / mm / yyyy'}
+            </Typography>
+            <Ionicons name="calendar-outline" size={20} color={colors.cobalt} />
+          </Pressable>
+        </Field>
+
+        <Field label="Languages spoken at home" hint="Select all that apply.">
+          <View style={styles.pills}>
+            {allLanguages.map((l) => (
+              <Choice
+                key={l.label}
+                label={l.flag ? `${l.flag}  ${l.label}` : l.label}
+                active={languages.includes(l.label)}
+                onPress={() => toggleLanguage(l.label)}
+              />
+            ))}
+            <Pressable
+              style={[styles.pill, styles.pillDashed]}
+              onPress={() => {
+                setDraft('');
+                setAddOpen(true);
+              }}
+            >
+              <Typography style={styles.pillText} color={colors.muted}>
+                + Other
+              </Typography>
+            </Pressable>
+          </View>
+        </Field>
+
+        <Field label="Your colour" hint="Shows up on your avatar across the app.">
+          <View style={styles.swatches}>
+            {PROFILE_COLOUR_SWATCHES.map((s) => (
+              <ColorSwatch
+                key={s.name}
+                hex={s.hex}
+                selected={colour === s.hex}
+                onPress={() => setColour(s.hex)}
+                size={34}
               />
             ))}
           </View>
-        </Section>
+        </Field>
 
-        <Section label="Distance">
-          <View style={styles.chips}>
-            {DISTANCES.map((d) => (
-              <PrefsPill
-                key={d}
-                label={d === -1 ? 'anywhere in city' : `${d} min walk`}
-                active={distance === d}
-                onPress={() => setDistance(d)}
-              />
-            ))}
-          </View>
-        </Section>
-
-        <Section label="Primary language">
-          <View style={styles.chips}>
-            {LANGUAGES.map((l) => (
-              <PrefsPill
-                key={l}
-                label={l}
-                active={primary === l}
-                onPress={() => {
-                  setPrimary(l);
-                  setSecondary((cur) => cur.filter((x) => x !== l));
-                }}
-              />
-            ))}
-          </View>
-        </Section>
-
-        <Typography variant="label" color={colors.muted} style={{ marginTop: spacing.xxl }}>
-          SOFT SIGNALS
+        <Typography style={[styles.sectionLabel, styles.sectionLabelGap]} color={colors.cobalt}>
+          NOTIFICATIONS
         </Typography>
-        <Typography variant="bodyM" color={colors.muted} style={{ marginTop: 4 }}>
-          we&rsquo;ll favour these but won&rsquo;t hard-block.
-        </Typography>
 
-        <Section label="Other languages (max 2)">
-          <View style={styles.chips}>
-            {LANGUAGES.filter((l) => l !== primary).map((l) => (
-              <PrefsPill
-                key={l}
-                label={l}
-                active={secondary.includes(l)}
-                onPress={() => {
-                  if (secondary.includes(l)) setSecondary(secondary.filter((x) => x !== l));
-                  else if (secondary.length < 2) setSecondary([...secondary, l]);
-                }}
-              />
-            ))}
-          </View>
-        </Section>
+        <ToggleRow
+          label="Push"
+          hint="Matches, meetup reminders, direct mentions."
+          value={push}
+          onChange={setPush}
+        />
+        <ToggleRow
+          label="Email"
+          hint="Match confirmation and a weekly group summary. Nothing else."
+          value={email}
+          onChange={setEmail}
+        />
+        <ToggleRow
+          label="In-app"
+          hint="Badges and the little dot on group cards."
+          value={inApp}
+          onChange={setInApp}
+          isLast
+        />
 
-        <Section label="When you&rsquo;re free">
-          <View style={styles.chips}>
-            {FREE_BLOCKS.map((b) => (
-              <PrefsPill
-                key={b}
-                label={b}
-                active={freeBlocks.includes(b)}
-                onPress={() => setFreeBlocks(toggleArr(freeBlocks, b))}
-              />
-            ))}
-          </View>
-        </Section>
-
-        <Section label="Baby at meetups">
-          <View style={styles.chips}>
-            {BABY_OPTIONS.map((o) => (
-              <PrefsPill
-                key={o.value}
-                label={o.label}
-                active={babyAt === o.value}
-                onPress={() => setBabyAt(o.value)}
-              />
-            ))}
-          </View>
-        </Section>
-
-        <Section label="Preferred formats">
-          <View style={styles.chips}>
-            {FORMATS.map((f) => (
-              <PrefsPill
-                key={f}
-                label={f}
-                active={formats.includes(f)}
-                onPress={() => setFormats(toggleArr(formats, f))}
-              />
-            ))}
-          </View>
-        </Section>
-
-        <Typography variant="bodyM" color={colors.muted} style={styles.footnote}>
-          changes apply to your next match. current groups unaffected.
+        <Typography style={styles.footnote} color={colors.muted}>
+          Changes apply to your next match. If you&rsquo;re already in a group, nothing
+          changes until you&rsquo;re matched again.
         </Typography>
 
         <View style={{ marginTop: spacing.xl }}>
-          <Button title={saving ? 'saving...' : 'save'} onPress={handleSave} disabled={saving} size="lg" />
+          <Button
+            title={saving ? 'saving…' : 'Save'}
+            onPress={handleSave}
+            disabled={saving}
+            size="lg"
+          />
         </View>
       </ScrollView>
+
+      {/* Date picker — inline sheet on iOS, native dialog on Android. */}
+      {Platform.OS === 'ios' ? (
+        <ActionSheet
+          visible={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          title="Youngest baby born"
+        >
+          <DateTimePicker
+            value={babyDob ? new Date(babyDob) : new Date()}
+            mode="date"
+            display="inline"
+            minimumDate={DOB_MIN}
+            maximumDate={DOB_MAX}
+            themeVariant="light"
+            onChange={(_e, d) => {
+              if (d) setBabyDob(toIsoDate(d));
+            }}
+          />
+          <Button
+            title="done"
+            size="lg"
+            onPress={() => setPickerOpen(false)}
+            style={{ marginTop: spacing.md }}
+          />
+        </ActionSheet>
+      ) : pickerOpen ? (
+        <DateTimePicker
+          value={babyDob ? new Date(babyDob) : new Date()}
+          mode="date"
+          display="default"
+          minimumDate={DOB_MIN}
+          maximumDate={DOB_MAX}
+          onChange={(_e: DateTimePickerEvent, d?: Date) => {
+            setPickerOpen(false);
+            if (d) setBabyDob(toIsoDate(d));
+          }}
+        />
+      ) : null}
+
+      <ActionSheet
+        visible={addOpen}
+        onClose={() => setAddOpen(false)}
+        onShow={() => draftRef.current?.focus()}
+        title="Add a language"
+      >
+        <TextInput
+          ref={draftRef}
+          style={styles.sheetInput}
+          value={draft}
+          onChangeText={setDraft}
+          placeholder="e.g. Catalan, Wolof, Mandarin"
+          placeholderTextColor={colors.muted}
+          autoCapitalize="words"
+          autoCorrect={false}
+          returnKeyType="done"
+          onSubmitEditing={commitCustom}
+          maxLength={32}
+        />
+        <Button title="Add" size="lg" onPress={commitCustom} disabled={!draft.trim()} />
+      </ActionSheet>
     </View>
   );
 }
 
-function Section({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint: string;
+  children: React.ReactNode;
+}) {
   return (
-    <View style={{ marginTop: spacing.xl }}>
-      <Typography variant="labelS" color={colors.muted}>
-        {label.toUpperCase()}
+    <View style={styles.field}>
+      <Typography style={styles.fieldLabel} color={colors.text}>
+        {label}
       </Typography>
-      <View style={{ marginTop: spacing.sm }}>{children}</View>
+      <Typography style={styles.fieldHint} color={colors.muted}>
+        {hint}
+      </Typography>
+      <View style={{ marginTop: spacing.md }}>{children}</View>
     </View>
   );
+}
+
+function Choice({
+  label,
+  active,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable style={[styles.pill, active && styles.pillActive]} onPress={onPress}>
+      <Typography
+        style={[styles.pillText, active && styles.pillTextActive]}
+        color={active ? colors.white : colors.text}
+      >
+        {label}
+      </Typography>
+    </Pressable>
+  );
+}
+
+function ToggleRow({
+  label,
+  hint,
+  value,
+  onChange,
+  isLast,
+}: {
+  label: string;
+  hint: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+  isLast?: boolean;
+}) {
+  return (
+    <View style={[styles.toggleRow, isLast && styles.toggleRowLast]}>
+      <View style={styles.toggleText}>
+        <Typography style={styles.fieldLabel} color={colors.text}>
+          {label}
+        </Typography>
+        <Typography style={styles.fieldHint} color={colors.muted}>
+          {hint}
+        </Typography>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onChange}
+        trackColor={{ false: colors.lineStrong, true: colors.cobalt }}
+        thumbColor={colors.white}
+      />
+    </View>
+  );
+}
+
+function formatDob(iso: string): string {
+  const [y, m, d] = iso.split('-');
+  return `${d} / ${m} / ${y}`;
+}
+function toIsoDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate(),
+  ).padStart(2, '0')}`;
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
+    alignItems: 'flex-start',
+    gap: spacing.md,
+    paddingHorizontal: 26,
+    paddingTop: spacing.md,
+  },
+  back: { fontFamily: fonts.body, fontSize: scaled(20), marginTop: scaled(10) },
+  title: {
+    fontFamily: fonts.serifItal,
+    fontSize: scaled(40),
+    lineHeight: scaled(46),
+    letterSpacing: -0.8,
+    flex: 1,
+  },
+  scroll: { paddingHorizontal: 26, paddingBottom: spacing.xxxl },
+  sectionLabel: {
+    fontFamily: fonts.bodyMed,
+    fontSize: scaled(10),
+    letterSpacing: 2.4,
+    textAlign: 'center',
+    marginTop: spacing.xl,
+  },
+  sectionLabelGap: { marginTop: spacing.xxl },
+  field: {
+    marginTop: spacing.xl,
+    paddingBottom: spacing.xl,
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
-  scroll: { paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, paddingBottom: spacing.xxxl },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  fieldLabel: { fontFamily: fonts.bodyMed, fontSize: scaled(17) },
+  fieldHint: { fontFamily: fonts.body, fontSize: scaled(13.5), lineHeight: scaled(19), marginTop: 2 },
+  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  pill: {
+    paddingVertical: 11,
+    paddingHorizontal: 18,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.lineStrong,
+  },
+  pillActive: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
+  pillDashed: { borderStyle: 'dashed' },
+  pillText: { fontFamily: fonts.bodyMed, fontSize: scaled(15) },
+  pillTextActive: { fontFamily: fonts.bodySemi },
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dateText: { fontFamily: fonts.body, fontSize: scaled(20), color: colors.text },
+  datePlaceholder: { color: colors.muted },
+  swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+    paddingVertical: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
+  toggleRowLast: { borderBottomWidth: 0 },
+  toggleText: { flex: 1 },
   footnote: {
-    marginTop: spacing.xxl,
-    fontStyle: 'italic',
+    fontFamily: fonts.body,
+    fontSize: scaled(13),
+    lineHeight: scaled(19),
+    marginTop: spacing.xl,
+  },
+  sheetInput: {
+    fontFamily: fonts.body,
+    fontSize: 18,
+    color: colors.text,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.md,
   },
 });

@@ -6,6 +6,7 @@ import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 interface ChatInputProps {
   // Return type is intentionally loose — send helpers return { error } but the
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
   },
   placeChipText: {
     fontFamily: fonts.bodyMed,
-    fontSize: 10,
+    fontSize: scaled(10),
     letterSpacing: 1.6,
   },
   row: {
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
     minHeight: 38,
     maxHeight: 120,
     fontFamily: fonts.readingItal,
-    fontSize: 15,
+    fontSize: scaled(15),
     color: colors.text,
     borderBottomWidth: 1,
     borderBottomColor: colors.lineStrong,

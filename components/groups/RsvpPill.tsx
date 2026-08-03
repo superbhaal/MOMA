@@ -3,6 +3,7 @@ import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 
 interface RsvpPillProps {
   going: boolean;
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: fonts.bodyMed,
-    fontSize: 11,
+    fontSize: scaled(11),
     letterSpacing: 2,
   },
 });

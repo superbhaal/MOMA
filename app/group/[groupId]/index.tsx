@@ -9,9 +9,11 @@ import { MeetupBanner } from '@/components/groups/MeetupBanner';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import { useGroupDetail } from '@/hooks/useGroupDetail';
 import { useProposals } from '@/hooks/useProposals';
 import { useAuth } from '@/hooks/useAuth';
+import { hasUpcomingMeetup } from '@/lib/meetup';
 
 /**
  * Group detail — v11: back link, serif-italic cobalt group name, small meta
@@ -80,9 +82,10 @@ export default function GroupDetailScreen() {
             ) : null}
 
             {/* Kept reachable here too — the chat only offers it while the
-                group is between meetups. Once møma has locked a date in there
-                is nothing left to influence, so the offer goes away. */}
-            {open_proposal?.state === 'decided' ? null : (
+                group is between meetups. It hides only while a locked-in date
+                is still ahead; once that meetup has passed the group is picking
+                the next one, so the invitation comes back. */}
+            {hasUpcomingMeetup(open_proposal) && open_proposal?.state === 'decided' ? null : (
               <Pressable
                 onPress={() => router.push('/availability')}
                 hitSlop={8}
@@ -139,20 +142,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 26,
     paddingVertical: spacing.md,
   },
-  back: { fontFamily: fonts.bodyMed, fontSize: 13 },
+  back: { fontFamily: fonts.bodyMed, fontSize: scaled(13) },
   scroll: {
     paddingHorizontal: 26,
     paddingBottom: spacing.xxxl,
   },
   name: {
     fontFamily: fonts.serifItal,
-    fontSize: 29,
-    lineHeight: 34,
+    fontSize: scaled(29),
+    lineHeight: scaled(34),
     letterSpacing: -0.3,
   },
   meta: {
     fontFamily: fonts.body,
-    fontSize: 11,
+    fontSize: scaled(11),
     marginTop: 3,
   },
   wave: {
@@ -161,13 +164,13 @@ const styles = StyleSheet.create({
   availabilityRow: { marginTop: spacing.xl, alignItems: 'center' },
   availabilityLink: {
     fontFamily: fonts.bodyMed,
-    fontSize: 12.5,
+    fontSize: scaled(12.5),
     textDecorationLine: 'underline',
   },
   membersHead: { marginTop: spacing.xxl, marginBottom: spacing.xs },
   membersLabel: {
     fontFamily: fonts.bodyMed,
-    fontSize: 8.5,
+    fontSize: scaled(8.5),
     letterSpacing: 2.4,
     textAlign: 'center',
   },

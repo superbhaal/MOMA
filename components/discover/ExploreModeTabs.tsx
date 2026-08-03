@@ -3,6 +3,7 @@ import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
+import { scaled } from '@/constants/scale';
 import type { LovedKind } from '@/types';
 
 const TABS: { key: LovedKind; label: string }[] = [
@@ -55,7 +56,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.line,
   },
   tab: { paddingTop: 10, paddingBottom: 12, position: 'relative' },
-  label: { fontFamily: fonts.bodyMed, fontSize: 15 },
+  // Matches the Learn/Watch/Explore trio above it.
+  label: { fontFamily: fonts.bodyMed, fontSize: scaled(18) },
   labelActive: { fontFamily: fonts.bodySemi },
   underline: {
     position: 'absolute',

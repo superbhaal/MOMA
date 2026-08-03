@@ -7,6 +7,7 @@ import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
+import { scaled } from '@/constants/scale';
 import { useBusyWindows } from '@/hooks/useBusyWindows';
 import type { AvailabilityBlock } from '@/types';
 
@@ -147,15 +148,15 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xl },
   eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: spacing.sm },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.cobalt },
-  eyebrow: { fontFamily: 'DMSans-SemiBold', fontSize: 11, letterSpacing: 1.6 },
+  eyebrow: { fontFamily: 'DMSans-SemiBold', fontSize: scaled(11), letterSpacing: 1.6 },
   title: {
     fontFamily: 'CormorantGaramond-Light',
-    fontSize: 34,
-    lineHeight: 38,
+    fontSize: scaled(34),
+    lineHeight: scaled(38),
     letterSpacing: -0.4,
     marginBottom: spacing.sm,
   },
-  sub: { fontSize: 14, lineHeight: 20, marginBottom: spacing.xl },
+  sub: { fontSize: scaled(14), lineHeight: scaled(20), marginBottom: spacing.xl },
   colHeader: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -165,18 +166,18 @@ const styles = StyleSheet.create({
   },
   dayCol: { width: 64 },
   blockHead: { flex: 1, alignItems: 'center' },
-  blockLabel: { fontFamily: 'DMSans-SemiBold', fontSize: 11, letterSpacing: 1 },
-  blockRange: { fontSize: 11, marginTop: 1 },
+  blockLabel: { fontFamily: 'DMSans-SemiBold', fontSize: scaled(11), letterSpacing: 1 },
+  blockRange: { fontSize: scaled(11), marginTop: 1 },
   weekLabel: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: 11,
+    fontSize: scaled(11),
     letterSpacing: 1.4,
     marginTop: spacing.lg,
     marginBottom: spacing.xs,
   },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 5 },
-  dayName: { fontFamily: 'DMSans-SemiBold', fontSize: 11, letterSpacing: 1 },
-  dayNum: { fontFamily: 'CormorantGaramond-Regular', fontSize: 22, lineHeight: 24 },
+  dayName: { fontFamily: 'DMSans-SemiBold', fontSize: scaled(11), letterSpacing: 1 },
+  dayNum: { fontFamily: 'CormorantGaramond-Regular', fontSize: scaled(22), lineHeight: scaled(24) },
   cell: {
     flex: 1,
     height: 46,
@@ -200,13 +201,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     gap: spacing.md,
   },
-  footNote: { fontSize: 14, lineHeight: 20 },
-  footNoteBold: { fontFamily: 'DMSans-SemiBold', fontSize: 14 },
+  footNote: { fontSize: scaled(14), lineHeight: scaled(20) },
+  footNoteBold: { fontFamily: 'DMSans-SemiBold', fontSize: scaled(14) },
   cta: {
     backgroundColor: colors.cobalt,
     borderRadius: radius.md,
     paddingVertical: 16,
     alignItems: 'center',
   },
-  ctaText: { fontFamily: 'DMSans-SemiBold', fontSize: 15 },
+  ctaText: { fontFamily: 'DMSans-SemiBold', fontSize: scaled(15) },
 });

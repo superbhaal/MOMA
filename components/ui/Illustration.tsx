@@ -8,16 +8,18 @@ import { scaled } from '@/constants/scale';
  *
  * Exported so the root layout can warm every drawing while the splash is still
  * up: over a dev server these are HTTP fetches, and a drawing that fades in
- * seconds after the text has landed reads as a glitch.
+ * seconds after the text has landed reads as a glitch. They ship as JPEG at
+ * 340px — ~18kb each rather than 145 — because every surface they sit on is
+ * white, so the format's lack of transparency costs nothing.
  */
 export const ILLUSTRATION_SOURCES = {
-  dancer: require('@/assets/illustrations/dancer.png'),        // Home
-  picnic: require('@/assets/illustrations/picnic.png'),        // Discover · Learn
-  movieNight: require('@/assets/illustrations/movie-night.png'), // Discover · Watch
-  table: require('@/assets/illustrations/table.png'),          // Discover · Explore
-  tomato: require('@/assets/illustrations/tomato.png'),        // Me
-  stars: require('@/assets/illustrations/stars.png'),          // Me
-  microphone: require('@/assets/illustrations/microphone.png'), // Me
+  dancer: require('@/assets/illustrations/dancer.jpg'),        // Home
+  picnic: require('@/assets/illustrations/picnic.jpg'),        // Discover · Learn
+  movieNight: require('@/assets/illustrations/movie-night.jpg'), // Discover · Watch
+  table: require('@/assets/illustrations/table.jpg'),          // Discover · Explore
+  tomato: require('@/assets/illustrations/tomato.jpg'),        // Me
+  stars: require('@/assets/illustrations/stars.jpg'),          // Me
+  microphone: require('@/assets/illustrations/microphone.jpg'), // Me
   wave: require('@/assets/illustrations/wave.png'),            // group detail rule
 } as const;
 
