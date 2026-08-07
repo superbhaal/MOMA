@@ -18,6 +18,7 @@ import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useDiscoverRole } from '@/hooks/useDiscoverRole';
 import { useLovedSpots } from '@/hooks/useLovedSpots';
+import { matchesQuery } from '@/lib/search';
 import type { LovedKind, LovedCategory } from '@/types';
 
 /**
@@ -54,15 +55,18 @@ export default function DiscoverExplore() {
     }, [refresh]),
   );
 
-  // Client-side search over name / category / recommender (Explore-scoped).
+  // Client-side search over name / address / category / recommender. Shares the
+  // matcher with the Learn feed, so accents fold and terms can arrive in any
+  // order — "nuria cafe" finds Núria's café.
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return spots;
+    if (!query.trim()) return spots;
     return spots.filter((s) =>
-      [s.name, categoryLabel(s.category), s.poster?.display_name ?? '']
-        .join(' ')
-        .toLowerCase()
-        .includes(q),
+      matchesQuery(query, [
+        s.name,
+        s.address,
+        categoryLabel(s.category),
+        s.poster?.display_name,
+      ]),
     );
   }, [spots, query]);
 

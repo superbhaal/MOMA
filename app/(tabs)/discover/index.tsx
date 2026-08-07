@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
@@ -16,6 +16,7 @@ import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
 import { scaled } from '@/constants/scale';
 import { useLearn } from '@/hooks/useLearn';
+import { matchesQuery } from '@/lib/search';
 import type { LearnArticle, LearnReel } from '@/types';
 
 // Learn → editorial articles; Watch → vetted reels. The old "Recco" format is
@@ -41,11 +42,34 @@ export default function DiscoverIndex() {
   const [tab, setTab] = useState<FeedTab>('learn');
   const [stage, setStage] = useState<string>('all');
   const [stageSheet, setStageSheet] = useState(false);
+  const [query, setQuery] = useState('');
 
   const { docs, loading, error, refresh } = useLearn({
     format: tab === 'learn' ? 'learnArticle' : 'learnReel',
     babyStage: stage === 'all' ? undefined : stage,
   });
+
+  // Filtered in memory: the Learn corpus is curated and already fetched, so a
+  // round-trip per keystroke would buy nothing. Search covers what someone
+  // would plausibly remember — the title and deck, who wrote or presented it,
+  // the category and the source — not the article body, where a stray word
+  // would surface a piece that isn't really about it.
+  const results = useMemo(() => {
+    if (!query.trim()) return docs;
+    return docs.filter((d) => {
+      if (d._type === 'learnArticle') {
+        return matchesQuery(query, [
+          d.title, d.deck, d.category, d.author, d.authorTitle, d.source, d.lead,
+        ]);
+      }
+      if (d._type === 'learnReel') {
+        return matchesQuery(query, [
+          d.title, d.category, d.creatorName, d.creatorHandle, d.credential,
+        ]);
+      }
+      return matchesQuery(query, [d.title, d.category]);
+    });
+  }, [docs, query]);
 
   const [pulling, setPulling] = useState(false);
   const onPullRefresh = useCallback(async () => {
@@ -68,7 +92,7 @@ export default function DiscoverIndex() {
   return (
     <View style={styles.container}>
       <FlatList
-        data={docs}
+        data={results}
         keyExtractor={(d) => d._id}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
@@ -81,6 +105,11 @@ export default function DiscoverIndex() {
               subtitle={SUBTITLE[tab]}
               topInset={insets.top}
               illustration={ILLO[tab]}
+              searchPlaceholder={
+                tab === 'learn' ? 'Search articles…' : 'Search reels…'
+              }
+              searchValue={query}
+              onSearchChange={setQuery}
             />
             <DiscoverSubTabs active={tab} onChange={onTabChange} />
             <StageFilter
@@ -90,7 +119,9 @@ export default function DiscoverIndex() {
               onOpenChange={setStageSheet}
             />
             <Typography style={styles.sectionLabel} color={colors.cobalt}>
-              {SECTION_LABEL[tab].toUpperCase()}
+              {query.trim()
+                ? `${results.length} ${results.length === 1 ? 'RESULT' : 'RESULTS'}`
+                : SECTION_LABEL[tab].toUpperCase()}
             </Typography>
             {error ? (
               <Typography variant="bodyL" color={colors.cherry} style={styles.error}>
@@ -118,8 +149,20 @@ export default function DiscoverIndex() {
         ListEmptyComponent={
           loading ? (
             <DiscoverSkeleton count={3} />
+          ) : query.trim() ? (
+            <View style={styles.empty}>
+              <Typography variant="bodyL" color={colors.muted} style={styles.emptyText}>
+                Nothing matches &ldquo;{query.trim()}&rdquo;
+                {stage !== 'all' ? ' in this stage' : ''}.
+              </Typography>
+              <Pressable onPress={() => setQuery('')} hitSlop={10}>
+                <Typography style={styles.clearLink} color={colors.cobalt}>
+                  Clear search
+                </Typography>
+              </Pressable>
+            </View>
           ) : (
-            <Typography variant="bodyL" color={colors.muted} style={styles.empty}>
+            <Typography variant="bodyL" color={colors.muted} style={styles.emptyText}>
               nothing here yet — content lands as we publish it.
             </Typography>
           )
@@ -145,5 +188,7 @@ const styles = StyleSheet.create({
   },
   error: { paddingHorizontal: spacing.xl, paddingVertical: spacing.md },
   cardWrap: { marginBottom: 14, paddingHorizontal: spacing.xl },
-  empty: { textAlign: 'center', paddingHorizontal: spacing.xl, paddingTop: spacing.xxl },
+  empty: { alignItems: 'center', paddingTop: spacing.xxl, gap: spacing.md },
+  emptyText: { textAlign: 'center', paddingHorizontal: spacing.xl },
+  clearLink: { fontFamily: fonts.bodyMed, fontSize: scaled(13), textDecorationLine: 'underline' },
 });
