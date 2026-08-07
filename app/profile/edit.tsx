@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { ensurePhotoPermission } from '@/lib/photoPermission';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { AddressField } from '@/components/ui/AddressField';
@@ -70,11 +71,8 @@ export default function EditProfileScreen() {
 
   async function handlePickPhoto() {
     setError(null);
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      setError('We need photo permission to set your picture.');
-      return;
-    }
+    // Handles the "denied and never asked again" dead end by offering Settings.
+    if (!(await ensurePhotoPermission())) return;
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,

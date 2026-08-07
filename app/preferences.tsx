@@ -69,23 +69,30 @@ export default function PreferencesScreen() {
 
   const [saving, setSaving] = useState(false);
 
+  // Pick order carries meaning (first = what matching leans on), so the cap has
+  // to drop someone rather than silently refuse: tapping a fourth language
+  // replaces the last "also speak" instead of doing nothing, which is what made
+  // a newly-added language look broken.
   function toggleLanguage(label: string) {
-    setLanguages((cur) =>
-      cur.includes(label)
-        ? cur.filter((l) => l !== label)
-        : cur.length >= MAX_SECONDARY + 1
-          ? cur
-          : [...cur, label],
-    );
+    setLanguages((cur) => {
+      if (cur.includes(label)) return cur.filter((l) => l !== label);
+      if (cur.length < MAX_SECONDARY + 1) return [...cur, label];
+      return [...cur.slice(0, MAX_SECONDARY), label];
+    });
   }
 
   function commitCustom() {
     const value = draft.trim();
     if (!value) return;
-    if (!custom.includes(value) && !LANGUAGE_OPTIONS.some((l) => l.label === value)) {
-      setCustom((cur) => [...cur, value]);
-    }
-    toggleLanguage(value);
+    // Match an existing entry case-insensitively so "dutch" doesn't become a
+    // second Dutch pill.
+    const existing = [...LANGUAGE_OPTIONS.map((l) => l.label), ...custom].find(
+      (l) => l.toLowerCase() === value.toLowerCase(),
+    );
+    const label = existing ?? value;
+    if (!existing) setCustom((cur) => [...cur, label]);
+    // Always end up selected — typing it in is the act of choosing it.
+    if (!languages.includes(label)) toggleLanguage(label);
     setDraft('');
     setAddOpen(false);
   }
@@ -157,7 +164,10 @@ export default function PreferencesScreen() {
           </Pressable>
         </Field>
 
-        <Field label="Languages spoken at home" hint="Select all that apply.">
+        <Field
+          label="Languages spoken at home"
+          hint={`Up to ${MAX_SECONDARY + 1}. The first one is what we match on.`}
+        >
           <View style={styles.pills}>
             {allLanguages.map((l) => (
               <Choice
@@ -212,8 +222,8 @@ export default function PreferencesScreen() {
           onChange={setEmail}
         />
         <ToggleRow
-          label="In-app"
-          hint="Badges and the little dot on group cards."
+          label="Badges in the app"
+          hint="The little dot on group cards when there's something new."
           value={inApp}
           onChange={setInApp}
           isLast
@@ -386,18 +396,23 @@ function toIsoDate(d: Date): string {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
+  // Opaque and above the list: the title is transparent over a ScrollView, so
+  // rows slid underneath it and read as overlapping text.
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.md,
     paddingHorizontal: 26,
     paddingTop: spacing.md,
+    paddingBottom: spacing.md,
+    backgroundColor: colors.white,
+    zIndex: 1,
   },
   back: { fontFamily: fonts.body, fontSize: scaled(20), marginTop: scaled(10) },
   title: {
     fontFamily: fonts.serifItal,
-    fontSize: scaled(40),
-    lineHeight: scaled(46),
+    fontSize: scaled(34),
+    lineHeight: scaled(40),
     letterSpacing: -0.8,
     flex: 1,
   },

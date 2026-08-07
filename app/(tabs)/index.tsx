@@ -79,7 +79,7 @@ export default function HomeScreen() {
         <Typography style={styles.motif} color={colors.cobalt}>
           ❖
         </Typography>
-        <Illustration name="dancer" size="feature" style={styles.illo} />
+        <Illustration name="dancer" size="lg" style={styles.illo} />
       </View>
 
       <FlatList
@@ -203,12 +203,12 @@ const styles = StyleSheet.create({
   // Mockup placement: she overlaps the baby line, leans in towards the centre
   // rather than hugging the edge, and drops past the ❖ into the groups label.
   // Mirrored because the drawing faces the other way in the source file.
+  // Sits in the right margin, clear of the greeting: at feature size she ran
+  // over the end of "Week 11 with baby" on a Pro Max.
   illo: {
     position: 'absolute',
-    right: '9%',
-    // Hung so her raised hand lands on the baby line and she trails down past
-    // the ❖ into the groups label — the mockup's placement.
-    bottom: -scaled(60),
+    right: 0,
+    bottom: -scaled(34),
     transform: [{ scaleX: -1 }],
   },
   eyebrow: {

@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   tab: { paddingTop: 10, paddingBottom: 12, position: 'relative' },
   // Matches the Learn/Watch/Explore trio above it.
-  label: { fontFamily: fonts.bodyMed, fontSize: scaled(18) },
+  label: { fontFamily: fonts.bodyMed, fontSize: scaled(16) },
   labelActive: { fontFamily: fonts.bodySemi },
   underline: {
     position: 'absolute',

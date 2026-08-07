@@ -14,6 +14,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { ensurePhotoPermission } from '@/lib/photoPermission';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
@@ -84,11 +85,8 @@ export default function ProfileScreen() {
 
   async function handlePickPhoto() {
     setError(null);
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      setError('we need photo permission to set your picture');
-      return;
-    }
+    // Handles the "denied and never asked again" dead end by offering Settings.
+    if (!(await ensurePhotoPermission())) return;
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -384,7 +382,7 @@ export default function ProfileScreen() {
 
         <View style={styles.field}>
           <Typography variant="label" color={colors.muted}>
-            A LITTLE ABOUT YOU
+            A LITTLE ABOUT YOU · OPTIONAL
           </Typography>
           <TextInput
             style={[styles.input, styles.multiline]}
@@ -399,7 +397,7 @@ export default function ProfileScreen() {
 
         <View style={styles.field}>
           <Typography variant="label" color={colors.muted}>
-            INTERESTS
+            INTERESTS · OPTIONAL
           </Typography>
           <TextInput
             style={styles.input}
@@ -495,8 +493,8 @@ const styles = StyleSheet.create({
   // Same masthead as the quiz steps that follow it: serif italic, cobalt.
   heading: {
     fontFamily: fonts.serifItal,
-    fontSize: scaled(38),
-    lineHeight: scaled(44),
+    fontSize: scaled(40),
+    lineHeight: scaled(46),
     color: colors.cobalt,
     marginTop: spacing.md,
     letterSpacing: -0.8,

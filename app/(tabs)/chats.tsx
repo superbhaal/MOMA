@@ -217,8 +217,8 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 26, paddingBottom: spacing.xxxl },
   title: {
     fontFamily: fonts.serifItal,
-    fontSize: scaled(38),
-    lineHeight: scaled(44),
+    fontSize: scaled(34),
+    lineHeight: scaled(40),
     letterSpacing: -0.6,
     textAlign: 'center',
   },

@@ -101,12 +101,20 @@ export default function LovedSpotDetail() {
               <Avatar name={who} ringColor={ring} size={132} ringWidth={3} />
             </View>
           ) : heroUri && !heroFailed ? (
-            <Image
-              source={{ uri: heroUri }}
-              style={styles.heroImg}
-              resizeMode="cover"
-              onError={() => setHeroFailed(true)}
-            />
+            // The map itself opens Google Maps — a tester expected to tap it
+            // rather than hunt for the button below.
+            <Pressable
+              onPress={onOpenMaps}
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${spot.name} in Google Maps`}
+            >
+              <Image
+                source={{ uri: heroUri }}
+                style={styles.heroImg}
+                resizeMode="cover"
+                onError={() => setHeroFailed(true)}
+              />
+            </Pressable>
           ) : (
             <View style={[styles.heroImg, styles.heroFallback]} />
           )}

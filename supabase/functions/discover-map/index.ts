@@ -6,7 +6,7 @@
 // a plain URL. Requires the "Maps Static API" enabled in GCP + GOOGLE_MAPS_API_KEY.
 //
 // GET /discover-map?pt=52.37,4.89&pt=52.38,4.90[&me=52.37,4.89][&w=400&h=420][&zoom=14]
-//   pt   — repeatable spot coordinate; each becomes a dark teardrop pin.
+//   pt   — repeatable spot coordinate; each becomes a fuchsia teardrop pin.
 //   me   — optional "you are here" coordinate (cobalt pin).
 //   w/h  — canvas size in px (clamped 100–640); scale=2 for retina.
 //   zoom — optional; omitted → Google auto-fits the viewport to the pins.
@@ -43,9 +43,11 @@ Deno.serve(async (req) => {
 
   const params: string[] = [`size=${w}x${h}`, `scale=2`, MUTED_STYLE];
 
-  // Dark teardrop pins for every spot (all visually identical — no ranking).
+  // One teardrop per spot, all visually identical — no ranking. Fuchsia, the
+  // app's identity accent: the near-black pin read as a system default dropped
+  // on the map rather than as one of ours.
   if (pts.length) {
-    params.push(`markers=${encodeURIComponent(`color:0x111118|${pts.join('|')}`)}`);
+    params.push(`markers=${encodeURIComponent(`color:0xE8389C|${pts.join('|')}`)}`);
   }
   // "You are here" as a distinct cobalt pin.
   if (me) {

@@ -510,8 +510,8 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: fonts.serifItal,
-    fontSize: scaled(32),
-    lineHeight: scaled(38),
+    fontSize: scaled(34),
+    lineHeight: scaled(40),
     letterSpacing: -0.3,
     color: colors.cobalt,
     marginTop: 14,

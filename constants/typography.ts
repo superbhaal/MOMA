@@ -20,8 +20,23 @@ export const textStyles = {
   displayM: { fontFamily: fonts.serif, fontSize: scaled(20), lineHeight: scaled(24) },
   displayS: { fontFamily: fonts.serif, fontSize: scaled(16), lineHeight: scaled(20) },
 
-  // Editorial serif ITALIC titles — the v11 "Apple-clean" voice (screen titles,
-  // greeting name, place/recipe names), usually rendered in cobalt via `color`.
+  // ── Editorial serif ITALIC titles ────────────────────────────────────────
+  // The v11 "Apple-clean" voice, usually rendered in cobalt via `color`. Four
+  // ranks, by the job the title does — a tester noticed the same kind of
+  // heading came in five different sizes across screens, because each one had
+  // been styled by hand. Reach for a rank, not a number.
+  //
+  //   titleHero    a screen that is only a title (match found, resume)
+  //   titleQuestion a quiz question, the only thing on its screen
+  //   titleScreen  the name of a tab or a pushed screen (Chats, Me, Preferences)
+  //   titleSection a named thing inside a screen (a group, a member, a place)
+  //   titleInline  a title sharing its row with something else (chat header)
+  titleHero: { fontFamily: fonts.serifItal, fontSize: scaled(48), lineHeight: scaled(54) },
+  titleQuestion: { fontFamily: fonts.serifItal, fontSize: scaled(40), lineHeight: scaled(46) },
+  titleScreen: { fontFamily: fonts.serifItal, fontSize: scaled(34), lineHeight: scaled(40) },
+  titleSection: { fontFamily: fonts.serifItal, fontSize: scaled(29), lineHeight: scaled(34) },
+  titleInline: { fontFamily: fonts.serifItal, fontSize: scaled(21), lineHeight: scaled(26) },
+
   heroItal: { fontFamily: fonts.serifItal, fontSize: scaled(34), lineHeight: scaled(38) },
   displayXLItal: { fontFamily: fonts.serifItal, fontSize: scaled(32), lineHeight: scaled(36) },
   displayLItal: { fontFamily: fonts.serifItal, fontSize: scaled(26), lineHeight: scaled(30) },

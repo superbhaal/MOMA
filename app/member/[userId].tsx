@@ -129,8 +129,8 @@ const styles = StyleSheet.create({
   hero: { alignItems: 'center', marginTop: spacing.xl },
   name: {
     fontFamily: fonts.serifItal,
-    fontSize: scaled(32),
-    lineHeight: scaled(38),
+    fontSize: scaled(34),
+    lineHeight: scaled(40),
     textAlign: 'center',
     marginTop: spacing.lg,
   },

@@ -62,8 +62,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.lineStrong,
     borderRadius: radius.pill,
-    paddingHorizontal: 20,
-    paddingVertical: 11,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
   },
   chipActive: {
     backgroundColor: colors.cobalt,
@@ -71,9 +71,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: fonts.bodyMed,
-    // Sized against the masthead rather than against a chip: the tester read
-    // the trio as an afterthought next to the title.
-    fontSize: scaled(13),
-    letterSpacing: 1.8,
+    // Between the two extremes we've shipped: 10 read as an afterthought, 13
+    // with the wider padding took over the screen. Same tester, both times.
+    fontSize: scaled(11),
+    letterSpacing: 1.7,
   },
 });

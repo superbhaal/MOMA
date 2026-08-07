@@ -137,8 +137,8 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: fonts.serifItal,
-    fontSize: scaled(56),
-    lineHeight: scaled(62),
+    fontSize: scaled(48),
+    lineHeight: scaled(54),
     letterSpacing: -1,
     color: colors.cobalt,
     textAlign: 'center',
