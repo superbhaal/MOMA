@@ -12,6 +12,7 @@ export interface NewLovedSpot {
   lng: number | null;
   place_id: string | null;
   city: string | null;
+  photo_url: string | null;
 }
 
 /**

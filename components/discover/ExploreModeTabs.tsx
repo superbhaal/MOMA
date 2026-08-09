@@ -1,9 +1,8 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
-import { fonts } from '@/constants/typography';
+import { fonts, textStyles } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
-import { scaled } from '@/constants/scale';
 import type { LovedKind } from '@/types';
 
 const TABS: { key: LovedKind; label: string }[] = [
@@ -57,7 +56,9 @@ const styles = StyleSheet.create({
   },
   tab: { paddingTop: 10, paddingBottom: 12, position: 'relative' },
   // Matches the Learn/Watch/Explore trio above it.
-  label: { fontFamily: fonts.bodyMed, fontSize: scaled(16) },
+  // Explore's control strip has to match Learn's and Watch's — same rank as
+  // the sub-tab chips and the stage row. The underline marks the active tab.
+  label: textStyles.control,
   labelActive: { fontFamily: fonts.bodySemi },
   underline: {
     position: 'absolute',

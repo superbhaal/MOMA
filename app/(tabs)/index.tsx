@@ -65,6 +65,11 @@ export default function HomeScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Page header — v11 menu style: centred, serif italic cobalt name */}
       <View style={styles.header}>
+        {/* First child, so every line of the greeting paints over her. The
+            drawings are JPEG — no alpha — so wherever she overlaps the text
+            her white square used to crop it. Behind, that same square is
+            invisible on the white page and only her strokes show through. */}
+        <Illustration name="dancer" size="feature" style={styles.illo} />
         <Typography style={styles.eyebrow} color={colors.mutedStrong}>
           {greeting.toUpperCase()}
         </Typography>
@@ -79,7 +84,6 @@ export default function HomeScreen() {
         <Typography style={styles.motif} color={colors.cobalt}>
           ❖
         </Typography>
-        <Illustration name="dancer" size="lg" style={styles.illo} />
       </View>
 
       <FlatList
@@ -189,6 +193,11 @@ function babyAgeLabel(dob: string | null | undefined): string | null {
   return `${y} year${y === 1 ? '' : 's'} in`;
 }
 
+// How far the dancer hangs below the header. Two places need it: her offset,
+// and the room left under the groups label so the first card starts at her
+// feet rather than through them.
+const DANCER_DROP = scaled(60);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -203,12 +212,12 @@ const styles = StyleSheet.create({
   // Mockup placement: she overlaps the baby line, leans in towards the centre
   // rather than hugging the edge, and drops past the ❖ into the groups label.
   // Mirrored because the drawing faces the other way in the source file.
-  // Sits in the right margin, clear of the greeting: at feature size she ran
-  // over the end of "Week 11 with baby" on a Pro Max.
   illo: {
     position: 'absolute',
-    right: 0,
-    bottom: -scaled(34),
+    right: '9%',
+    // Hung so her raised hand lands on the baby line and she trails down past
+    // the ❖ into the groups label — the mockup's placement.
+    bottom: -DANCER_DROP,
     transform: [{ scaleX: -1 }],
   },
   eyebrow: {
@@ -243,7 +252,10 @@ const styles = StyleSheet.create({
     letterSpacing: 2.4,
     textAlign: 'center',
     paddingTop: 12,
-    paddingBottom: 4,
+    // She hangs DANCER_DROP past the header and the first card is opaque, so
+    // the gap after the label is what lets her finish — the label itself is
+    // centred and she is in the right margin, so it can stay where it is.
+    paddingBottom: DANCER_DROP - scaled(20),
   },
   list: {
     paddingHorizontal: spacing.lg,

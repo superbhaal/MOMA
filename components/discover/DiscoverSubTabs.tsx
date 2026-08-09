@@ -1,9 +1,8 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
-import { fonts } from '@/constants/typography';
+import { textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
-import { scaled } from '@/constants/scale';
 
 export type DiscoverTab = 'learn' | 'watch' | 'explore';
 
@@ -69,11 +68,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cobalt,
     borderColor: colors.cobalt,
   },
-  label: {
-    fontFamily: fonts.bodyMed,
-    // Between the two extremes we've shipped: 10 read as an afterthought, 13
-    // with the wider padding took over the screen. Same tester, both times.
-    fontSize: scaled(11),
-    letterSpacing: 1.7,
-  },
+  label: textStyles.controlCaps,
 });

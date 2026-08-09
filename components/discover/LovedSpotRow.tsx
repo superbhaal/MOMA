@@ -3,11 +3,10 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
-import { fonts } from '@/constants/typography';
+import { textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { staticMapUri } from '@/lib/maps';
 import { categoryLabel } from '@/constants/discover';
-import { scaled } from '@/constants/scale';
 import type { LovedSpotWithPoster } from '@/types';
 
 interface LovedSpotRowProps {
@@ -92,15 +91,17 @@ const styles = StyleSheet.create({
   thumb: { width: 48, height: 48, borderRadius: radius.md, backgroundColor: colors.sable },
   thumbFallback: { alignItems: 'center', justifyContent: 'center' },
   middle: { flex: 1, gap: 2 },
-  name: { fontFamily: fonts.bodyMed, fontSize: scaled(15) },
+  // A loved spot is a feed card in a row's clothing — same two ranks as Read
+  // and Watch, so the three tabs read as one feed.
+  name: textStyles.cardTitle,
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' },
-  meta: { fontFamily: fonts.body, fontSize: scaled(12.5), flexShrink: 1 },
+  meta: { ...textStyles.cardBody, flexShrink: 1 },
   youTag: {
     backgroundColor: colors.cobaltSoft,
     borderRadius: radius.pill,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
-  youText: { fontFamily: fonts.bodySemi, fontSize: scaled(10) },
+  youText: textStyles.labelS,
   dot: { width: 10, height: 10, borderRadius: 5 },
 });

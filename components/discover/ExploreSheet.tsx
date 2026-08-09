@@ -3,9 +3,8 @@ import { Animated, PanResponder, Pressable, ScrollView, StyleSheet, View } from 
 import { Typography } from '@/components/ui/Typography';
 import { LovedSpotRow } from '@/components/discover/LovedSpotRow';
 import { colors } from '@/constants/colors';
-import { fonts } from '@/constants/typography';
+import { fonts, textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
-import { scaled } from '@/constants/scale';
 import type { LovedKind, LovedSpotWithPoster } from '@/types';
 
 const DISCLAIMER =
@@ -241,8 +240,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingBottom: spacing.sm,
   },
-  countText: { fontFamily: fonts.body, fontSize: scaled(14) },
-  countNum: { fontFamily: fonts.bodySemi, fontSize: scaled(14) },
+  countText: textStyles.cardBody,
+  countNum: textStyles.controlStrong,
   listContent: { paddingBottom: spacing.md },
   skeleton: {
     height: 64,
@@ -253,7 +252,7 @@ const styles = StyleSheet.create({
   state: { alignItems: 'center', gap: spacing.md, paddingVertical: spacing.xl },
   stateText: { textAlign: 'center' },
   retryBtn: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing.md },
-  retryText: { fontFamily: fonts.bodySemi, fontSize: scaled(14) },
+  retryText: textStyles.controlStrong,
   disclaimer: { paddingTop: spacing.md },
   disclaimerPeople: {
     marginTop: spacing.sm,
@@ -261,6 +260,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.md,
   },
-  disclaimerText: { fontFamily: fonts.body, fontSize: scaled(12), lineHeight: scaled(18) },
+  disclaimerText: textStyles.cardBody,
   disclaimerTextPeople: { fontFamily: fonts.bodyMed },
 });

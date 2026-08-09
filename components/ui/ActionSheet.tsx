@@ -6,6 +6,7 @@ import {
   Platform,
   Pressable,
   StyleSheet,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,7 +32,16 @@ export function ActionSheet({ visible, onClose, title, children, onShow }: Actio
   const translateY = useRef(new Animated.Value(400)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  // A sheet is anchored to the bottom, so content it can't fit doesn't overflow
+  // downwards where it would at least be obviously cut — it runs off the TOP of
+  // the screen, under the status bar, and no amount of scrolling brings it
+  // back. So the sheet is capped at what's actually visible: the window, less
+  // the keyboard when it's up, less the notch, less a sliver that keeps the
+  // page behind it recognisable as a page.
+  const maxHeight = windowHeight - keyboardHeight - insets.top - spacing.xxl;
 
   // Lift the sheet above the keyboard so inputs (and what the user types) stay visible.
   useEffect(() => {
@@ -95,6 +105,7 @@ export function ActionSheet({ visible, onClose, title, children, onShow }: Actio
           {
             transform: [{ translateY }],
             bottom: keyboardHeight,
+            maxHeight,
             paddingBottom:
               keyboardHeight > 0 ? spacing.lg : Math.max(insets.bottom, spacing.lg),
           },

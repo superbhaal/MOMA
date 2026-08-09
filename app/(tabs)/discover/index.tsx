@@ -8,15 +8,16 @@ import { DiscoverHeader } from '@/components/discover/DiscoverHeader';
 import { DiscoverSubTabs, type DiscoverTab } from '@/components/discover/DiscoverSubTabs';
 import { StageFilter } from '@/components/discover/StageFilter';
 import { ComposeFab } from '@/components/discover/ComposeFab';
+import { ShareReelSheet } from '@/components/discover/ShareReelSheet';
 import { ReadCard } from '@/components/discover/ReadCard';
 import { ReelCard } from '@/components/discover/ReelCard';
 import { DiscoverSkeleton } from '@/components/discover/DiscoverSkeleton';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
-import { fonts } from '@/constants/typography';
-import { scaled } from '@/constants/scale';
+import { textStyles } from '@/constants/typography';
 import { useLearn } from '@/hooks/useLearn';
 import { matchesQuery } from '@/lib/search';
+import { useAppStore } from '@/store/useAppStore';
 import type { LearnArticle, LearnReel } from '@/types';
 
 // Learn → editorial articles; Watch → vetted reels. The old "Recco" format is
@@ -39,9 +40,13 @@ const ILLO: Record<FeedTab, IllustrationName> = {
 export default function DiscoverIndex() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [tab, setTab] = useState<FeedTab>('learn');
+  // Shared with Explore, which is a sibling route: coming back from the map on
+  // "Watch" has to show Watch, and this screen is still mounted underneath it.
+  const tab = useAppStore((s) => s.discoverFeedTab) as FeedTab;
+  const setTab = useAppStore((s) => s.setDiscoverFeedTab);
   const [stage, setStage] = useState<string>('all');
   const [stageSheet, setStageSheet] = useState(false);
+  const [shareSheet, setShareSheet] = useState(false);
   const [query, setQuery] = useState('');
 
   const { docs, loading, error, refresh } = useLearn({
@@ -169,7 +174,21 @@ export default function DiscoverIndex() {
         }
       />
 
-      <ComposeFab bottom={100} />
+      {/* Watch only: a contributor can share a reel, but the Read feed is
+          editorial — there's nothing there for them to add. */}
+      {tab === 'watch' ? (
+        <ComposeFab
+          bottom={100}
+          accessibilityLabel="Share a reel"
+          onPress={() => setShareSheet(true)}
+        />
+      ) : null}
+
+      <ShareReelSheet
+        visible={shareSheet}
+        onClose={() => setShareSheet(false)}
+        onPosted={refresh}
+      />
     </View>
   );
 }
@@ -178,8 +197,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   list: { paddingBottom: spacing.xxxl },
   sectionLabel: {
-    fontFamily: fonts.bodyMed,
-    fontSize: scaled(8.5),
+    // Same eyebrow rank as the cards' own; the wider tracking is what makes it
+    // read as the rule over a section rather than a line inside a card.
+    ...textStyles.labelS,
     letterSpacing: 2.4,
     textAlign: 'center',
     marginTop: spacing.lg,
@@ -190,5 +210,5 @@ const styles = StyleSheet.create({
   cardWrap: { marginBottom: 14, paddingHorizontal: spacing.xl },
   empty: { alignItems: 'center', paddingTop: spacing.xxl, gap: spacing.md },
   emptyText: { textAlign: 'center', paddingHorizontal: spacing.xl },
-  clearLink: { fontFamily: fonts.bodyMed, fontSize: scaled(13), textDecorationLine: 'underline' },
+  clearLink: { ...textStyles.control, textDecorationLine: 'underline' },
 });

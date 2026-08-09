@@ -45,7 +45,10 @@ export type PersonCategory =
   | 'gynecologists'
   | 'midwives_doulas'
   | 'lactation'
-  | 'physios';
+  | 'therapists'
+  | 'pelvic_floor'
+  | 'dentists'
+  | 'daycare';
 export type LovedCategory = PlaceCategory | PersonCategory;
 export type NotifChatCadence = 'every' | 'daily' | 'weekly' | 'off';
 export type DeclineReason =
@@ -207,6 +210,8 @@ export interface LovedSpot {
   city: string | null;
   phone: string | null;
   booking_url: string | null;
+  /** Optional — the composer offers "Skip for now", and most spots take it. */
+  photo_url: string | null;
   created_at: string;
 }
 
@@ -339,6 +344,10 @@ export interface LearnReel {
   babyStage: string;
   category: string;
   publishedAt: string;
+  /** A real cover image when the platform gave us one; the hex gradient otherwise. */
+  thumbnailUrl?: string | null;
+  /** Set on reels shared from inside the app — they carry a poster, not an editor. */
+  community?: { id: string; posterId: string; posterName: string | null; note: string | null };
 }
 
 export interface LearnRecommendation {

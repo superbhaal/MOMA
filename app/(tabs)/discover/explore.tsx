@@ -1,8 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
-import { LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
+import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { DiscoverHeader } from '@/components/discover/DiscoverHeader';
 import { DiscoverSubTabs, type DiscoverTab } from '@/components/discover/DiscoverSubTabs';
@@ -10,6 +9,7 @@ import { ExploreModeTabs } from '@/components/discover/ExploreModeTabs';
 import { ExploreCategoryChips } from '@/components/discover/ExploreCategoryChips';
 import { ExploreMap } from '@/components/discover/ExploreMap';
 import { ExploreSheet } from '@/components/discover/ExploreSheet';
+import { ComposeFab } from '@/components/discover/ComposeFab';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDiscoverRole } from '@/hooks/useDiscoverRole';
 import { useLovedSpots } from '@/hooks/useLovedSpots';
 import { matchesQuery } from '@/lib/search';
+import { useAppStore } from '@/store/useAppStore';
 import type { LovedKind, LovedCategory } from '@/types';
 
 /**
@@ -31,6 +32,7 @@ export default function DiscoverExplore() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { canPost } = useDiscoverRole();
+  const setFeedTab = useAppStore((s) => s.setDiscoverFeedTab);
 
   const [mode, setMode] = useState<LovedKind>('place');
   const [placeCat, setPlaceCat] = useState<LovedCategory | 'all'>('all');
@@ -84,13 +86,19 @@ export default function DiscoverExplore() {
   const city = user?.city || 'your area';
 
   const onSubTab = (next: DiscoverTab) => {
-    if (next !== 'explore') router.replace('/discover');
+    if (next === 'explore') return;
+    // Leave by the chips, the same way Learn ↔ Watch swap. `dismissTo` pops back
+    // to the feed already sitting under the map instead of stacking a second
+    // copy of it — and the tab goes through the store, because that feed is
+    // mounted and won't remount to read a param.
+    setFeedTab(next);
+    if (router.canGoBack()) router.dismissTo('/discover');
+    else router.replace('/discover');
   };
 
   return (
     <View style={styles.container}>
       <DiscoverHeader
-        variant="map"
         subtitle={`Loved by moms in ${city}`}
         searchPlaceholder="Search places & people…"
         searchValue={query}
@@ -122,20 +130,13 @@ export default function DiscoverExplore() {
           onSelectSpot={(id) => router.push({ pathname: '/discover/place/[id]', params: { id } })}
         />
 
-        {canPost ? (
-          <Pressable
-            style={({ pressed }) => [
-              styles.fab,
-              { bottom: collapsedHeight + spacing.lg },
-              pressed && styles.fabPressed,
-            ]}
-            onPress={() => router.push('/discover/place/new')}
-            accessibilityRole="button"
-            accessibilityLabel="Share a recommendation"
-          >
-            <Ionicons name="add" size={28} color={colors.white} />
-          </Pressable>
-        ) : null}
+        {/* Sits above the sheet's resting edge rather than the screen's, so it
+            never hides the first spot in the list. */}
+        <ComposeFab
+          bottom={collapsedHeight + spacing.lg}
+          accessibilityLabel="Add a place or a person"
+          onPress={() => router.push('/discover/place/new')}
+        />
 
         <ExploreSheet
           mode={mode}
@@ -173,20 +174,4 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   badgeText: { fontFamily: fonts.bodySemi, fontSize: scaled(11) },
-  fab: {
-    position: 'absolute',
-    right: 18,
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: colors.cobalt,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.cobalt,
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 8,
-  },
-  fabPressed: { backgroundColor: colors.cobaltDeep },
 });

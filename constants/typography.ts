@@ -56,6 +56,29 @@ export const textStyles = {
     letterSpacing: 1.8,
     textTransform: 'uppercase' as const,
   },
+  // ── Controls ─────────────────────────────────────────────────────────────
+  // The strip of chips, tabs and filter rows that sits under a masthead. One
+  // size for the lot: Discover shipped its sub-tabs at 11 and the stage value
+  // at 15 on the same screen, with the Explore mode tabs at 16 — three ranks
+  // in three centimetres, which read as separate UIs stacked rather than one
+  // control strip. 13 sits between them. Weight and colour carry the
+  // hierarchy inside the strip; size does not.
+  control: { fontFamily: fonts.bodyMed, fontSize: scaled(13) },
+  controlStrong: { fontFamily: fonts.bodySemi, fontSize: scaled(13) },
+  // The tracked-capitals cut of the same rank. It rode a point higher for a
+  // while to offset how small capitals measure, but at 14 the three chips
+  // crowded the row — the tracking already gives them the presence.
+  controlCaps: { fontFamily: fonts.bodyMed, fontSize: scaled(13), letterSpacing: 1.7 },
+
+  // ── Feed content ─────────────────────────────────────────────────────────
+  // What a card actually says, across every Discover tab. A Read card, a Watch
+  // card and a loved-spot row are the same feed, so they get the same two
+  // sizes: the title steps up one notch from the control strip, everything
+  // else sits level with it. Eyebrows (READ · 6 MIN, the source, the section
+  // rule) use `labelS`, which already existed for exactly that job.
+  cardTitle: { fontFamily: fonts.bodySemi, fontSize: scaled(15), lineHeight: scaled(20) },
+  cardBody: { fontFamily: fonts.body, fontSize: scaled(13), lineHeight: scaled(19) },
+
   reading: { fontFamily: fonts.reading, fontSize: scaled(14), lineHeight: scaled(24) },
   // Human voice — quotes, bios, helper prose (Lora italic).
   readingItal: { fontFamily: fonts.readingItal, fontSize: scaled(15), lineHeight: scaled(24) },

@@ -23,6 +23,7 @@ interface SpotRow {
   city: string | null;
   phone: string | null;
   booking_url: string | null;
+  photo_url: string | null;
   created_at: string;
   poster_name: string | null;
   poster_color: string | null;
@@ -44,6 +45,7 @@ function toSpot(r: SpotRow): LovedSpotWithPoster {
     city: r.city,
     phone: r.phone,
     booking_url: r.booking_url,
+    photo_url: r.photo_url,
     created_at: r.created_at,
     poster: r.poster_name
       ? {

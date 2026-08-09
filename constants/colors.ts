@@ -17,6 +17,7 @@ export const colors = {
 
   // Discover section (Learn / Watch / Explore)
   cobaltSoft: '#EEF2FF', // source pills, credential pills, selected rows, tints
+  cobaltMuted: '#A8BCEE', // cobalt at reading distance — steps already taken
   pageBg: '#F5F5F7', // composer / full-screen flow background
   soleilInk: '#F7F6F2', // large display title on the soleil band (≥24px only)
   soleilInkSm: '#6A5500', // subtitle / small text on soleil (AA)

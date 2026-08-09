@@ -1,13 +1,12 @@
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { SaveHeart } from './SaveHeart';
 import { colors } from '@/constants/colors';
-import { fonts } from '@/constants/typography';
+import { fonts, textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
-import { scaled } from '@/constants/scale';
 import type { LearnReel } from '@/types';
 
 interface ReelCardProps {
@@ -31,7 +30,9 @@ export function ReelCard({ reel }: ReelCardProps) {
       accessibilityRole="button"
       accessibilityLabel={`Play: ${reel.title}`}
     >
-      {/* Thumbnail (16:10). Prod = creator cover image; here a hex gradient. */}
+      {/* Thumbnail (16:10). The real cover when the platform gave us one —
+          TikTok's oEmbed does, Instagram's no longer exists — and the hex
+          gradient underneath it, which is all an Instagram reel ever shows. */}
       <View style={styles.thumb}>
         <LinearGradient
           colors={[reel.thumbnailHex || colors.lavender, 'rgba(17,17,24,0.35)']}
@@ -39,6 +40,14 @@ export function ReelCard({ reel }: ReelCardProps) {
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
         />
+        {reel.thumbnailUrl ? (
+          <Image
+            source={{ uri: reel.thumbnailUrl }}
+            style={StyleSheet.absoluteFill}
+            resizeMode="cover"
+            accessible={false}
+          />
+        ) : null}
 
         {/* Platform badge */}
         {isIg ? (
@@ -100,6 +109,21 @@ export function ReelCard({ reel }: ReelCardProps) {
             </View>
           ) : null}
         </View>
+
+        {/* A community reel is vouched for by a mom, not by an editor. Her
+            line is why anyone taps it, so it sits under the creator the way a
+            credential does — attributed, because attribution is the whole
+            trust model on this side of the feed. */}
+        {reel.community?.note ? (
+          <Typography style={styles.communityNote} color={colors.mutedStrong}>
+            &ldquo;{reel.community.note}&rdquo;
+          </Typography>
+        ) : null}
+        {reel.community?.posterName ? (
+          <Typography style={styles.communityPoster} color={colors.muted}>
+            SHARED BY {reel.community.posterName.split(' ')[0].toUpperCase()}
+          </Typography>
+        ) : null}
       </View>
     </Pressable>
   );
@@ -151,7 +175,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  durationText: { fontFamily: fonts.bodySemi, fontSize: scaled(12) },
+  durationText: textStyles.controlStrong,
   body: { paddingTop: 12, alignItems: 'center' },
   topRow: {
     flexDirection: 'row',
@@ -162,11 +186,9 @@ const styles = StyleSheet.create({
   },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: colors.fuchsia },
-  meta: { fontFamily: fonts.bodySemi, fontSize: scaled(8.5), letterSpacing: 1.8 },
+  meta: textStyles.labelS,
   title: {
-    fontFamily: fonts.bodySemi,
-    fontSize: scaled(13),
-    lineHeight: scaled(17),
+    ...textStyles.cardTitle,
     textAlign: 'center',
     marginTop: 7,
     maxWidth: '88%',
@@ -179,7 +201,15 @@ const styles = StyleSheet.create({
     marginTop: 8,
     flexWrap: 'wrap',
   },
-  creatorName: { fontFamily: fonts.body, fontSize: scaled(12.5) },
+  creatorName: textStyles.cardBody,
   credential: {},
-  credentialText: { fontFamily: fonts.bodySemi, fontSize: scaled(8), letterSpacing: 1.6 },
+  credentialText: textStyles.labelS,
+  communityNote: {
+    ...textStyles.cardBody,
+    fontFamily: fonts.readingItal,
+    textAlign: 'center',
+    marginTop: 8,
+    maxWidth: '86%',
+  },
+  communityPoster: { ...textStyles.labelS, marginTop: 6 },
 });

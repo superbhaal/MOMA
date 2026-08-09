@@ -1,21 +1,34 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
-import { fonts } from '@/constants/typography';
-import { radius } from '@/constants/spacing';
-import { scaled } from '@/constants/scale';
 import { useDiscoverRole } from '@/hooks/useDiscoverRole';
+
+interface ComposeFabProps {
+  bottom?: number;
+  /** What tapping it does. Defaults to the Explore place composer. */
+  onPress?: () => void;
+  /** Spoken by VoiceOver — the FAB has no visible text to read. */
+  accessibilityLabel?: string;
+}
 
 /**
  * Role-gated compose affordance, fixed above the bottom nav.
- *   contributor / admin → cobalt pill FAB → place composer.
+ *   contributor / admin → cobalt round FAB.
  *   reader              → nothing. Readers were shown a banner explaining that
  *   posting opens up later; it sat over the feed on every visit and explained a
  *   door they can't see, so it's gone.
+ *
+ * A bare +, because the button sits over a feed and a labelled pill covered the
+ * card behind it. What it adds is whatever the tab is made of — a reel on
+ * Watch, a place or a person on Explore — so each tab passes its own handler.
+ * Read has no FAB at all: the articles are ours to write.
  */
-export function ComposeFab({ bottom = 100 }: { bottom?: number }) {
+export function ComposeFab({
+  bottom = 100,
+  onPress,
+  accessibilityLabel = 'Share a recommendation',
+}: ComposeFabProps) {
   const router = useRouter();
   const { canPost } = useDiscoverRole();
 
@@ -24,14 +37,11 @@ export function ComposeFab({ bottom = 100 }: { bottom?: number }) {
   return (
     <Pressable
       style={({ pressed }) => [styles.fab, { bottom }, pressed && styles.fabPressed]}
-      onPress={() => router.push('/discover/place/new')}
+      onPress={onPress ?? (() => router.push('/discover/place/new'))}
       accessibilityRole="button"
-      accessibilityLabel="Share a recommendation"
+      accessibilityLabel={accessibilityLabel}
     >
-      <Ionicons name="add" size={20} color={colors.white} />
-      <Typography style={styles.fabLabel} color={colors.white}>
-        Share a rec
-      </Typography>
+      <Ionicons name="add" size={28} color={colors.white} />
     </Pressable>
   );
 }
@@ -40,20 +50,17 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     backgroundColor: colors.cobalt,
-    borderRadius: radius.pill,
-    paddingLeft: 16,
-    paddingRight: 19,
-    paddingVertical: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: colors.cobalt,
-    shadowOpacity: 0.36,
+    shadowOpacity: 0.4,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: 6 },
     elevation: 6,
   },
   fabPressed: { backgroundColor: colors.cobaltDeep, transform: [{ translateY: 0.5 }] },
-  fabLabel: { fontFamily: fonts.bodySemi, fontSize: scaled(14) },
 });

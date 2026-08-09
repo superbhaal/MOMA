@@ -17,13 +17,20 @@ export interface ComposerDraft {
   } | null;
   category: LovedCategory | null;
   note: string;
+  /** Local URI from the picker. Uploaded on publish, not on pick — a composer
+   *  abandoned at step 4 shouldn't have left a file in the bucket. */
+  photoUri: string | null;
 }
 
 export const EMPTY_DRAFT: ComposerDraft = {
-  kind: null,
+  // A place, until told otherwise. The v11 composer makes this a tab at the top
+  // of step 1 rather than a step of its own, so it always has a value — which
+  // is also why it no longer counts towards `isDraftDirty`.
+  kind: 'place',
   location: null,
   category: null,
   note: '',
+  photoUri: null,
 };
 
 let draft: ComposerDraft = { ...EMPTY_DRAFT };
@@ -42,5 +49,7 @@ export function clearDraft(): void {
 
 /** True when the user has entered anything worth a discard confirmation. */
 export function isDraftDirty(d: ComposerDraft): boolean {
-  return !!d.kind || !!d.location || !!d.category || d.note.trim().length > 0;
+  return (
+    !!d.location || !!d.category || !!d.photoUri || d.note.trim().length > 0
+  );
 }

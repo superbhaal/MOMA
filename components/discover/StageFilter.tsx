@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { ActionSheet } from '@/components/ui/ActionSheet';
 import { colors } from '@/constants/colors';
-import { fonts } from '@/constants/typography';
+import { fonts, textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 
@@ -134,8 +134,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: colors.line,
   },
-  rowLabel: { fontFamily: fonts.bodySemi, fontSize: scaled(12), letterSpacing: 0.84 },
-  rowValue: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
+  // Same rank as the sub-tab chips above it — the muted colour and the
+  // letter-spacing say "label", so the size doesn't have to.
+  rowLabel: { ...textStyles.controlStrong, letterSpacing: 0.84 },
+  rowValue: textStyles.controlStrong,
   sheetSub: { fontFamily: fonts.body, fontSize: scaled(13), lineHeight: scaled(20), marginBottom: spacing.sm },
   sheetScroll: { maxHeight: 380 },
   groupLabel: {

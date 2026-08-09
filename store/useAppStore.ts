@@ -64,6 +64,11 @@ const EMPTY_ONBOARDING: OnboardingData = {
   profileColor: null,
 };
 
+// Which of the two Discover feeds is showing. It lives here rather than in the
+// screen because Explore is a sibling route: tapping "Watch" from the map has
+// to land on the feed already in the stack AND tell it which chip was tapped.
+export type DiscoverFeedTab = 'learn' | 'watch';
+
 interface AppState {
   // Auth
   user: User | null;
@@ -74,6 +79,9 @@ interface AppState {
   // Onboarding accumulator
   onboardingData: OnboardingData;
 
+  // Discover
+  discoverFeedTab: DiscoverFeedTab;
+
   // Actions
   setUser: (user: User | null) => void;
   setAuthenticated: (value: boolean) => void;
@@ -81,6 +89,7 @@ interface AppState {
   setAuthLoading: (value: boolean) => void;
   updateOnboarding: (partial: Partial<OnboardingData>) => void;
   resetOnboarding: () => void;
+  setDiscoverFeedTab: (tab: DiscoverFeedTab) => void;
   reset: () => void;
 }
 
@@ -90,6 +99,7 @@ export const useAppStore = create<AppState>((set) => ({
   isOnboarded: false,
   authLoading: true,
   onboardingData: { ...EMPTY_ONBOARDING },
+  discoverFeedTab: 'learn',
 
   setUser: (user) => set({ user }),
   setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
@@ -100,6 +110,7 @@ export const useAppStore = create<AppState>((set) => ({
       onboardingData: { ...state.onboardingData, ...partial },
     })),
   resetOnboarding: () => set({ onboardingData: { ...EMPTY_ONBOARDING } }),
+  setDiscoverFeedTab: (discoverFeedTab) => set({ discoverFeedTab }),
   reset: () =>
     set({
       user: null,
@@ -107,5 +118,6 @@ export const useAppStore = create<AppState>((set) => ({
       isOnboarded: false,
       authLoading: false,
       onboardingData: { ...EMPTY_ONBOARDING },
+      discoverFeedTab: 'learn',
     }),
 }));
