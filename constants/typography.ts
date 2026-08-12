@@ -44,15 +44,19 @@ export const textStyles = {
   bodyL: { fontFamily: fonts.body, fontSize: scaled(14), lineHeight: scaled(22) },
   bodyM: { fontFamily: fonts.body, fontSize: scaled(12), lineHeight: scaled(18) },
   bodyS: { fontFamily: fonts.body, fontSize: scaled(11), lineHeight: scaled(16) },
+  // The two eyebrow ranks. `labelS` is the smallest type the app is allowed to
+  // set: it was 9, and the same job was being done ad hoc at 7.5, 8 and 8.5
+  // across fifteen screens. The client asked for the smallest to be bigger and
+  // for one size to mean one thing — so 10.5 is now the floor, everywhere.
   label: {
     fontFamily: fonts.bodySemi,
-    fontSize: scaled(11),
+    fontSize: scaled(12),
     letterSpacing: 1.5,
     textTransform: 'uppercase' as const,
   },
   labelS: {
     fontFamily: fonts.bodySemi,
-    fontSize: scaled(9),
+    fontSize: scaled(10.5),
     letterSpacing: 1.8,
     textTransform: 'uppercase' as const,
   },
@@ -66,9 +70,10 @@ export const textStyles = {
   control: { fontFamily: fonts.bodyMed, fontSize: scaled(13) },
   controlStrong: { fontFamily: fonts.bodySemi, fontSize: scaled(13) },
   // The tracked-capitals cut of the same rank. It rode a point higher for a
-  // while to offset how small capitals measure, but at 14 the three chips
-  // crowded the row — the tracking already gives them the presence.
-  controlCaps: { fontFamily: fonts.bodyMed, fontSize: scaled(13), letterSpacing: 1.7 },
+  // while to offset how small capitals measure, then sat at 13 with the rest;
+  // it now sits below the rank on purpose. These chips are a navigation strip,
+  // not content, and on Explore they stand between the masthead and the map.
+  controlCaps: { fontFamily: fonts.bodyMed, fontSize: scaled(11), letterSpacing: 1.5 },
 
   // ── Feed content ─────────────────────────────────────────────────────────
   // What a card actually says, across every Discover tab. A Read card, a Watch

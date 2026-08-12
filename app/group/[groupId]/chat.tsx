@@ -101,14 +101,10 @@ export default function GroupChatScreen() {
             availability, m&oslash;ma will drop a time and place into the chat. Feel
             free to share a place you love in the meantime.
           </Typography>
-          {/* The copy above asks for availability, so give it a door here:
-              this is the moment the group forms and the slots matter. */}
-          <Pressable onPress={() => router.push('/availability')} hitSlop={8}>
-            <Typography style={styles.availabilityLink} color={colors.cobalt}>
-              Mark when you can&rsquo;t make it
-            </Typography>
-          </Pressable>
-
+          {/* No availability link here any more. It's asked once, as a
+              condition of joining, and then only when møma comes back to ask —
+              a standing link invited people to re-answer a question nobody had
+              been asked yet. */}
           <View style={styles.findingPill}>
             <View style={styles.findingDot} />
             <Typography style={styles.findingText} color={colors.mutedStrong}>
@@ -209,7 +205,7 @@ const styles = StyleSheet.create({
   },
   headerMeta: {
     fontFamily: fonts.bodyMed,
-    fontSize: scaled(8),
+    fontSize: scaled(10.5),
     letterSpacing: 1.6,
     marginTop: 1,
   },
@@ -242,12 +238,6 @@ const styles = StyleSheet.create({
     lineHeight: scaled(21),
     textAlign: 'center',
   },
-  availabilityLink: {
-    fontFamily: 'DMSans-Medium',
-    fontSize: scaled(13),
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
   findingPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -261,7 +251,7 @@ const styles = StyleSheet.create({
   },
   findingText: {
     fontFamily: 'DMSans-Medium',
-    fontSize: scaled(8.5),
+    fontSize: scaled(10.5),
     letterSpacing: 2,
   },
 });

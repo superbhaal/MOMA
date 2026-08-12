@@ -8,6 +8,7 @@ import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 import { isPastMeetup } from '@/lib/meetup';
+import { formatShortWhen } from '@/lib/time';
 import type { GroupWithDetails } from '@/types';
 
 interface GroupCardProps {
@@ -117,19 +118,7 @@ export function GroupCard({ group, onPress }: GroupCardProps) {
   );
 }
 
-function formatWhen(iso: string): string {
-  const d = new Date(iso);
-  const now = new Date();
-  const sameYear = d.getFullYear() === now.getFullYear();
-  return d.toLocaleString('en-US', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    hour: 'numeric',
-    minute: '2-digit',
-    ...(sameYear ? {} : { year: 'numeric' }),
-  });
-}
+const formatWhen = formatShortWhen;
 
 // Only ever called for a meetup still ahead — `isPastMeetup` handles the rest.
 function countdownLabel(iso: string): string {
@@ -167,7 +156,7 @@ const styles = StyleSheet.create({
   },
   meta: {
     fontFamily: fonts.body,
-    fontSize: scaled(9),
+    fontSize: scaled(10.5),
     letterSpacing: 2.5,
     textAlign: 'center',
     marginTop: 4,
@@ -182,7 +171,7 @@ const styles = StyleSheet.create({
   meetup: { alignItems: 'center', alignSelf: 'stretch' },
   meetupLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: scaled(8.5),
+    fontSize: scaled(10.5),
     letterSpacing: 2.5,
     textAlign: 'center',
   },
@@ -213,7 +202,7 @@ const styles = StyleSheet.create({
   countdownPast: { alignSelf: 'center' },
   countdown: {
     fontFamily: fonts.bodySemi,
-    fontSize: scaled(9),
+    fontSize: scaled(10.5),
     letterSpacing: 0.6,
     marginTop: 8,
     alignSelf: 'flex-end',
@@ -235,7 +224,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avCountText: { fontFamily: fonts.bodySemi, fontSize: scaled(8.5) },
+  avCountText: { fontFamily: fonts.bodySemi, fontSize: scaled(10.5) },
   lastMsg: {
     fontFamily: fonts.readingItal,
     fontSize: scaled(12.5),

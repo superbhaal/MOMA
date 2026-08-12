@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: scaled(10),
+    fontSize: scaled(10.5),
     letterSpacing: 1.7,
     color: colors.muted,
   },

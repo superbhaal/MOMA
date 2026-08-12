@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   },
   placeChipText: {
     fontFamily: fonts.bodyMed,
-    fontSize: scaled(10),
+    fontSize: scaled(10.5),
     letterSpacing: 1.6,
   },
   row: {

@@ -47,6 +47,12 @@ const GROUPS: StageGroup[] = [
       { value: '3+yr', label: '3+ years' },
     ],
   },
+  // The one entry on this axis that isn't an age. See the note on
+  // STAGE_CHIP_GROUPS in constants/discover.
+  {
+    group: 'For you',
+    rows: [{ value: 'wellness', label: 'Wellness for you', sub: 'Your body, your head, your rest' }],
+  },
 ];
 
 const LABEL_BY_VALUE: Record<string, string> = [ALL, ...GROUPS.flatMap((g) => g.rows)].reduce(

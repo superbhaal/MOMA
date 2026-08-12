@@ -39,7 +39,10 @@ export type PlaceCategory =
   | 'parks'
   | 'playgrounds'
   | 'classes'
-  | 'shops';
+  | 'baby_shops'
+  | 'mom_shops'
+  | 'wellness'
+  | 'stays';
 export type PersonCategory =
   | 'pediatricians'
   | 'gynecologists'

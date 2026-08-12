@@ -24,7 +24,7 @@ interface FeedRow {
   title: string | null;
   thumbnail_url: string | null;
   duration_sec: number | null;
-  creator_label: string;
+  creator_label: string | null;
   note: string | null;
   baby_stages: string[] | null;
   thumbnail_hex: string | null;
@@ -49,16 +49,23 @@ function toLearnReel(row: FeedRow): LearnReel {
   return {
     _id: `${COMMUNITY_ID_PREFIX}${row.id}`,
     _type: 'learnReel',
-    // A reel with no title is normal on Instagram, where we can't read one.
-    // The poster's line is the next-best headline, and failing that, who it's
-    // from — never an empty card.
-    title: row.title || row.note || row.creator_label,
+    // Three fallbacks deep, because on Instagram all three can be missing: we
+    // can't read a title, and both "who's it from" and "why this one" are
+    // optional. A card with only a platform name still says a mom you trust
+    // saved this, which is the whole proposition on this side of the feed.
+    title:
+      row.title ||
+      row.note ||
+      row.creator_label ||
+      `Shared from ${row.platform === 'tiktok' ? 'TikTok' : 'Instagram'}`,
     platform: row.platform,
     externalUrl: row.external_url,
     thumbnailHex: row.thumbnail_hex || colors.lavender,
     thumbnailUrl: row.thumbnail_url,
     durationSec: row.duration_sec ?? 0,
-    creatorName: row.creator_label,
+    // Empty rather than a placeholder name: the card hides the creator row
+    // outright instead of showing an avatar for nobody.
+    creatorName: row.creator_label ?? '',
     creatorHandle: '',
     credential: '',
     babyStage: row.baby_stages?.[0] ?? '',

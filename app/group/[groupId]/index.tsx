@@ -13,7 +13,6 @@ import { scaled } from '@/constants/scale';
 import { useGroupDetail } from '@/hooks/useGroupDetail';
 import { useProposals } from '@/hooks/useProposals';
 import { useAuth } from '@/hooks/useAuth';
-import { hasUpcomingMeetup } from '@/lib/meetup';
 
 /**
  * Group detail — v11: back link, serif-italic cobalt group name, small meta
@@ -81,22 +80,10 @@ export default function GroupDetailScreen() {
               </View>
             ) : null}
 
-            {/* Kept reachable here too — the chat only offers it while the
-                group is between meetups. It hides only while a locked-in date
-                is still ahead; once that meetup has passed the group is picking
-                the next one, so the invitation comes back. */}
-            {hasUpcomingMeetup(open_proposal) && open_proposal?.state === 'decided' ? null : (
-              <Pressable
-                onPress={() => router.push('/availability')}
-                hitSlop={8}
-                style={styles.availabilityRow}
-              >
-                <Typography style={styles.availabilityLink} color={colors.cobalt}>
-                  Mark when you can&rsquo;t make it
-                </Typography>
-              </Pressable>
-            )}
-
+            {/* The standing "mark when you can't make it" link is gone from
+                here too. Availability is asked once when you join, and again
+                when møma prompts — not as a permanent invitation to revisit a
+                grid most people filled in a fortnight ago. */}
             <View style={styles.membersHead}>
               <Typography style={styles.membersLabel} color={colors.cobalt}>
                 MEMBERS
@@ -161,16 +148,10 @@ const styles = StyleSheet.create({
   wave: {
     marginTop: spacing.xl,
   },
-  availabilityRow: { marginTop: spacing.xl, alignItems: 'center' },
-  availabilityLink: {
-    fontFamily: fonts.bodyMed,
-    fontSize: scaled(12.5),
-    textDecorationLine: 'underline',
-  },
   membersHead: { marginTop: spacing.xxl, marginBottom: spacing.xs },
   membersLabel: {
     fontFamily: fonts.bodyMed,
-    fontSize: scaled(8.5),
+    fontSize: scaled(10.5),
     letterSpacing: 2.4,
     textAlign: 'center',
   },

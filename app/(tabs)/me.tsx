@@ -20,6 +20,7 @@ import { useProposals } from '@/hooks/useProposals';
 import { useSavedTips } from '@/hooks/useSavedTips';
 import { usePreferences } from '@/hooks/usePreferences';
 import { babyMetaLine } from '@/lib/babyAge';
+import { formatTime } from '@/lib/time';
 import { shareMoma } from '@/lib/share';
 import { openInstagramProfile } from '@/lib/instagram';
 import type { SavedDocType } from '@/types';
@@ -190,9 +191,7 @@ export default function MeScreen() {
                 {nextMeetup.group.name}
               </Typography>
               <Typography style={[styles.meetupSub, meetupDecided && { color: colors.muted }]}>
-                {new Date(nextMeetup.proposal.scheduled_at)
-                  .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-                  .toLowerCase()}
+                {formatTime(nextMeetup.proposal.scheduled_at).toLowerCase()}
                 {nextMeetup.proposal.location_name ? ` · ${nextMeetup.proposal.location_name}` : ''}
               </Typography>
               {myVote === 'going' ? (
@@ -551,7 +550,7 @@ const styles = StyleSheet.create({
   },
   interestsLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: scaled(9),
+    fontSize: scaled(10.5),
     letterSpacing: 1.4,
     color: colors.muted,
     marginBottom: spacing.sm,
@@ -598,7 +597,7 @@ const styles = StyleSheet.create({
   },
   meetupMon: {
     fontFamily: fonts.bodySemi,
-    fontSize: scaled(9),
+    fontSize: scaled(10.5),
     letterSpacing: 1.4,
     color: colors.muted,
     marginTop: 2,
@@ -642,7 +641,7 @@ const styles = StyleSheet.create({
   // Saved tips
   countBadge: {
     fontFamily: fonts.bodySemi,
-    fontSize: scaled(10),
+    fontSize: scaled(10.5),
     letterSpacing: 1,
     color: colors.muted,
   },
@@ -664,7 +663,7 @@ const styles = StyleSheet.create({
   },
   savedCatText: {
     fontFamily: fonts.bodySemi,
-    fontSize: scaled(9),
+    fontSize: scaled(10.5),
     letterSpacing: 0.8,
   },
   savedText: {

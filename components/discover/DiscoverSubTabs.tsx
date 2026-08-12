@@ -52,17 +52,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.sm,
     paddingHorizontal: 26,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
     backgroundColor: colors.white,
   },
   // v11: small-caps pills — active solid cobalt, inactive hairline outline.
+  // Smaller than the rank they belong to: on Explore this row stands between
+  // the masthead and the map, and every point it takes is a point of map. Our
+  // tester has asked three times for more map — this is the cheap half of that
+  // answer; the masthead is the expensive half.
   chip: {
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.lineStrong,
     borderRadius: radius.pill,
-    paddingHorizontal: 16,
-    paddingVertical: 9,
+    paddingHorizontal: 13,
+    paddingVertical: 7,
   },
   chipActive: {
     backgroundColor: colors.cobalt,

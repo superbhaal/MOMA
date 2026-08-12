@@ -17,6 +17,7 @@ import { spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 import { useGroups } from '@/hooks/useGroups';
 import { useDmThreads } from '@/hooks/useDmThreads';
+import { formatTime } from '@/lib/time';
 import type { GroupWithDetails } from '@/types';
 import type { DmThreadItem } from '@/hooks/useDmThreads';
 
@@ -204,7 +205,7 @@ function timeLabel(iso: string | null | undefined): string {
   if (mins < 60) return `${Math.max(1, Math.round(mins))}M`;
   const sameDay = new Date().toDateString() === d.toDateString();
   if (sameDay) {
-    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
+    return formatTime(d);
   }
   const days = Math.floor(mins / (60 * 24));
   if (days <= 1) return 'YESTERDAY';
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
   sectionWrap: { marginTop: spacing.xxl, marginBottom: spacing.xs },
   sectionLabel: {
     fontFamily: fonts.bodyMed,
-    fontSize: scaled(8.5),
+    fontSize: scaled(10.5),
     letterSpacing: 2.4,
     textAlign: 'center',
   },
@@ -261,7 +262,7 @@ const styles = StyleSheet.create({
   rowEnd: { alignItems: 'flex-end', gap: 5 },
   rowTime: {
     fontFamily: fonts.bodyMed,
-    fontSize: scaled(8.5),
+    fontSize: scaled(10.5),
     letterSpacing: 1.4,
   },
   unreadDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.fuchsia },

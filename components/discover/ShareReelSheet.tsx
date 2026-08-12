@@ -106,7 +106,9 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
     return t.includes(`${platform === 'tiktok' ? 'tiktok' : 'instagram'}.com`);
   }, [url, platform]);
 
-  const canPost = urlLooksRight && from.trim().length > 1 && stages.length > 0 && !submitting;
+  // "Who's it from" is optional — the client's call. The link and who it's for
+  // are what the feed can't do without.
+  const canPost = urlLooksRight && stages.length > 0 && !submitting;
 
   const toggleStage = (value: string) =>
     setStages((s) => (s.includes(value) ? s.filter((v) => v !== value) : [...s, value]));
@@ -120,7 +122,7 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
         // to the same reel differ only by tracking params, and the table dedupes
         // on this column.
         externalUrl: meta?.url ?? url.trim(),
-        creatorLabel: from.trim(),
+        creatorLabel: from.trim() || null,
         note: why.trim() || null,
         babyStages: stages,
         title: meta?.title ?? null,
@@ -182,7 +184,7 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
             </View>
             <View style={styles.rule} />
 
-            <FieldLabel label="Who’s it from?" hint="required" />
+            <FieldLabel label="Who’s it from?" hint="optional" />
             <TextInput
               style={styles.input}
               value={from}

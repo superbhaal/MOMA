@@ -84,11 +84,27 @@ export function ExploreSheet({
     return () => height.removeListener(id);
   }, [height]);
 
+  // Whether the inner list is scrolled to its top — the only moment an
+  // expanded sheet should let a downward drag collapse it rather than scroll.
+  const listAtTop = useRef(true);
+
   const pan = useMemo(
     () =>
       PanResponder.create({
-        // Claim only a deliberate vertical drag, so a tap still reaches the handle.
-        onMoveShouldSetPanResponder: (_e, g) => Math.abs(g.dy) > 4,
+        // Capture, not bubble: the gesture has to be claimed before the inner
+        // ScrollView takes it, or the sheet would only ever move by its handle
+        // — which is exactly what our tester ran into ("I want to be able to
+        // slide it from anywhere on the white menu").
+        //
+        // Three conditions, in order: it must be a deliberate vertical drag;
+        // while collapsed the list is frozen anyway, so the sheet owns every
+        // drag; while expanded the list owns them, except a pull-down that
+        // starts at the top of the list, which is how you put the sheet away.
+        onMoveShouldSetPanResponderCapture: (_e, g) => {
+          if (Math.abs(g.dy) <= 4 || Math.abs(g.dy) < Math.abs(g.dx)) return false;
+          if (!expanded) return true;
+          return g.dy > 0 && listAtTop.current;
+        },
         onPanResponderGrant: () => {
           dragStart.current = heightNow.current;
           height.stopAnimation();
@@ -123,8 +139,11 @@ export function ExploreSheet({
   const isPeople = mode === 'person';
 
   return (
-    <Animated.View style={[styles.sheet, { height, paddingBottom: bottomInset + spacing.lg }]}>
-      <View {...pan.panHandlers}>
+    <Animated.View
+      style={[styles.sheet, { height, paddingBottom: bottomInset + spacing.lg }]}
+      {...pan.panHandlers}
+    >
+      <View>
         <Pressable
           onPress={onToggle}
           style={styles.handleHit}
@@ -151,6 +170,10 @@ export function ExploreSheet({
         scrollEnabled={expanded}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
+        scrollEventThrottle={16}
+        onScroll={(e) => {
+          listAtTop.current = e.nativeEvent.contentOffset.y <= 0;
+        }}
       >
         {loading ? (
           [0, 1, 2].map((i) => <View key={i} style={styles.skeleton} />)

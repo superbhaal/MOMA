@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Keyboard,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -240,6 +241,9 @@ export default function PlaceComposer() {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        // Scrolling the results puts the keyboard away — on a phone that's the
+        // gesture you make when you want to see the list you're scrolling.
+        keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
       >
         {step === 0 ? <KindTabs kind={kind} onChange={switchKind} /> : null}
@@ -269,7 +273,15 @@ export default function PlaceComposer() {
             kind={kind}
             city={user?.city ?? null}
             selected={draft.location}
-            onSelect={(location) => patch({ location })}
+            onSelect={(location) => {
+              // Picking IS the answer to "where is it?", so it moves on to the
+              // confirmation rather than quietly enabling a button at the far
+              // end of the screen. "Add manually" looked broken for exactly
+              // that reason: it worked, but nothing on screen said so.
+              patch({ location });
+              Keyboard.dismiss();
+              setStep(1);
+            }}
           />
         )}
 
@@ -816,9 +828,13 @@ const styles = StyleSheet.create({
   manualText: textStyles.controlStrong,
 
   // confirm
+  // A rectangle, not the pill the other frames use: an oval crops the four
+  // corners of a real map, and the corners are where the streets you recognise
+  // are. The pill shape stays on the photo and preview frames, which crop
+  // nothing that matters.
   mapFrame: {
     height: 170,
-    borderRadius: 90,
+    borderRadius: radius.lg,
     overflow: 'hidden',
     backgroundColor: colors.sable,
     borderWidth: 1,

@@ -10,8 +10,15 @@ interface RsvpPillProps {
   onPress: () => void;
 }
 
-/** Single-tap RSVP pill: filled cobalt "Going" call-to-action → white "✓ Going"
- *  once the user is in. */
+/**
+ * Single-tap RSVP pill. Filled cobalt means you're in; the outline is the
+ * invitation to tap.
+ *
+ * It shipped the other way round — the call-to-action was the filled one and
+ * "✓ GOING" was a hollow outline — and our tester read the solid blue pill as
+ * "I'm already going" and asked why the app had answered for her. Filled = the
+ * state, not the offer; that's the convention everywhere else.
+ */
 export function RsvpPill({ going, onPress }: RsvpPillProps) {
   return (
     <Pressable
@@ -23,7 +30,7 @@ export function RsvpPill({ going, onPress }: RsvpPillProps) {
         pressed && { opacity: 0.85 },
       ]}
     >
-      <Typography color={going ? colors.cobalt : colors.white} style={styles.label}>
+      <Typography color={going ? colors.white : colors.cobalt} style={styles.label}>
         {going ? '✓ GOING' : 'GOING?'}
       </Typography>
     </Pressable>
@@ -37,9 +44,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     alignSelf: 'center',
   },
-  notGoing: { backgroundColor: colors.cobalt },
-  // On the v11 white ground a white pill vanishes — outline it in cobalt.
-  going: {
+  going: { backgroundColor: colors.cobalt, borderWidth: 1, borderColor: colors.cobalt },
+  // On the v11 white ground a white pill vanishes — outline it in cobalt. The
+  // border is on both so the pill doesn't change size when it's tapped.
+  notGoing: {
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.cobalt,

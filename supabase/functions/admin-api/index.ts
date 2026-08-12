@@ -694,7 +694,12 @@ async function simMeetup(body: any) {
 
   // RSVPs. 'all' locks the meetup in via the quorum trigger; 'fakes' leaves the
   // real user something to tap in the app; 'none' keeps it fully open.
-  const who = ['all', 'fakes', 'none'].includes(body.votes) ? body.votes : 'all';
+  //
+  // Defaults to 'fakes': with 'all' the sandbox voted on the real tester's
+  // behalf, and she quite reasonably reported that the app had marked her as
+  // going without asking. A seeded meetup should leave her the one decision the
+  // screen exists to take.
+  const who = ['all', 'fakes', 'none'].includes(body.votes) ? body.votes : 'fakes';
   let voters: any[] = [];
   if (who === 'all') voters = members;
   else if (who === 'fakes') voters = members.filter((m: any) => isTest(m.email));

@@ -7,6 +7,7 @@ import { spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 import { addToCalendar } from '@/lib/calendar';
 import { openInGoogleMaps } from '@/lib/maps';
+import { formatLongWhen } from '@/lib/time';
 import type { MeetupProposal } from '@/types';
 
 interface MeetupCardProps {
@@ -91,21 +92,15 @@ export function MeetupCard({
   );
 }
 
-/** "Saturday 15 March · 10:30" — the v11 long-form date, 24h clock. */
-function formatWhen(iso: string): string {
-  const d = new Date(iso);
-  const wd = d.toLocaleDateString('en-US', { weekday: 'long' });
-  const mon = d.toLocaleDateString('en-US', { month: 'long' });
-  const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  return `${wd} ${d.getDate()} ${mon} · ${time}`;
-}
+/** "Saturday 15 March · 10:30 AM" — the v11 long-form date. */
+const formatWhen = formatLongWhen;
 
 const styles = StyleSheet.create({
   block: { alignItems: 'center' },
   muted: { opacity: 0.6 },
   label: {
     fontFamily: fonts.bodySemi,
-    fontSize: scaled(8.5),
+    fontSize: scaled(10.5),
     letterSpacing: 2.5,
     textAlign: 'center',
   },

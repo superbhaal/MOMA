@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: scaled(9),
+    fontSize: scaled(10.5),
     letterSpacing: 1.4,
   },
   progressDots: {

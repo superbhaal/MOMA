@@ -306,9 +306,14 @@
           <div class="field"><label>Place (optional)</label>
             <input id="simPlace" placeholder="auto — a café nearby"/></div>
           <div class="field"><label>RSVPs</label>
+            <!-- "fake moms only" by default: with "everyone" the sandbox voted
+                 on the real tester's behalf, and she arrived on her group
+                 already marked as going without having touched anything. A
+                 seeded meetup should leave her the one decision the screen
+                 exists to take. -->
             <select id="simVotes">
+              <option value="fakes" selected>fake moms only</option>
               <option value="all">everyone going — locked in</option>
-              <option value="fakes">fake moms only</option>
               <option value="none">nobody yet</option>
             </select></div>
         </div>

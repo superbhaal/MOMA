@@ -16,13 +16,20 @@ export interface CategoryChip {
   label: string;
 }
 
+// "Shops" was one word doing three jobs — a mom looking for a nursing bra and a
+// mom looking for a pram were sent to the same filter. Split, plus the three
+// the client named: somewhere to sleep with a baby, somewhere to be looked
+// after, and the two kinds of shopping.
 export const PLACE_CATEGORIES: { value: PlaceCategory; label: string }[] = [
-  { value: 'cafes', label: 'Cafés' },
-  { value: 'restaurants', label: 'Restaurants' },
-  { value: 'parks', label: 'Parks' },
-  { value: 'playgrounds', label: 'Playgrounds' },
-  { value: 'classes', label: 'Classes' },
-  { value: 'shops', label: 'Shops' },
+  { value: 'cafes', label: 'Café' },
+  { value: 'restaurants', label: 'Restaurant' },
+  { value: 'parks', label: 'Park' },
+  { value: 'playgrounds', label: 'Playground' },
+  { value: 'classes', label: 'Class' },
+  { value: 'baby_shops', label: 'Baby & kids' },
+  { value: 'mom_shops', label: 'For mom' },
+  { value: 'wellness', label: 'Spa & massage' },
+  { value: 'stays', label: 'Family stay' },
 ];
 
 // The v11 composer names eight kinds of practitioner where this list had five.
@@ -77,6 +84,14 @@ export const STAGE_CHIP_GROUPS: { group: string; rows: { value: string; label: s
       { value: '3+yr', label: '3+ yr' },
     ],
   },
+  // Not an age, and deliberately so — the client's call. Everything above
+  // answers "how old is your baby"; this one answers "and what about you". It
+  // shares the axis, which means a wellness piece won't surface under an age
+  // filter and vice versa. Its own group keeps that legible.
+  {
+    group: 'For you',
+    rows: [{ value: 'wellness', label: 'Wellness' }],
+  },
 ];
 
 const LABELS: Record<LovedCategory, string> = {
@@ -85,7 +100,10 @@ const LABELS: Record<LovedCategory, string> = {
   parks: 'Park',
   playgrounds: 'Playground',
   classes: 'Class',
-  shops: 'Shop',
+  baby_shops: 'Baby & kids',
+  mom_shops: 'For mom',
+  wellness: 'Spa & massage',
+  stays: 'Family stay',
   pediatricians: 'Pediatrician',
   gynecologists: 'Gynecologist',
   midwives_doulas: 'Midwife & doula',
@@ -99,4 +117,39 @@ const LABELS: Record<LovedCategory, string> = {
 /** Singular, human label for a category — used on cards and the detail pill. */
 export function categoryLabel(category: LovedCategory): string {
   return LABELS[category] ?? category;
+}
+
+/**
+ * Pin colour per category, so a glance at the map answers "what is that?"
+ * before you tap. Drawn from the bold half of the palette — the soft accents
+ * are user-identity colours and disappear against Google's map tiles.
+ *
+ * Places and people never share a map, so the two sets are free to reuse hues.
+ * Two rules the map imposes on the choice: parks take the DEEP green, because a
+ * bright one lands on the green the map already draws there; and nothing takes
+ * cobalt, which is reserved for "this one is yours".
+ */
+const PIN_COLORS: Record<LovedCategory, string> = {
+  cafes: '#00B8C8', // pool — the mint the client asked for, at pin strength
+  restaurants: '#FF7A00', // orange
+  parks: '#3E6B3A', // meadowMuted
+  playgrounds: '#FFC800', // soleil
+  classes: '#0038FF', // klein
+  baby_shops: '#E8389C', // fuchsia
+  mom_shops: '#E82030', // cherry
+  wellness: '#9878C8', // lavender
+  stays: '#8C2238', // blushMuted
+
+  pediatricians: '#E8389C',
+  gynecologists: '#9878C8',
+  midwives_doulas: '#FF7A00',
+  lactation: '#00B8C8',
+  therapists: '#0038FF',
+  pelvic_floor: '#E82030',
+  dentists: '#FFC800',
+  daycare: '#3E6B3A',
+};
+
+export function categoryColor(category: LovedCategory): string {
+  return PIN_COLORS[category] ?? '#111118';
 }

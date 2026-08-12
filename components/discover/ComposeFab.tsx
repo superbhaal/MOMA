@@ -25,7 +25,9 @@ interface ComposeFabProps {
  * Read has no FAB at all: the articles are ours to write.
  */
 export function ComposeFab({
-  bottom = 100,
+  // Just clear of the tab bar. It shipped at 100, which put it a third of the
+  // way up the last card and read as floating loose over the feed.
+  bottom = 20,
   onPress,
   accessibilityLabel = 'Share a recommendation',
 }: ComposeFabProps) {
@@ -41,7 +43,7 @@ export function ComposeFab({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
     >
-      <Ionicons name="add" size={28} color={colors.white} />
+      <Ionicons name="add" size={24} color={colors.white} />
     </Pressable>
   );
 }
@@ -50,9 +52,9 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 18,
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     backgroundColor: colors.cobalt,
     alignItems: 'center',
     justifyContent: 'center',

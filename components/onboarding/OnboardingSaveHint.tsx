@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.lineStrong,
   },
   text: {
-    fontSize: scaled(10),
+    fontSize: scaled(10.5),
     color: colors.muted,
     letterSpacing: 0.4,
   },

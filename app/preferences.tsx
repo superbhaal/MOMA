@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 26, paddingBottom: spacing.xxxl },
   sectionLabel: {
     fontFamily: fonts.bodyMed,
-    fontSize: scaled(10),
+    fontSize: scaled(10.5),
     letterSpacing: 2.4,
     textAlign: 'center',
     marginTop: spacing.xl,

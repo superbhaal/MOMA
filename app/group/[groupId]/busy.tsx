@@ -1,5 +1,5 @@
-import { Fragment } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Fragment, useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import { radius, spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
 import { scaled } from '@/constants/scale';
 import { useBusyWindows } from '@/hooks/useBusyWindows';
+import { useMatching } from '@/hooks/useMatching';
 import type { AvailabilityBlock } from '@/types';
 
 const BLOCKS: { value: AvailabilityBlock; label: string; range: string }[] = [
@@ -22,8 +23,16 @@ const DAYS_AHEAD = 14;
 export default function BusyWindowsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { groupId } = useLocalSearchParams<{ groupId: string }>();
+  // `accept` is set when this screen stands between the preview and the group:
+  // the membership is only written once she's marked her two weeks, so backing
+  // out here leaves her un-joined rather than quietly in.
+  const { groupId, accept: acceptParam } = useLocalSearchParams<{
+    groupId: string;
+    accept?: string;
+  }>();
   const { count, isBusy, toggle } = useBusyWindows(DAYS_AHEAD);
+  const { accept } = useMatching();
+  const [joining, setJoining] = useState(false);
 
   const days = Array.from({ length: DAYS_AHEAD }, (_, i) => {
     const d = new Date();
@@ -32,7 +41,16 @@ export default function BusyWindowsScreen() {
     return d;
   });
 
-  function done() {
+  async function done() {
+    if (acceptParam === '1') {
+      setJoining(true);
+      const { error } = await accept();
+      setJoining(false);
+      if (error) {
+        Alert.alert("Couldn't join this group", error.message);
+        return;
+      }
+    }
     if (groupId) router.replace(`/group/${groupId}/chat`);
     else router.replace('/(tabs)');
   }
@@ -116,10 +134,14 @@ export default function BusyWindowsScreen() {
           </Typography>{' '}
           marked busy across the next two weeks.
         </Typography>
-        <Pressable onPress={done} style={styles.cta}>
-          <Typography style={styles.ctaText} color={colors.white}>
-            Done, take me to the chat
-          </Typography>
+        <Pressable onPress={done} disabled={joining} style={styles.cta}>
+          {joining ? (
+            <ActivityIndicator color={colors.white} />
+          ) : (
+            <Typography style={styles.ctaText} color={colors.white}>
+              {acceptParam === '1' ? 'Join the group' : 'Done, take me to the chat'}
+            </Typography>
+          )}
         </Pressable>
       </View>
     </View>

@@ -63,18 +63,21 @@ export default function GroupPreviewScreen() {
 
   const headlineSub = useMemo(() => composeHeadlineSub(others, me), [others, me]);
 
-  async function handleAccept() {
+  function handleAccept() {
     const groupId = previewMembers[0]?.group_id;
-    setBusy(true);
-    const { error } = await accept();
-    setBusy(false);
-    if (error) {
-      Alert.alert("Couldn't join this group", error.message);
+    if (!groupId) {
+      router.replace('/(tabs)');
       return;
     }
-    // New flow: capture busy windows before the chat opens, then land in chat.
-    if (groupId) router.replace(`/group/${groupId}/busy`);
-    else router.replace('/(tabs)');
+    // Busy windows come BEFORE the join is committed, not after it. The client
+    // asked for marking your two weeks to be a condition of joining, and a
+    // screen you reach once you're already in the group is not a condition —
+    // backing out of it left you in the group anyway. The join now happens on
+    // that screen's Done.
+    router.push({
+      pathname: '/group/[groupId]/busy',
+      params: { groupId, accept: '1' },
+    });
   }
 
   async function handleDeclineConfirm() {
@@ -320,7 +323,7 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: scaled(10),
+    fontSize: scaled(10.5),
     letterSpacing: 1.6,
   },
   title: {

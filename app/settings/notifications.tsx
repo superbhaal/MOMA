@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   timeBlock: { marginTop: spacing.lg },
   timeLabel: {
     fontFamily: fonts.bodySemi,
-    fontSize: scaled(10),
+    fontSize: scaled(10.5),
     letterSpacing: 1.4,
     color: colors.muted,
     marginBottom: spacing.sm,

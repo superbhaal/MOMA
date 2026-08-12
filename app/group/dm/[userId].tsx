@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
   headerMeta: {
     fontFamily: 'DMSans-Medium',
-    fontSize: scaled(7.5),
+    fontSize: scaled(10.5),
     letterSpacing: 1.6,
     marginTop: 1,
   },

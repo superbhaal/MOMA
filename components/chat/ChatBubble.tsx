@@ -5,6 +5,7 @@ import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
+import { formatTime } from '@/lib/time';
 import type { Message, PlaceAttachment, User } from '@/types';
 
 interface ChatBubbleProps {
@@ -67,7 +68,7 @@ export function ChatBubble({ message, isMine, sender, showAvatar = true, onLongP
 }
 
 function timeShort(iso: string): string {
-  return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  return formatTime(iso);
 }
 
 const styles = StyleSheet.create({
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
   dot: { width: 7, height: 7, borderRadius: 4 },
   senderName: {
     fontFamily: fonts.bodyMed,
-    fontSize: scaled(8),
+    fontSize: scaled(10.5),
     letterSpacing: 1.2,
   },
   body: { flex: 1 },
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
   },
   time: {
     fontFamily: fonts.body,
-    fontSize: scaled(8.5),
+    fontSize: scaled(10.5),
     letterSpacing: 0.5,
     marginTop: 3,
   },

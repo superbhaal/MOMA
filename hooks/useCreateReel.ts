@@ -15,7 +15,8 @@ export interface ReelMeta {
 export interface NewCommunityReel {
   platform: 'instagram' | 'tiktok';
   externalUrl: string;
-  creatorLabel: string;
+  /** Optional — the card falls back to the poster's note, then the platform. */
+  creatorLabel: string | null;
   note: string | null;
   babyStages: string[];
   title: string | null;

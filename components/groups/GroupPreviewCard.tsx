@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   },
   mentorPillText: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: scaled(8.5),
+    fontSize: scaled(10.5),
     letterSpacing: 1,
   },
   detail: {

@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   groupLabel: {
     fontFamily: fonts.bodyMed,
-    fontSize: scaled(10),
+    fontSize: scaled(10.5),
     letterSpacing: 2.4,
     color: colors.cobalt,
     marginBottom: spacing.sm,

@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, type Region } from 'react-native-maps';
 import { colors } from '@/constants/colors';
+import { categoryColor, categoryLabel } from '@/constants/discover';
 import type { LovedSpotWithPoster } from '@/types';
 
 interface ExploreMapProps {
@@ -64,9 +65,12 @@ export function ExploreMap({ spots, me, currentUserId, onSelectSpot }: ExploreMa
         <Marker
           key={s.id}
           coordinate={{ latitude: s.lat as number, longitude: s.lng as number }}
-          pinColor={s.poster_id === currentUserId ? colors.cobalt : colors.text}
+          // Colour says what it is; cobalt still overrides to say it's yours.
+          pinColor={
+            s.poster_id === currentUserId ? colors.cobalt : categoryColor(s.category)
+          }
           onPress={() => onSelectSpot(s.id)}
-          accessibilityLabel={s.name}
+          accessibilityLabel={`${s.name} — ${categoryLabel(s.category)}`}
           tracksViewChanges={false}
         />
       ))}

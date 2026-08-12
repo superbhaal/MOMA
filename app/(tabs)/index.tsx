@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontFamily: 'DMSans-Medium',
-    fontSize: scaled(9),
+    fontSize: scaled(10.5),
     letterSpacing: 3,
     textAlign: 'center',
     marginBottom: 4,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontFamily: 'DMSans-Medium',
-    fontSize: scaled(8.5),
+    fontSize: scaled(10.5),
     letterSpacing: 2.4,
     textAlign: 'center',
     paddingTop: 12,
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   },
   previewEyebrow: {
     fontFamily: 'DMSans-SemiBold',
-    fontSize: scaled(10),
+    fontSize: scaled(10.5),
     letterSpacing: 1.6,
   },
   weekPillText: {

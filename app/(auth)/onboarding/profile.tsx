@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
   avatarLabel: {
     marginTop: spacing.sm,
     letterSpacing: 2,
-    fontSize: scaled(10),
+    fontSize: scaled(10.5),
   },
   nameRow: {
     flexDirection: 'row',

@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Typography } from '@/components/ui/Typography';
 import { DiscoverHeader } from '@/components/discover/DiscoverHeader';
 import { DiscoverSubTabs, type DiscoverTab } from '@/components/discover/DiscoverSubTabs';
 import { ExploreModeTabs } from '@/components/discover/ExploreModeTabs';
@@ -11,10 +10,8 @@ import { ExploreMap } from '@/components/discover/ExploreMap';
 import { ExploreSheet } from '@/components/discover/ExploreSheet';
 import { ComposeFab } from '@/components/discover/ComposeFab';
 import { colors } from '@/constants/colors';
-import { fonts } from '@/constants/typography';
-import { radius, spacing } from '@/constants/spacing';
+import { spacing } from '@/constants/spacing';
 import { categoryLabel } from '@/constants/discover';
-import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useDiscoverRole } from '@/hooks/useDiscoverRole';
 import { useLovedSpots } from '@/hooks/useLovedSpots';
@@ -105,15 +102,6 @@ export default function DiscoverExplore() {
         onSearchChange={setQuery}
         topInset={insets.top}
         illustration="table"
-        titleRight={
-          canPost ? (
-            <View style={styles.badge}>
-              <Typography style={styles.badgeText} color={colors.soleil}>
-                Contributor
-              </Typography>
-            </View>
-          ) : undefined
-        }
       />
       <DiscoverSubTabs active="explore" onChange={onSubTab} />
       <ExploreModeTabs active={mode} onChange={setMode} />
@@ -130,10 +118,10 @@ export default function DiscoverExplore() {
           onSelectSpot={(id) => router.push({ pathname: '/discover/place/[id]', params: { id } })}
         />
 
-        {/* Sits above the sheet's resting edge rather than the screen's, so it
-            never hides the first spot in the list. */}
+        {/* Sits just above the sheet's resting edge rather than the screen's,
+            so it never hides the first spot in the list. */}
         <ComposeFab
-          bottom={collapsedHeight + spacing.lg}
+          bottom={collapsedHeight + spacing.sm}
           accessibilityLabel="Add a place or a person"
           onPress={() => router.push('/discover/place/new')}
         />
@@ -167,11 +155,4 @@ export default function DiscoverExplore() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   canvas: { flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: '#EAF0E6' },
-  badge: {
-    backgroundColor: colors.soleilInkStrong,
-    borderRadius: radius.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  badgeText: { fontFamily: fonts.bodySemi, fontSize: scaled(11) },
 });

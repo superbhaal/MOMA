@@ -96,19 +96,23 @@ export function ReelCard({ reel }: ReelCardProps) {
           {reel.title}
         </Typography>
 
-        <View style={styles.creatorRow}>
-          <Avatar name={reel.creatorName} size={30} ringColor={colors.cobalt} ringWidth={1.5} />
-          <Typography style={styles.creatorName} color={colors.text}>
-            {reel.creatorName}
-          </Typography>
-          {reel.credential ? (
-            <View style={styles.credential}>
-              <Typography style={styles.credentialText} color={colors.cobalt}>
-                {reel.credential.toUpperCase()}
-              </Typography>
-            </View>
-          ) : null}
-        </View>
+        {/* Hidden entirely when nobody was named — an avatar with no name reads
+            as a loading state that never finishes. */}
+        {reel.creatorName ? (
+          <View style={styles.creatorRow}>
+            <Avatar name={reel.creatorName} size={30} ringColor={colors.cobalt} ringWidth={1.5} />
+            <Typography style={styles.creatorName} color={colors.text}>
+              {reel.creatorName}
+            </Typography>
+            {reel.credential ? (
+              <View style={styles.credential}>
+                <Typography style={styles.credentialText} color={colors.cobalt}>
+                  {reel.credential.toUpperCase()}
+                </Typography>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
 
         {/* A community reel is vouched for by a mom, not by an editor. Her
             line is why anyone taps it, so it sits under the creator the way a

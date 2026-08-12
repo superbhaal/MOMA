@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   },
   meta: {
     fontFamily: fonts.bodyMed,
-    fontSize: scaled(8.5),
+    fontSize: scaled(10.5),
     letterSpacing: 2.4,
     marginTop: 5,
   },
