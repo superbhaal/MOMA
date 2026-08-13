@@ -253,7 +253,10 @@ export function ComposerPhoto({
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [4, 3],
+      // iOS ignores this and always crops square (it says so in the package's
+      // own types), so the well is square to match rather than promising a
+      // frame the picker won't honour. Android follows the ratio.
+      aspect: [1, 1],
       quality: 0.85,
     });
     if (result.canceled || !result.assets?.length) return;
@@ -402,12 +405,15 @@ const styles = StyleSheet.create({
   chipLabel: textStyles.control,
   chipLabelStrong: textStyles.controlStrong,
 
-  // A rectangle with square corners — which is what "make it square" meant. It
-  // used to be a pill (radius 90), and I first read the note as 1:1 and built
-  // an actual square; the shape was the point, not the ratio.
+  // Square, and small. iOS's crop rectangle is always a square whatever we ask
+  // for, so a rectangular well would promise a framing the picker can't give —
+  // we match it instead. Kept to 48% of the column so "square" doesn't mean a
+  // 335pt wall down the middle of the step.
   dropzone: {
-    width: '100%',
-    height: 170,
+    width: '48%',
+    maxWidth: 190,
+    alignSelf: 'center',
+    aspectRatio: 1,
     borderRadius: radius.xl,
     borderWidth: 1.5,
     borderColor: colors.cobalt,
@@ -421,7 +427,13 @@ const styles = StyleSheet.create({
   dropzoneHint: textStyles.cardBody,
   skip: { alignItems: 'center', paddingVertical: spacing.lg },
   skipText: { ...textStyles.control, textDecorationLine: 'underline' },
-  photo: { width: '100%', height: 200, borderRadius: radius.xl },
+  photo: {
+    width: '48%',
+    maxWidth: 190,
+    alignSelf: 'center',
+    aspectRatio: 1,
+    borderRadius: radius.xl,
+  },
   photoActions: {
     flexDirection: 'row',
     justifyContent: 'center',

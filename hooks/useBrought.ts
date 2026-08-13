@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { create } from 'zustand';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import type { BroughtItem, BroughtKind } from '@/types';
@@ -11,30 +12,52 @@ import type { BroughtItem, BroughtKind } from '@/types';
  * composer warns before it happens — the old one really is gone.
  */
 
-/** Your own — writable. */
-export function useMyBrought() {
-  const { user } = useAuth();
-  const [item, setItem] = useState<BroughtItem | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+/**
+ * Your own — writable.
+ *
+ * One shared store, not per-hook state. Me and the composer each mount this,
+ * and Me never unmounts: with local state the composer saved, refreshed its own
+ * copy, popped back, and Me went on showing the null it had read at launch —
+ * which reads as "saving doesn't work", and was reported as exactly that. The
+ * same mistake `useSavedTips` carries a comment about, made again.
+ */
+interface MyBroughtState {
+  item: BroughtItem | null;
+  loading: boolean;
+  /** Whose item is in `item` — refetch when the account changes. */
+  userId: string | null;
+  setItem: (item: BroughtItem | null) => void;
+  load: (userId: string) => Promise<void>;
+}
 
-  const refresh = useCallback(async () => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+const useStore = create<MyBroughtState>((set) => ({
+  item: null,
+  loading: true,
+  userId: null,
+  setItem: (item) => set({ item }),
+  load: async (userId) => {
+    set({ loading: true });
     const { data } = await supabase
       .from('brought_items')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle();
-    setItem((data as BroughtItem) ?? null);
-    setLoading(false);
-  }, [user?.id]);
+    set({ item: (data as BroughtItem) ?? null, loading: false, userId });
+  },
+}));
+
+export function useMyBrought() {
+  const { user } = useAuth();
+  const { item, loading, userId, setItem, load } = useStore();
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    if (user && user.id !== userId) load(user.id);
+  }, [user?.id, userId, load]);
+
+  const refresh = useCallback(async () => {
+    if (user) await load(user.id);
+  }, [user?.id, load]);
 
   async function save(input: {
     kind: BroughtKind;
@@ -43,19 +66,25 @@ export function useMyBrought() {
   }): Promise<{ error: string | null }> {
     if (!user) return { error: 'You need to be signed in.' };
     setSaving(true);
-    const { error } = await supabase.from('brought_items').upsert(
-      {
-        user_id: user.id,
-        kind: input.kind,
-        payload: input.payload,
-        photo_url: input.photoUrl,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id' },
-    );
+    const { data, error } = await supabase
+      .from('brought_items')
+      .upsert(
+        {
+          user_id: user.id,
+          kind: input.kind,
+          payload: input.payload,
+          photo_url: input.photoUrl,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id' },
+      )
+      .select('*')
+      .maybeSingle();
     setSaving(false);
     if (error) return { error: 'Couldn’t put it on the table — please try again.' };
-    await refresh();
+    // Straight into the shared store: every screen showing it is now right,
+    // without a second read.
+    setItem((data as BroughtItem) ?? null);
     return { error: null };
   }
 
