@@ -23,7 +23,6 @@ export interface RecurringAvailability {
 export type BabyAtMeetups = 'always' | 'sometimes_without' | 'either';
 export type GroupType = 'neighbourhood' | 'hobby' | 'class' | 'working_moms';
 export type GroupStatus = 'active' | 'archived';
-export type MemberRole = 'member' | 'mentor';
 export type ProposalState = 'open' | 'decided' | 'expired';
 export type Vote = 'going' | 'maybe' | 'cant';
 export type AvailabilityBlock = 'morning' | 'afternoon' | 'evening';
@@ -120,7 +119,6 @@ export interface User {
   kid_count: KidCount | null;
   recurring_availability: RecurringAvailability | null;
   is_first_baby: boolean | null;
-  is_mentor_eligible: boolean;
   primary_language: string | null;
   secondary_languages: string[] | null;
 
@@ -165,7 +163,6 @@ export interface GroupMember {
   id: string;
   group_id: string;
   user_id: string;
-  role: MemberRole;
   joined_at: string;
 }
 

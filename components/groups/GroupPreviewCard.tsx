@@ -19,7 +19,7 @@ interface GroupPreviewCardProps {
 
 /**
  * Cream member card on the group-preview screen. Matches `.preview-member` in
- * design/moma-enhanced.html: avatar with ring + name (+ Mentor pill) + muted
+ * design/moma-enhanced.html: avatar with ring + name + muted
  * detail line + italic cobalt match-note.
  */
 export function GroupPreviewCard({ member, matchNote, brought }: GroupPreviewCardProps) {
@@ -37,13 +37,6 @@ export function GroupPreviewCard({ member, matchNote, brought }: GroupPreviewCar
           <Typography style={styles.name} color={colors.text}>
             {u.display_name}
           </Typography>
-          {member.role === 'mentor' ? (
-            <View style={styles.mentorPill}>
-              <Typography style={styles.mentorPillText} color="#2A1A00">
-                MENTOR
-              </Typography>
-            </View>
-          ) : null}
         </View>
         <Typography style={styles.detail} color={colors.muted}>
           {babyAgeShort(u.baby_dob, u.life_stage)}
@@ -102,17 +95,6 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans-SemiBold',
     fontSize: scaled(15),
     lineHeight: scaled(20),
-  },
-  mentorPill: {
-    backgroundColor: colors.soleil,
-    borderRadius: radius.pill,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  mentorPillText: {
-    fontFamily: 'DMSans-SemiBold',
-    fontSize: scaled(10.5),
-    letterSpacing: 1,
   },
   detail: {
     fontSize: scaled(11),

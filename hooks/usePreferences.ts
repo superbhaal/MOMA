@@ -26,7 +26,6 @@ export interface PreferencesPatch {
   bio?: string | null;
   interests?: string[] | null;
   is_first_baby?: boolean;
-  is_mentor_eligible?: boolean;
   baby_dob?: string;
   life_stage?: string;
   profile_color?: string;

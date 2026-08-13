@@ -58,7 +58,6 @@ interface UserRow {
   life_stage: string | null;
   kid_count: string | null;
   recurring_availability: RecurringAvailability | null;
-  is_mentor_eligible: boolean;
   primary_language: string | null;
   secondary_languages: string[] | null;
   pref_age_window_weeks: number;

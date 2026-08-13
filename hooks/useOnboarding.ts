@@ -133,7 +133,6 @@ export interface UserUpsertPatch {
 
   life_stage?: LifeStage; // derived from baby_dob
   is_first_baby?: boolean;
-  is_mentor_eligible?: boolean;
   primary_language?: string;
   secondary_languages?: string[];
   profile_color?: string;

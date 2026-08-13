@@ -31,7 +31,7 @@ const CORS = {
 const EDITABLE = new Set([
   'display_name', 'last_name', 'age', 'city', 'neighbourhood', 'address',
   'latitude', 'longitude',
-  'baby_dob', 'life_stage', 'kid_count', 'is_first_baby', 'is_mentor_eligible',
+  'baby_dob', 'life_stage', 'kid_count', 'is_first_baby',
   'primary_language', 'secondary_languages', 'profile_color', 'bio',
   'instagram_handle', 'interests', 'pref_age_window_weeks', 'pref_distance_minutes',
   'pref_baby_at_meetups', 'pref_meetup_formats', 'pref_free_blocks', 'paused_until',
@@ -549,9 +549,6 @@ async function simGroup(body: any) {
       const id = created.user!.id;
       madeIds.push(id);
 
-      // One mentor in the group when the target is a first-time mom.
-      const mentor = i === 0 && target.is_first_baby !== false;
-
       const { error: uErr } = await admin.from('users').insert({
         id,
         email,
@@ -564,8 +561,7 @@ async function simGroup(body: any) {
         baby_dob: target.baby_dob ? shiftDays(target.baby_dob, rand(29) - 14) : null,
         life_stage: target.life_stage,
         kid_count: target.kid_count,
-        is_first_baby: mentor ? false : target.is_first_baby,
-        is_mentor_eligible: mentor,
+        is_first_baby: target.is_first_baby,
         primary_language: target.primary_language,
         secondary_languages: target.secondary_languages,
         profile_color: colors[i % colors.length],

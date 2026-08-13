@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
-import { Pill } from '@/components/ui/Pill';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
@@ -35,9 +34,6 @@ export function MemberRow({ member, isSelf, onPress, onMessage }: MemberRowProps
               </Typography>
             ) : null}
           </Typography>
-          {member.role === 'mentor' ? (
-            <Pill label="MENTOR" tone="soleil" active bg={colors.soleil} />
-          ) : null}
         </View>
         <Typography variant="bodyM" color={colors.muted} style={{ marginTop: 2 }}>
           Baby: {babyAgeShort(u.baby_dob)}

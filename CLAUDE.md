@@ -46,7 +46,7 @@ moma/
 │   │       ├── q0.tsx                # Life stage gate (expecting / newborn / growing / veteran)
 │   │       ├── q1.tsx                # Scene tags — branched on Q0 (multi-select)
 │   │       ├── q2.tsx                # Free-window (mornings / weekends / evenings / unpredictable / all)
-│   │       ├── q3.tsx                # First baby? (sets is_mentor_eligible)
+│   │       ├── q3.tsx                # First baby?
 │   │       ├── q4.tsx                # Languages + profile colour
 │   │       ├── final.tsx             # "We're looking at N moms in your area" → Home
 │   │       └── resume.tsx            # Resume a partially completed quiz
@@ -199,7 +199,6 @@ profile_color            text                    -- hex from Q4 colour swatch
 kid_count                text                    -- Q0 answer (e.g. one | two | three_plus)
 life_stage               text                    -- expecting | newborn | growing | veteran (derived from baby_dob)
 is_first_baby            boolean
-is_mentor_eligible       boolean DEFAULT false   -- derived: NOT is_first_baby
 primary_language         text
 secondary_languages      text[]
 recurring_availability   jsonb                   -- weekly free-window selection captured during onboarding
@@ -252,7 +251,6 @@ last_active_at  timestamp DEFAULT now()
 id              uuid PRIMARY KEY
 group_id        uuid REFERENCES groups(id)
 user_id         uuid REFERENCES users(id)
-role            text DEFAULT 'member'   -- member | mentor
 joined_at       timestamp DEFAULT now()
 UNIQUE (group_id, user_id)
 -- Hard cap: a user may belong to at most 2 groups. Enforced via trigger.
@@ -371,7 +369,7 @@ responded_at    timestamp
 
 **2. Onboarding (stage-aware, auto-saved)**
 - Sign-up profile (name, age, neighbourhood, optional photo / Instagram / bio / interests).
-- 5-step quiz: **Q0** life stage → **Q1** scene tags (options branched on Q0) → **Q2** free-window → **Q3** first baby? (sets `is_mentor_eligible`) → **Q4** languages + profile colour.
+- 5-step quiz: **Q0** life stage → **Q1** scene tags (options branched on Q0) → **Q2** free-window → **Q3** first baby? → **Q4** languages + profile colour.
 - Every answer auto-saves; closing the app mid-quiz lands the user on `resume.tsx` (which names the next question, e.g. "Next up: Languages").
 - After 14 days of inactivity, saved state clears.
 - On completion: write/update `users` row + insert `matching_queue` row.
@@ -379,7 +377,7 @@ responded_at    timestamp
 
 **3. Match-Ready notification + Group Preview**
 - When the matcher creates a candidate group, set `matching_queue.status = 'previewing'` and send push.
-- Group Preview screen shows 4 first names, avatars (no last names), baby age, neighbourhood, mentor tag, and a per-member match-note ("Same neighbourhood, same week").
+- Group Preview screen shows 4 first names, avatars (no last names), baby age, neighbourhood, and a per-member match-note ("Same neighbourhood, same week").
 - Two actions: **Join this group** → creates `group_members` rows; **Find me another** → opens a one-question reason sheet, writes to `match_decline_reasons`, returns to queue.
 - Acceptance: declining triggers a re-run within 24h; joining puts the user on Home with the new group visible.
 
@@ -390,7 +388,7 @@ responded_at    timestamp
 - Acceptance: realtime updates on unread + pulse; cap is enforced server-side, not just hidden in UI.
 
 **5. Group Detail**
-- Members list (avatar with profile-colour ring, name, baby age, neighbourhood, Mentor tag in soleil) + per-member Message button.
+- Members list (avatar with profile-colour ring, name, baby age, neighbourhood) + per-member Message button.
 - Blush meetup banner — pulls from the active `meetup_proposal` for the group. Shows date, place, "3 of 4 going". RSVP button toggles vote between `going`/`(unset)`. Tapping "Going" twice opens the undo sheet (Just remove me / Suggest a time).
 - Action sheet (•••): Mute notifications / Report an issue / Leave group.
 - Acceptance: vote writes to `proposal_votes`; Message opens DM thread scoped to this group.
@@ -426,7 +424,7 @@ responded_at    timestamp
 - Scheduled nightly via pg_cron or Edge Function trigger. Skips users with non-null `paused_until` in the future.
 - Hard filters: `pref_age_window_weeks`, `pref_distance_minutes`, `life_stage` compatibility.
 - Soft weighting (configurable): birth-week delta + distance + language overlap + scene-tag overlap + free-window overlap. Sum must clear a threshold.
-- Forms candidate groups of 3–5; assigns `is_mentor_eligible` users one-per-group when available; sets `matching_queue.status = 'previewing'`; sends push.
+- Forms candidate groups of 3–5; sets `matching_queue.status = 'previewing'`; sends push.
 - Acceptance: deterministic on a fixed seed; respects all hard filters; never produces > 5 or < 3 member groups.
 
 ### Priority 2 — Should Have
@@ -555,7 +553,7 @@ export const radius  = { sm:10, md:14, lg:18, xl:24, pill:100, full:9999 }
 - **Cards:** cream background, radius `lg` or `xl`.
 - **Cobalt:** structural — nav active dot, RSVP "Going", auth screens, primary CTAs, source pills. Onboarding quiz uses a full cobalt background.
 - **Blush:** meetup blocks only (group cards, group detail banner, Me next-meetup card). Tinted with the user's profile colour.
-- **Soleil:** Learn tab header + mentor tag.
+- **Soleil:** Learn tab header.
 - **Fuchsia:** week/baby-age pills, unread pip, primary identity accent.
 - **Lime / Pool / Lavender / Orange:** filter / category signals (lime = active stage chip, pool = active filter).
 - **Profile colours:** chosen at Q4. Used as the avatar **ring** (1.5–2 px) and as a tint on the user's Me background accents.
@@ -592,7 +590,6 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=[anon key]
 **Triggers:**
 - `enforce_group_cap`: BEFORE INSERT on `group_members`, raise if the user already has 2 active group memberships.
 - `update_last_active_on_message`: AFTER INSERT on `messages` where `group_id IS NOT NULL`, set `groups.last_active_at = now()`.
-- `set_mentor_role_on_join`: AFTER INSERT on `group_members`, if `users.is_mentor_eligible` and group has no mentor yet, set `role = 'mentor'`.
 
 **Realtime channels:**
 - `group:{groupId}` — group messages + proposal/vote changes.
@@ -752,7 +749,7 @@ db: replace meetups + meetup_rsvps with meetup_proposals + proposal_votes
 ## Immediate Next Steps for Claude Code
 
 1. **Migrate the schema (002_align_to_design.sql).** ✅ *Done — the live schema matches the Data Models above.*
-   Dropped `meetups`, `meetup_rsvps`, `recco_posts`, `contributors`, `saved_posts`. Added `meetup_proposals`, `proposal_votes`, `availability_slots`, `saved_tips`, `match_decline_reasons`, `inactive_group_prompts`. Extended `users` with `email`, `last_name`, `age`, `neighbourhood`, `address`, `life_stage`, `kid_count`, `is_first_baby`, `is_mentor_eligible`, `primary_language`, `secondary_languages`, `recurring_availability`, the `pref_*` columns, the `notif_*` columns, `paused_until`, `expo_push_token`, `updated_at`. (Note: `scene_tags` / `free_window` were never migrated — see the Data Models note.) Triggers + RLS policies in place.
+   Dropped `meetups`, `meetup_rsvps`, `recco_posts`, `contributors`, `saved_posts`. Added `meetup_proposals`, `proposal_votes`, `availability_slots`, `saved_tips`, `match_decline_reasons`, `inactive_group_prompts`. Extended `users` with `email`, `last_name`, `age`, `neighbourhood`, `address`, `life_stage`, `kid_count`, `is_first_baby`, `primary_language`, `secondary_languages`, `recurring_availability`, the `pref_*` columns, the `notif_*` columns, `paused_until`, `expo_push_token`, `updated_at`. (Note: `scene_tags` / `free_window` were never migrated — see the Data Models note.) Triggers + RLS policies in place.
 
 2. **Rewire onboarding.**
    Replace the 6-step flow under `app/(auth)/onboarding/` with the 5-step stage-aware quiz (q0…q4 + final + resume). Auto-save on every answer. Branch Q1 scene options on Q0 life_stage. Wire SSO + email/password.

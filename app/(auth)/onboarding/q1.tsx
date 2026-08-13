@@ -26,7 +26,6 @@ export default function Q1FirstBabyScreen() {
     if (!skip && isFirst !== null) {
       const { error: saveError } = await saveProgress({
         is_first_baby: isFirst,
-        is_mentor_eligible: !isFirst,
       });
       setSaving(false);
       if (saveError) {

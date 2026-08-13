@@ -260,21 +260,13 @@ function composeHeadlineSub(others: GroupMemberWithUser[], me: User | null): str
   const minW = Math.floor(Math.min(...weeks));
   const maxW = Math.ceil(Math.max(...weeks));
   const range = minW === maxW ? `week ${minW}` : `weeks ${minW}–${maxW}`;
-  const hasMentor = others.some((m) => m.role === 'mentor');
-  return `All a 10-minute walk away. All at ${range} with you.${
-    hasMentor ? ' One is a bit more experienced.' : ''
-  }`;
+  return `All a 10-minute walk away. All at ${range} with you.`;
 }
 
 /** Per-member match-note. Cobalt italic line under each member. */
 function composeMatchNote(m: GroupMemberWithUser, me: User | null): string | undefined {
   if (!me) return undefined;
   const them = m.user;
-
-  // Mentor anchor wins the spotlight.
-  if (m.role === 'mentor') {
-    return 'Mentor anchor — has been through it before.';
-  }
 
   // Same neighbourhood + same baby-age window
   const sameNeighbourhood =

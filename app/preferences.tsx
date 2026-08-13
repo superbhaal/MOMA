@@ -102,7 +102,6 @@ export default function PreferencesScreen() {
     const [primary, ...secondary] = languages;
     await update({
       is_first_baby: isFirst ?? undefined,
-      ...(isFirst !== null && { is_mentor_eligible: !isFirst }),
       ...(babyDob && { baby_dob: babyDob, life_stage: lifeStageFromDob(babyDob) }),
       ...(primary && { primary_language: primary }),
       secondary_languages: secondary.slice(0, MAX_SECONDARY),
