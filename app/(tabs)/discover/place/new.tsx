@@ -4,6 +4,8 @@ import {
   Alert,
   Image,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -70,8 +72,17 @@ const COPY: Record<LovedKind, Copy[]> = {
     { title: 'Look right?', sub: 'This is how it’ll appear on the map.' },
   ],
   person: [
-    { title: 'Who is it?', sub: 'A professional you’d send your closest friend to.' },
-    { title: 'Right person?', sub: 'We’ll list the practice address so other moms can reach them.' },
+    // Address first, name second — the client's call, and she's right about
+    // why: you find a practitioner by their practice. Asking "who is it?" and
+    // then demanding an address inverts how anyone actually looks someone up.
+    {
+      title: 'Where do they practise?',
+      sub: 'Search the practice — a professional you’d send your closest friend to.',
+    },
+    {
+      title: 'Who is it?',
+      sub: 'We’ll list this address so other moms can reach them.',
+    },
     { title: 'Add a photo', sub: 'One picture that captures it best.' },
     { title: 'Who do they help?', sub: 'Pick one. We’ll use it to filter the map.' },
     {
@@ -152,7 +163,8 @@ export default function PlaceComposer() {
       case 0:
         return !!draft.location?.name;
       case 1:
-        return true;
+        // A person needs a name typed; a place already has the one Google gave.
+        return kind === 'place' || (draft.location?.name?.trim().length ?? 0) > 1;
       case 2:
         return true; // the photo is optional — "Skip for now" is a real answer
       case 3:
@@ -162,7 +174,7 @@ export default function PlaceComposer() {
       default:
         return true;
     }
-  }, [step, draft]);
+  }, [step, draft, kind]);
 
   /** Switching tabs changes what the search means and what the categories are,
    *  so anything downstream of the choice has to go with it. */
@@ -218,7 +230,14 @@ export default function PlaceComposer() {
   const busy = submitting || uploading;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + spacing.md }]}>
+    // The contact fields sit at the very bottom of the note step, and until now
+    // nothing lifted the screen: the keyboard opened straight over them and she
+    // typed blind. Every earlier field happened to sit high enough to get away
+    // with it.
+    <KeyboardAvoidingView
+      style={[styles.container, { paddingTop: insets.top + spacing.md }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <Stack.Screen options={{ headerShown: false, presentation: 'modal' }} />
 
       <View style={styles.chrome}>
@@ -270,6 +289,10 @@ export default function PlaceComposer() {
             city={user?.city ?? null}
             selected={draft.location}
             onSelect={(location) => {
+              // A person's search matched their practice, so the result's name
+              // is the clinic's. Blank it: step 2 asks for hers, and starting
+              // from "Kindergeneeskunde Jordaan" invites her to just hit Next.
+              if (kind === 'person') location = { ...location!, name: '' };
               // Picking IS the answer to "where is it?", so it moves on to the
               // confirmation rather than quietly enabling a button at the far
               // end of the screen. "Add manually" looked broken for exactly
@@ -281,7 +304,15 @@ export default function PlaceComposer() {
           />
         )}
 
-        {step === 1 && <StepConfirm location={draft.location} />}
+        {step === 1 && (
+          <StepConfirm
+            location={draft.location}
+            kind={kind}
+            onName={(name) =>
+              patch({ location: draft.location ? { ...draft.location, name } : null })
+            }
+          />
+        )}
 
         {step === 2 && (
           <StepPhoto
@@ -349,7 +380,7 @@ export default function PlaceComposer() {
           ) : null}
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -427,41 +458,15 @@ function StepFind({
       place_id: p.place_id ?? null,
     });
 
-  // Manual entry used to save the search box verbatim: a name, no address, and
-  // therefore no coordinates — the place existed in the list and nowhere on the
-  // map. It now asks for both, and geocodes the address so it gets a pin like
-  // any other. Explore is a map; a place without a point on it is half there.
-  const [manualOpen, setManualOpen] = useState(false);
-  const [manualName, setManualName] = useState('');
-  const [manualAddress, setManualAddress] = useState('');
-  const [locating, setLocating] = useState(false);
-
-  const manualReady = manualName.trim().length >= 2 && manualAddress.trim().length >= 4;
-
-  const saveManual = async () => {
-    if (!manualReady) return;
-    setLocating(true);
-    // Reuse the places search to turn the address into coordinates. If Google
-    // doesn't recognise it we still save what she typed — losing her entry to
-    // punish a bad postcode would be the worse trade.
-    const [hit] = await searchPlaces(manualAddress.trim(), city);
-    setLocating(false);
-    onSelect({
-      name: manualName.trim(),
-      address: hit?.address ?? manualAddress.trim(),
-      lat: hit?.lat ?? null,
-      lng: hit?.lng ?? null,
-      place_id: null,
-    });
-  };
-
   return (
     <View>
       <TextInput
         value={query}
         onChangeText={setQuery}
         placeholder={
-          kind === 'place' ? `Search a place${city ? ` in ${city}` : ''}…` : 'Search by name…'
+          kind === 'place'
+            ? `Search a place${city ? ` in ${city}` : ''}…`
+            : `Search the practice or clinic${city ? ` in ${city}` : ''}…`
         }
         placeholderTextColor={colors.muted}
         style={styles.search}
@@ -513,56 +518,29 @@ function StepFind({
         );
       })}
 
-      {!manualOpen ? (
-        <Pressable
-          onPress={() => {
-            setManualOpen(true);
-            setManualName(query.trim());
-          }}
-          style={styles.manual}
-          accessibilityRole="button"
-        >
-          <Typography style={styles.manualText} color={colors.cobalt}>
-            + Can’t find {kind === 'place' ? 'it' : 'them'}? Add manually
-          </Typography>
-        </Pressable>
-      ) : (
-        <View style={styles.manualForm}>
-          <ComposerField label={kind === 'place' ? 'Name' : 'Their name'} hint="required">
-            <ComposerInput
-              value={manualName}
-              onChangeText={setManualName}
-              placeholder={kind === 'place' ? 'Café Lindengracht' : 'Dr. Nora van Dijk'}
-              autoFocus
-            />
-          </ComposerField>
-
-          <ComposerField label="Address" hint="required">
-            <ComposerInput
-              value={manualAddress}
-              onChangeText={setManualAddress}
-              placeholder={`Street and number${city ? `, ${city}` : ''}`}
-            />
-          </ComposerField>
-          <Typography style={styles.manualHint} color={colors.muted}>
-            We need the address to drop a pin — without one it won’t show on the map.
-          </Typography>
-
-          <ComposerCta
-            title="Use this"
-            onPress={saveManual}
-            disabled={!manualReady}
-            busy={locating}
-            size="md"
-          />
-        </View>
-      )}
+      {/* No manual entry. She asked for a proper form on Monday, got one on
+          Tuesday, and asked for it gone on Wednesday — she'd changed her mind
+          about hand-added places, not about the form. The consequence to know:
+          a place Google doesn't know can no longer be posted at all. */}
+      {query.trim().length >= 2 && !searching && results.length === 0 ? (
+        <Typography style={styles.noResults} color={colors.muted}>
+          Nothing found. Try the street, or the name as it appears on the door.
+        </Typography>
+      ) : null}
     </View>
   );
 }
 
 // ── Step 2 · confirm ─────────────────────────────────────────────
-function StepConfirm({ location }: { location: ComposerDraft['location'] }) {
+function StepConfirm({
+  location,
+  kind,
+  onName,
+}: {
+  location: ComposerDraft['location'];
+  kind: LovedKind;
+  onName: (name: string) => void;
+}) {
   if (!location) return null;
   const map = staticMapUri({ lat: location.lat, lng: location.lng });
   return (
@@ -581,13 +559,30 @@ function StepConfirm({ location }: { location: ComposerDraft['location'] }) {
           </View>
         )}
       </View>
-      <Typography style={styles.confirmName} color={colors.text}>
-        {location.name}
-      </Typography>
+      {/* For a place, the search result IS the name and there's nothing to
+          type. For a person, the search found their practice — the address —
+          and the name is the thing we still don't know. */}
+      {kind === 'place' ? (
+        <Typography style={styles.confirmName} color={colors.text}>
+          {location.name}
+        </Typography>
+      ) : null}
       {location.address ? (
         <Typography style={styles.confirmAddress} color={colors.mutedStrong}>
-          {location.address}
+          {kind === 'person' ? location.address : location.address}
         </Typography>
+      ) : null}
+
+      {kind === 'person' ? (
+        <View style={styles.personName}>
+          <ComposerField label="Their name" hint="required">
+            <ComposerInput
+              value={location.name}
+              onChangeText={onName}
+              placeholder="Dr. Nora van Dijk"
+            />
+          </ComposerField>
+        </View>
       ) : null}
     </View>
   );
@@ -845,19 +840,7 @@ const styles = StyleSheet.create({
   pinBadgePerson: { backgroundColor: colors.peche },
   suggestionName: textStyles.cardTitle,
   suggestionMeta: { ...textStyles.cardBody, marginTop: 1 },
-  manual: {
-    borderWidth: 1.5,
-    borderColor: colors.lineStrong,
-    borderStyle: 'dashed',
-    borderRadius: radius.pill,
-    padding: 14,
-    marginTop: spacing.lg,
-    alignItems: 'center',
-  },
-  manualText: textStyles.controlStrong,
-  manualForm: { marginTop: spacing.lg },
-  rule: { height: 1, backgroundColor: colors.line },
-  manualHint: { ...textStyles.cardBody, marginTop: spacing.md },
+  noResults: { ...textStyles.cardBody, textAlign: 'center', paddingVertical: spacing.xl },
 
   // confirm
   // A rectangle, not the pill the other frames use: an oval crops the four
@@ -877,6 +860,7 @@ const styles = StyleSheet.create({
   mapEmptyText: textStyles.cardBody,
   confirmName: { ...textStyles.cardTitle, textAlign: 'center', marginTop: spacing.lg },
   confirmAddress: { ...textStyles.cardBody, textAlign: 'center', marginTop: 2 },
+  personName: { marginTop: spacing.lg },
 
   // photo
 

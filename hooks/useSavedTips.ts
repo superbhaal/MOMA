@@ -54,7 +54,9 @@ export function useSavedTips() {
 
   const isSaved = (sanityDocId: string) => tips.some((t) => t.sanity_doc_id === sanityDocId);
 
-  const toggle = async (sanityDocId: string, docType: SavedDocType) => {
+  /** `title` is snapshotted at save time — see 030. Without it the shelf is a
+   *  list of types, which is what it had been since it shipped. */
+  const toggle = async (sanityDocId: string, docType: SavedDocType, title?: string) => {
     if (!user) return;
     const existing = tips.find((t) => t.sanity_doc_id === sanityDocId);
 
@@ -70,13 +72,14 @@ export function useSavedTips() {
           user_id: user.id,
           sanity_doc_id: sanityDocId,
           doc_type: docType,
+          title: title ?? null,
           saved_at: new Date().toISOString(),
         },
         ...cur,
       ]);
       const { data, error } = await supabase
         .from('saved_tips')
-        .insert({ user_id: user.id, sanity_doc_id: sanityDocId, doc_type: docType })
+        .insert({ user_id: user.id, sanity_doc_id: sanityDocId, doc_type: docType, title: title ?? null })
         .select('*')
         .maybeSingle();
       if (error || !data) refresh();

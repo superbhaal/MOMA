@@ -7,6 +7,8 @@ import { useSavedTips } from '@/hooks/useSavedTips';
 interface SaveHeartProps {
   docId: string;
   docType: SavedDocType;
+  /** Snapshotted onto the row so the shelf can name what she kept. */
+  title?: string;
   size?: number;
 }
 
@@ -14,14 +16,14 @@ interface SaveHeartProps {
  * Stroked heart that toggles a Learn/Watch bookmark. Saved → filled fuchsia.
  * stopPropagation so saving never opens the article/reel underneath.
  */
-export function SaveHeart({ docId, docType, size = 20 }: SaveHeartProps) {
+export function SaveHeart({ docId, docType, title, size = 20 }: SaveHeartProps) {
   const { isSaved, toggle } = useSavedTips();
   const saved = isSaved(docId);
   return (
     <Pressable
       onPress={(e) => {
         e.stopPropagation?.();
-        toggle(docId, docType);
+        toggle(docId, docType, title);
       }}
       hitSlop={12}
       style={styles.btn}

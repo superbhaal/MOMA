@@ -27,7 +27,7 @@ export function ReadCard({ article, onPress }: ReadCardProps) {
             READ · {article.readMinutes ?? 5} MIN
           </Typography>
         </View>
-        <SaveHeart docId={article._id} docType="read_article" />
+        <SaveHeart docId={article._id} docType="read_article" title={article.title} />
       </View>
 
       <Typography style={styles.title} color={colors.text}>

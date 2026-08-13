@@ -90,12 +90,28 @@ export function useProposals(groupId: string | undefined) {
           { proposal_id: proposalId, user_id: user.id, vote: choice },
           { onConflict: 'proposal_id,user_id' },
         );
+      // Same reasoning as unvote below: an upsert that changes an existing row
+      // is an UPDATE, and those are only echoed when the old row still passes
+      // RLS. Refreshing here costs one read and removes the whole class.
+      if (!e) await refresh();
       return { error: e };
     },
-    [user?.id],
+    [user?.id, refresh],
   );
 
-  /** Remove a vote (the "remove me" path on RSVP undo). */
+  /**
+   * Take your RSVP back.
+   *
+   * Refreshes locally rather than waiting for the realtime echo, because for a
+   * DELETE there is no echo: Supabase can't evaluate the row's RLS policy once
+   * the row is gone, so postgres_changes never delivers it. Voting worked and
+   * un-voting didn't, which is exactly what our tester reported — "just remove
+   * me doesn't work". The vote was leaving the table; only the screen never
+   * heard.
+   *
+   * Same lesson as the chat in July: never rely on realtime for your own
+   * action's result.
+   */
   const unvote = useCallback(
     async (proposalId: string) => {
       if (!user) return { error: { message: 'not authenticated' } };
@@ -104,9 +120,10 @@ export function useProposals(groupId: string | undefined) {
         .delete()
         .eq('proposal_id', proposalId)
         .eq('user_id', user.id);
+      if (!e) await refresh();
       return { error: e };
     },
-    [user?.id],
+    [user?.id, refresh],
   );
 
   /**

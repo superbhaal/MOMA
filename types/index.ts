@@ -332,6 +332,8 @@ export interface SavedTip {
   user_id: string;
   sanity_doc_id: string;
   doc_type: SavedDocType;
+  /** Snapshot of the title at save time (030) — null on rows saved before it. */
+  title: string | null;
   saved_at: string;
 }
 

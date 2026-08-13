@@ -23,6 +23,7 @@ import { babyMetaLine } from '@/lib/babyAge';
 import { formatTime } from '@/lib/time';
 import { shareMoma } from '@/lib/share';
 import { openInstagramProfile } from '@/lib/instagram';
+import { openInGoogleMaps } from '@/lib/maps';
 import { BroughtCard } from '@/components/brought/BroughtCard';
 import { useMyBrought } from '@/hooks/useBrought';
 import type { SavedDocType } from '@/types';
@@ -195,7 +196,28 @@ export default function MeScreen() {
               </Typography>
               <Typography style={[styles.meetupSub, meetupDecided && { color: colors.muted }]}>
                 {formatTime(nextMeetup.proposal.scheduled_at).toLowerCase()}
-                {nextMeetup.proposal.location_name ? ` · ${nextMeetup.proposal.location_name}` : ''}
+                {nextMeetup.proposal.location_name ? ' · ' : ''}
+                {/* The place opens in Maps here too. It always did on Home and
+                    in the chat; on Me it was dead text, which is the kind of
+                    inconsistency you only notice by tapping it and nothing
+                    happening. */}
+                {nextMeetup.proposal.location_name ? (
+                  <Typography
+                    style={styles.meetupPlace}
+                    color={colors.cobalt}
+                    onPress={() =>
+                      openInGoogleMaps({
+                        name: nextMeetup.proposal.location_name!,
+                        address: null,
+                        lat: nextMeetup.proposal.location_lat,
+                        lng: nextMeetup.proposal.location_lng,
+                        category: null,
+                      })
+                    }
+                  >
+                    {nextMeetup.proposal.location_name}
+                  </Typography>
+                ) : null}
               </Typography>
               {myVote === 'going' ? (
                 <Typography style={[styles.rsvpConfirm, meetupDecided && { color: colors.cobalt }]}>
@@ -284,7 +306,12 @@ export default function MeScreen() {
                     {meta.label}
                   </Typography>
                 </View>
-                <Typography style={styles.savedText}>Saved {meta.noun}</Typography>
+                {/* Its own title, snapshotted when she saved it. Rows kept
+                    before 030 have none, so they keep the old generic line —
+                    better than an empty row where a name should be. */}
+                <Typography style={styles.savedText} numberOfLines={2}>
+                  {tip.title || `Saved ${meta.noun}`}
+                </Typography>
                 <Pressable onPress={() => toggleTip(tip.sanity_doc_id, tip.doc_type)} hitSlop={8}>
                   <Ionicons name="heart" size={16} color={colors.fuchsia} />
                 </Pressable>
@@ -506,17 +533,9 @@ export default function MeScreen() {
         >
           <Typography style={styles.sheetItemTitle}>Just remove me</Typography>
         </Pressable>
-        <Pressable
-          style={[styles.sheetItem, styles.sheetItemLast]}
-          onPress={() => {
-            setUndoOpen(false);
-            if (nextMeetup) router.push(`/group/${nextMeetup.group.id}/chat`);
-          }}
-        >
-          <Typography style={[styles.sheetItemTitle, { color: colors.cobalt }]}>
-            Suggest a time instead
-          </Typography>
-        </Pressable>
+        {/* "Suggest a time instead" is gone at the client's request. It was the
+            only route from Me to a counter-proposal, so that path now lives in
+            the group chat alone — which is where she's been moving these. */}
       </ActionSheet>
     </ScrollView>
   );
@@ -595,6 +614,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.md,
   },
+  meetupPlace: { textDecorationLine: 'underline' },
   interestsLabel: {
     fontFamily: fonts.bodySemi,
     fontSize: scaled(10.5),

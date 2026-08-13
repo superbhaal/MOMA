@@ -1,0 +1,13 @@
+-- 030_saved_tip_title.sql
+-- The saved shelf was a list of types: "Saved reel, Saved reel, Saved article".
+-- `saved_tips` only ever stored the Sanity id and the doc type, and the title
+-- lives in Sanity, so nothing on Me could name what she'd kept.
+--
+-- Denormalised rather than fetched: a private shelf should stay readable when
+-- an article is unpublished from the CMS, and Me is opened often enough that a
+-- GROQ round-trip to render five rows is a poor trade. The title is a snapshot
+-- of what she saved, which is arguably the more honest record anyway.
+--
+-- Rows saved before this keep a null title and fall back to the old generic
+-- line, which beats an empty row where a name should be.
+ALTER TABLE public.saved_tips ADD COLUMN IF NOT EXISTS title text;

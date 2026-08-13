@@ -89,7 +89,7 @@ export function ReelCard({ reel }: ReelCardProps) {
               WATCH · {reel.platform.toUpperCase()}
             </Typography>
           </View>
-          <SaveHeart docId={reel._id} docType="watch_reel" />
+          <SaveHeart docId={reel._id} docType="watch_reel" title={reel.title} />
         </View>
 
         <Typography style={styles.title} color={colors.text}>
