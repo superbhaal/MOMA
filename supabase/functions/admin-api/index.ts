@@ -115,7 +115,7 @@ async function listUsers() {
   if (error) throw error;
 
   const [{ data: memberships }, { data: queue }, { data: groups }] = await Promise.all([
-    admin.from('group_members').select('user_id, group_id, role'),
+    admin.from('group_members').select('user_id, group_id'),
     admin.from('matching_queue').select('user_id, status, current_preview_group_id'),
     admin.from('groups').select('id, name'),
   ]);
@@ -124,7 +124,7 @@ async function listUsers() {
   const byUser = new Map<string, any[]>();
   for (const m of memberships ?? []) {
     const arr = byUser.get(m.user_id) ?? [];
-    arr.push({ group_id: m.group_id, name: groupName.get(m.group_id) ?? m.group_id, role: m.role });
+    arr.push({ group_id: m.group_id, name: groupName.get(m.group_id) ?? m.group_id });
     byUser.set(m.user_id, arr);
   }
   const queueByUser = new Map((queue ?? []).map((q: any) => [q.user_id, q]));
@@ -285,13 +285,12 @@ async function groupMeetupData(groupId: string) {
 
   const { data: memberRows } = await admin
     .from('group_members')
-    .select('user_id, role, user:users(id, display_name, profile_color)')
+    .select('user_id, user:users(id, display_name, profile_color)')
     .eq('group_id', groupId);
   const members = (memberRows ?? []).map((m: any) => ({
     id: m.user.id,
     name: m.user.display_name,
     color: m.user.profile_color,
-    role: m.role,
   }));
   const memberIds = members.map((m) => m.id);
   const memberCount = members.length;

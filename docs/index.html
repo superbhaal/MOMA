@@ -420,7 +420,7 @@ async function load() {
   $("#userCount").textContent = USERS.length;
   const tb = $("#userRows"); tb.innerHTML = "";
   for (const u of USERS) {
-    const groups = (u.groups||[]).map(g=>g.name + (g.role==="mentor"?" ★":"")).join(", ") || "—";
+    const groups = (u.groups||[]).map(g=>g.name).join(", ") || "—";
     const tr = el("tr", {},
       el("td",{}, nameCell(u)),
       el("td",{html: u.is_test ? '<span class="pill pill-test">TEST</span>' : '<span class="pill pill-real">REAL</span>'}),
@@ -686,7 +686,7 @@ async function loadGroup(gid){
   $("#detail").classList.add("hidden");
   if(!gid){ $("#members").innerHTML=""; return; }
   MDATA = await api("group_meetup_data",{group_id:gid});
-  $("#members").innerHTML = MDATA.members.map(m=>`<span class="chip"><i class="dot" style="background:${m.color||'#ccc'}"></i>${m.name}${m.role==='mentor'?' ★':''}</span>`).join("");
+  $("#members").innerHTML = MDATA.members.map(m=>`<span class="chip"><i class="dot" style="background:${m.color||'#ccc'}"></i>${m.name}</span>`).join("");
   renderResponses(); renderGrid(); renderPlaces(); updateSummary();
   $("#detail").classList.remove("hidden");
 }
@@ -710,7 +710,7 @@ function renderResponses(){
     const row = el("div",{class:"resp-row"});
     const who = el("div",{class:"who"});
     who.append(el("span",{class:"dot",style:`background:${m.color||'#ccc'}`}));
-    who.append(document.createTextNode(m.name + (m.role==='mentor'?' ★':'')));
+    who.append(document.createTextNode(m.name));
     row.append(who);
     row.append(el("span",{class:"vote vote-"+cur, html: VOTE_LABEL[cur]}));
     const actions = el("div",{class:"vote-actions"});
