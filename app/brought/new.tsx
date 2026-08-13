@@ -21,6 +21,7 @@ import {
   KIND_INK,
   KIND_HAS_PHOTO,
   KIND_LABEL,
+  KIND_PHOTO_HINT,
   broughtIsComplete,
 } from '@/constants/brought';
 import { uploadImage } from '@/lib/uploadImage';
@@ -187,7 +188,8 @@ export default function BringSomethingScreen() {
               uri={photoUri}
               onPick={setPhotoUri}
               onClear={() => setPhotoUri(null)}
-              hint="Optional — a photo, or a drawing of it"
+              hint={KIND_PHOTO_HINT[kind]}
+              optional
             />
           </View>
         ) : null}

@@ -237,6 +237,8 @@ export function ComposerPhoto({
   onClear,
   onSkip,
   hint = 'JPG, PNG · up to 8MB',
+  /** Shown under the hint — "optional" reads better as its own quiet line. */
+  optional,
 }: {
   uri: string | null;
   onPick: (uri: string) => void;
@@ -244,6 +246,7 @@ export function ComposerPhoto({
   /** Renders the "Skip for now" link when given. */
   onSkip?: () => void;
   hint?: string;
+  optional?: boolean;
 }) {
   const [error, setError] = useState<string | null>(null);
 
@@ -300,9 +303,16 @@ export function ComposerPhoto({
         <Typography style={styles.dropzoneLabel} color={colors.cobalt}>
           Add a photo
         </Typography>
-        <Typography style={styles.dropzoneHint} color={colors.muted}>
-          {hint}
-        </Typography>
+        {hint ? (
+          <Typography style={styles.dropzoneHint} color={colors.muted}>
+            {hint}
+          </Typography>
+        ) : null}
+        {optional ? (
+          <Typography style={styles.dropzoneHint} color={colors.muted}>
+            optional
+          </Typography>
+        ) : null}
       </Pressable>
       {onSkip ? (
         <Pressable onPress={onSkip} style={styles.skip} hitSlop={8}>
@@ -424,7 +434,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   dropzoneLabel: textStyles.controlStrong,
-  dropzoneHint: textStyles.cardBody,
+  // Centred and inset: the well is 160pt across, so a two-line hint used to
+  // start at its left edge and lean on the dashed border.
+  dropzoneHint: {
+    ...textStyles.cardBody,
+    textAlign: 'center',
+    paddingHorizontal: spacing.md,
+  },
   skip: { alignItems: 'center', paddingVertical: spacing.lg },
   skipText: { ...textStyles.control, textDecorationLine: 'underline' },
   photo: {

@@ -74,6 +74,19 @@ export const KIND_INK: Record<BroughtKind, { accent: string; text: string }> = {
   tip: { accent: colors.inkLime, text: colors.inkLimeText },
 };
 
+/**
+ * What to photograph, per course — the mockup's own placeholders. A book wants
+ * its cover, a find wants the object, a listen wants cover art; "add a photo"
+ * for all four would have been the app asking without knowing what for.
+ */
+export const KIND_PHOTO_HINT: Record<BroughtKind, string> = {
+  recipe: 'A photo, or a drawing of the dish',
+  book: 'The cover, or a drawing of it',
+  find: 'A photo of the thing',
+  listen: 'Cover art, or a drawing',
+  tip: '',
+};
+
 /** Tip is the one kind with nothing to photograph. */
 export const KIND_HAS_PHOTO: Record<BroughtKind, boolean> = {
   recipe: true,
