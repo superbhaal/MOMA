@@ -22,6 +22,7 @@ interface SpotRow {
   place_id: string | null;
   city: string | null;
   phone: string | null;
+  email: string | null;
   booking_url: string | null;
   photo_url: string | null;
   created_at: string;
@@ -44,6 +45,7 @@ function toSpot(r: SpotRow): LovedSpotWithPoster {
     place_id: r.place_id,
     city: r.city,
     phone: r.phone,
+    email: r.email,
     booking_url: r.booking_url,
     photo_url: r.photo_url,
     created_at: r.created_at,

@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -96,7 +96,15 @@ export default function PlaceComposer() {
   const { user } = useAuth();
   const { create, submitting, error } = useCreateLovedSpot();
 
-  const [draft, setDraft] = useState<ComposerDraft>(() => loadDraft());
+  // Opened from the People tab? Then that's what she's adding. Landing on
+  // "A place" when the map behind you says People is the app not listening.
+  const { kind: kindParam } = useLocalSearchParams<{ kind?: string }>();
+  const [draft, setDraft] = useState<ComposerDraft>(() => {
+    const d = loadDraft();
+    return kindParam === 'person' || kindParam === 'place'
+      ? { ...d, kind: kindParam as LovedKind }
+      : d;
+  });
   const [step, setStep] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -211,6 +219,9 @@ export default function PlaceComposer() {
         place_id: draft.location.place_id,
         city: user?.city ?? null,
         photo_url: photoUrl,
+        phone: draft.phone.trim() || null,
+        email: draft.email.trim() || null,
+        booking_url: draft.website.trim() || null,
       });
       clearDraft();
       router.replace('/discover/explore');
@@ -309,7 +320,15 @@ export default function PlaceComposer() {
         )}
 
         {step === 4 && (
-          <StepNote kind={kind} value={draft.note} onChange={(note) => patch({ note })} />
+          <StepNote
+            kind={kind}
+            value={draft.note}
+            onChange={(note) => patch({ note })}
+            phone={draft.phone}
+            email={draft.email}
+            website={draft.website}
+            onContact={(p) => patch(p)}
+          />
         )}
 
         {step === 5 && (
@@ -352,9 +371,11 @@ export default function PlaceComposer() {
 
 // ── Step 1 · kind tabs + find ────────────────────────────────────
 function KindTabs({ kind, onChange }: { kind: LovedKind; onChange: (k: LovedKind) => void }) {
-  const tabs: { key: LovedKind; label: string; hint: string }[] = [
-    { key: 'place', label: 'A place', hint: 'café · park · shop' },
-    { key: 'person', label: 'A person', hint: 'pediatrician · doula' },
+  // No sub-labels: "café · park · shop" explained a distinction the two words
+  // already make, and the step's own question says the rest.
+  const tabs: { key: LovedKind; label: string }[] = [
+    { key: 'place', label: 'A place' },
+    { key: 'person', label: 'A person' },
   ];
   return (
     <View style={styles.tabRow} accessibilityRole="tablist">
@@ -370,9 +391,6 @@ function KindTabs({ kind, onChange }: { kind: LovedKind; onChange: (k: LovedKind
           >
             <Typography style={styles.tabLabel} color={on ? colors.cobalt : colors.text}>
               {t.label}
-            </Typography>
-            <Typography style={styles.tabHint} color={colors.mutedStrong}>
-              {t.hint}
             </Typography>
           </Pressable>
         );
@@ -425,10 +443,32 @@ function StepFind({
       place_id: p.place_id ?? null,
     });
 
-  const addManually = () => {
-    const q = query.trim();
-    if (q.length < 2) return;
-    onSelect({ name: q, address: city, lat: null, lng: null, place_id: null });
+  // Manual entry used to save the search box verbatim: a name, no address, and
+  // therefore no coordinates — the place existed in the list and nowhere on the
+  // map. It now asks for both, and geocodes the address so it gets a pin like
+  // any other. Explore is a map; a place without a point on it is half there.
+  const [manualOpen, setManualOpen] = useState(false);
+  const [manualName, setManualName] = useState('');
+  const [manualAddress, setManualAddress] = useState('');
+  const [locating, setLocating] = useState(false);
+
+  const manualReady = manualName.trim().length >= 2 && manualAddress.trim().length >= 4;
+
+  const saveManual = async () => {
+    if (!manualReady) return;
+    setLocating(true);
+    // Reuse the places search to turn the address into coordinates. If Google
+    // doesn't recognise it we still save what she typed — losing her entry to
+    // punish a bad postcode would be the worse trade.
+    const [hit] = await searchPlaces(manualAddress.trim(), city);
+    setLocating(false);
+    onSelect({
+      name: manualName.trim(),
+      address: hit?.address ?? manualAddress.trim(),
+      lat: hit?.lat ?? null,
+      lng: hit?.lng ?? null,
+      place_id: null,
+    });
   };
 
   return (
@@ -489,13 +529,74 @@ function StepFind({
         );
       })}
 
-      {query.trim().length >= 2 && !searching ? (
-        <Pressable onPress={addManually} style={styles.manual} accessibilityRole="button">
+      {!manualOpen ? (
+        <Pressable
+          onPress={() => {
+            setManualOpen(true);
+            setManualName(query.trim());
+          }}
+          style={styles.manual}
+          accessibilityRole="button"
+        >
           <Typography style={styles.manualText} color={colors.cobalt}>
             + Can’t find {kind === 'place' ? 'it' : 'them'}? Add manually
           </Typography>
         </Pressable>
-      ) : null}
+      ) : (
+        <View style={styles.manualForm}>
+          <FieldRow label={kind === 'place' ? 'NAME' : 'THEIR NAME'} hint="required" />
+          <TextInput
+            style={styles.manualInput}
+            value={manualName}
+            onChangeText={setManualName}
+            placeholder={kind === 'place' ? 'Café Lindengracht' : 'Dr. Nora van Dijk'}
+            placeholderTextColor={colors.muted}
+            autoFocus
+          />
+          <View style={styles.rule} />
+
+          <FieldRow label="ADDRESS" hint="required" />
+          <TextInput
+            style={styles.manualInput}
+            value={manualAddress}
+            onChangeText={setManualAddress}
+            placeholder={`Street and number${city ? `, ${city}` : ''}`}
+            placeholderTextColor={colors.muted}
+          />
+          <View style={styles.rule} />
+          <Typography style={styles.manualHint} color={colors.muted}>
+            We need the address to drop a pin — without one it won’t show on the map.
+          </Typography>
+
+          <Pressable
+            onPress={saveManual}
+            disabled={!manualReady || locating}
+            style={[styles.manualCta, !manualReady && styles.manualCtaOff]}
+            accessibilityRole="button"
+          >
+            {locating ? (
+              <ActivityIndicator size="small" color={colors.white} />
+            ) : (
+              <Typography style={styles.manualCtaText} color={colors.white}>
+                Use this
+              </Typography>
+            )}
+          </Pressable>
+        </View>
+      )}
+    </View>
+  );
+}
+
+function FieldRow({ label, hint }: { label: string; hint: string }) {
+  return (
+    <View style={styles.fieldRow}>
+      <Typography style={styles.fieldRowLabel} color={colors.text}>
+        {label}
+      </Typography>
+      <Typography style={styles.fieldRowHint} color={colors.muted}>
+        {hint}
+      </Typography>
     </View>
   );
 }
@@ -630,12 +731,21 @@ function StepNote({
   kind,
   value,
   onChange,
+  phone,
+  email,
+  website,
+  onContact,
 }: {
   kind: LovedKind;
   value: string;
   onChange: (v: string) => void;
+  phone: string;
+  email: string;
+  website: string;
+  onContact: (p: { phone?: string; email?: string; website?: string }) => void;
 }) {
   const [tipsOpen, setTipsOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const len = value.trim().length;
   return (
     <View>
@@ -680,6 +790,63 @@ function StepNote({
             </View>
           ))
         : null}
+
+      {/* Contact details, offered and never asked for. Folded away by default:
+          the note is what this step is for, and a row of empty fields under it
+          would read as four more things to fill in. */}
+      <Pressable
+        onPress={() => setContactOpen((v) => !v)}
+        style={styles.tipsHeader}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: contactOpen }}
+      >
+        <Typography style={styles.tipsTitle} color={colors.text}>
+          ANYTHING ELSE WORTH KNOWING?
+        </Typography>
+        <Ionicons
+          name={contactOpen ? 'chevron-down' : 'chevron-forward'}
+          size={16}
+          color={colors.mutedStrong}
+        />
+      </Pressable>
+
+      {contactOpen ? (
+        <View>
+          <Typography style={styles.contactHint} color={colors.muted}>
+            All optional — add a way to reach them if you have one.
+          </Typography>
+          <TextInput
+            style={styles.contactInput}
+            value={phone}
+            onChangeText={(v) => onContact({ phone: v })}
+            placeholder="Phone"
+            placeholderTextColor={colors.muted}
+            keyboardType="phone-pad"
+          />
+          <View style={styles.rule} />
+          <TextInput
+            style={styles.contactInput}
+            value={email}
+            onChangeText={(v) => onContact({ email: v })}
+            placeholder="Email"
+            placeholderTextColor={colors.muted}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+          />
+          <View style={styles.rule} />
+          <TextInput
+            style={styles.contactInput}
+            value={website}
+            onChangeText={(v) => onContact({ website: v })}
+            placeholder="Website"
+            placeholderTextColor={colors.muted}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+          />
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -826,6 +993,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   manualText: textStyles.controlStrong,
+  manualForm: { marginTop: spacing.lg },
+  rule: { height: 1, backgroundColor: colors.line },
+  fieldRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginTop: spacing.md,
+  },
+  fieldRowLabel: textStyles.labelS,
+  fieldRowHint: textStyles.cardBody,
+  manualInput: {
+    fontFamily: fonts.body,
+    fontSize: scaled(16),
+    color: colors.text,
+    paddingVertical: spacing.md,
+  },
+  manualHint: { ...textStyles.cardBody, marginTop: spacing.md },
+  manualCta: {
+    backgroundColor: colors.cobalt,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 48,
+    marginTop: spacing.lg,
+  },
+  manualCtaOff: { backgroundColor: '#93A8E8' },
+  manualCtaText: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
 
   // confirm
   // A rectangle, not the pill the other frames use: an oval crops the four
@@ -912,6 +1106,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   tipText: { ...textStyles.cardBody, fontFamily: fonts.readingItal },
+  contactHint: { ...textStyles.cardBody, marginBottom: spacing.sm },
+  contactInput: {
+    fontFamily: fonts.body,
+    fontSize: scaled(15),
+    color: colors.text,
+    paddingVertical: spacing.md,
+  },
 
   // preview
   previewCard: {

@@ -122,8 +122,10 @@ export default function DiscoverExplore() {
             so it never hides the first spot in the list. */}
         <ComposeFab
           bottom={collapsedHeight + spacing.sm}
-          accessibilityLabel="Add a place or a person"
-          onPress={() => router.push('/discover/place/new')}
+          accessibilityLabel={mode === 'person' ? 'Add a person' : 'Add a place'}
+          onPress={() =>
+            router.push({ pathname: '/discover/place/new', params: { kind: mode } })
+          }
         />
 
         <ExploreSheet
@@ -145,7 +147,9 @@ export default function DiscoverExplore() {
             setCategory('all');
             setQuery('');
           }}
-          onCompose={() => router.push('/discover/place/new')}
+          onCompose={() =>
+            router.push({ pathname: '/discover/place/new', params: { kind: mode } })
+          }
         />
       </View>
     </View>

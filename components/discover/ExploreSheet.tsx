@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { Animated, PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  Animated,
+  PanResponder,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  type GestureResponderEvent,
+  type PanResponderGestureState,
+} from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { LovedSpotRow } from '@/components/discover/LovedSpotRow';
 import { colors } from '@/constants/colors';
@@ -84,37 +93,21 @@ export function ExploreSheet({
     return () => height.removeListener(id);
   }, [height]);
 
-  // Whether the inner list is scrolled to its top — the only moment an
-  // expanded sheet should let a downward drag collapse it rather than scroll.
-  const listAtTop = useRef(true);
-
-  const pan = useMemo(
+  // The drag behaviour is shared by two responders that differ only in when
+  // they claim the gesture — see `sheetPan` and `headerPan` below.
+  const dragConfig = useMemo(
     () =>
-      PanResponder.create({
-        // Capture, not bubble: the gesture has to be claimed before the inner
-        // ScrollView takes it, or the sheet would only ever move by its handle
-        // — which is exactly what our tester ran into ("I want to be able to
-        // slide it from anywhere on the white menu").
-        //
-        // Three conditions, in order: it must be a deliberate vertical drag;
-        // while collapsed the list is frozen anyway, so the sheet owns every
-        // drag; while expanded the list owns them, except a pull-down that
-        // starts at the top of the list, which is how you put the sheet away.
-        onMoveShouldSetPanResponderCapture: (_e, g) => {
-          if (Math.abs(g.dy) <= 4 || Math.abs(g.dy) < Math.abs(g.dx)) return false;
-          if (!expanded) return true;
-          return g.dy > 0 && listAtTop.current;
-        },
+      ({
         onPanResponderGrant: () => {
           dragStart.current = heightNow.current;
           height.stopAnimation();
         },
-        onPanResponderMove: (_e, g) => {
+        onPanResponderMove: (_e: GestureResponderEvent, g: PanResponderGestureState) => {
           // Dragging up grows the sheet, hence the inverted sign.
           const next = dragStart.current - g.dy;
           height.setValue(Math.min(expandedHeight, Math.max(collapsedHeight, next)));
         },
-        onPanResponderRelease: (_e, g) => {
+        onPanResponderRelease: (_e: GestureResponderEvent, g: PanResponderGestureState) => {
           // A flick wins over position; otherwise settle to the nearer rest.
           const mid = (collapsedHeight + expandedHeight) / 2;
           const wantExpanded =
@@ -129,8 +122,46 @@ export function ExploreSheet({
             }).start();
           }
         },
-      }),
+      }) as const,
     [collapsedHeight, expandedHeight, expanded, height, onToggle],
+  );
+
+  /**
+   * Whole-sheet drag, claimed on capture so it beats the inner list. Only while
+   * COLLAPSED, where the list is frozen (`scrollEnabled={expanded}`) and there
+   * is nothing to compete with — this is what lets her open the sheet from
+   * anywhere on the white.
+   */
+  const sheetPan = useMemo(
+    () =>
+      PanResponder.create({
+        ...dragConfig,
+        onMoveShouldSetPanResponderCapture: (_e, g) =>
+          !expanded && Math.abs(g.dy) > 4 && Math.abs(g.dy) >= Math.abs(g.dx),
+      }),
+    [dragConfig, expanded],
+  );
+
+  /**
+   * The header — handle plus the count line — drags unconditionally, in both
+   * states.
+   *
+   * This is the fix for the sheet she couldn't push down. The previous version
+   * let an expanded sheet be dragged only while the list sat exactly at its
+   * top; she had scrolled a few pixels, so the condition was false and the
+   * gesture went back to the list. The handle itself was inside that condition,
+   * so even the handle stopped working — I fixed "you can only drag by the
+   * handle" by breaking the handle. Nothing about the list's position can
+   * disable this one.
+   */
+  const headerPan = useMemo(
+    () =>
+      PanResponder.create({
+        ...dragConfig,
+        onMoveShouldSetPanResponder: (_e, g) =>
+          Math.abs(g.dy) > 4 && Math.abs(g.dy) >= Math.abs(g.dx),
+      }),
+    [dragConfig],
   );
 
   const count = spots.length;
@@ -141,9 +172,11 @@ export function ExploreSheet({
   return (
     <Animated.View
       style={[styles.sheet, { height, paddingBottom: bottomInset + spacing.lg }]}
-      {...pan.panHandlers}
+      {...sheetPan.panHandlers}
     >
-      <View>
+      {/* Handle and count line are one drag surface — roughly 60pt of target
+          that always moves the sheet, whatever the list is doing. */}
+      <View {...headerPan.panHandlers}>
         <Pressable
           onPress={onToggle}
           style={styles.handleHit}
@@ -154,26 +187,21 @@ export function ExploreSheet({
         >
           <View style={styles.handle} />
         </Pressable>
-      </View>
 
-      <View style={styles.head}>
-        <Typography style={styles.countText} color={colors.labelMuted}>
-          <Typography style={styles.countNum} color={colors.text}>
-            {count}{' '}
+        <View style={styles.head}>
+          <Typography style={styles.countText} color={colors.labelMuted}>
+            <Typography style={styles.countNum} color={colors.text}>
+              {count}{' '}
+            </Typography>
+            {countLabel}
           </Typography>
-          {countLabel}
-        </Typography>
-
+        </View>
       </View>
 
       <ScrollView
         scrollEnabled={expanded}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
-        scrollEventThrottle={16}
-        onScroll={(e) => {
-          listAtTop.current = e.nativeEvent.contentOffset.y <= 0;
-        }}
       >
         {loading ? (
           [0, 1, 2].map((i) => <View key={i} style={styles.skeleton} />)

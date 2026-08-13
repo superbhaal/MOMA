@@ -27,7 +27,8 @@ export function LovedSpotRow({ spot, onPress, addedByYou }: LovedSpotRowProps) {
   const who = spot.poster?.display_name ?? 'a mom';
   const cat = categoryLabel(spot.category);
   const meta = spot.kind === 'place' ? `${who} · ${cat}` : `Loved by ${who} · ${cat}`;
-  const thumb = staticMapUri(spot);
+  // Her photo before the street plan — same order as the detail hero.
+  const thumb = spot.photo_url ?? staticMapUri(spot);
 
   return (
     <Pressable
@@ -36,7 +37,7 @@ export function LovedSpotRow({ spot, onPress, addedByYou }: LovedSpotRowProps) {
       accessibilityRole="button"
       accessibilityLabel={spot.name}
     >
-      {spot.kind === 'place' ? (
+      {spot.kind === 'place' || spot.photo_url ? (
         thumb && !thumbFailed ? (
           <Image
             source={{ uri: thumb }}

@@ -51,7 +51,8 @@ export type PersonCategory =
   | 'therapists'
   | 'pelvic_floor'
   | 'dentists'
-  | 'daycare';
+  | 'daycare'
+  | 'nannies';
 export type LovedCategory = PlaceCategory | PersonCategory;
 export type NotifChatCadence = 'every' | 'daily' | 'weekly' | 'off';
 export type DeclineReason =
@@ -212,6 +213,7 @@ export interface LovedSpot {
   place_id: string | null;
   city: string | null;
   phone: string | null;
+  email: string | null;
   booking_url: string | null;
   /** Optional — the composer offers "Skip for now", and most spots take it. */
   photo_url: string | null;

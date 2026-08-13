@@ -44,6 +44,7 @@ export const PERSON_CATEGORIES: { value: PersonCategory; label: string }[] = [
   { value: 'pelvic_floor', label: 'Pelvic floor' },
   { value: 'dentists', label: 'Dentist (kids)' },
   { value: 'daycare', label: 'Daycare' },
+  { value: 'nannies', label: 'Nanny' },
 ];
 
 /** Chip row for a mode, with the leading "All" chip. */
@@ -112,6 +113,7 @@ const LABELS: Record<LovedCategory, string> = {
   pelvic_floor: 'Pelvic floor',
   dentists: 'Dentist (kids)',
   daycare: 'Daycare',
+  nannies: 'Nanny',
 };
 
 /** Singular, human label for a category — used on cards and the detail pill. */
@@ -148,6 +150,7 @@ const PIN_COLORS: Record<LovedCategory, string> = {
   pelvic_floor: '#E82030',
   dentists: '#FFC800',
   daycare: '#3E6B3A',
+  nannies: '#8C2238',
 };
 
 export function categoryColor(category: LovedCategory): string {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Linking,
   Pressable,
@@ -20,9 +21,39 @@ import { radius, spacing } from '@/constants/spacing';
 import { discoverMapUri, openInGoogleMaps } from '@/lib/maps';
 import { categoryLabel } from '@/constants/discover';
 import { scaled } from '@/constants/scale';
+import { useAuth } from '@/hooks/useAuth';
+import { useDeleteLovedSpot } from '@/hooks/useDeleteLovedSpot';
 import { useLovedSpot } from '@/hooks/useLovedSpots';
 
 const HERO_H = 280;
+
+/** One tappable line of contact — phone, email or site. */
+function ContactRow({
+  icon,
+  label,
+  onPress,
+  accessibilityLabel,
+}: {
+  icon: 'call-outline' | 'mail-outline' | 'globe-outline';
+  label: string;
+  onPress: () => void;
+  accessibilityLabel: string;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={styles.phoneRow}
+      hitSlop={12}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+    >
+      <Ionicons name={icon} size={16} color={colors.cobalt} />
+      <Typography style={styles.phoneText} color={colors.cobalt} numberOfLines={1}>
+        {label}
+      </Typography>
+    </Pressable>
+  );
+}
 
 const HEALTHCARE_NOTE =
   'This is a personal recommendation from another mom. Always do your own due diligence for healthcare decisions.';
@@ -46,9 +77,35 @@ export default function LovedSpotDetail() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { spot, loading, error } = useLovedSpot(id);
+  const { user } = useAuth();
+  const { remove, deleting } = useDeleteLovedSpot();
   const [heroFailed, setHeroFailed] = useState(false);
 
   const back = () => router.back();
+  const isMine = !!user && !!spot && spot.poster_id === user.id;
+
+  function confirmDelete() {
+    if (!spot) return;
+    Alert.alert(
+      'Remove your recommendation?',
+      'It comes off the map. If other moms have recommended this place too, theirs stay.',
+      [
+        { text: 'Keep it', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            const { error: err } = await remove(spot.id);
+            if (err) {
+              Alert.alert("Couldn't remove it", err);
+              return;
+            }
+            router.replace('/discover/explore');
+          },
+        },
+      ],
+    );
+  }
 
   if (loading) {
     return (
@@ -94,9 +151,19 @@ export default function LovedSpotDetail() {
         contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xxxl }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Hero — place: static map; person: circular avatar treatment. */}
+        {/* Hero — the poster's own photo when there is one, then the static
+            map, then a plain block. The photo wins: the composer has been
+            asking for "one picture that captures it best" since v1.0.2 and
+            uploading it to a bucket nothing ever read. A café someone
+            photographed says more than a street plan of it. */}
         <View style={styles.hero}>
-          {isPerson ? (
+          {spot.photo_url ? (
+            <Image
+              source={{ uri: spot.photo_url }}
+              style={styles.heroImg}
+              resizeMode="cover"
+            />
+          ) : isPerson ? (
             <View style={styles.personHero}>
               <Avatar name={who} ringColor={ring} size={132} ringWidth={3} />
             </View>
@@ -175,21 +242,38 @@ export default function LovedSpotDetail() {
 
           <Button title="Open in Google Maps  ↗" onPress={onOpenMaps} />
 
-          {/* No booking CTA: we can't stand behind a practitioner's booking
-              flow, so the phone number below is the only handover we offer. */}
-          {isPerson && spot.phone ? (
-            <Pressable
+          {/* Whatever the poster offered as a way through. Still no booking
+              CTA — we hand over the details, we don't run someone else's
+              booking flow. Shown for places too now, not just practitioners:
+              the composer asks everyone. */}
+          {spot.phone ? (
+            <ContactRow
+              icon="call-outline"
+              label={spot.phone}
               onPress={() => Linking.openURL(`tel:${spot.phone}`).catch(() => {})}
-              style={styles.phoneRow}
-              hitSlop={12}
-              accessibilityRole="button"
               accessibilityLabel={`Call ${spot.name}`}
-            >
-              <Ionicons name="call-outline" size={16} color={colors.cobalt} />
-              <Typography style={styles.phoneText} color={colors.cobalt}>
-                {spot.phone}
-              </Typography>
-            </Pressable>
+            />
+          ) : null}
+          {spot.email ? (
+            <ContactRow
+              icon="mail-outline"
+              label={spot.email}
+              onPress={() => Linking.openURL(`mailto:${spot.email}`).catch(() => {})}
+              accessibilityLabel={`Email ${spot.name}`}
+            />
+          ) : null}
+          {spot.booking_url ? (
+            <ContactRow
+              icon="globe-outline"
+              label={spot.booking_url.replace(/^https?:\/\//, '')}
+              onPress={() => {
+                const url = spot.booking_url!.startsWith('http')
+                  ? spot.booking_url!
+                  : `https://${spot.booking_url}`;
+                Linking.openURL(url).catch(() => {});
+              }}
+              accessibilityLabel={`Open ${spot.name}'s website`}
+            />
           ) : null}
 
           {isPerson ? (
@@ -198,6 +282,27 @@ export default function LovedSpotDetail() {
                 {HEALTHCARE_NOTE}
               </Typography>
             </View>
+          ) : null}
+
+          {/* Yours to take back. Quiet and at the bottom — it's a door, not an
+              invitation. RLS has always allowed this; only the screen was
+              missing. */}
+          {isMine ? (
+            <Pressable
+              onPress={confirmDelete}
+              disabled={deleting}
+              style={styles.deleteRow}
+              hitSlop={10}
+              accessibilityRole="button"
+            >
+              {deleting ? (
+                <ActivityIndicator size="small" color={colors.cherry} />
+              ) : (
+                <Typography style={styles.deleteText} color={colors.cherry}>
+                  Remove my recommendation
+                </Typography>
+              )}
+            </Pressable>
           ) : null}
         </View>
       </ScrollView>
@@ -270,6 +375,8 @@ const styles = StyleSheet.create({
 
   phoneRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.lg },
   phoneText: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
+  deleteRow: { alignItems: 'center', paddingTop: spacing.xxl, paddingBottom: spacing.lg },
+  deleteText: { fontFamily: fonts.bodyMed, fontSize: scaled(13) },
 
   disclaimer: {
     marginTop: spacing.xl,

@@ -20,6 +20,10 @@ export interface ComposerDraft {
   /** Local URI from the picker. Uploaded on publish, not on pick — a composer
    *  abandoned at step 4 shouldn't have left a file in the bucket. */
   photoUri: string | null;
+  /** Suggested, never required. Offered on the same step as the note. */
+  phone: string;
+  email: string;
+  website: string;
 }
 
 export const EMPTY_DRAFT: ComposerDraft = {
@@ -31,6 +35,9 @@ export const EMPTY_DRAFT: ComposerDraft = {
   category: null,
   note: '',
   photoUri: null,
+  phone: '',
+  email: '',
+  website: '',
 };
 
 let draft: ComposerDraft = { ...EMPTY_DRAFT };

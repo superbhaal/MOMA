@@ -13,6 +13,9 @@ export interface NewLovedSpot {
   place_id: string | null;
   city: string | null;
   photo_url: string | null;
+  phone: string | null;
+  email: string | null;
+  booking_url: string | null;
 }
 
 /**
