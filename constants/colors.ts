@@ -50,6 +50,18 @@ export const colors = {
   klein: '#0038FF',
   lime: '#B8D830',
 
+  // Course inks (v11). Each course colour comes in two strengths: the accent
+  // marks (a tab underline), the *Ink variant sets type — the raw accents don't
+  // clear AA on white at the sizes we use them. Four of the five accents are
+  // already in the palette above and are reused; only lime differs, because the
+  // palette's #B8D830 is a highlighter and this is a colour to read.
+  inkLime: '#7E9A00',
+  inkOrangeText: '#B05400',
+  inkLavenderText: '#6E4FA8',
+  inkPoolText: '#00707A',
+  inkFuchsiaText: '#C81E80',
+  inkLimeText: '#5E7300',
+
   // Soft accents (user colours)
   peche: '#FADCB8',
   citron: '#F9F0A0',

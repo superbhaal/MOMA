@@ -1,3 +1,4 @@
+import { colors } from '@/constants/colors';
 import type { BroughtItem, BroughtKind } from '@/types';
 
 /**
@@ -54,6 +55,23 @@ export const KIND_POSSESSIVE: Record<BroughtKind, string> = {
   find: 'Her find',
   listen: 'What she’s listening to',
   tip: 'What she learned the hard way',
+};
+
+/**
+ * Each course has its own ink — the accent marks the selected tab, the text
+ * variant sets the tab's label and the course title.
+ *
+ * Deliberately only those two places. Everything else on the screen stays
+ * cobalt: the field labels, the CTA, the hints. Five colours running through a
+ * whole form would make the form the subject; here they only say which course
+ * you're at.
+ */
+export const KIND_INK: Record<BroughtKind, { accent: string; text: string }> = {
+  recipe: { accent: colors.orange, text: colors.inkOrangeText },
+  book: { accent: colors.lavender, text: colors.inkLavenderText },
+  find: { accent: colors.pool, text: colors.inkPoolText },
+  listen: { accent: colors.fuchsia, text: colors.inkFuchsiaText },
+  tip: { accent: colors.inkLime, text: colors.inkLimeText },
 };
 
 /** Tip is the one kind with nothing to photograph. */

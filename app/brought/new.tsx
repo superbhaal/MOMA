@@ -18,6 +18,7 @@ import { scaled } from '@/constants/scale';
 import {
   BROUGHT_KINDS,
   KIND_COURSE,
+  KIND_INK,
   KIND_HAS_PHOTO,
   KIND_LABEL,
   broughtIsComplete,
@@ -115,6 +116,7 @@ export default function BringSomethingScreen() {
   }
 
   const course = KIND_COURSE[kind];
+  const ink = KIND_INK[kind];
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.md }]}>
@@ -154,13 +156,16 @@ export default function BringSomethingScreen() {
               ) : null}
               <Pressable
                 onPress={() => switchKind(k)}
-                style={[styles.kind, k === kind && styles.kindOn]}
+                style={[
+                  styles.kind,
+                  k === kind && { borderBottomColor: KIND_INK[k].accent },
+                ]}
                 accessibilityRole="tab"
                 accessibilityState={{ selected: k === kind }}
               >
                 <Typography
                   style={styles.kindLabel}
-                  color={k === kind ? colors.cobalt : colors.muted}
+                  color={k === kind ? KIND_INK[k].text : colors.muted}
                 >
                   {KIND_LABEL[k].toUpperCase()}
                 </Typography>
@@ -169,7 +174,7 @@ export default function BringSomethingScreen() {
           ))}
         </View>
 
-        <Typography style={styles.course} color={colors.cobalt}>
+        <Typography style={styles.course} color={ink.text}>
           {course.title}
         </Typography>
         <Typography style={styles.courseNote} color={colors.mutedStrong}>
@@ -432,7 +437,6 @@ const styles = StyleSheet.create({
   kindWrap: { flexDirection: 'row', alignItems: 'center' },
   kindSep: { ...textStyles.control, paddingHorizontal: 2 },
   kind: { paddingHorizontal: 6, paddingBottom: 4, borderBottomWidth: 1.5, borderBottomColor: 'transparent' },
-  kindOn: { borderBottomColor: colors.cobalt },
   kindLabel: textStyles.controlCaps,
 
   course: {

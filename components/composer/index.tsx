@@ -253,7 +253,9 @@ export function ComposerPhoto({
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [4, 3],
+      // Square crop, because the frame she picks into is square — a 4:3 crop
+      // into a 1:1 well means the app quietly re-crops what she just framed.
+      aspect: [1, 1],
       quality: 0.85,
     });
     if (result.canceled || !result.assets?.length) return;
@@ -402,9 +404,13 @@ const styles = StyleSheet.create({
   chipLabel: textStyles.control,
   chipLabelStrong: textStyles.controlStrong,
 
+  // Square, at the client's request, and for every composer at once since they
+  // all use this one — she asked for exactly that: "it's the same frame, so
+  // make them all square".
   dropzone: {
-    height: 170,
-    borderRadius: 90,
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: radius.xl,
     borderWidth: 1.5,
     borderColor: colors.cobalt,
     borderStyle: 'dashed',
@@ -417,7 +423,7 @@ const styles = StyleSheet.create({
   dropzoneHint: textStyles.cardBody,
   skip: { alignItems: 'center', paddingVertical: spacing.lg },
   skipText: { ...textStyles.control, textDecorationLine: 'underline' },
-  photo: { width: '100%', height: 200, borderRadius: radius.lg },
+  photo: { width: '100%', aspectRatio: 1, borderRadius: radius.xl },
   photoActions: {
     flexDirection: 'row',
     justifyContent: 'center',
