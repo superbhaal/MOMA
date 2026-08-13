@@ -76,7 +76,7 @@ export default function LovedSpotDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { place: spot, loading, error, refresh } = useLovedPlace(id);
+  const { place: spot, loading, error } = useLovedPlace(id);
   const { user } = useAuth();
   const { remove, deleting } = useDeleteLovedSpot();
   const [heroFailed, setHeroFailed] = useState(false);
@@ -102,10 +102,19 @@ export default function LovedSpotDetail() {
               Alert.alert("Couldn't remove it", err);
               return;
             }
-            // The place survives if others recommended it too — go back to it
-            // rather than to the map when there's still something to see.
-            if (spot.rec_count > 1) refresh();
-            else router.replace('/discover/explore');
+            // The place survives if others recommended it too — but this route
+            // is keyed on the row we just deleted, so refreshing here would ask
+            // for a spot that no longer exists and land on "no longer
+            // available". Re-open on a surviving sibling instead.
+            const survivor = spot.recommendations.find((r) => r.spot_id !== mine!.spot_id);
+            if (survivor) {
+              router.replace({
+                pathname: '/discover/place/[id]',
+                params: { id: survivor.spot_id },
+              });
+            } else {
+              router.replace('/discover/explore');
+            }
           },
         },
       ],
