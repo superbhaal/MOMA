@@ -4,7 +4,7 @@
 
 møma is a B2C mobile app that matches new mothers into small, local support groups of 3–5 people based on life stage, location, and rhythm. It is built for Gen Z moms who want genuine human connection — not a social feed. The core loop is: get matched → meet your group → show up. The Learn tab supports the loop with curated, evidence-based content (long-form Read articles, vetted Watch reels from credentialed creators, and trusted Recommendations for places, products, and classes). The MVP is a free-tier prototype for real-user testing, not a production system.
 
-**Tagline:** "everyone says 'it takes a village.' here's yours."
+**Tagline:** "everyone brings something to the table."
 
 > **Canonical design reference:** `design/moma-enhanced.html` (interactive 17-screen mockup with annotations) and `design/moma-palette.pdf`. Always cross-check the design before implementing a screen.
 

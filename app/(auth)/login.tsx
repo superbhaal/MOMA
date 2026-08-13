@@ -70,7 +70,7 @@ export default function LoginScreen() {
             møma
           </Typography>
           <Typography color={colors.muted} style={styles.tagline}>
-            EVERYONE SAYS IT TAKES A VILLAGE.
+            EVERYONE BRINGS SOMETHING TO THE TABLE.
           </Typography>
         </View>
 

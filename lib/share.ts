@@ -8,7 +8,7 @@ export async function shareMoma() {
   try {
     await Share.share({
       message:
-        "everyone says 'it takes a village.' here's yours — join me on møma, " +
+        'everyone brings something to the table — come to mine. join me on møma, ' +
         'small local groups for new moms. https://moma.app',
     });
   } catch {
