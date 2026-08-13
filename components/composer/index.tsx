@@ -407,8 +407,15 @@ const styles = StyleSheet.create({
   // Square, at the client's request, and for every composer at once since they
   // all use this one — she asked for exactly that: "it's the same frame, so
   // make them all square".
+  //
+  // Bounded rather than full-width: a square the width of the screen stands
+  // ~335pt tall and turns the photo step into a wall. Centred at 58% it keeps
+  // roughly the height the frame had before it became square, and still reads
+  // as a well you drop one picture into.
   dropzone: {
-    width: '100%',
+    width: '58%',
+    maxWidth: 240,
+    alignSelf: 'center',
     aspectRatio: 1,
     borderRadius: radius.xl,
     borderWidth: 1.5,
@@ -423,7 +430,13 @@ const styles = StyleSheet.create({
   dropzoneHint: textStyles.cardBody,
   skip: { alignItems: 'center', paddingVertical: spacing.lg },
   skipText: { ...textStyles.control, textDecorationLine: 'underline' },
-  photo: { width: '100%', aspectRatio: 1, borderRadius: radius.xl },
+  photo: {
+    width: '58%',
+    maxWidth: 240,
+    alignSelf: 'center',
+    aspectRatio: 1,
+    borderRadius: radius.xl,
+  },
   photoActions: {
     flexDirection: 'row',
     justifyContent: 'center',
