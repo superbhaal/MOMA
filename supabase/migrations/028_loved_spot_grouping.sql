@@ -1,0 +1,19 @@
+-- 028_loved_spot_grouping.sql
+-- One place, many moms.
+--
+-- Until now a row WAS a place: two moms recommending the same café produced two
+-- pins, two rows and two detail pages, and nothing told the reader that two
+-- people had vouched for it.
+--
+-- The grouping key, per the client: Google's place_id when we have one, with a
+-- fallback she also agreed to — geocoded coordinates rounded to ~11m, because
+-- two moms who both add the same café by hand have no place_id and would
+-- otherwise stay apart forever (the same address geocodes to the same point).
+-- Failing even that, a spot is its own group: the old behaviour, and the safe
+-- one.
+--
+-- Applied via the `loved_spot_grouping` migration; this file is the record.
+-- Adds: loved_spot_key(), discover_places(), discover_place().
+-- The per-post reads (discover_spots / discover_spot / discover_spots_by_poster)
+-- stay — a contributor's profile is a list of HER recommendations, not of
+-- places, and grouping them there would be wrong.

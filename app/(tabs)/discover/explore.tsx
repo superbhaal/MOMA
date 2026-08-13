@@ -14,10 +14,10 @@ import { spacing } from '@/constants/spacing';
 import { categoryLabel } from '@/constants/discover';
 import { useAuth } from '@/hooks/useAuth';
 import { useDiscoverRole } from '@/hooks/useDiscoverRole';
-import { useLovedSpots } from '@/hooks/useLovedSpots';
+import { useLovedPlaces } from '@/hooks/useLovedSpots';
 import { matchesQuery } from '@/lib/search';
 import { useAppStore } from '@/store/useAppStore';
-import type { LovedKind, LovedCategory } from '@/types';
+import type { LovedKind, LovedCategory, LovedPlace } from '@/types';
 
 /**
  * Explore · Map — places & practitioners loved by named moms nearby. An
@@ -45,7 +45,7 @@ export default function DiscoverExplore() {
   const setCategory = (v: LovedCategory | 'all') =>
     (mode === 'place' ? setPlaceCat : setPersonCat)(v);
 
-  const { spots, loading, error, refresh } = useLovedSpots(mode, category);
+  const { places, loading, error, refresh } = useLovedPlaces(mode, category);
 
   // Refetch when returning to the map (e.g. after publishing a new spot).
   useFocusEffect(
@@ -58,16 +58,16 @@ export default function DiscoverExplore() {
   // matcher with the Learn feed, so accents fold and terms can arrive in any
   // order — "nuria cafe" finds Núria's café.
   const filtered = useMemo(() => {
-    if (!query.trim()) return spots;
-    return spots.filter((s) =>
+    if (!query.trim()) return places;
+    return places.filter((s: LovedPlace) =>
       matchesQuery(query, [
         s.name,
         s.address,
         categoryLabel(s.category),
-        s.poster?.display_name,
+        ...s.recommendations.map((r) => r.poster_name),
       ]),
     );
-  }, [spots, query]);
+  }, [places, query]);
 
   const me =
     user?.latitude != null && user?.longitude != null
@@ -112,7 +112,7 @@ export default function DiscoverExplore() {
         onLayout={(e: LayoutChangeEvent) => setCanvasH(e.nativeEvent.layout.height)}
       >
         <ExploreMap
-          spots={filtered}
+          places={filtered}
           me={me}
           currentUserId={user?.id}
           onSelectSpot={(id) => router.push({ pathname: '/discover/place/[id]', params: { id } })}

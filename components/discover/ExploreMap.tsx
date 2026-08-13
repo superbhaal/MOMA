@@ -2,10 +2,10 @@ import { StyleSheet } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, type Region } from 'react-native-maps';
 import { colors } from '@/constants/colors';
 import { categoryColor, categoryLabel } from '@/constants/discover';
-import type { LovedSpotWithPoster } from '@/types';
+import type { LovedPlace } from '@/types';
 
 interface ExploreMapProps {
-  spots: LovedSpotWithPoster[];
+  places: LovedPlace[];
   me: { lat: number; lng: number } | null;
   currentUserId?: string;
   onSelectSpot: (id: string) => void;
@@ -42,12 +42,13 @@ function initialRegion(
 
 /**
  * Interactive Explore map (Apple Maps on iOS — no key). Pan/zoom, a live
- * user-location dot, and tappable pins. All pins look identical (no ranking);
- * the current user's own contributions read cobalt. Centres on the user's area;
- * pan/zoom to reach spots further out (the list stays authoritative).
+ * user-location dot, and tappable pins. One pin per PLACE, not per post — a
+ * café three moms have recommended is one point on the map. Pin colour says
+ * what it is; cobalt overrides to say you recommended it. Centres on the user's
+ * area; pan/zoom to reach places further out (the list stays authoritative).
  */
-export function ExploreMap({ spots, me, currentUserId, onSelectSpot }: ExploreMapProps) {
-  const withCoords = spots.filter((s) => s.lat != null && s.lng != null);
+export function ExploreMap({ places, me, currentUserId, onSelectSpot }: ExploreMapProps) {
+  const withCoords = places.filter((s) => s.lat != null && s.lng != null);
   const coords = withCoords.map((s) => ({ latitude: s.lat as number, longitude: s.lng as number }));
 
   return (
@@ -67,7 +68,9 @@ export function ExploreMap({ spots, me, currentUserId, onSelectSpot }: ExploreMa
           coordinate={{ latitude: s.lat as number, longitude: s.lng as number }}
           // Colour says what it is; cobalt still overrides to say it's yours.
           pinColor={
-            s.poster_id === currentUserId ? colors.cobalt : categoryColor(s.category)
+            currentUserId && s.recommendations.some((r) => r.poster_id === currentUserId)
+              ? colors.cobalt
+              : categoryColor(s.category)
           }
           onPress={() => onSelectSpot(s.id)}
           accessibilityLabel={`${s.name} — ${categoryLabel(s.category)}`}

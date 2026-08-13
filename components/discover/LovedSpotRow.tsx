@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
@@ -7,26 +8,37 @@ import { textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { staticMapUri } from '@/lib/maps';
 import { categoryLabel } from '@/constants/discover';
-import type { LovedSpotWithPoster } from '@/types';
+import type { LovedPlace } from '@/types';
 
 interface LovedSpotRowProps {
-  spot: LovedSpotWithPoster;
+  spot: LovedPlace;
   onPress: () => void;
-  /** Marks a spot the current user added (contributor variant). */
+  /** Marks a place the current user recommended (contributor variant). */
   addedByYou?: boolean;
 }
 
 /**
- * One row in the Explore sheet. Place → static-map thumbnail; person → avatar
- * with the recommender's identity ring. Meta attributes the recommendation to a
- * named human. Trailing identity dot in the recommender's colour.
+ * One row in the Explore sheet — one PLACE, however many moms recommended it.
+ *
+ * The attribution line names them in order, newest first, and stops at two
+ * before falling back to "+N more": three names is a list, two is a sentence.
+ * The heart carries the count, which is what the client asked for — a count of
+ * moms who vouched, not of anonymous taps.
  */
 export function LovedSpotRow({ spot, onPress, addedByYou }: LovedSpotRowProps) {
   const [thumbFailed, setThumbFailed] = useState(false);
-  const ring = spot.poster?.profile_color ?? colors.fuchsia;
-  const who = spot.poster?.display_name ?? 'a mom';
+  const recs = spot.recommendations ?? [];
+  const ring = recs[0]?.poster_color ?? colors.fuchsia;
+  const who = recs[0]?.poster_name ?? 'a mom';
   const cat = categoryLabel(spot.category);
-  const meta = spot.kind === 'place' ? `${who} · ${cat}` : `Loved by ${who} · ${cat}`;
+  const names =
+    recs.length <= 2
+      ? recs.map((r) => r.poster_name ?? 'a mom').join(' & ')
+      : `${recs
+          .slice(0, 2)
+          .map((r) => r.poster_name ?? 'a mom')
+          .join(', ')} +${recs.length - 2}`;
+  const meta = spot.kind === 'place' ? `${names} · ${cat}` : `Loved by ${names} · ${cat}`;
   // Her photo before the street plan — same order as the detail hero.
   const thumb = spot.photo_url ?? staticMapUri(spot);
 
@@ -74,7 +86,18 @@ export function LovedSpotRow({ spot, onPress, addedByYou }: LovedSpotRowProps) {
         </View>
       </View>
 
-      <View style={[styles.dot, { backgroundColor: ring }]} />
+      {/* The count only earns its place once it says something a single name
+          doesn't. One recommendation shows the identity dot, as before. */}
+      {spot.rec_count > 1 ? (
+        <View style={styles.loves}>
+          <Ionicons name="heart" size={13} color={colors.fuchsia} />
+          <Typography style={styles.lovesCount} color={colors.fuchsia}>
+            {spot.rec_count}
+          </Typography>
+        </View>
+      ) : (
+        <View style={[styles.dot, { backgroundColor: ring }]} />
+      )}
     </Pressable>
   );
 }
@@ -104,5 +127,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   youText: textStyles.labelS,
+  loves: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  lovesCount: textStyles.controlStrong,
   dot: { width: 10, height: 10, borderRadius: 5 },
 });

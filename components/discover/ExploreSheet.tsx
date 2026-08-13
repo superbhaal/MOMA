@@ -14,7 +14,7 @@ import { LovedSpotRow } from '@/components/discover/LovedSpotRow';
 import { colors } from '@/constants/colors';
 import { fonts, textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
-import type { LovedKind, LovedSpotWithPoster } from '@/types';
+import type { LovedKind, LovedPlace } from '@/types';
 
 const DISCLAIMER =
   'These are personal recommendations from other moms. Always do your own due diligence for healthcare decisions.';
@@ -24,7 +24,7 @@ const EXPANDED_DEFAULT = 560;
 
 interface ExploreSheetProps {
   mode: LovedKind;
-  spots: LovedSpotWithPoster[];
+  spots: LovedPlace[];
   loading: boolean;
   error: string | null;
   expanded: boolean;
@@ -245,9 +245,11 @@ export function ExploreSheet({
         ) : (
           spots.map((s) => (
             <LovedSpotRow
-              key={s.id}
+              key={s.key}
               spot={s}
-              addedByYou={!!currentUserId && s.poster_id === currentUserId}
+              addedByYou={
+                !!currentUserId && s.recommendations.some((r) => r.poster_id === currentUserId)
+              }
               onPress={() => onSelect(s.id)}
             />
           ))

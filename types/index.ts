@@ -232,6 +232,53 @@ export interface Contributor {
   spot_count: number;
 }
 
+/** One mom's recommendation of a place, inside that place's group. */
+export interface SpotRecommendation {
+  spot_id: string;
+  poster_id: string;
+  poster_name: string | null;
+  poster_color: string | null;
+  note: string;
+  photo_url: string | null;
+  created_at: string;
+}
+
+/**
+ * A place, as opposed to a post about a place (028_loved_spot_grouping).
+ *
+ * Until now a row WAS a place: two moms recommending the same café made two
+ * pins and two detail pages, and nothing told the reader that two people had
+ * vouched for it. Rows sharing a Google place_id — or, for hand-added places,
+ * the same geocoded coordinates — now arrive as one of these, carrying every
+ * recommendation made about it.
+ *
+ * The identity fields come from the earliest recommendation; the contact
+ * details from whichever one bothered to give them; the photo from the most
+ * recent one that has any.
+ */
+export interface LovedPlace {
+  key: string;
+  /** The earliest recommendation's id — what the detail route opens on. */
+  id: string;
+  kind: LovedKind;
+  name: string;
+  category: LovedCategory;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  place_id: string | null;
+  city: string | null;
+  phone: string | null;
+  email: string | null;
+  booking_url: string | null;
+  photo_url: string | null;
+  /** The newest recommendation's timestamp — what the list sorts on. */
+  created_at: string;
+  rec_count: number;
+  /** Newest first. Never empty. */
+  recommendations: SpotRecommendation[];
+}
+
 /** A loved spot joined with its contributor, for the sheet row + detail. */
 export interface LovedSpotWithPoster extends LovedSpot {
   poster: {

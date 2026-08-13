@@ -23,7 +23,7 @@ import { categoryLabel } from '@/constants/discover';
 import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeleteLovedSpot } from '@/hooks/useDeleteLovedSpot';
-import { useLovedSpot } from '@/hooks/useLovedSpots';
+import { useLovedPlace } from '@/hooks/useLovedSpots';
 
 const HERO_H = 280;
 
@@ -76,13 +76,15 @@ export default function LovedSpotDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { spot, loading, error } = useLovedSpot(id);
+  const { place: spot, loading, error, refresh } = useLovedPlace(id);
   const { user } = useAuth();
   const { remove, deleting } = useDeleteLovedSpot();
   const [heroFailed, setHeroFailed] = useState(false);
 
   const back = () => router.back();
-  const isMine = !!user && !!spot && spot.poster_id === user.id;
+  // My own recommendation inside this place's group, if I made one.
+  const mine = user && spot ? spot.recommendations.find((r) => r.poster_id === user.id) : null;
+  const isMine = !!mine;
 
   function confirmDelete() {
     if (!spot) return;
@@ -95,12 +97,15 @@ export default function LovedSpotDetail() {
           text: 'Remove',
           style: 'destructive',
           onPress: async () => {
-            const { error: err } = await remove(spot.id);
+            const { error: err } = await remove(mine!.spot_id);
             if (err) {
               Alert.alert("Couldn't remove it", err);
               return;
             }
-            router.replace('/discover/explore');
+            // The place survives if others recommended it too — go back to it
+            // rather than to the map when there's still something to see.
+            if (spot.rec_count > 1) refresh();
+            else router.replace('/discover/explore');
           },
         },
       ],
@@ -131,8 +136,10 @@ export default function LovedSpotDetail() {
   }
 
   const isPerson = spot.kind === 'person';
-  const ring = spot.poster?.profile_color ?? colors.fuchsia;
-  const who = spot.poster?.display_name ?? 'a mom';
+  // The hero's identity treatment follows the first recommendation — for a
+  // person, whose face the page is about, that's whoever vouched for them first.
+  const ring = spot.recommendations[0]?.poster_color ?? colors.fuchsia;
+  const who = spot.recommendations[0]?.poster_name ?? 'a mom';
   const heroUri = discoverMapUri([spot], { width: 393, height: HERO_H, zoom: 15 });
 
   const onOpenMaps = () =>
@@ -212,33 +219,57 @@ export default function LovedSpotDetail() {
             </Typography>
           </View>
 
-          {/* Posted-by — the trust anchor → the contributor's profile. */}
-          <Pressable
-            style={({ pressed }) => [styles.postedRow, pressed && styles.postedPressed]}
-            onPress={() =>
-              router.push({ pathname: '/discover/contributor/[id]', params: { id: spot.poster_id } })
-            }
-            accessibilityRole="button"
-            accessibilityLabel={`See ${who}'s profile`}
-          >
-            <Avatar name={who} ringColor={ring} size={48} ringWidth={2} />
-            <View style={styles.postedMid}>
-              <Typography style={styles.postedName} color={colors.text}>
-                Posted by {who}
-              </Typography>
-              <Typography style={styles.postedTime} color={colors.labelMuted}>
-                {timeAgo(spot.created_at)}
+          {/* Every mom who vouched for this, newest first. One is a name;
+              several is the reason the grouping exists — the reader should see
+              at a glance that this isn't one person's opinion. */}
+          {spot.rec_count > 1 ? (
+            <View style={styles.lovesRow}>
+              <Ionicons name="heart" size={15} color={colors.fuchsia} />
+              <Typography style={styles.lovesText} color={colors.fuchsia}>
+                Loved by {spot.rec_count} moms
               </Typography>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.labelTertiary} />
-          </Pressable>
+          ) : null}
 
-          {/* The quote — the emotional core. */}
-          <View style={styles.quote}>
-            <Typography style={styles.quoteText} color={colors.mutedStrong}>
-              “{spot.note}”
-            </Typography>
-          </View>
+          {spot.recommendations.map((r) => (
+            <View key={r.spot_id} style={styles.rec}>
+              <Pressable
+                style={({ pressed }) => [styles.postedRow, pressed && styles.postedPressed]}
+                onPress={() =>
+                  router.push({
+                    pathname: '/discover/contributor/[id]',
+                    params: { id: r.poster_id },
+                  })
+                }
+                accessibilityRole="button"
+                accessibilityLabel={`See ${r.poster_name ?? 'her'} profile`}
+              >
+                <Avatar
+                  name={r.poster_name ?? 'a mom'}
+                  ringColor={r.poster_color ?? colors.fuchsia}
+                  photoUrl={r.photo_url ?? undefined}
+                  size={48}
+                  ringWidth={2}
+                />
+                <View style={styles.postedMid}>
+                  <Typography style={styles.postedName} color={colors.text}>
+                    Posted by {r.poster_name ?? 'a mom'}
+                  </Typography>
+                  <Typography style={styles.postedTime} color={colors.labelMuted}>
+                    {timeAgo(r.created_at)}
+                  </Typography>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={colors.labelTertiary} />
+              </Pressable>
+
+              {/* The quote — the emotional core. */}
+              <View style={styles.quote}>
+                <Typography style={styles.quoteText} color={colors.mutedStrong}>
+                  “{r.note}”
+                </Typography>
+              </View>
+            </View>
+          ))}
 
           <Button title="Open in Google Maps  ↗" onPress={onOpenMaps} />
 
@@ -375,6 +406,9 @@ const styles = StyleSheet.create({
 
   phoneRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.lg },
   phoneText: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
+  lovesRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: spacing.lg },
+  lovesText: { fontFamily: fonts.bodySemi, fontSize: scaled(13) },
+  rec: { marginTop: spacing.md },
   deleteRow: { alignItems: 'center', paddingTop: spacing.xxl, paddingBottom: spacing.lg },
   deleteText: { fontFamily: fonts.bodyMed, fontSize: scaled(13) },
 

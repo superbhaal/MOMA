@@ -4,6 +4,7 @@ import type {
   Contributor,
   LovedKind,
   LovedCategory,
+  LovedPlace,
   LovedSpotWithPoster,
 } from '@/types';
 
@@ -61,27 +62,27 @@ function toSpot(r: SpotRow): LovedSpotWithPoster {
 }
 
 /**
- * Explore map spots for one mode (place | person), optionally scoped to a single
- * category. Reads via the `discover_spots` RPC so each spot carries its
- * contributor's public attribution despite `users` RLS.
+ * Explore map places for one mode (place | person), optionally scoped to a
+ * single category. Reads via `discover_places` (028), which groups rows into
+ * places: one pin, one row, however many moms have vouched for it.
  */
-export function useLovedSpots(kind: LovedKind, category: LovedCategory | 'all') {
-  const [spots, setSpots] = useState<LovedSpotWithPoster[]>([]);
+export function useLovedPlaces(kind: LovedKind, category: LovedCategory | 'all') {
+  const [places, setPlaces] = useState<LovedPlace[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const { data, error: err } = await supabase.rpc('discover_spots', {
+    const { data, error: err } = await supabase.rpc('discover_places', {
       p_kind: kind,
       p_category: category === 'all' ? null : category,
     });
     if (err) {
       setError('Couldn’t load the map. Pull to retry.');
-      setSpots([]);
+      setPlaces([]);
     } else {
-      setSpots(((data as SpotRow[]) ?? []).map(toSpot));
+      setPlaces((data as LovedPlace[]) ?? []);
     }
     setLoading(false);
   }, [kind, category]);
@@ -90,40 +91,37 @@ export function useLovedSpots(kind: LovedKind, category: LovedCategory | 'all') 
     refresh();
   }, [refresh]);
 
-  return { spots, loading, error, refresh };
+  return { places, loading, error, refresh };
 }
 
-/** A single loved spot with its contributor, for the detail screen. */
-export function useLovedSpot(id: string | undefined) {
-  const [spot, setSpot] = useState<LovedSpotWithPoster | null>(null);
+/**
+ * One place and every recommendation of it, for the detail screen. Takes a spot
+ * id — the route still opens on whichever pin was tapped — and returns the
+ * group that spot belongs to.
+ */
+export function useLovedPlace(id: string | undefined) {
+  const [place, setPlace] = useState<LovedPlace | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const refresh = useCallback(async () => {
     if (!id) {
       setLoading(false);
       return;
     }
-    let cancelled = false;
     setLoading(true);
     setError(null);
-    (async () => {
-      const { data, error: err } = await supabase.rpc('discover_spot', { p_id: id });
-      if (cancelled) return;
-      if (err) {
-        setError('Couldn’t load this recommendation.');
-      } else {
-        const row = (data as SpotRow[])?.[0];
-        setSpot(row ? toSpot(row) : null);
-      }
-      setLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
+    const { data, error: err } = await supabase.rpc('discover_place', { p_id: id });
+    if (err) setError('Couldn’t load this recommendation.');
+    else setPlace(((data as LovedPlace[]) ?? [])[0] ?? null);
+    setLoading(false);
   }, [id]);
 
-  return { spot, loading, error };
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { place, loading, error, refresh };
 }
 
 /** A contributor's public profile + their loved spots, for the profile screen. */
