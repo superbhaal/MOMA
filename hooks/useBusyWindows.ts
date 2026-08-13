@@ -9,7 +9,7 @@ import type { AvailabilityBlock } from '@/types';
  * Absence of a row = free/unknown. The admin cross-references everyone's busy
  * rows to pick a slot that fits the whole group.
  */
-export function useBusyWindows(daysAhead = 14) {
+export function useBusyWindows(daysAhead = 14, opts: { fresh?: boolean } = {}) {
   const { user } = useAuth();
   const [busy, setBusy] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -20,6 +20,16 @@ export function useBusyWindows(daysAhead = 14) {
   const refresh = useCallback(async () => {
     if (!user) return;
     setLoading(true);
+    // Asked as a condition of joining, the question is "what can't you make in
+    // the NEXT two weeks" — so it's asked from a blank grid. Crosses left from a
+    // fortnight ago aren't an answer to it, and prefilling them invites a Done
+    // that means nothing. Nothing is deleted here: the window is replaced on
+    // Done, so backing out leaves what was already recorded alone.
+    if (opts.fresh) {
+      setBusy(new Set());
+      setLoading(false);
+      return;
+    }
     const { data } = await supabase
       .from('availability_slots')
       .select('date, block, available')
@@ -29,7 +39,7 @@ export function useBusyWindows(daysAhead = 14) {
       .lte('date', toDate);
     setBusy(new Set((data ?? []).map((s: any) => key(s.date, s.block))));
     setLoading(false);
-  }, [user?.id, fromDate, toDate]);
+  }, [user?.id, fromDate, toDate, opts.fresh]);
 
   useEffect(() => {
     refresh();
@@ -54,6 +64,10 @@ export function useBusyWindows(daysAhead = 14) {
         return next;
       });
 
+      // Fresh grids don't write as you tap; `commitWindow` replaces the whole
+      // window on Done. Backing out then leaves the old answer untouched.
+      if (opts.fresh) return;
+
       if (nowBusy) {
         const { error } = await supabase
           .from('availability_slots')
@@ -72,10 +86,30 @@ export function useBusyWindows(daysAhead = 14) {
         if (error) refresh();
       }
     },
-    [user?.id, busy, refresh],
+    [user?.id, busy, refresh, opts.fresh],
   );
 
-  return { busy, count: busy.size, loading, isBusy, toggle, refresh };
+  /**
+   * Write exactly what's on screen over the whole window, for the fresh-grid
+   * path: the toggles have been local only, and Done is the moment the answer
+   * becomes the record.
+   */
+  const commitWindow = useCallback(async () => {
+    if (!user) return;
+    await supabase
+      .from('availability_slots')
+      .delete()
+      .eq('user_id', user.id)
+      .gte('date', fromDate)
+      .lte('date', toDate);
+    const rows = [...busy].map((k) => {
+      const [date, block] = k.split('|');
+      return { user_id: user.id, date, block, available: false };
+    });
+    if (rows.length) await supabase.from('availability_slots').insert(rows);
+  }, [user?.id, busy, fromDate, toDate]);
+
+  return { busy, count: busy.size, loading, isBusy, toggle, refresh, commitWindow };
 }
 
 function key(date: string, block: string): string {

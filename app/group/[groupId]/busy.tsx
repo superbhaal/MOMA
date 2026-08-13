@@ -30,7 +30,10 @@ export default function BusyWindowsScreen() {
     groupId: string;
     accept?: string;
   }>();
-  const { count, isBusy, toggle } = useBusyWindows(DAYS_AHEAD);
+  const isJoinGate = acceptParam === '1';
+  const { count, isBusy, toggle, commitWindow } = useBusyWindows(DAYS_AHEAD, {
+    fresh: isJoinGate,
+  });
   const { accept } = useMatching();
   const [joining, setJoining] = useState(false);
 
@@ -44,12 +47,23 @@ export default function BusyWindowsScreen() {
   async function done() {
     if (acceptParam === '1') {
       setJoining(true);
+      await commitWindow();
       const { error } = await accept();
       setJoining(false);
       if (error) {
         Alert.alert("Couldn't join this group", error.message);
         return;
       }
+      // Out of the modal entirely before opening the chat.
+      //
+      // This screen is pushed from the group-preview modal, so replacing it with
+      // the chat left the chat living INSIDE that modal — a card within a card,
+      // with a back gesture that returned to the join screen of a group you had
+      // already joined. Dismissing everything first puts the chat where it
+      // belongs, one push from Home.
+      router.dismissAll();
+      if (groupId) router.push(`/group/${groupId}/chat`);
+      return;
     }
     if (groupId) router.replace(`/group/${groupId}/chat`);
     else router.replace('/(tabs)');
