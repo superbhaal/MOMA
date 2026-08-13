@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
@@ -16,6 +9,13 @@ import { fonts, textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 import { STAGE_CHIP_GROUPS } from '@/constants/discover';
+import {
+  ComposerChips,
+  ComposerCta,
+  ComposerField,
+  ComposerInput,
+  ComposerLabel,
+} from '@/components/composer';
 import { useCreateReel, type ReelMeta } from '@/hooks/useCreateReel';
 
 type Platform = 'instagram' | 'tiktok';
@@ -167,75 +167,52 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
 
         {platform ? (
           <View style={styles.form}>
-            <FieldLabel label={COPY[platform].label} hint="required" />
-            <View style={styles.inputRow}>
-              <TextInput
-                style={styles.input}
+            <ComposerField label={COPY[platform].label} hint="required">
+              <ComposerInput
                 value={url}
                 onChangeText={setUrl}
                 placeholder={COPY[platform].placeholder}
-                placeholderTextColor={colors.muted}
                 autoCapitalize="none"
-                autoCorrect={false}
                 keyboardType="url"
-                inputMode="url"
+                trailing={
+                  resolving ? <ActivityIndicator size="small" color={colors.cobalt} /> : null
+                }
               />
-              {resolving ? <ActivityIndicator size="small" color={colors.cobalt} /> : null}
-            </View>
-            <View style={styles.rule} />
+            </ComposerField>
 
-            <FieldLabel label="Who’s it from?" hint="optional" />
-            <TextInput
-              style={styles.input}
-              value={from}
-              onChangeText={(v) => {
-                fromTouched.current = true;
-                setFrom(v);
-              }}
-              placeholder={COPY[platform].from}
-              placeholderTextColor={colors.muted}
-            />
-            <View style={styles.rule} />
+            <ComposerField label="Who’s it from?" hint="optional">
+              <ComposerInput
+                value={from}
+                onChangeText={(v) => {
+                  fromTouched.current = true;
+                  setFrom(v);
+                }}
+                placeholder={COPY[platform].from}
+              />
+            </ComposerField>
 
-            <FieldLabel label="Why this one?" hint="optional" />
-            <TextInput
-              style={[styles.input, styles.inputMulti]}
-              value={why}
-              onChangeText={setWhy}
-              placeholder="One sentence on what made you save it."
-              placeholderTextColor={colors.muted}
-              multiline
-              maxLength={240}
-            />
-            <View style={styles.rule} />
+            <ComposerField label="Why this one?" hint="optional">
+              <ComposerInput
+                value={why}
+                onChangeText={setWhy}
+                placeholder="One sentence on what made you save it."
+                multiline
+                maxLength={240}
+              />
+            </ComposerField>
 
-            <FieldLabel label="Who is this for?" hint="required · pick all that apply" />
+            <ComposerLabel label="Who is this for?" hint="required · pick all that apply" />
             {STAGE_CHIP_GROUPS.map((g) => (
               <View key={g.group} style={styles.stageGroup}>
                 <Typography style={styles.stageGroupLabel} color={colors.mutedStrong}>
                   {g.group.toUpperCase()}
                 </Typography>
-                <View style={styles.chipRow}>
-                  {g.rows.map((row) => {
-                    const on = stages.includes(row.value);
-                    return (
-                      <Pressable
-                        key={row.value}
-                        onPress={() => toggleStage(row.value)}
-                        style={[styles.chip, on && styles.chipOn]}
-                        accessibilityRole="checkbox"
-                        accessibilityState={{ checked: on }}
-                      >
-                        <Typography
-                          style={styles.chipLabel}
-                          color={on ? colors.white : colors.text}
-                        >
-                          {row.label}
-                        </Typography>
-                      </Pressable>
-                    );
-                  })}
-                </View>
+                <ComposerChips
+                  options={g.rows}
+                  selected={stages}
+                  onToggle={toggleStage}
+                  tone="neutral"
+                />
               </View>
             ))}
 
@@ -254,20 +231,12 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
           </View>
         ) : null}
 
-        <Pressable
+        <ComposerCta
+          title={platform ? 'Share with the community' : 'Pick what you want to share'}
           onPress={submit}
           disabled={!canPost}
-          style={[styles.cta, !canPost && styles.ctaOff]}
-          accessibilityRole="button"
-        >
-          {submitting ? (
-            <ActivityIndicator size="small" color={colors.white} />
-          ) : (
-            <Typography style={styles.ctaLabel} color={colors.white}>
-              {platform ? 'Share with the community' : 'Pick what you want to share'}
-            </Typography>
-          )}
-        </Pressable>
+          busy={submitting}
+        />
 
         <Pressable onPress={onClose} style={styles.notNow} hitSlop={8}>
           <Typography style={styles.notNowLabel} color={colors.mutedStrong}>
@@ -276,19 +245,6 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
         </Pressable>
       </ScrollView>
     </ActionSheet>
-  );
-}
-
-function FieldLabel({ label, hint }: { label: string; hint: string }) {
-  return (
-    <View style={styles.fieldLabelRow}>
-      <Typography style={styles.fieldLabel} color={colors.text}>
-        {label.toUpperCase()}
-      </Typography>
-      <Typography style={styles.fieldHint} color={colors.muted}>
-        {hint}
-      </Typography>
-    </View>
   );
 }
 
@@ -373,38 +329,9 @@ const styles = StyleSheet.create({
   optionSub: { ...textStyles.cardBody, marginTop: 1 },
 
   form: { marginTop: spacing.lg },
-  fieldLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    marginTop: spacing.lg,
-  },
-  fieldLabel: textStyles.labelS,
-  fieldHint: textStyles.cardBody,
-  inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  input: {
-    flex: 1,
-    fontFamily: fonts.readingItal,
-    fontSize: scaled(15),
-    lineHeight: scaled(22),
-    color: colors.text,
-    paddingVertical: spacing.md,
-  },
-  inputMulti: { minHeight: 64, textAlignVertical: 'top' },
-  rule: { height: 1, backgroundColor: colors.line },
 
   stageGroup: { marginTop: spacing.md },
   stageGroupLabel: { ...textStyles.labelS, marginBottom: spacing.sm },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  chip: {
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    borderRadius: radius.pill,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-  },
-  chipOn: { backgroundColor: colors.cobalt, borderColor: colors.cobalt },
-  chipLabel: textStyles.control,
 
   hintRow: {
     flexDirection: 'row',
@@ -415,18 +342,8 @@ const styles = StyleSheet.create({
   hintText: { ...textStyles.cardBody, flex: 1, fontFamily: fonts.readingItal },
   error: { ...textStyles.cardBody, marginTop: spacing.md },
 
-  cta: {
-    backgroundColor: colors.cobalt,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 52,
-    marginTop: spacing.xl,
-  },
   // Pale rather than faded: a 22%-opacity button reads as broken, a lighter
   // one reads as waiting for you.
-  ctaOff: { backgroundColor: '#93A8E8' },
-  ctaLabel: { fontFamily: fonts.bodySemi, fontSize: scaled(16) },
   notNow: { alignItems: 'center', paddingVertical: spacing.lg },
   notNowLabel: textStyles.control,
 });

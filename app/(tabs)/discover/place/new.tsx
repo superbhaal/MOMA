@@ -13,7 +13,6 @@ import {
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { ProgressSegments } from '@/components/discover/composer/ProgressSegments';
@@ -25,7 +24,6 @@ import { scaled } from '@/constants/scale';
 import { searchPlaces } from '@/lib/places';
 import { staticMapUri } from '@/lib/maps';
 import { uploadImage } from '@/lib/uploadImage';
-import { ensurePhotoPermission } from '@/lib/photoPermission';
 import {
   clearDraft,
   isDraftDirty,
@@ -33,13 +31,20 @@ import {
   saveDraft,
   type ComposerDraft,
 } from '@/lib/composerDraft';
+import {
+  ComposerChips,
+  ComposerCta,
+  ComposerDisclosure,
+  ComposerField,
+  ComposerInput,
+  ComposerPhoto,
+} from '@/components/composer';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateLovedSpot } from '@/hooks/useCreateLovedSpot';
 import type { LovedCategory, LovedKind, PlaceAttachment } from '@/types';
 
 const NOTE_MIN = 15;
 const NOTE_MAX = 240;
-const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 const STEPS = 6;
 
 /**
@@ -166,26 +171,6 @@ export default function PlaceComposer() {
     patch({ kind: next, location: null, category: null });
   };
 
-  async function pickPhoto() {
-    setPhotoError(null);
-    if (!(await ensurePhotoPermission())) return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.85,
-    });
-    if (result.canceled || !result.assets?.length) return;
-    const asset = result.assets[0];
-    // Checked here rather than at upload: the poster is looking at the picker,
-    // and finding out three steps later is finding out too late.
-    if (asset.fileSize && asset.fileSize > MAX_PHOTO_BYTES) {
-      setPhotoError('That one’s over 8MB — try a smaller picture.');
-      return;
-    }
-    patch({ photoUri: asset.uri });
-  }
-
   const publish = async () => {
     if (!draft.category || !draft.location) return;
     setPhotoError(null);
@@ -301,8 +286,7 @@ export default function PlaceComposer() {
         {step === 2 && (
           <StepPhoto
             uri={draft.photoUri}
-            error={photoError}
-            onPick={pickPhoto}
+            onPick={(photoUri) => patch({ photoUri })}
             onClear={() => patch({ photoUri: null })}
             onSkip={() => {
               patch({ photoUri: null });
@@ -544,59 +528,35 @@ function StepFind({
         </Pressable>
       ) : (
         <View style={styles.manualForm}>
-          <FieldRow label={kind === 'place' ? 'NAME' : 'THEIR NAME'} hint="required" />
-          <TextInput
-            style={styles.manualInput}
-            value={manualName}
-            onChangeText={setManualName}
-            placeholder={kind === 'place' ? 'Café Lindengracht' : 'Dr. Nora van Dijk'}
-            placeholderTextColor={colors.muted}
-            autoFocus
-          />
-          <View style={styles.rule} />
+          <ComposerField label={kind === 'place' ? 'Name' : 'Their name'} hint="required">
+            <ComposerInput
+              value={manualName}
+              onChangeText={setManualName}
+              placeholder={kind === 'place' ? 'Café Lindengracht' : 'Dr. Nora van Dijk'}
+              autoFocus
+            />
+          </ComposerField>
 
-          <FieldRow label="ADDRESS" hint="required" />
-          <TextInput
-            style={styles.manualInput}
-            value={manualAddress}
-            onChangeText={setManualAddress}
-            placeholder={`Street and number${city ? `, ${city}` : ''}`}
-            placeholderTextColor={colors.muted}
-          />
-          <View style={styles.rule} />
+          <ComposerField label="Address" hint="required">
+            <ComposerInput
+              value={manualAddress}
+              onChangeText={setManualAddress}
+              placeholder={`Street and number${city ? `, ${city}` : ''}`}
+            />
+          </ComposerField>
           <Typography style={styles.manualHint} color={colors.muted}>
             We need the address to drop a pin — without one it won’t show on the map.
           </Typography>
 
-          <Pressable
+          <ComposerCta
+            title="Use this"
             onPress={saveManual}
-            disabled={!manualReady || locating}
-            style={[styles.manualCta, !manualReady && styles.manualCtaOff]}
-            accessibilityRole="button"
-          >
-            {locating ? (
-              <ActivityIndicator size="small" color={colors.white} />
-            ) : (
-              <Typography style={styles.manualCtaText} color={colors.white}>
-                Use this
-              </Typography>
-            )}
-          </Pressable>
+            disabled={!manualReady}
+            busy={locating}
+            size="md"
+          />
         </View>
       )}
-    </View>
-  );
-}
-
-function FieldRow({ label, hint }: { label: string; hint: string }) {
-  return (
-    <View style={styles.fieldRow}>
-      <Typography style={styles.fieldRowLabel} color={colors.text}>
-        {label}
-      </Typography>
-      <Typography style={styles.fieldRowHint} color={colors.muted}>
-        {hint}
-      </Typography>
     </View>
   );
 }
@@ -636,61 +596,16 @@ function StepConfirm({ location }: { location: ComposerDraft['location'] }) {
 // ── Step 3 · photo ───────────────────────────────────────────────
 function StepPhoto({
   uri,
-  error,
   onPick,
   onClear,
   onSkip,
 }: {
   uri: string | null;
-  error: string | null;
-  onPick: () => void;
+  onPick: (uri: string) => void;
   onClear: () => void;
   onSkip: () => void;
 }) {
-  return (
-    <View>
-      {uri ? (
-        <View>
-          <Image source={{ uri }} style={styles.photo} resizeMode="cover" />
-          <View style={styles.photoActions}>
-            <Pressable onPress={onPick} hitSlop={8}>
-              <Typography style={styles.photoAction} color={colors.cobalt}>
-                Replace
-              </Typography>
-            </Pressable>
-            <Pressable onPress={onClear} hitSlop={8}>
-              <Typography style={styles.photoAction} color={colors.cherry}>
-                Remove
-              </Typography>
-            </Pressable>
-          </View>
-        </View>
-      ) : (
-        <>
-          <Pressable style={styles.dropzone} onPress={onPick} accessibilityRole="button">
-            <Ionicons name="add" size={26} color={colors.cobalt} />
-            <Typography style={styles.dropzoneLabel} color={colors.cobalt}>
-              Add a photo
-            </Typography>
-            <Typography style={styles.dropzoneHint} color={colors.muted}>
-              JPG, PNG · up to 8MB
-            </Typography>
-          </Pressable>
-          <Pressable onPress={onSkip} style={styles.skip} hitSlop={8}>
-            <Typography style={styles.skipText} color={colors.mutedStrong}>
-              Skip for now
-            </Typography>
-          </Pressable>
-        </>
-      )}
-
-      {error ? (
-        <Typography style={styles.errorText} color={colors.cherry}>
-          {error}
-        </Typography>
-      ) : null}
-    </View>
-  );
+  return <ComposerPhoto uri={uri} onPick={onPick} onClear={onClear} onSkip={onSkip} />;
 }
 
 // ── Step 4 · category ────────────────────────────────────────────
@@ -705,24 +620,11 @@ function StepCategory({
 }) {
   const set = kind === 'place' ? PLACE_CATEGORIES : PERSON_CATEGORIES;
   return (
-    <View style={styles.chipWrap}>
-      {set.map((c) => {
-        const on = value === c.value;
-        return (
-          <Pressable
-            key={c.value}
-            onPress={() => onPick(c.value)}
-            style={[styles.catChip, on && styles.catChipOn]}
-            accessibilityRole="button"
-            accessibilityState={{ selected: on }}
-          >
-            <Typography style={styles.catChipText} color={on ? colors.white : colors.cobalt}>
-              {c.label}
-            </Typography>
-          </Pressable>
-        );
-      })}
-    </View>
+    <ComposerChips
+      options={set}
+      selected={value ? [value] : []}
+      onToggle={(v) => onPick(v as LovedCategory)}
+    />
   );
 }
 
@@ -744,8 +646,6 @@ function StepNote({
   website: string;
   onContact: (p: { phone?: string; email?: string; website?: string }) => void;
 }) {
-  const [tipsOpen, setTipsOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
   const len = value.trim().length;
   return (
     <View>
@@ -765,88 +665,50 @@ function StepNote({
         {len < NOTE_MIN ? `${NOTE_MIN - len} more characters` : `${value.length}/${NOTE_MAX}`}
       </Typography>
 
-      <Pressable
-        onPress={() => setTipsOpen((v) => !v)}
-        style={styles.tipsHeader}
-        accessibilityRole="button"
-        accessibilityState={{ expanded: tipsOpen }}
-      >
-        <Typography style={styles.tipsTitle} color={colors.text}>
-          TIPS FOR A GOOD TIP
-        </Typography>
-        <Ionicons
-          name={tipsOpen ? 'chevron-down' : 'chevron-forward'}
-          size={16}
-          color={colors.mutedStrong}
-        />
-      </Pressable>
-
-      {tipsOpen
-        ? TIPS[kind].map((tip) => (
-            <View key={tip} style={styles.tip}>
-              <Typography style={styles.tipText} color={colors.mutedStrong}>
-                &ldquo;{tip}&rdquo;
-              </Typography>
-            </View>
-          ))
-        : null}
+      <ComposerDisclosure title="Tips for a good tip">
+        {TIPS[kind].map((tip) => (
+          <View key={tip} style={styles.tip}>
+            <Typography style={styles.tipText} color={colors.mutedStrong}>
+              &ldquo;{tip}&rdquo;
+            </Typography>
+          </View>
+        ))}
+      </ComposerDisclosure>
 
       {/* Contact details, offered and never asked for. Folded away by default:
           the note is what this step is for, and a row of empty fields under it
           would read as four more things to fill in. */}
-      <Pressable
-        onPress={() => setContactOpen((v) => !v)}
-        style={styles.tipsHeader}
-        accessibilityRole="button"
-        accessibilityState={{ expanded: contactOpen }}
-      >
-        <Typography style={styles.tipsTitle} color={colors.text}>
-          ANYTHING ELSE WORTH KNOWING?
+      <ComposerDisclosure title="Anything else worth knowing?">
+        <Typography style={styles.contactHint} color={colors.muted}>
+          All optional — add a way to reach them if you have one.
         </Typography>
-        <Ionicons
-          name={contactOpen ? 'chevron-down' : 'chevron-forward'}
-          size={16}
-          color={colors.mutedStrong}
-        />
-      </Pressable>
-
-      {contactOpen ? (
-        <View>
-          <Typography style={styles.contactHint} color={colors.muted}>
-            All optional — add a way to reach them if you have one.
-          </Typography>
-          <TextInput
-            style={styles.contactInput}
+        <ComposerField label="Phone">
+          <ComposerInput
             value={phone}
             onChangeText={(v) => onContact({ phone: v })}
             placeholder="Phone"
-            placeholderTextColor={colors.muted}
             keyboardType="phone-pad"
           />
-          <View style={styles.rule} />
-          <TextInput
-            style={styles.contactInput}
+        </ComposerField>
+        <ComposerField label="Email">
+          <ComposerInput
             value={email}
             onChangeText={(v) => onContact({ email: v })}
             placeholder="Email"
-            placeholderTextColor={colors.muted}
             autoCapitalize="none"
-            autoCorrect={false}
             keyboardType="email-address"
           />
-          <View style={styles.rule} />
-          <TextInput
-            style={styles.contactInput}
+        </ComposerField>
+        <ComposerField label="Website">
+          <ComposerInput
             value={website}
             onChangeText={(v) => onContact({ website: v })}
             placeholder="Website"
-            placeholderTextColor={colors.muted}
             autoCapitalize="none"
-            autoCorrect={false}
             keyboardType="url"
           />
-        </View>
-      ) : null}
+        </ComposerField>
+      </ComposerDisclosure>
     </View>
   );
 }
@@ -995,31 +857,7 @@ const styles = StyleSheet.create({
   manualText: textStyles.controlStrong,
   manualForm: { marginTop: spacing.lg },
   rule: { height: 1, backgroundColor: colors.line },
-  fieldRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    marginTop: spacing.md,
-  },
-  fieldRowLabel: textStyles.labelS,
-  fieldRowHint: textStyles.cardBody,
-  manualInput: {
-    fontFamily: fonts.body,
-    fontSize: scaled(16),
-    color: colors.text,
-    paddingVertical: spacing.md,
-  },
   manualHint: { ...textStyles.cardBody, marginTop: spacing.md },
-  manualCta: {
-    backgroundColor: colors.cobalt,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 48,
-    marginTop: spacing.lg,
-  },
-  manualCtaOff: { backgroundColor: '#93A8E8' },
-  manualCtaText: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
 
   // confirm
   // A rectangle, not the pill the other frames use: an oval crops the four
@@ -1041,41 +879,8 @@ const styles = StyleSheet.create({
   confirmAddress: { ...textStyles.cardBody, textAlign: 'center', marginTop: 2 },
 
   // photo
-  dropzone: {
-    height: 170,
-    borderRadius: 90,
-    borderWidth: 1.5,
-    borderColor: colors.cobalt,
-    borderStyle: 'dashed',
-    backgroundColor: colors.cobaltSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
-  },
-  dropzoneLabel: textStyles.controlStrong,
-  dropzoneHint: textStyles.cardBody,
-  skip: { alignItems: 'center', paddingVertical: spacing.lg },
-  skipText: { ...textStyles.control, textDecorationLine: 'underline' },
-  photo: { width: '100%', height: 200, borderRadius: radius.lg },
-  photoActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: spacing.xxl,
-    paddingVertical: spacing.lg,
-  },
-  photoAction: textStyles.controlStrong,
 
   // category
-  chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
-  catChip: {
-    borderWidth: 1.5,
-    borderColor: colors.cobalt,
-    borderRadius: radius.pill,
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-  },
-  catChipOn: { backgroundColor: colors.cobalt },
-  catChipText: textStyles.controlStrong,
 
   // note
   textarea: {
@@ -1091,14 +896,6 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   charCount: { ...textStyles.cardBody, marginTop: spacing.sm, textAlign: 'right' },
-  tipsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.md,
-  },
-  tipsTitle: textStyles.labelS,
   tip: {
     borderLeftWidth: 2,
     borderLeftColor: colors.line,
@@ -1107,12 +904,6 @@ const styles = StyleSheet.create({
   },
   tipText: { ...textStyles.cardBody, fontFamily: fonts.readingItal },
   contactHint: { ...textStyles.cardBody, marginBottom: spacing.sm },
-  contactInput: {
-    fontFamily: fonts.body,
-    fontSize: scaled(15),
-    color: colors.text,
-    paddingVertical: spacing.md,
-  },
 
   // preview
   previewCard: {
