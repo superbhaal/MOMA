@@ -12,7 +12,7 @@ import { MeRow } from '@/components/me/MeRow';
 import { MeSectionLabel } from '@/components/me/MeSectionLabel';
 import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
-import { fonts } from '@/constants/typography';
+import { fonts, textStyles } from '@/constants/typography';
 import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useGroups } from '@/hooks/useGroups';
@@ -23,6 +23,8 @@ import { babyMetaLine } from '@/lib/babyAge';
 import { formatTime } from '@/lib/time';
 import { shareMoma } from '@/lib/share';
 import { openInstagramProfile } from '@/lib/instagram';
+import { BroughtCard } from '@/components/brought/BroughtCard';
+import { useMyBrought } from '@/hooks/useBrought';
 import type { SavedDocType } from '@/types';
 
 const PAUSE_OPTIONS = [
@@ -55,6 +57,7 @@ export default function MeScreen() {
   const { user, signOut } = useAuth();
   const { groups, leaveGroup } = useGroups();
   const { tips, toggle: toggleTip } = useSavedTips();
+  const { item: brought } = useMyBrought();
   const { pauseFor } = usePreferences();
 
   const [pauseOpen, setPauseOpen] = useState(false);
@@ -215,6 +218,43 @@ export default function MeScreen() {
           </View>
         </>
       ) : null}
+
+      {/* What I've brought — one thing, on the table for everyone in my groups. */}
+      <MeSectionLabel label="What I’ve brought" />
+      <MeCard>
+        {brought ? (
+          <BroughtCard item={brought} onPress={() => router.push(`/brought/${user!.id}`)}>
+            <View style={styles.broughtFoot}>
+              <Pressable onPress={() => router.push('/brought/new')} hitSlop={8}>
+                <Typography style={styles.broughtBtn} color={colors.cobalt}>
+                  Bring something else
+                </Typography>
+              </Pressable>
+              <Typography style={styles.broughtPublic} color={colors.muted}>
+                One at a time · visible on your profile
+              </Typography>
+            </View>
+          </BroughtCard>
+        ) : (
+          <View style={styles.broughtEmpty}>
+            <Typography style={styles.broughtAsk} color={colors.text}>
+              Ready to bring something to the table?
+            </Typography>
+            <Typography style={styles.broughtAskNote} color={colors.mutedStrong}>
+              A recipe, a book, a find, something to listen to, or one thing you learned the hard
+              way. Just the one — whatever you’d actually pass along.
+            </Typography>
+            <Pressable onPress={() => router.push('/brought/new')} hitSlop={8}>
+              <Typography style={styles.broughtBtn} color={colors.cobalt}>
+                Bring something
+              </Typography>
+            </Pressable>
+            <Typography style={styles.broughtPublic} color={colors.muted}>
+              Optional · you can change it any time
+            </Typography>
+          </View>
+        )}
+      </MeCard>
 
       {/* Saved tips */}
       <MeSectionLabel
@@ -539,6 +579,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
     color: colors.text,
   },
+  broughtEmpty: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm },
+  broughtAsk: { fontFamily: fonts.serifItal, fontSize: scaled(21), lineHeight: scaled(27), textAlign: 'center' },
+  broughtAskNote: { ...textStyles.cardBody, textAlign: 'center' },
+  broughtFoot: { alignItems: 'center', gap: 6, paddingTop: spacing.md },
+  broughtBtn: textStyles.controlStrong,
+  broughtPublic: textStyles.labelS,
+
   // About me
   bio: {
     fontFamily: fonts.readingItal,

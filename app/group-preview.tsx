@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { ActionSheet } from '@/components/ui/ActionSheet';
 import { GroupPreviewCard } from '@/components/groups/GroupPreviewCard';
+import { useBroughtFor } from '@/hooks/useBrought';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
@@ -61,6 +62,7 @@ export default function GroupPreviewScreen() {
     [previewMembers, me?.id],
   );
 
+  const { items: broughtItems } = useBroughtFor(others.map((o) => o.user.id));
   const headlineSub = useMemo(() => composeHeadlineSub(others, me), [others, me]);
 
   function handleAccept() {
@@ -130,6 +132,7 @@ export default function GroupPreviewScreen() {
                 key={m.id}
                 member={m}
                 matchNote={composeMatchNote(m, me)}
+                brought={broughtItems[m.user.id]}
               />
             ))
           )}

@@ -6,11 +6,14 @@ import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
-import { fonts } from '@/constants/typography';
+import { fonts, textStyles } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 import { supabase } from '@/lib/supabase';
 import { openInstagramProfile } from '@/lib/instagram';
+import { BroughtCard } from '@/components/brought/BroughtCard';
+import { KIND_POSSESSIVE } from '@/constants/brought';
+import { useBroughtFor } from '@/hooks/useBrought';
 import type { User } from '@/types';
 
 /**
@@ -21,8 +24,10 @@ import type { User } from '@/types';
 export default function MemberScreen() {
   const router = useRouter();
   const { userId } = useLocalSearchParams<{ userId: string }>();
+  const { items: broughtItems } = useBroughtFor(userId ? [userId] : []);
   const insets = useSafeAreaInsets();
   const [u, setU] = useState<User | null>(null);
+  const brought = userId ? broughtItems[userId] : undefined;
 
   useEffect(() => {
     if (!userId) return;
@@ -89,6 +94,16 @@ export default function MemberScreen() {
               </View>
             ) : null}
 
+            {/* What she brought — attributed, and its own page one tap away. */}
+            {brought ? (
+              <View style={styles.broughtSection}>
+                <Typography style={styles.broughtLabel} color={colors.cobalt}>
+                  {KIND_POSSESSIVE[brought.kind].toUpperCase()}
+                </Typography>
+                <BroughtCard item={brought} onPress={() => router.push(`/brought/${u.id}`)} />
+              </View>
+            ) : null}
+
             {u.instagram_handle ? (
               <Pressable
                 onPress={() => openInstagramProfile(u.instagram_handle)}
@@ -140,6 +155,8 @@ const styles = StyleSheet.create({
     letterSpacing: 2.4,
     marginTop: 5,
   },
+  broughtSection: { marginTop: spacing.xxl, alignSelf: 'stretch' },
+  broughtLabel: textStyles.labelS,
   bio: {
     fontFamily: fonts.readingItal,
     fontSize: scaled(15),

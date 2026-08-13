@@ -2,6 +2,9 @@ import { StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
+import { fonts, textStyles } from '@/constants/typography';
+import { KIND_LABEL, broughtCard } from '@/constants/brought';
+import type { BroughtItem } from '@/types';
 import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 import type { GroupMemberWithUser } from '@/types';
@@ -10,6 +13,8 @@ interface GroupPreviewCardProps {
   member: GroupMemberWithUser;
   /** Italic cobalt one-liner explaining why this member matches the viewer. */
   matchNote?: string;
+  /** What she's brought to the table, if she has. Not everyone will. */
+  brought?: BroughtItem;
 }
 
 /**
@@ -17,7 +22,7 @@ interface GroupPreviewCardProps {
  * design/moma-enhanced.html: avatar with ring + name (+ Mentor pill) + muted
  * detail line + italic cobalt match-note.
  */
-export function GroupPreviewCard({ member, matchNote }: GroupPreviewCardProps) {
+export function GroupPreviewCard({ member, matchNote, brought }: GroupPreviewCardProps) {
   const u = member.user;
   return (
     <View style={styles.row}>
@@ -48,6 +53,20 @@ export function GroupPreviewCard({ member, matchNote }: GroupPreviewCardProps) {
           <Typography style={styles.matchNote} color={colors.cobalt}>
             {matchNote}
           </Typography>
+        ) : null}
+        {/* What she's brought, if anything. The client asked for it here and
+            only here: four strangers on a screen, and this is the thing that
+            makes them read as people. Never a condition of joining — plenty of
+            moms won't have brought anything yet. */}
+        {brought ? (
+          <View style={styles.brought}>
+            <Typography style={styles.broughtKind} color={colors.mutedStrong}>
+              {KIND_LABEL[brought.kind].toUpperCase()}
+            </Typography>
+            <Typography style={styles.broughtTitle} color={colors.text} numberOfLines={2}>
+              {broughtCard(brought).title}
+            </Typography>
+          </View>
         ) : null}
       </View>
     </View>
@@ -100,6 +119,16 @@ const styles = StyleSheet.create({
     lineHeight: scaled(16),
     marginTop: 2,
   },
+  brought: { marginTop: spacing.md, alignItems: 'center' },
+  broughtKind: textStyles.labelS,
+  broughtTitle: {
+    fontFamily: fonts.serifItal,
+    fontSize: scaled(17),
+    lineHeight: scaled(22),
+    textAlign: 'center',
+    marginTop: 2,
+  },
+
   matchNote: {
     fontFamily: 'Lora-Italic',
     fontSize: scaled(11),

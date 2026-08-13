@@ -31,6 +31,36 @@ export type SavedDocType = 'read_article' | 'watch_reel' | 'recommendation';
 
 export type DiscoverRole = 'reader' | 'contributor' | 'admin';
 
+/** The five things a mom can bring to the table (029_brought_items). */
+export type BroughtKind = 'recipe' | 'book' | 'find' | 'listen' | 'tip';
+
+export interface RecipeIngredient {
+  qty: string;
+  name: string;
+}
+
+/**
+ * One thing on the table. The fields differ per kind, so the shape lives in
+ * `payload` — validated in the app the way the Explore taxonomy is, since both
+ * are expected to keep moving.
+ *
+ *   recipe  { title, why, ingredients: RecipeIngredient[], steps: string[] }
+ *   book    { title, author, why, quote? }
+ *   find    { title, why, where? }
+ *   listen  { title, maker, when }
+ *   tip     { tip, how, who? }
+ */
+export interface BroughtItem {
+  user_id: string;
+  kind: BroughtKind;
+  payload: Record<string, unknown>;
+  photo_url: string | null;
+  updated_at: string;
+  /** Present on reads through `brought_for_users` — never on your own row. */
+  poster_name?: string | null;
+  poster_color?: string | null;
+}
+
 /** Explore map: a loved spot is either a place or a practitioner. */
 export type LovedKind = 'place' | 'person';
 export type PlaceCategory =
