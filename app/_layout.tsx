@@ -180,6 +180,8 @@ export default function RootLayout() {
         <Stack.Screen name="availability" options={{ presentation: 'modal' }} />
         <Stack.Screen name="group-preview" options={{ presentation: 'modal' }} />
         <Stack.Screen name="profile/edit" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="brought/new" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="brought/[userId]" />
         <Stack.Screen name="settings/notifications" />
         <Stack.Screen name="settings/privacy" />
         <Stack.Screen name="settings/help" />

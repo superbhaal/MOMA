@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
@@ -118,8 +118,6 @@ export default function BringSomethingScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.md }]}>
-      <Stack.Screen options={{ headerShown: false, presentation: 'modal' }} />
-
       <View style={styles.topbar}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Typography style={styles.cancel} color={colors.mutedStrong}>
