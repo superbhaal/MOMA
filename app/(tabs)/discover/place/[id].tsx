@@ -244,10 +244,11 @@ export default function LovedSpotDetail() {
                 accessibilityRole="button"
                 accessibilityLabel={`See ${r.poster_name ?? 'her'} profile`}
               >
+                {/* Her identity, not her photo of the café — those are two
+                    different pictures and the avatar belongs to the first. */}
                 <Avatar
                   name={r.poster_name ?? 'a mom'}
                   ringColor={r.poster_color ?? colors.fuchsia}
-                  photoUrl={r.photo_url ?? undefined}
                   size={48}
                   ringWidth={2}
                 />
@@ -268,6 +269,18 @@ export default function LovedSpotDetail() {
                   “{r.note}”
                 </Typography>
               </View>
+
+              {/* Her own picture, under her own words. Only when several moms
+                  have posted: with one recommendation the hero above already IS
+                  this photo, and showing it twice on one screen is a bug that
+                  looks like a decision. */}
+              {r.photo_url && spot.rec_count > 1 ? (
+                <Image
+                  source={{ uri: r.photo_url }}
+                  style={styles.recPhoto}
+                  resizeMode="cover"
+                />
+              ) : null}
             </View>
           ))}
 
@@ -409,6 +422,7 @@ const styles = StyleSheet.create({
   lovesRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: spacing.lg },
   lovesText: { fontFamily: fonts.bodySemi, fontSize: scaled(13) },
   rec: { marginTop: spacing.md },
+  recPhoto: { width: '100%', height: 160, borderRadius: radius.lg, marginTop: spacing.md },
   deleteRow: { alignItems: 'center', paddingTop: spacing.xxl, paddingBottom: spacing.lg },
   deleteText: { fontFamily: fonts.bodyMed, fontSize: scaled(13) },
 
