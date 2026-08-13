@@ -297,8 +297,6 @@
               <option value="joined">joined — group is live</option>
               <option value="preview">previewing — user must accept</option>
             </select></div>
-          <div class="field"><label>Seed chat openers</label>
-            <select id="simChat"><option value="yes">yes</option><option value="no">no</option></select></div>
           <div class="field"><label>Meetup in (days)</label>
             <input id="simDays" type="number" min="0" max="30" value="3"/></div>
           <div class="field"><label>Block</label>
@@ -474,7 +472,6 @@ function simSettings(){
   return {
     count: Number($("#simCount").value),
     state: $("#simState").value,
-    seed_chat: $("#simChat").value === "yes",
     in_days: Number($("#simDays").value),
     block: $("#simBlock").value,
     location_name: $("#simPlace").value.trim() || null,
@@ -514,11 +511,24 @@ function simActions(u){
   if(groups.length >= 2){ mk.disabled = true; mk.title = "Already in 2 groups (the cap)"; }
   mk.onclick = ()=>run(mk,"Making…",async()=>{
     const s = simSettings();
-    const d = await api("sim_group",{ user_id:u.id, count:s.count, state:s.state, seed_chat:s.seed_chat });
+    const d = await api("sim_group",{ user_id:u.id, count:s.count, state:s.state });
     banner(`Group “${d.group_name}” · ${d.members} members (${d.created.join(", ")}) · ${d.state}`);
     await load(); if(GROUPS_LOADED) loadGroups();
   });
   w.append(mk);
+
+  // Talking is its own button now: making a group leaves the room empty, which
+  // is the state a real mom actually lands in and the one we could never see
+  // while the two were bundled.
+  const ch = el("button",{class:"btn-ghost btn-sm"}, "Chat");
+  if(!groups.length){ ch.disabled = true; ch.title = "Make a group first"; }
+  else ch.title = "Have the fake moms say hello in " + groups[0].name;
+  ch.onclick = ()=>run(ch,"Saying hi…",async()=>{
+    const d = await api("sim_chat",{ group_id:groups[0].group_id });
+    banner(`${d.sent} opener${d.sent===1?"":"s"} posted in “${groups[0].name}” — click again for more.`);
+    await load(); if(GROUPS_LOADED) loadGroups();
+  });
+  w.append(ch);
 
   const mt = el("button",{class:"btn-ghost btn-sm"}, "Meetup");
   if(!groups.length){ mt.disabled = true; mt.title = "Make a group first"; }

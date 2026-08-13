@@ -64,6 +64,7 @@ Deno.serve(async (req) => {
       case 'create_meetup': return json(await createMeetup(body));
       case 'set_vote':     return json(await setVote(body.proposal_id, body.user_id, body.vote ?? null));
       case 'sim_group':    return json(await simGroup(body));
+      case 'sim_chat':     return json(await simChat(body));
       case 'sim_meetup':   return json(await simMeetup(body));
       case 'delete_test_users': return json(await deleteTestUsers());
       case 'run_matching': return json(await runMatching());
@@ -519,7 +520,6 @@ async function simGroup(body: any) {
   if (!userId) return { ok: false, error: 'user_id required' };
   const fakeCount = Math.max(1, Math.min(4, Number(body.count ?? 3)));
   const preview = body.state === 'preview';
-  const seedChat = body.seed_chat !== false;
 
   const { data: target } = await admin.from('users').select('*').eq('id', userId).maybeSingle();
   if (!target) return { ok: false, error: 'user not found' };
@@ -618,18 +618,10 @@ async function simGroup(body: any) {
       { onConflict: 'user_id' },
     );
 
-    // 4. A couple of opener messages so the group isn't a dead room (and Home
-    //    shows a last-message preview + pulse).
-    if (seedChat && !preview) {
-      const now = Date.now();
-      const msgs = madeIds.slice(0, SIM_OPENERS.length).map((uid, i) => ({
-        group_id: group.id,
-        sender_id: uid,
-        content: SIM_OPENERS[i],
-        created_at: new Date(now - (madeIds.length - i) * 7 * 60_000).toISOString(),
-      }));
-      if (msgs.length) await admin.from('messages').insert(msgs);
-    }
+    // Making a group no longer says anything in it. Matching and talking are
+    // two different things to test, and bundling them meant you could never see
+    // an empty room — the state a real mom actually lands in. The "Chat" button
+    // seeds the openers when you want them.
 
     if (target.expo_push_token) {
       await sendPush([target.expo_push_token], preview
@@ -658,6 +650,41 @@ async function simGroup(body: any) {
     for (const id of madeIds) await admin.auth.admin.deleteUser(id).catch(() => {});
     throw e;
   }
+}
+
+/**
+ * Make the fake moms say something.
+ *
+ * Split out of `sim_group` so a group can be looked at empty first. Each call
+ * posts the openers again, one per fake member, so clicking twice lengthens the
+ * conversation rather than doing nothing — useful for testing the chat's own
+ * behaviour (pulse, last-message preview, unread) without minting more groups.
+ */
+async function simChat(body: any) {
+  const groupId = String(body.group_id ?? '');
+  if (!groupId) return { ok: false, error: 'group_id required' };
+
+  const { data: members } = await admin
+    .from('group_members')
+    .select('user_id, users(email)')
+    .eq('group_id', groupId);
+
+  const fakes = (members ?? []).filter((m: any) => isTest(m.users?.email));
+  if (!fakes.length) return { ok: false, error: 'No fake moms in this group to do the talking.' };
+
+  const now = Date.now();
+  const msgs = fakes.slice(0, SIM_OPENERS.length).map((m: any, i: number) => ({
+    group_id: groupId,
+    sender_id: m.user_id,
+    content: SIM_OPENERS[i],
+    // Spaced a few minutes apart and ending now, so the chat reads as a
+    // conversation rather than a simultaneous shout.
+    created_at: new Date(now - (fakes.length - i) * 7 * 60_000).toISOString(),
+  }));
+  const { error } = await admin.from('messages').insert(msgs);
+  if (error) return { ok: false, error: error.message };
+
+  return { ok: true, sent: msgs.length };
 }
 
 async function simMeetup(body: any) {
