@@ -253,9 +253,7 @@ export function ComposerPhoto({
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      // Square crop, because the frame she picks into is square — a 4:3 crop
-      // into a 1:1 well means the app quietly re-crops what she just framed.
-      aspect: [1, 1],
+      aspect: [4, 3],
       quality: 0.85,
     });
     if (result.canceled || !result.assets?.length) return;
@@ -404,19 +402,12 @@ const styles = StyleSheet.create({
   chipLabel: textStyles.control,
   chipLabelStrong: textStyles.controlStrong,
 
-  // Square, at the client's request, and for every composer at once since they
-  // all use this one — she asked for exactly that: "it's the same frame, so
-  // make them all square".
-  //
-  // Bounded rather than full-width: a square the width of the screen stands
-  // ~335pt tall and turns the photo step into a wall. Centred at 58% it keeps
-  // roughly the height the frame had before it became square, and still reads
-  // as a well you drop one picture into.
+  // A rectangle with square corners — which is what "make it square" meant. It
+  // used to be a pill (radius 90), and I first read the note as 1:1 and built
+  // an actual square; the shape was the point, not the ratio.
   dropzone: {
-    width: '58%',
-    maxWidth: 240,
-    alignSelf: 'center',
-    aspectRatio: 1,
+    width: '100%',
+    height: 170,
     borderRadius: radius.xl,
     borderWidth: 1.5,
     borderColor: colors.cobalt,
@@ -430,13 +421,7 @@ const styles = StyleSheet.create({
   dropzoneHint: textStyles.cardBody,
   skip: { alignItems: 'center', paddingVertical: spacing.lg },
   skipText: { ...textStyles.control, textDecorationLine: 'underline' },
-  photo: {
-    width: '58%',
-    maxWidth: 240,
-    alignSelf: 'center',
-    aspectRatio: 1,
-    borderRadius: radius.xl,
-  },
+  photo: { width: '100%', height: 200, borderRadius: radius.xl },
   photoActions: {
     flexDirection: 'row',
     justifyContent: 'center',
