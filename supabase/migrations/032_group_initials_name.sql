@@ -1,0 +1,22 @@
+-- 032_group_initials_name.sql
+-- A group is named after the women in it: the first letter of each first name,
+-- uppercased, joined by dots. Camille, Inès, Maëlys, Simona → C.I.M.S
+--
+-- Which makes the name a FUNCTION of the membership, not a string minted once.
+-- Someone declines a preview, someone leaves, someone fixes the spelling of her
+-- own name — the name has to follow, or it starts lying about who is at the
+-- table. So it lives in triggers rather than in the matcher and the sandbox
+-- separately, and neither of them has to know the rule.
+--
+-- Order is join order, then alphabetical. The matcher inserts every member in
+-- one statement, so they share a joined_at to the microsecond and the tiebreak
+-- decides the whole name; it was the row's uuid, which made the letters look
+-- shuffled. Anyone joining later still lands at the end, which is true.
+--
+-- Applied via the `group_initials_name` and `group_initials_stable_order`
+-- migrations; this file is the record. Adds group_initials(), two triggers
+-- (on group_members, and on users.display_name), and backfills every group.
+--
+-- Not enforced: uniqueness. Two groups can be C.I.M.S, and the client didn't
+-- ask for more — a mom sees at most two groups, and they'd have to share four
+-- initials to collide in her own list.

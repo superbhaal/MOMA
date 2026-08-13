@@ -575,8 +575,10 @@ async function simGroup(body: any) {
       if (uErr) throw uErr;
     }
 
-    // 2. The group itself — same naming the matcher uses.
-    const groupName = `${target.city ?? 'møma'} ${target.life_stage ?? 'group'}`.toLowerCase();
+    // 2. The group itself.
+    // Named by the DB — first initials of the members, joined by dots (032).
+    // This placeholder lives for as long as it takes the member rows to land.
+    const groupName = '…';
     const { data: group, error: gErr } = await admin
       .from('groups')
       .insert({

@@ -132,7 +132,11 @@ Deno.serve(async () => {
   const pushMessages: PushMessage[] = [];
   const emailJobs: Promise<void>[] = [];
   for (const g of formedGroups) {
-    const groupName = `${g.seed.city ?? 'møma'} ${g.seed.life_stage ?? 'group'}`.toLowerCase();
+    // Named by the DB, not here: a group is called after the women in it —
+    // first initials, joined by dots — and that has to follow every join and
+    // departure, so the rule lives in a trigger (032). This placeholder is
+    // overwritten the moment the first member row lands.
+    const groupName = '…';
     const { data: groupRow, error: gErr } = await supabase
       .from('groups')
       .insert({
