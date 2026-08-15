@@ -576,13 +576,12 @@ async function simGroup(body: any) {
     }
 
     // 2. The group itself.
-    // Named by the DB — first initials of the members, joined by dots (032).
-    // This placeholder lives for as long as it takes the member rows to land.
-    const groupName = '…';
+    // Named by the DB — "<City> - Table n°X", numbered per city by a BEFORE
+    // INSERT trigger (034). `name` is deliberately omitted: the trigger reads
+    // the city from this insert and overwrites anything we send.
     const { data: group, error: gErr } = await admin
       .from('groups')
       .insert({
-        name: groupName,
         city: target.city,
         neighbourhood: target.neighbourhood,
         type: 'neighbourhood',

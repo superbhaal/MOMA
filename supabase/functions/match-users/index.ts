@@ -132,15 +132,14 @@ Deno.serve(async () => {
   const pushMessages: PushMessage[] = [];
   const emailJobs: Promise<void>[] = [];
   for (const g of formedGroups) {
-    // Named by the DB, not here: a group is called after the women in it —
-    // first initials, joined by dots — and that has to follow every join and
-    // departure, so the rule lives in a trigger (032). This placeholder is
-    // overwritten the moment the first member row lands.
-    const groupName = '…';
+    // Named by the DB, not here: "<City> - Table n°X", X counting up per city.
+    // A BEFORE INSERT trigger (034) derives it from the city in this very
+    // insert, so `name` is deliberately not passed — anything we sent would be
+    // discarded. Unlike the initials scheme it replaced, the name is minted
+    // once at creation and never moves again.
     const { data: groupRow, error: gErr } = await supabase
       .from('groups')
       .insert({
-        name: groupName,
         city: g.seed.city,
         neighbourhood: g.seed.neighbourhood,
         type: 'neighbourhood',
