@@ -132,7 +132,7 @@ Deno.serve(async () => {
   const pushMessages: PushMessage[] = [];
   const emailJobs: Promise<void>[] = [];
   for (const g of formedGroups) {
-    // Named by the DB, not here: "<City> - Table n°X", X counting up per city.
+    // Named by the DB, not here: "<City> Table n°X", X counting up per city.
     // A BEFORE INSERT trigger (034) derives it from the city in this very
     // insert, so `name` is deliberately not passed — anything we sent would be
     // discarded. Unlike the initials scheme it replaced, the name is minted
