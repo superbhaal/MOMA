@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
@@ -37,6 +38,7 @@ const DOB_MAX = new Date(Date.now() + 1000 * 60 * 60 * 24 * 300);
  * Ref: design/moma-v11.html · #screen-prefs.
  */
 export default function PreferencesScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
@@ -134,17 +136,17 @@ export default function PreferencesScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.sectionLabel} color={colors.cobalt}>
-          WHO YOU GET MATCHED WITH
+          {t('prefs.whoMatched')}
         </Typography>
 
         <Field
-          label="First baby"
-          hint="Whether this is your first time, or you&rsquo;ve been here before."
+          label={t('prefs.firstBaby')}
+          hint={t('prefs.firstBabyHint')}
         >
           <View style={styles.pills}>
-            <Choice label="Yes, first" active={isFirst === true} onPress={() => setIsFirst(true)} />
+            <Choice label={t('prefs.yesFirst')} active={isFirst === true} onPress={() => setIsFirst(true)} />
             <Choice
-              label="No, been here before"
+              label={t('prefs.noBefore')}
               active={isFirst === false}
               onPress={() => setIsFirst(false)}
             />
@@ -152,8 +154,8 @@ export default function PreferencesScreen() {
         </Field>
 
         <Field
-          label="Youngest baby born"
-          hint="Or due date if you&rsquo;re expecting. Drives life stage and matching."
+          label={t('prefs.youngestBorn')}
+          hint={t('prefs.youngestHint')}
         >
           <Pressable style={styles.dateRow} onPress={() => setPickerOpen(true)}>
             <Typography style={[styles.dateText, !babyDob && styles.datePlaceholder]}>
@@ -164,8 +166,8 @@ export default function PreferencesScreen() {
         </Field>
 
         <Field
-          label="Languages spoken at home"
-          hint={`Up to ${MAX_SECONDARY + 1}. The first one is what we match on.`}
+          label={t('prefs.languagesHome')}
+          hint={t('prefs.languagesHint', { max: MAX_SECONDARY + 1 })}
         >
           <View style={styles.pills}>
             {allLanguages.map((l) => (
@@ -190,7 +192,7 @@ export default function PreferencesScreen() {
           </View>
         </Field>
 
-        <Field label="Your colour" hint="Shows up on your avatar across the app.">
+        <Field label={t('prefs.yourColour')} hint={t('prefs.yourColourHint')}>
           <View style={styles.swatches}>
             {PROFILE_COLOUR_SWATCHES.map((s) => (
               <ColorSwatch
@@ -205,37 +207,36 @@ export default function PreferencesScreen() {
         </Field>
 
         <Typography style={[styles.sectionLabel, styles.sectionLabelGap]} color={colors.cobalt}>
-          NOTIFICATIONS
+          {t('prefs.notifications')}
         </Typography>
 
         <ToggleRow
-          label="Push"
-          hint="Matches, meetup reminders, direct mentions."
+          label={t('prefs.push')}
+          hint={t('prefs.pushHint')}
           value={push}
           onChange={setPush}
         />
         <ToggleRow
-          label="Email"
-          hint="Match confirmation and a weekly group summary. Nothing else."
+          label={t('prefs.email')}
+          hint={t('prefs.emailHint')}
           value={email}
           onChange={setEmail}
         />
         <ToggleRow
-          label="Badges in the app"
-          hint="The little dot on group cards when there's something new."
+          label={t('prefs.badges')}
+          hint={t('prefs.badgesHint')}
           value={inApp}
           onChange={setInApp}
           isLast
         />
 
         <Typography style={styles.footnote} color={colors.muted}>
-          Changes apply to your next match. If you&rsquo;re already in a group, nothing
-          changes until you&rsquo;re matched again.
+          {t('prefs.footnote')}
         </Typography>
 
         <View style={{ marginTop: spacing.xl }}>
           <Button
-            title={saving ? 'saving…' : 'Save'}
+            title={saving ? t('prefs.saving') : t('prefs.save')}
             onPress={handleSave}
             disabled={saving}
             size="lg"
@@ -248,7 +249,7 @@ export default function PreferencesScreen() {
         <ActionSheet
           visible={pickerOpen}
           onClose={() => setPickerOpen(false)}
-          title="Youngest baby born"
+          title={t('prefs.youngestBorn')}
         >
           <DateTimePicker
             value={babyDob ? new Date(babyDob) : new Date()}
@@ -262,7 +263,7 @@ export default function PreferencesScreen() {
             }}
           />
           <Button
-            title="done"
+            title={t('prefs.done')}
             size="lg"
             onPress={() => setPickerOpen(false)}
             style={{ marginTop: spacing.md }}
@@ -286,14 +287,14 @@ export default function PreferencesScreen() {
         visible={addOpen}
         onClose={() => setAddOpen(false)}
         onShow={() => draftRef.current?.focus()}
-        title="Add a language"
+        title={t('prefs.addLanguage')}
       >
         <TextInput
           ref={draftRef}
           style={styles.sheetInput}
           value={draft}
           onChangeText={setDraft}
-          placeholder="e.g. Catalan, Wolof, Mandarin"
+          placeholder={t('prefs.langPlaceholder')}
           placeholderTextColor={colors.muted}
           autoCapitalize="words"
           autoCorrect={false}
@@ -301,7 +302,7 @@ export default function PreferencesScreen() {
           onSubmitEditing={commitCustom}
           maxLength={32}
         />
-        <Button title="Add" size="lg" onPress={commitCustom} disabled={!draft.trim()} />
+        <Button title={t('prefs.add')} size="lg" onPress={commitCustom} disabled={!draft.trim()} />
       </ActionSheet>
     </View>
   );

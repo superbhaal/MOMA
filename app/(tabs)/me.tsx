@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
@@ -28,23 +30,15 @@ import { BroughtCard } from '@/components/brought/BroughtCard';
 import { useMyBrought } from '@/hooks/useBrought';
 import type { SavedDocType } from '@/types';
 
-const PAUSE_OPTIONS = [
-  {
-    label: 'For 1 week',
-    sub: "Common when life is just heavy. We'll quietly resume.",
-    days: 7,
-  },
-  {
-    label: 'For 1 month',
-    sub: "A longer breather. We'll send one gentle nudge before turning back on.",
-    days: 30,
-  },
-  {
-    label: 'Until I turn it back on',
-    sub: "Indefinite pause. Nothing automatic. You're in charge.",
-    days: 365 * 5,
-  },
-];
+// Copy, not data: built from `t` so switching language in Settings updates it
+// instead of leaving it in whichever language was active at import time.
+function pauseOptions(t: TFunction) {
+  return [
+    { days: 7, label: t('me.pause1wLabel'), sub: t('me.pause1wSub') },
+    { days: 30, label: t('me.pause1mLabel'), sub: t('me.pause1mSub') },
+    { days: null, label: t('me.pauseIndefLabel'), sub: t('me.pauseIndefSub') },
+  ];
+}
 
 const SAVED_META: Record<SavedDocType, { label: string; bg: string; fg: string; noun: string }> = {
   read_article: { label: 'Read', bg: '#D8E8C8', fg: '#2a5a1a', noun: 'article' },
@@ -53,6 +47,7 @@ const SAVED_META: Record<SavedDocType, { label: string; bg: string; fg: string; 
 };
 
 export default function MeScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
@@ -75,13 +70,13 @@ export default function MeScreen() {
   // she had been paused by default). Spell the state out instead, and say when
   // an open-ended pause is actually going to lift.
   const pauseValue = !isPaused
-    ? 'Matching on'
+    ? t('me.matchingOn')
     : (() => {
         const until = new Date(user!.paused_until!);
         const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
         // "Until I turn it back on" is stored as a far-future date — no point
         // showing it as a calendar day.
-        if (until.getTime() - Date.now() > YEAR_MS) return 'Paused';
+        if (until.getTime() - Date.now() > YEAR_MS) return t('me.paused');
         return `Paused until ${until.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}`;
       })();
 
@@ -155,7 +150,7 @@ export default function MeScreen() {
       {/* About me */}
       {hasAbout ? (
         <>
-          <MeSectionLabel label="About me" />
+          <MeSectionLabel label={t('me.aboutMe')} />
           <MeCard padded>
             {user?.bio ? <Typography style={styles.bio}>{user.bio}</Typography> : null}
             {(user?.interests?.length ?? 0) > 0 ? (
@@ -177,7 +172,7 @@ export default function MeScreen() {
       {/* Next meetup */}
       {nextMeetup ? (
         <>
-          <MeSectionLabel label="Next meetup" />
+          <MeSectionLabel label={t('me.nextMeetup')} />
           <View style={[styles.meetupCard, meetupDecided && { borderColor: colors.cobalt }]}>
             <View style={styles.meetupDateBlock}>
               <Typography style={[styles.meetupDay, meetupDecided && { color: colors.cobalt }]}>
@@ -242,25 +237,25 @@ export default function MeScreen() {
       ) : null}
 
       {/* What I've brought — one thing, on the table for everyone in my groups. */}
-      <MeSectionLabel label="What I’ve brought" />
+      <MeSectionLabel label={t('me.whatIveBrought')} />
       <MeCard>
         {brought ? (
           <BroughtCard item={brought} onPress={() => router.push(`/brought/${user!.id}`)}>
             <View style={styles.broughtFoot}>
               <Pressable onPress={() => router.push('/brought/new')} hitSlop={8}>
                 <Typography style={styles.broughtBtn} color={colors.cobalt}>
-                  Bring something else
+                  {t('me.bringElse')}
                 </Typography>
               </Pressable>
               <Typography style={styles.broughtPublic} color={colors.muted}>
-                One at a time · visible on your profile
+                {t('me.oneAtATime')}
               </Typography>
             </View>
           </BroughtCard>
         ) : (
           <View style={styles.broughtEmpty}>
             <Typography style={styles.broughtAsk} color={colors.text}>
-              Ready to bring something to the table?
+              {t('me.readyToBring')}
             </Typography>
             <Typography style={styles.broughtAskNote} color={colors.mutedStrong}>
               A recipe, a book, a find, something to listen to, or one thing you learned the hard
@@ -268,11 +263,11 @@ export default function MeScreen() {
             </Typography>
             <Pressable onPress={() => router.push('/brought/new')} hitSlop={8}>
               <Typography style={styles.broughtBtn} color={colors.cobalt}>
-                Bring something
+                {t('me.bringSomething')}
               </Typography>
             </Pressable>
             <Typography style={styles.broughtPublic} color={colors.muted}>
-              Optional · you can change it any time
+              {t('me.optionalChange')}
             </Typography>
           </View>
         )}
@@ -280,7 +275,7 @@ export default function MeScreen() {
 
       {/* Saved tips */}
       <MeSectionLabel
-        label="Saved tips"
+        label={t('me.savedTips')}
         right={
           tips.length > 0 ? (
             <Typography style={styles.countBadge}>{tips.length}</Typography>
@@ -322,7 +317,7 @@ export default function MeScreen() {
       </MeCard>
 
       {/* My groups */}
-      <MeSectionLabel label="My groups" />
+      <MeSectionLabel label={t('me.myGroups')} />
       <MeCard>
         {groups.length === 0 ? (
           <View style={styles.savedEmpty}>
@@ -348,7 +343,7 @@ export default function MeScreen() {
           icon="pause"
           iconTint="#a07000"
           iconBg="#fff8e0"
-          label={isPaused ? 'Matching paused' : 'Pause matching'}
+          label={isPaused ? t('me.matchingPaused') : t('me.pauseMatching')}
           value={pauseValue}
           onPress={() => setPauseOpen(true)}
         />
@@ -357,7 +352,7 @@ export default function MeScreen() {
             icon="exit-outline"
             iconTint={colors.cherry}
             iconBg="#fce8ec"
-            label="Leave a group"
+            label={t('me.leaveGroup')}
             danger
             isLast
             onPress={() => setLeaveOpen(true)}
@@ -366,7 +361,7 @@ export default function MeScreen() {
       </MeCard>
 
       {/* Preferences */}
-      <MeSectionLabel label="Preferences" />
+      <MeSectionLabel label={t('me.preferences')} />
       <MeCard>
         {/* Blocking out dates lives with the group it affects, not in the
             settings shelf — it's asked for when a group forms and again every
@@ -375,48 +370,48 @@ export default function MeScreen() {
           icon="options-outline"
           iconTint={colors.cobalt}
           iconBg="#eef2ff"
-          label="Matching preferences"
+          label={t('me.matchingPrefs')}
           isLast
           onPress={() => router.push('/preferences')}
         />
       </MeCard>
 
       {/* Settings */}
-      <MeSectionLabel label="Settings" />
+      <MeSectionLabel label={t('me.settings')} />
       <MeCard>
         <MeRow
           icon="language-outline"
           iconTint={colors.lavender}
           iconBg="rgba(152,120,200,0.14)"
-          label="Language"
+          label={t('me.language')}
           onPress={() => router.push('/settings/language')}
         />
         <MeRow
           icon="notifications-outline"
           iconTint={colors.cobalt}
           iconBg="#eef2ff"
-          label="Notifications"
+          label={t('me.notifications')}
           onPress={() => router.push('/settings/notifications')}
         />
         <MeRow
           icon="lock-closed-outline"
           iconTint="#2a7a2a"
           iconBg="#f0faf0"
-          label="Privacy & data"
+          label={t('me.privacy')}
           onPress={() => router.push('/settings/privacy')}
         />
         <MeRow
           icon="help-circle-outline"
           iconTint="#a07000"
           iconBg="#fff8e0"
-          label="Help & support"
+          label={t('me.help')}
           onPress={() => router.push('/settings/help')}
         />
         <MeRow
           icon="heart-outline"
           iconTint="#c0306a"
           iconBg="#fce8f0"
-          label="Share møma with a friend"
+          label={t('me.share')}
           isLast
           onPress={shareMoma}
         />
@@ -442,11 +437,11 @@ export default function MeScreen() {
       </Pressable>
 
       {/* Pause matching sheet */}
-      <ActionSheet visible={pauseOpen} onClose={() => setPauseOpen(false)} title="Pause matching">
+      <ActionSheet visible={pauseOpen} onClose={() => setPauseOpen(false)} title={t('me.pauseMatching')}>
         <Typography style={styles.sheetSub}>
-          No new groups. No nudges. Your current groups stay open. Turn it back on whenever.
+          {t('me.pauseBlurb')}
         </Typography>
-        {PAUSE_OPTIONS.map((opt) => (
+        {pauseOptions(t).map((opt) => (
           <Pressable
             key={opt.label}
             style={styles.sheetItem}
@@ -468,16 +463,16 @@ export default function MeScreen() {
             }}
           >
             <Typography style={[styles.sheetItemTitle, { color: colors.cobalt }]}>
-              Resume matching now
+              {t('me.resumeNow')}
             </Typography>
           </Pressable>
         ) : null}
       </ActionSheet>
 
       {/* Leave group sheet */}
-      <ActionSheet visible={leaveOpen} onClose={() => setLeaveOpen(false)} title="Leave which group?">
+      <ActionSheet visible={leaveOpen} onClose={() => setLeaveOpen(false)} title={t('me.leaveWhich')}>
         <Typography style={styles.sheetSub}>
-          You&rsquo;ll be removed from the chat and meetups. Their group continues without you.
+          {t('me.leaveBlurb')}
         </Typography>
         {groups.map((g) => (
           <Pressable
@@ -489,7 +484,7 @@ export default function MeScreen() {
             }}
           >
             <Typography style={[styles.sheetItemTitle, { color: colors.cherry }]}>
-              Leave {g.name}
+              {t('me.leaveNamed', { name: g.name })}
             </Typography>
             <Typography style={styles.sheetItemSub}>
               {g.members.length} member{g.members.length === 1 ? '' : 's'} · frees up 1 of 2 slots.
@@ -518,7 +513,7 @@ export default function MeScreen() {
           }}
         >
           <Typography style={[styles.sheetItemTitle, { color: colors.cherry }]}>
-            Leave and delete the chat
+            {t('me.leaveAndDelete')}
           </Typography>
         </Pressable>
         <Pressable style={[styles.sheetItem, styles.sheetItemLast]} onPress={() => setLeaveTarget(null)}>
@@ -527,9 +522,9 @@ export default function MeScreen() {
       </ActionSheet>
 
       {/* RSVP undo sheet */}
-      <ActionSheet visible={undoOpen} onClose={() => setUndoOpen(false)} title="Can't make it after all?">
+      <ActionSheet visible={undoOpen} onClose={() => setUndoOpen(false)} title={t('me.undoTitle')}>
         <Typography style={styles.sheetSub}>
-          You&rsquo;re off the list — quietly. The group sees the count drop, no reason needed.
+          {t('me.undoBlurb')}
         </Typography>
         <Pressable
           style={styles.sheetItem}
