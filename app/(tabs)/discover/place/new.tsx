@@ -13,6 +13,8 @@ import {
   View,
 } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
@@ -59,39 +61,31 @@ const STEPS = 6;
 
 type Copy = { title: string; sub?: string };
 
-const COPY: Record<LovedKind, Copy[]> = {
-  place: [
-    { title: 'Where is it?', sub: 'A place all moms should know about.' },
-    { title: 'Right place?', sub: 'We’ll drop a pin here so other moms can find it.' },
-    { title: 'Add a photo', sub: 'One picture that captures it best.' },
-    { title: 'What kind of place?', sub: 'Pick one. We’ll use it to filter the map.' },
-    {
-      title: 'Why is it good for moms?',
-      sub: 'Keep it short and honest. The specific stuff matters most.',
-    },
-    { title: 'Look right?', sub: 'This is how it’ll appear on the map.' },
-  ],
-  person: [
-    // Address first, name second — the client's call, and she's right about
-    // why: you find a practitioner by their practice. Asking "who is it?" and
-    // then demanding an address inverts how anyone actually looks someone up.
-    {
-      title: 'Where do they practise?',
-      sub: 'Search the practice — a professional you’d send your closest friend to.',
-    },
-    {
-      title: 'Who is it?',
-      sub: 'We’ll list this address so other moms can reach them.',
-    },
-    { title: 'Add a photo', sub: 'One picture that captures it best.' },
-    { title: 'Who do they help?', sub: 'Pick one. We’ll use it to filter the map.' },
-    {
-      title: 'Why is she/he great with moms?',
-      sub: 'Keep it affirmative & positive, this is a real recommendation another mom will act on. Warnings belong in private chats, not on a public map.',
-    },
-    { title: 'Look right?', sub: 'This is how it’ll appear on the map.' },
-  ],
-};
+// Copy, not data — so it is built from `t` rather than frozen at import.
+// Address before name on the person path is the client's call, and she's right
+// about why: you find a practitioner by their practice. Asking "who is it?" and
+// then demanding an address inverts how anyone actually looks someone up.
+function copyFor(t: TFunction): Record<LovedKind, Copy[]> {
+  return {
+    place: [
+      { title: t('disc.sWhereTitle'), sub: t('disc.sWhereSub') },
+      { title: t('disc.sPinTitle'), sub: t('disc.sPinSub') },
+      { title: t('disc.sPhotoTitle'), sub: t('disc.sPhotoSub') },
+      { title: t('disc.sKindTitle'), sub: t('disc.sKindSub') },
+      { title: t('disc.sWhyTitle'), sub: t('disc.sWhySub') },
+      { title: t('disc.sLookTitle'), sub: t('disc.sLookSub') },
+    ],
+    person: [
+      { title: t('disc.pWhereTitle'), sub: t('disc.pWhereSub') },
+      { title: t('disc.pWhoTitle'), sub: t('disc.pWhoSub') },
+      { title: t('disc.sPhotoTitle'), sub: t('disc.sPhotoSub') },
+      { title: t('disc.pHelpTitle'), sub: t('disc.pHelpSub') },
+      { title: t('disc.pWhyTitle'), sub: t('disc.pWhySub') },
+      { title: t('disc.sLookTitle'), sub: t('disc.sLookSub') },
+    ],
+  };
+}
+
 
 const TIPS: Record<LovedKind, string[]> = {
   place: [
@@ -107,6 +101,7 @@ const TIPS: Record<LovedKind, string[]> = {
 };
 
 export default function PlaceComposer() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
@@ -129,7 +124,7 @@ export default function PlaceComposer() {
   useEffect(() => saveDraft(draft), [draft]);
 
   const kind: LovedKind = draft.kind ?? 'place';
-  const copy = COPY[kind][step];
+  const copy = copyFor(t)[kind][step];
 
   const patch = (p: Partial<ComposerDraft>) => setDraft((d) => ({ ...d, ...p }));
 
@@ -140,10 +135,10 @@ export default function PlaceComposer() {
       exit();
       return;
     }
-    Alert.alert('Discard this recommendation?', 'Your note won’t be saved.', [
-      { text: 'Keep editing', style: 'cancel' },
+    Alert.alert(t('disc.discardTitle'), t('disc.discardBody'), [
+      { text: t('disc.keepEditing'), style: 'cancel' },
       {
-        text: 'Discard',
+        text: t('disc.discard'),
         style: 'destructive',
         onPress: () => {
           clearDraft();
@@ -197,7 +192,7 @@ export default function PlaceComposer() {
       if (upErr) {
         // The photo was optional; the recommendation isn't. Say what happened
         // and let them post without it rather than losing the note.
-        setPhotoError('Couldn’t upload the photo. Post without it, or go back and pick another.');
+        setPhotoError(t('disc.photoFailed'));
         patch({ photoUri: null });
         return;
       }
@@ -269,7 +264,7 @@ export default function PlaceComposer() {
           <View style={styles.postingBadge}>
             <View style={styles.postingDot} />
             <Typography style={styles.postingText} color={colors.cobalt}>
-              POSTING · {kind === 'place' ? 'PLACES' : 'PEOPLE'}
+              {t('disc.posting')} · {kind === 'place' ? t('disc.postingPlaces') : t('disc.postingPeople')}
             </Typography>
           </View>
         ) : null}
@@ -359,15 +354,15 @@ export default function PlaceComposer() {
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.lg }]}>
         {step > 0 ? (
           <View style={styles.footerHalf}>
-            <Button title="Back" variant="secondary" onPress={back} />
+            <Button title={t('disc.back')} variant="secondary" onPress={back} />
           </View>
         ) : null}
         <View style={step > 0 ? styles.footerHalf : styles.footerSolo}>
           {step < 4 ? (
-            <Button title="Next" onPress={() => setStep((s) => s + 1)} disabled={!canAdvance} />
+            <Button title={t('disc.next')} onPress={() => setStep((s) => s + 1)} disabled={!canAdvance} />
           ) : null}
           {step === 4 ? (
-            <Button title="Preview" onPress={() => setStep(5)} disabled={!canAdvance} />
+            <Button title={t('disc.preview')} onPress={() => setStep(5)} disabled={!canAdvance} />
           ) : null}
           {step === 5 ? (
             busy ? (
@@ -375,7 +370,7 @@ export default function PlaceComposer() {
                 <ActivityIndicator color={colors.white} />
               </View>
             ) : (
-              <Button title="Post" onPress={publish} />
+              <Button title={t('disc.post')} onPress={publish} />
             )
           ) : null}
         </View>
@@ -386,11 +381,12 @@ export default function PlaceComposer() {
 
 // ── Step 1 · kind tabs + find ────────────────────────────────────
 function KindTabs({ kind, onChange }: { kind: LovedKind; onChange: (k: LovedKind) => void }) {
+  const { t } = useTranslation();
   // No sub-labels: "café · park · shop" explained a distinction the two words
   // already make, and the step's own question says the rest.
   const tabs: { key: LovedKind; label: string }[] = [
-    { key: 'place', label: 'A place' },
-    { key: 'person', label: 'A person' },
+    { key: 'place', label: t('disc.aPlace') },
+    { key: 'person', label: t('disc.aPerson') },
   ];
   return (
     <View style={styles.tabRow} accessibilityRole="tablist">
@@ -425,6 +421,7 @@ function StepFind({
   selected: ComposerDraft['location'];
   onSelect: (loc: ComposerDraft['location']) => void;
 }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState(selected?.name ?? '');
   const [results, setResults] = useState<PlaceAttachment[]>([]);
   const [searching, setSearching] = useState(false);
@@ -465,8 +462,8 @@ function StepFind({
         onChangeText={setQuery}
         placeholder={
           kind === 'place'
-            ? `Search a place${city ? ` in ${city}` : ''}…`
-            : `Search the practice or clinic${city ? ` in ${city}` : ''}…`
+            ? `${t('disc.searchPlace')}${city ? t('disc.searchIn', { city }) : ''}…`
+            : `${t('disc.searchPractice')}${city ? t('disc.searchIn', { city }) : ''}…`
         }
         placeholderTextColor={colors.muted}
         style={styles.search}
@@ -477,7 +474,7 @@ function StepFind({
         <View style={styles.searchingRow}>
           <ActivityIndicator size="small" color={colors.cobalt} />
           <Typography style={styles.searchingText} color={colors.muted}>
-            searching {city ?? 'nearby'}…
+            {t('disc.searching', { where: city ?? t('disc.nearby') })}
           </Typography>
         </View>
       ) : null}
@@ -524,7 +521,7 @@ function StepFind({
           a place Google doesn't know can no longer be posted at all. */}
       {query.trim().length >= 2 && !searching && results.length === 0 ? (
         <Typography style={styles.noResults} color={colors.muted}>
-          Nothing found. Try the street, or the name as it appears on the door.
+          {t('disc.nothingFound')}
         </Typography>
       ) : null}
     </View>
@@ -541,6 +538,7 @@ function StepConfirm({
   kind: LovedKind;
   onName: (name: string) => void;
 }) {
+  const { t } = useTranslation();
   if (!location) return null;
   const map = staticMapUri({ lat: location.lat, lng: location.lng });
   return (
@@ -554,7 +552,7 @@ function StepConfirm({
           <View style={styles.mapEmpty}>
             <Ionicons name="location-outline" size={22} color={colors.mutedStrong} />
             <Typography style={styles.mapEmptyText} color={colors.mutedStrong}>
-              No pin — added by name
+              {t('disc.noPin')}
             </Typography>
           </View>
         )}
@@ -575,11 +573,11 @@ function StepConfirm({
 
       {kind === 'person' ? (
         <View style={styles.personName}>
-          <ComposerField label="Their name" hint="required">
+          <ComposerField label={t('disc.theirName')} hint={t('brought.required')}>
             <ComposerInput
               value={location.name}
               onChangeText={onName}
-              placeholder="Dr. Nora van Dijk"
+              placeholder={t('disc.theirNamePlaceholder')}
             />
           </ComposerField>
         </View>
@@ -600,6 +598,7 @@ function StepPhoto({
   onClear: () => void;
   onSkip: () => void;
 }) {
+  const { t } = useTranslation();
   return <ComposerPhoto uri={uri} onPick={onPick} onClear={onClear} onSkip={onSkip} />;
 }
 
@@ -613,6 +612,7 @@ function StepCategory({
   value: LovedCategory | null;
   onPick: (c: LovedCategory) => void;
 }) {
+  const { t } = useTranslation();
   const set = kind === 'place' ? PLACE_CATEGORIES : PERSON_CATEGORIES;
   return (
     <ComposerChips
@@ -641,6 +641,7 @@ function StepNote({
   website: string;
   onContact: (p: { phone?: string; email?: string; website?: string }) => void;
 }) {
+  const { t } = useTranslation();
   const len = value.trim().length;
   return (
     <View>
@@ -660,7 +661,7 @@ function StepNote({
         {len < NOTE_MIN ? `${NOTE_MIN - len} more characters` : `${value.length}/${NOTE_MAX}`}
       </Typography>
 
-      <ComposerDisclosure title="Tips for a good tip">
+      <ComposerDisclosure title={t('disc.tipsTitle')}>
         {TIPS[kind].map((tip) => (
           <View key={tip} style={styles.tip}>
             <Typography style={styles.tipText} color={colors.mutedStrong}>
@@ -673,32 +674,32 @@ function StepNote({
       {/* Contact details, offered and never asked for. Folded away by default:
           the note is what this step is for, and a row of empty fields under it
           would read as four more things to fill in. */}
-      <ComposerDisclosure title="Anything else worth knowing?">
+      <ComposerDisclosure title={t('disc.elseTitle')}>
         <Typography style={styles.contactHint} color={colors.muted}>
-          All optional — add a way to reach them if you have one.
+          {t('disc.allOptional')}
         </Typography>
-        <ComposerField label="Phone">
+        <ComposerField label={t('disc.phone')}>
           <ComposerInput
             value={phone}
             onChangeText={(v) => onContact({ phone: v })}
-            placeholder="Phone"
+            placeholder={t('disc.phone')}
             keyboardType="phone-pad"
           />
         </ComposerField>
-        <ComposerField label="Email">
+        <ComposerField label={t('disc.email')}>
           <ComposerInput
             value={email}
             onChangeText={(v) => onContact({ email: v })}
-            placeholder="Email"
+            placeholder={t('disc.email')}
             autoCapitalize="none"
             keyboardType="email-address"
           />
         </ComposerField>
-        <ComposerField label="Website">
+        <ComposerField label={t('disc.website')}>
           <ComposerInput
             value={website}
             onChangeText={(v) => onContact({ website: v })}
-            placeholder="Website"
+            placeholder={t('disc.website')}
             autoCapitalize="none"
             keyboardType="url"
           />
@@ -720,6 +721,7 @@ function StepPreview({
   posterName: string | null;
   error: string | null;
 }) {
+  const { t } = useTranslation();
   if (!draft.location || !draft.category) return null;
   return (
     <View>
@@ -749,8 +751,8 @@ function StepPreview({
 
       <Typography style={styles.previewFoot} color={colors.muted}>
         {kind === 'place'
-          ? 'It goes on the Places map, attributed to you.'
-          : 'It goes on the People map, attributed to you.'}
+          ? t('disc.goesPlaces')
+          : t('disc.goesPeople')}
       </Typography>
     </View>
   );

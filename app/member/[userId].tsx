@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,7 +13,7 @@ import { scaled } from '@/constants/scale';
 import { supabase } from '@/lib/supabase';
 import { openInstagramProfile } from '@/lib/instagram';
 import { BroughtCard } from '@/components/brought/BroughtCard';
-import { KIND_POSSESSIVE } from '@/constants/brought';
+import { kindPossessive } from '@/constants/brought';
 import { useBroughtFor } from '@/hooks/useBrought';
 import type { User } from '@/types';
 
@@ -22,6 +23,7 @@ import type { User } from '@/types';
  * quiet cobalt links. Ref: design/moma-v11.html · #screen-member.
  */
 export default function MemberScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { userId } = useLocalSearchParams<{ userId: string }>();
   const { items: broughtItems } = useBroughtFor(userId ? [userId] : []);
@@ -98,7 +100,7 @@ export default function MemberScreen() {
             {brought ? (
               <View style={styles.broughtSection}>
                 <Typography style={styles.broughtLabel} color={colors.cobalt}>
-                  {KIND_POSSESSIVE[brought.kind].toUpperCase()}
+                  {kindPossessive(t)[brought.kind].toUpperCase()}
                 </Typography>
                 <BroughtCard item={brought} onPress={() => router.push(`/brought/${u.id}`)} />
               </View>

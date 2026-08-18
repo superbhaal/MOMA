@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 import { colors } from '@/constants/colors';
 import type { BroughtItem, BroughtKind } from '@/types';
 
@@ -9,53 +11,50 @@ import type { BroughtItem, BroughtKind } from '@/types';
  * the work: "the dish you'd actually make this week, not the one you'd like to
  * be the kind of person who makes" is what keeps this from turning into
  * Pinterest.
+ *
+ * The copy maps are FUNCTIONS of `t`, not constants. A constant is evaluated at
+ * import and would hold whichever language was active then, so changing the
+ * language in Settings would leave these five screens in the old one until the
+ * app restarted. Same reason DECLINE_OPTIONS, TIME_BLOCKS and PAUSE_OPTIONS
+ * were converted.
  */
 
 export const BROUGHT_KINDS: BroughtKind[] = ['recipe', 'book', 'find', 'listen', 'tip'];
 
-export const KIND_LABEL: Record<BroughtKind, string> = {
-  recipe: 'Recipe',
-  book: 'Book',
-  find: 'Find',
-  listen: 'Listen',
-  tip: 'Tip',
-};
+export function kindLabel(t: TFunction): Record<BroughtKind, string> {
+  return {
+    recipe: t('brought.kRecipe'),
+    book: t('brought.kBook'),
+    find: t('brought.kFind'),
+    listen: t('brought.kListen'),
+    tip: t('brought.kTip'),
+  };
+}
 
 /** The course header and its invitation, per kind. */
-export const KIND_COURSE: Record<BroughtKind, { title: string; note: string }> = {
-  recipe: {
-    title: 'From the kitchen',
-    note: 'The dish you’d actually make this week, not the one you’d like to be the kind of person who makes.',
-  },
-  book: {
-    title: 'On the nightstand',
-    note: 'Read, half-read or listened to at 4 a.m. Nobody is checking whether you finished it.',
-  },
-  find: {
-    title: 'Things that work',
-    note: 'The object that quietly saved you. A wrap, a lamp, a bottle brush, a second-hand pram.',
-  },
-  listen: {
-    title: 'For the 3 a.m. shift',
-    note: 'A podcast, an album, one song on repeat. What keeps you company in the dark.',
-  },
-  tip: {
-    title: 'Learned the hard way',
-    note: 'One thing you know now that nobody told you. No advice you don’t actually follow.',
-  },
-};
+export function kindCourse(t: TFunction): Record<BroughtKind, { title: string; note: string }> {
+  return {
+    recipe: { title: t('brought.cRecipeTitle'), note: t('brought.cRecipeNote') },
+    book: { title: t('brought.cBookTitle'), note: t('brought.cBookNote') },
+    find: { title: t('brought.cFindTitle'), note: t('brought.cFindNote') },
+    listen: { title: t('brought.cListenTitle'), note: t('brought.cListenNote') },
+    tip: { title: t('brought.cTipTitle'), note: t('brought.cTipNote') },
+  };
+}
 
 /**
  * How someone else's profile introduces it. The client wrote these; "Her
  * recipe" from the mockup only ever worked for one of the five.
  */
-export const KIND_POSSESSIVE: Record<BroughtKind, string> = {
-  recipe: 'Her recipe',
-  book: 'Her book',
-  find: 'Her find',
-  listen: 'What she’s listening to',
-  tip: 'What she learned the hard way',
-};
+export function kindPossessive(t: TFunction): Record<BroughtKind, string> {
+  return {
+    recipe: t('brought.pRecipe'),
+    book: t('brought.pBook'),
+    find: t('brought.pFind'),
+    listen: t('brought.pListen'),
+    tip: t('brought.pTip'),
+  };
+}
 
 /**
  * Each course has its own ink — the accent marks the selected tab, the text
@@ -79,13 +78,15 @@ export const KIND_INK: Record<BroughtKind, { accent: string; text: string }> = {
  * its cover, a find wants the object, a listen wants cover art; "add a photo"
  * for all four would have been the app asking without knowing what for.
  */
-export const KIND_PHOTO_HINT: Record<BroughtKind, string> = {
-  recipe: 'A photo, or a drawing of the dish',
-  book: 'The cover, or a drawing of it',
-  find: 'A photo of the thing',
-  listen: 'Cover art, or a drawing',
-  tip: '',
-};
+export function kindPhotoHint(t: TFunction): Record<BroughtKind, string> {
+  return {
+    recipe: t('brought.phRecipe'),
+    book: t('brought.phBook'),
+    find: t('brought.phFind'),
+    listen: t('brought.phListen'),
+    tip: t('brought.phTip'),
+  };
+}
 
 /** Tip is the one kind with nothing to photograph. */
 export const KIND_HAS_PHOTO: Record<BroughtKind, boolean> = {

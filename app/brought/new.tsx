@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,11 +18,11 @@ import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 import {
   BROUGHT_KINDS,
-  KIND_COURSE,
+  kindCourse,
   KIND_INK,
   KIND_HAS_PHOTO,
-  KIND_LABEL,
-  KIND_PHOTO_HINT,
+  kindLabel,
+  kindPhotoHint,
   broughtIsComplete,
 } from '@/constants/brought';
 import { uploadImage } from '@/lib/uploadImage';
@@ -38,6 +39,7 @@ import type { BroughtKind, RecipeIngredient } from '@/types';
  * with them it's an invitation.
  */
 export default function BringSomethingScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
@@ -81,7 +83,7 @@ export default function BringSomethingScreen() {
       const { url, error } = await uploadImage('spot-photos', user.id, photoUri);
       setUploading(false);
       if (error) {
-        Alert.alert('Couldn’t upload the photo', 'Put it on the table without one, or try again.');
+        Alert.alert(t('brought.errPhotoTitle'), t('brought.errPhotoBody'));
         setPhotoUri(null);
         return;
       }
@@ -93,7 +95,7 @@ export default function BringSomethingScreen() {
     const commit = async () => {
       const { error } = await save({ kind, payload, photoUrl });
       if (error) {
-        Alert.alert('Couldn’t put it on the table', error);
+        Alert.alert(t('brought.errSaveTitle'), error);
         return;
       }
       router.back();
@@ -104,11 +106,11 @@ export default function BringSomethingScreen() {
     // moment anyone can be told.
     if (replacing) {
       Alert.alert(
-        'Replace what’s on the table?',
-        'Your current one comes off your profile and isn’t kept — you’d have to write it again.',
+        t('brought.replaceTitle'),
+        t('brought.replaceBody'),
         [
-          { text: 'Keep the old one', style: 'cancel' },
-          { text: 'Replace it', style: 'destructive', onPress: commit },
+          { text: t('brought.keepOld'), style: 'cancel' },
+          { text: t('brought.replaceIt'), style: 'destructive', onPress: commit },
         ],
       );
       return;
@@ -116,7 +118,7 @@ export default function BringSomethingScreen() {
     await commit();
   }
 
-  const course = KIND_COURSE[kind];
+  const course = kindCourse(t)[kind];
   const ink = KIND_INK[kind];
 
   return (
@@ -168,7 +170,7 @@ export default function BringSomethingScreen() {
                   style={styles.kindLabel}
                   color={k === kind ? KIND_INK[k].text : colors.muted}
                 >
-                  {KIND_LABEL[k].toUpperCase()}
+                  {kindLabel(t)[k].toUpperCase()}
                 </Typography>
               </Pressable>
             </View>
@@ -188,7 +190,7 @@ export default function BringSomethingScreen() {
               uri={photoUri}
               onPick={setPhotoUri}
               onClear={() => setPhotoUri(null)}
-              hint={KIND_PHOTO_HINT[kind]}
+              hint={kindPhotoHint(t)[kind]}
               optional
             />
           </View>
@@ -196,23 +198,23 @@ export default function BringSomethingScreen() {
 
         {kind === 'recipe' ? (
           <>
-            <ComposerField label="Recipe name" hint="required">
+            <ComposerField label={t('brought.fRecipeName')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('title')}
                 onChangeText={(v) => set('title', v)}
-                placeholder="Lemon & yoghurt cake"
+                placeholder={t('brought.pRecipeName')}
               />
             </ComposerField>
-            <ComposerField label="Why you love it" hint="required">
+            <ComposerField label={t('brought.fWhyLove')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('why')}
                 onChangeText={(v) => set('why', v)}
-                placeholder="The only thing I can still make one-handed"
+                placeholder={t('brought.pWhyLove')}
                 multiline
               />
             </ComposerField>
 
-            <ComposerLabel label="Ingredients" hint="optional" />
+            <ComposerLabel label={t('brought.fIngredients')} hint={t('brought.optional')} />
             {ingredients.map((ing, i) => (
               <View key={i} style={styles.ingRow}>
                 <View style={styles.qty}>
@@ -223,7 +225,7 @@ export default function BringSomethingScreen() {
                       next[i] = { ...next[i], qty: v };
                       set('ingredients', next);
                     }}
-                    placeholder="200 g"
+                    placeholder={t('brought.pQty')}
                   />
                 </View>
                 <View style={{ flex: 1 }}>
@@ -234,17 +236,17 @@ export default function BringSomethingScreen() {
                       next[i] = { ...next[i], name: v };
                       set('ingredients', next);
                     }}
-                    placeholder="Flour"
+                    placeholder={t('brought.pIngredient')}
                   />
                 </View>
               </View>
             ))}
             <AddLine
-              label="Add an ingredient"
+              label={t('brought.addIngredient')}
               onPress={() => set('ingredients', [...ingredients, { qty: '', name: '' }])}
             />
 
-            <ComposerLabel label="Steps" hint="optional" />
+            <ComposerLabel label={t('brought.fSteps')} hint={t('brought.optional')} />
             {steps.map((st, i) => (
               <ComposerField key={i} label={`Step ${i + 1}`}>
                 <ComposerInput
@@ -254,44 +256,44 @@ export default function BringSomethingScreen() {
                     next[i] = v;
                     set('steps', next);
                   }}
-                  placeholder="Zest the lemons into the sugar"
+                  placeholder={t('brought.pStep')}
                   multiline
                 />
               </ComposerField>
             ))}
-            <AddLine label="Add a step" onPress={() => set('steps', [...steps, ''])} />
+            <AddLine label={t('brought.addStep')} onPress={() => set('steps', [...steps, ''])} />
           </>
         ) : null}
 
         {kind === 'book' ? (
           <>
-            <ComposerField label="Title" hint="required">
+            <ComposerField label={t('brought.fTitle')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('title')}
                 onChangeText={(v) => set('title', v)}
-                placeholder="Matrescence"
+                placeholder={t('brought.pTitle')}
               />
             </ComposerField>
-            <ComposerField label="Author" hint="required">
+            <ComposerField label={t('brought.fAuthor')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('author')}
                 onChangeText={(v) => set('author', v)}
-                placeholder="Lucy Jones"
+                placeholder={t('brought.pAuthor')}
               />
             </ComposerField>
-            <ComposerField label="Why you’d pass it on" hint="required">
+            <ComposerField label={t('brought.fWhyPass')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('why')}
                 onChangeText={(v) => set('why', v)}
-                placeholder="Made me feel less like I was losing it"
+                placeholder={t('brought.pWhyPass')}
                 multiline
               />
             </ComposerField>
-            <ComposerField label="A line you underlined" hint="optional">
+            <ComposerField label={t('brought.fUnderlined')} hint={t('brought.optional')}>
               <ComposerInput
                 value={str('quote')}
                 onChangeText={(v) => set('quote', v)}
-                placeholder="“…”"
+                placeholder={t('brought.pUnderlined')}
                 multiline
               />
             </ComposerField>
@@ -300,26 +302,26 @@ export default function BringSomethingScreen() {
 
         {kind === 'find' ? (
           <>
-            <ComposerField label="What it is" hint="required">
+            <ComposerField label={t('brought.fWhatIsIt')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('title')}
                 onChangeText={(v) => set('title', v)}
-                placeholder="A €12 clip-on fan for the pram"
+                placeholder={t('brought.pWhatFind')}
               />
             </ComposerField>
-            <ComposerField label="Why it works" hint="required">
+            <ComposerField label={t('brought.fWhyWorks')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('why')}
                 onChangeText={(v) => set('why', v)}
-                placeholder="Turned every summer walk from a scream into a nap"
+                placeholder={t('brought.pWhyWorks')}
                 multiline
               />
             </ComposerField>
-            <ComposerField label="Where you got it" hint="optional">
+            <ComposerField label={t('brought.fWhereGot')} hint={t('brought.optional')}>
               <ComposerInput
                 value={str('where')}
                 onChangeText={(v) => set('where', v)}
-                placeholder="Marktplaats, or the shop on Haarlemmerdijk"
+                placeholder={t('brought.pWhereGot')}
               />
             </ComposerField>
           </>
@@ -327,25 +329,25 @@ export default function BringSomethingScreen() {
 
         {kind === 'listen' ? (
           <>
-            <ComposerField label="What it is" hint="required">
+            <ComposerField label={t('brought.fWhatIsIt')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('title')}
                 onChangeText={(v) => set('title', v)}
-                placeholder="Everything Is Fine — podcast"
+                placeholder={t('brought.pWhatListen')}
               />
             </ComposerField>
-            <ComposerField label="Who made it" hint="required">
+            <ComposerField label={t('brought.fWhoMade')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('maker')}
                 onChangeText={(v) => set('maker', v)}
-                placeholder="Jane & Kim"
+                placeholder={t('brought.pWhoMade')}
               />
             </ComposerField>
-            <ComposerField label="When it works" hint="required">
+            <ComposerField label={t('brought.fWhenWorks')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('when')}
                 onChangeText={(v) => set('when', v)}
-                placeholder="Night feeds, one earbud in, sound down low"
+                placeholder={t('brought.pWhenWorks')}
                 multiline
               />
             </ComposerField>
@@ -354,27 +356,27 @@ export default function BringSomethingScreen() {
 
         {kind === 'tip' ? (
           <>
-            <ComposerField label="The tip" hint="required">
+            <ComposerField label={t('brought.fTheTip')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('tip')}
                 onChangeText={(v) => set('tip', v)}
-                placeholder="Take the 8 a.m. appointment. Everything after 11 is a gamble."
+                placeholder={t('brought.pTheTip')}
                 multiline
               />
             </ComposerField>
-            <ComposerField label="How you found out" hint="required">
+            <ComposerField label={t('brought.fHowFound')} hint={t('brought.required')}>
               <ComposerInput
                 value={str('how')}
                 onChangeText={(v) => set('how', v)}
-                placeholder="Three cancelled afternoons in a row"
+                placeholder={t('brought.pHowFound')}
                 multiline
               />
             </ComposerField>
-            <ComposerField label="Who told you" hint="optional">
+            <ComposerField label={t('brought.fWhoTold')} hint={t('brought.optional')}>
               <ComposerInput
                 value={str('who')}
                 onChangeText={(v) => set('who', v)}
-                placeholder="My midwife, on the way out the door"
+                placeholder={t('brought.pWhoTold')}
               />
             </ComposerField>
           </>
@@ -387,7 +389,7 @@ export default function BringSomethingScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.lg }]}>
         <ComposerCta
-          title="Put it on the table"
+          title={t('brought.cta')}
           onPress={put}
           disabled={!ready}
           busy={saving || uploading}

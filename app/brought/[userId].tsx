@@ -1,4 +1,5 @@
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,7 +9,7 @@ import { colors } from '@/constants/colors';
 import { fonts, textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
-import { KIND_COURSE, KIND_LABEL } from '@/constants/brought';
+import { kindCourse, kindLabel } from '@/constants/brought';
 import { useBroughtFor } from '@/hooks/useBrought';
 import { useAuth } from '@/hooks/useAuth';
 import type { RecipeIngredient } from '@/types';
@@ -23,6 +24,7 @@ import type { RecipeIngredient } from '@/types';
  * small betrayal.
  */
 export default function BroughtDetail() {
+  const { t } = useTranslation();
   const { userId } = useLocalSearchParams<{ userId: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -83,7 +85,7 @@ export default function BroughtDetail() {
 
         <View style={styles.body}>
           <Typography style={styles.kind} color={colors.cobalt}>
-            {KIND_LABEL[item.kind].toUpperCase()} · {KIND_COURSE[item.kind].title.toUpperCase()}
+            {kindLabel(t)[item.kind].toUpperCase()} · {kindCourse(t)[item.kind].title.toUpperCase()}
           </Typography>
           <Typography style={styles.title} color={colors.text}>
             {title}

@@ -1,9 +1,10 @@
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
 import { fonts, textStyles } from '@/constants/typography';
-import { KIND_LABEL, broughtCard } from '@/constants/brought';
+import { kindLabel, broughtCard } from '@/constants/brought';
 import type { BroughtItem } from '@/types';
 import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
@@ -23,6 +24,7 @@ interface GroupPreviewCardProps {
  * detail line + italic cobalt match-note.
  */
 export function GroupPreviewCard({ member, matchNote, brought }: GroupPreviewCardProps) {
+  const { t } = useTranslation();
   const u = member.user;
   return (
     <View style={styles.row}>
@@ -54,7 +56,7 @@ export function GroupPreviewCard({ member, matchNote, brought }: GroupPreviewCar
         {brought ? (
           <View style={styles.brought}>
             <Typography style={styles.broughtKind} color={colors.mutedStrong}>
-              {KIND_LABEL[brought.kind].toUpperCase()}
+              {kindLabel(t)[brought.kind].toUpperCase()}
             </Typography>
             <Typography style={styles.broughtTitle} color={colors.text} numberOfLines={2}>
               {broughtCard(brought).title}
