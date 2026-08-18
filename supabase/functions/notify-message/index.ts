@@ -8,6 +8,7 @@
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { asLocale, pt, type PushLocale } from '../_shared/push-i18n.ts';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
@@ -69,20 +70,27 @@ Deno.serve(async (req) => {
 
     const { data: recips } = await supabase
       .from('users')
-      .select('id, expo_push_token, notif_chat_activity')
+      .select('id, expo_push_token, notif_chat_activity, locale')
       .in('id', recipientIds);
 
     // Respect the per-user chat-activity preference: 'off' opts out of message
     // pushes entirely. (every/daily/weekly are treated as "notify" for MVP.)
     const tokens = (recips ?? [])
-      .filter((r) => r.expo_push_token && r.notif_chat_activity !== 'off')
-      .map((r) => r.expo_push_token as string);
+      .filter((r) => r.expo_push_token && r.notif_chat_activity !== 'off');
 
     const title = msg.group_id ? `${senderName} · ${context}` : senderName;
-    const body = previewFor(msg);
     const data = { type: 'new_message', route, groupId: msg.group_id ?? undefined };
 
-    const messages = tokens.map((to) => ({ to, title, body, sound: 'default', data }));
+    // The preview line is composed per recipient: '📍 shared a place' is copy,
+    // and each woman reads it in her own language. The message itself is hers,
+    // and is never translated.
+    const messages = tokens.map((r) => ({
+      to: r.expo_push_token as string,
+      title,
+      body: previewFor(msg, asLocale((r as { locale?: string | null }).locale)),
+      sound: 'default',
+      data,
+    }));
     await sendPushChunked(messages);
 
     return json({ ok: true, pushed: messages.length });
@@ -91,11 +99,14 @@ Deno.serve(async (req) => {
   }
 });
 
-function previewFor(msg: { attachment_type: string | null; content: string | null }): string {
-  if (msg.attachment_type === 'place') return '📍 shared a place';
-  if (msg.attachment_type === 'proposal_ref') return 'suggested a meetup';
+function previewFor(
+  msg: { attachment_type: string | null; content: string | null },
+  loc: PushLocale,
+): string {
+  if (msg.attachment_type === 'place') return pt(loc, 'sharedPlace');
+  if (msg.attachment_type === 'proposal_ref') return pt(loc, 'suggestedMeetup');
   const c = (msg.content ?? '').trim();
-  if (!c) return 'sent a message';
+  if (!c) return pt(loc, 'sentMessage');
   return c.length > 140 ? c.slice(0, 139) + '…' : c;
 }
 

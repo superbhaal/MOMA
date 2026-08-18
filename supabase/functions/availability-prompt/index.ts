@@ -3,6 +3,7 @@
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { asLocale, pt } from '../_shared/push-i18n.ts';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
@@ -14,7 +15,7 @@ Deno.serve(async () => {
 
   const { data: users, error } = await supabase
     .from('users')
-    .select('id, expo_push_token, paused_until')
+    .select('id, expo_push_token, paused_until, locale')
     .not('expo_push_token', 'is', null);
 
   if (error) {
@@ -26,13 +27,18 @@ Deno.serve(async () => {
     (u) => !u.paused_until || new Date(u.paused_until).getTime() < now,
   );
 
-  const messages = targets.map((u) => ({
-    to: u.expo_push_token!,
-    title: 'when are you free?',
-    body: 'tap to mark your week so we can plan good meetups.',
-    sound: 'default',
-    data: { route: '/availability' },
-  }));
+  // Composed per recipient, not once for the batch: each woman reads this in
+  // her own language.
+  const messages = targets.map((u) => {
+    const loc = asLocale((u as { locale?: string | null }).locale);
+    return {
+      to: u.expo_push_token!,
+      title: pt(loc, 'freeTitle'),
+      body: pt(loc, 'freeBody'),
+      sound: 'default',
+      data: { route: '/availability' },
+    };
+  });
 
   await sendChunked(messages);
 

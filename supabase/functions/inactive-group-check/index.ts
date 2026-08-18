@@ -3,6 +3,7 @@
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { asLocale, pt } from '../_shared/push-i18n.ts';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 const INACTIVE_DAYS = 30;
@@ -19,7 +20,7 @@ Deno.serve(async () => {
 
   const { data: groups, error: gErr } = await supabase
     .from('groups')
-    .select('id, name, last_active_at, members:group_members(user_id, user:users(id, expo_push_token))')
+    .select('id, name, last_active_at, members:group_members(user_id, user:users(id, expo_push_token, locale))')
     .eq('status', 'active')
     .lt('last_active_at', cutoffIso);
 
@@ -46,10 +47,11 @@ Deno.serve(async () => {
       promptRows.push({ group_id: g.id, user_id: m.user_id });
       const token = m.user?.expo_push_token;
       if (token) {
+        const loc = asLocale((m.user as { locale?: string | null } | null)?.locale);
         messages.push({
           to: token,
-          title: 'still your village?',
-          body: `${g.name ?? 'your group'} has been quiet for a month. want to keep it or find a new one?`,
+          title: pt(loc, 'quietTitle'),
+          body: pt(loc, 'quietBody', { group: g.name ?? pt(loc, 'yourGroup') }),
           sound: 'default',
           data: { route: `/group/${g.id}` },
         });

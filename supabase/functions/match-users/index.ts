@@ -13,6 +13,7 @@
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { asLocale, pt, type PushLocale } from '../_shared/push-i18n.ts';
 
 const MIN_GROUP = 3;
 const MAX_GROUP = 5;
@@ -62,6 +63,7 @@ interface UserRow {
   secondary_languages: string[] | null;
   pref_age_window_weeks: number;
   pref_distance_minutes: number;
+  locale: string | null;
 }
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
@@ -171,11 +173,12 @@ Deno.serve(async () => {
 
     for (const u of g.mates) {
       const others = g.mates.length - 1;
-      const body = matchBody(others, hood, wLo, wHi);
+      const loc = asLocale(u.locale);
+      const body = matchBody(others, hood, wLo, wHi, loc);
       if (u.expo_push_token) {
         pushMessages.push({
           to: u.expo_push_token,
-          title: 'Your group is ready',
+          title: pt(loc, 'matchTitle'),
           body,
           sound: 'default',
           data: { type: 'group_matched_preview', groupId: groupRow.id, route: '/group-preview' },
@@ -223,13 +226,20 @@ function majorityNeighbourhood(members: UserRow[]): string {
   return best;
 }
 
-function matchBody(others: number, hood: string, wLo: number | null, wHi: number | null): string {
-  const who = others === 1 ? '1 mom' : `${others} moms`;
+function matchBody(
+  others: number,
+  hood: string,
+  wLo: number | null,
+  wHi: number | null,
+  loc: PushLocale,
+): string {
+  const who = others === 1 ? pt(loc, 'momOne') : pt(loc, 'momMany', { n: others });
   if (wLo === null || wHi === null) {
-    return `We matched you with ${who} in ${hood}. Tap to meet them.`;
+    return pt(loc, 'matchBody', { who, hood });
   }
-  const weeks = wLo === wHi ? `week ${wLo}` : `week ${wLo}–${wHi}`;
-  return `We matched you with ${who} in ${hood}, all at ${weeks}. Tap to meet them.`;
+  const weeks =
+    wLo === wHi ? pt(loc, 'weekOne', { lo: wLo }) : pt(loc, 'weekRange', { lo: wLo, hi: wHi });
+  return pt(loc, 'matchBodyWeeks', { who, hood, weeks });
 }
 
 async function sendPushChunked(items: PushMessage[], size = 100) {

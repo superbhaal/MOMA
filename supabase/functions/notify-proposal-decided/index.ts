@@ -7,6 +7,7 @@
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { asLocale, BCP47, pt } from '../_shared/push-i18n.ts';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
@@ -42,37 +43,43 @@ Deno.serve(async (req) => {
       .select('name')
       .eq('id', proposal.group_id)
       .maybeSingle();
-    const groupName = group?.name ?? 'your group';
+    const groupName = group?.name ?? null;
 
     // Meetup pushes respect the notif_meetup_reminders opt-out.
     const { data: recips } = await supabase
       .from('users')
-      .select('expo_push_token, notif_meetup_reminders')
+      .select('expo_push_token, notif_meetup_reminders, locale')
       .in('id', memberIds);
-    const tokens = (recips ?? [])
-      .filter((r) => r.expo_push_token && r.notif_meetup_reminders !== false)
-      .map((r) => r.expo_push_token as string);
-    if (tokens.length === 0) return json({ ok: true, pushed: 0, reason: 'no tokens' });
+    const targets = (recips ?? []).filter(
+      (r) => r.expo_push_token && r.notif_meetup_reminders !== false,
+    );
+    if (targets.length === 0) return json({ ok: true, pushed: 0, reason: 'no tokens' });
 
-    const when = new Date(proposal.scheduled_at).toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-    });
     const place = proposal.location_name ? ` · ${proposal.location_name}` : '';
-
     const data = {
       type: 'proposal_decided',
       route: `/group/${proposal.group_id}/chat`,
       groupId: proposal.group_id,
     };
-    const messages = tokens.map((to) => ({
-      to,
-      title: `It's locked in · ${groupName}`,
-      body: `${when}${place}. See you there.`,
-      sound: 'default',
-      data,
-    }));
+
+    // Per recipient rather than once for the batch — and the date is formatted
+    // inside the loop, because 'Saturday, Mar 15' has to become 'samedi 15 mars'
+    // for a French reader, not just the sentence around it.
+    const messages = targets.map((r) => {
+      const loc = asLocale((r as { locale?: string | null }).locale);
+      const when = new Date(proposal.scheduled_at).toLocaleDateString(BCP47[loc], {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+      });
+      return {
+        to: r.expo_push_token as string,
+        title: pt(loc, 'lockedTitle', { group: groupName ?? pt(loc, 'yourGroup') }),
+        body: pt(loc, 'lockedBody', { when, place }),
+        sound: 'default',
+        data,
+      };
+    });
     await sendPushChunked(messages);
 
     return json({ ok: true, pushed: messages.length });
