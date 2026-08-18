@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,23 +24,26 @@ type Platform = 'instagram' | 'tiktok';
 
 const IG_GRADIENT = ['#f9ce34', '#ee2a7b', '#6228d7'] as const;
 
-const COPY: Record<Platform, { label: string; placeholder: string; from: string; note: string }> = {
-  instagram: {
-    label: 'Instagram link',
-    placeholder: 'https://instagram.com/reel/…',
-    from: 'e.g. Dr. Sigrid Greene, perinatal psychiatrist',
-    // Honest about what we can and can't do. The mockup promised the thumbnail,
-    // duration and handle automatically; Instagram closed its public oEmbed in
-    // 2020, so for them the poster's own words ARE the card.
-    note: 'Instagram won’t let us read the video, so what you write here is what other moms will see.',
-  },
-  tiktok: {
-    label: 'TikTok link',
-    placeholder: 'https://tiktok.com/@…/video/…',
-    from: 'e.g. @drsleepbaby, IBCLC',
-    note: 'Just the link works — we’ll pull the cover and the creator for you.',
-  },
-};
+// Copy, so a function of `t` rather than a module constant frozen at import.
+function copyFor(t: TFunction): Record<Platform, { label: string; placeholder: string; from: string; note: string }> {
+  return {
+    instagram: {
+      label: t('reel.igLabel'),
+      placeholder: t('reel.igPlaceholder'),
+      from: t('reel.igFrom'),
+      // Honest about what we can and can't do. The mockup promised the
+      // thumbnail, duration and handle automatically; Instagram closed its
+      // public oEmbed in 2020, so for them the poster's own words ARE the card.
+      note: t('reel.igNote'),
+    },
+    tiktok: {
+      label: t('reel.ttLabel'),
+      placeholder: t('reel.ttPlaceholder'),
+      from: t('reel.ttFrom'),
+      note: t('reel.ttNote'),
+    },
+  };
+}
 
 interface ShareReelSheetProps {
   visible: boolean;
@@ -56,6 +61,7 @@ interface ShareReelSheetProps {
  * posts twice.
  */
 export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetProps) {
+  const { t } = useTranslation();
   const { resolve, create, resolving, submitting, error, setError } = useCreateReel();
 
   const [platform, setPlatform] = useState<Platform | null>(null);
@@ -144,22 +150,22 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
         showsVerticalScrollIndicator={false}
       >
         <Typography style={styles.title} color={colors.cobalt}>
-          Share a recommendation
+          {t('reel.shareTitle')}
         </Typography>
         <Typography style={styles.sub} color={colors.mutedStrong}>
-          Share a reel or video that helped you.
+          {t('reel.shareSub')}
         </Typography>
 
         <PlatformOption
           platform="instagram"
-          title="An Instagram reel"
+          title={t('reel.anIg')}
           sub="Paste a link, we’ll embed it for you."
           active={platform === 'instagram'}
           onPress={() => setPlatform('instagram')}
         />
         <PlatformOption
           platform="tiktok"
-          title="A TikTok"
+          title={t('reel.aTt')}
           sub="Same idea. Paste the link and you’re done."
           active={platform === 'tiktok'}
           onPress={() => setPlatform('tiktok')}
@@ -167,11 +173,11 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
 
         {platform ? (
           <View style={styles.form}>
-            <ComposerField label={COPY[platform].label} hint="required">
+            <ComposerField label={copyFor(t)[platform].label} hint={t('brought.required')}>
               <ComposerInput
                 value={url}
                 onChangeText={setUrl}
-                placeholder={COPY[platform].placeholder}
+                placeholder={copyFor(t)[platform].placeholder}
                 autoCapitalize="none"
                 keyboardType="url"
                 trailing={
@@ -180,28 +186,28 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
               />
             </ComposerField>
 
-            <ComposerField label="Who’s it from?" hint="optional">
+            <ComposerField label={t('reel.whoFrom')} hint={t('brought.optional')}>
               <ComposerInput
                 value={from}
                 onChangeText={(v) => {
                   fromTouched.current = true;
                   setFrom(v);
                 }}
-                placeholder={COPY[platform].from}
+                placeholder={copyFor(t)[platform].from}
               />
             </ComposerField>
 
-            <ComposerField label="Why this one?" hint="optional">
+            <ComposerField label={t('reel.whyThis')} hint={t('brought.optional')}>
               <ComposerInput
                 value={why}
                 onChangeText={setWhy}
-                placeholder="One sentence on what made you save it."
+                placeholder={t('reel.whyPlaceholder')}
                 multiline
                 maxLength={240}
               />
             </ComposerField>
 
-            <ComposerLabel label="Who is this for?" hint="required · pick all that apply" />
+            <ComposerLabel label={t('reel.whoFor')} hint={t('reel.whoForHint')} />
             {STAGE_CHIP_GROUPS.map((g) => (
               <View key={g.group} style={styles.stageGroup}>
                 <Typography style={styles.stageGroupLabel} color={colors.mutedStrong}>
@@ -219,7 +225,7 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
             <View style={styles.hintRow}>
               <Ionicons name="information-circle-outline" size={16} color={colors.cobalt} />
               <Typography style={styles.hintText} color={colors.mutedStrong}>
-                {COPY[platform].note}
+                {copyFor(t)[platform].note}
               </Typography>
             </View>
 
@@ -232,7 +238,7 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
         ) : null}
 
         <ComposerCta
-          title={platform ? 'Share with the community' : 'Pick what you want to share'}
+          title={platform ? t('reel.ctaShare') : t('reel.ctaPick')}
           onPress={submit}
           disabled={!canPost}
           busy={submitting}

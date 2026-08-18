@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Alert, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { MeCard } from '@/components/me/MeCard';
@@ -11,14 +13,13 @@ import { fonts } from '@/constants/typography';
 import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 
-const PROMISES = [
-  'Your profile is only shared with the groups you join — never made public.',
-  'We never collect personality, income, ethnicity, or religion.',
-  'Row-level security means no one can read a stranger’s data, ever.',
-  'Direct messages stay between you and your group members.',
-];
+// Copy, so built from `t` at render rather than frozen at import.
+function promises(t: TFunction): string[] {
+  return [t('set.p1'), t('set.p2'), t('set.p3'), t('set.p4')];
+}
 
 export default function PrivacyScreen() {
+  const { t } = useTranslation();
   const { user, deleteAccount } = useAuth();
   const [busy, setBusy] = useState(false);
 
@@ -40,8 +41,8 @@ export default function PrivacyScreen() {
 
   function handleDelete() {
     Alert.alert(
-      'Delete your account?',
-      'This removes your profile, group memberships, saved tips, and matching queue. This cannot be undone.',
+      t('set.deleteTitle'),
+      t('set.deleteBody'),
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -52,7 +53,7 @@ export default function PrivacyScreen() {
             const { error } = await deleteAccount();
             setBusy(false);
             if (error) {
-              Alert.alert('Could not delete', error.message);
+              Alert.alert(t('set.couldNotDelete'), error.message);
             }
             // On success, the auth gate routes back to welcome automatically.
           },
@@ -63,37 +64,37 @@ export default function PrivacyScreen() {
 
   return (
     <View style={styles.container}>
-      <SettingsHeader title="Privacy & data" />
+      <SettingsHeader title={t('set.privacyTitle')} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <MeSectionLabel label="Our promise" />
+        <MeSectionLabel label={t('set.ourPromise')} />
         <MeCard padded>
-          {PROMISES.map((p, i) => (
-            <View key={i} style={[styles.promiseRow, i === PROMISES.length - 1 && { marginBottom: 0 }]}>
+          {promises(t).map((p, i) => (
+            <View key={i} style={[styles.promiseRow, i === promises(t).length - 1 && { marginBottom: 0 }]}>
               <View style={styles.dot} />
               <Typography style={styles.promiseText}>{p}</Typography>
             </View>
           ))}
         </MeCard>
 
-        <MeSectionLabel label="Your data" />
+        <MeSectionLabel label={t('set.yourData')} />
         <MeCard>
           <MeRow
             icon="download-outline"
             iconTint={colors.cobalt}
             iconBg="#eef2ff"
-            label="Export my data"
+            label={t('set.exportData')}
             isLast
             onPress={handleExport}
           />
         </MeCard>
 
-        <MeSectionLabel label="Danger zone" />
+        <MeSectionLabel label={t('set.dangerZone')} />
         <MeCard>
           <MeRow
             icon="trash-outline"
             iconTint={colors.cherry}
             iconBg="#fce8ec"
-            label={busy ? 'Deleting…' : 'Delete my account'}
+            label={busy ? t('set.deleting') : t('set.deleteAccount')}
             danger
             isLast
             showArrow={false}

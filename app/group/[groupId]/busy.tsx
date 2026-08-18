@@ -1,4 +1,6 @@
 import { Fragment, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,15 +14,18 @@ import { useBusyWindows } from '@/hooks/useBusyWindows';
 import { useMatching } from '@/hooks/useMatching';
 import type { AvailabilityBlock } from '@/types';
 
-const BLOCKS: { value: AvailabilityBlock; label: string; range: string }[] = [
-  { value: 'morning', label: 'MORNING', range: '7–12' },
-  { value: 'afternoon', label: 'AFTERNOON', range: '12–5' },
-  { value: 'evening', label: 'EVENING', range: '5–9' },
-];
+function blocks(t: TFunction): { value: AvailabilityBlock; label: string; range: string }[] {
+  return [
+    { value: 'morning', label: t('busy.morning'), range: '7–12' },
+    { value: 'afternoon', label: t('busy.afternoon'), range: '12–5' },
+    { value: 'evening', label: t('busy.evening'), range: '5–9' },
+  ];
+}
 
 const DAYS_AHEAD = 14;
 
 export default function BusyWindowsScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   // `accept` is set when this screen stands between the preview and the group:
@@ -77,20 +82,19 @@ export default function BusyWindowsScreen() {
         <View style={styles.eyebrowRow}>
           <View style={styles.dot} />
           <Typography style={styles.eyebrow} color={colors.cobalt}>
-            BEFORE THE CHAT OPENS
+            {t('busy.eyebrow')}
           </Typography>
         </View>
         <Typography style={styles.title} color={colors.text}>
-          When are you busy{'\n'}the next two weeks?
+          {t('busy.heading')}
         </Typography>
         <Typography style={styles.sub} color={colors.muted}>
-          Tap every window you already know is taken. We&rsquo;ll cross-reference
-          everyone&rsquo;s busy times and propose one slot that fits the whole group.
+          {t('busy.sub')}
         </Typography>
 
         <View style={styles.colHeader}>
           <View style={styles.dayCol} />
-          {BLOCKS.map((b) => (
+          {blocks(t).map((b) => (
             <View key={b.value} style={styles.blockHead}>
               <Typography style={styles.blockLabel} color={colors.text}>
                 {b.label}
@@ -111,7 +115,7 @@ export default function BusyWindowsScreen() {
             <Fragment key={iso}>
               {showWeek ? (
                 <Typography style={styles.weekLabel} color={colors.muted}>
-                  {weekLabel(d)}
+                  {weekLabel(d, t)}
                 </Typography>
               ) : null}
               <View style={styles.row}>
@@ -123,7 +127,7 @@ export default function BusyWindowsScreen() {
                     {d.getDate()}
                   </Typography>
                 </View>
-                {BLOCKS.map((b) => {
+                {blocks(t).map((b) => {
                   const on = isBusy(iso, b.value);
                   return (
                     <Pressable
@@ -144,16 +148,16 @@ export default function BusyWindowsScreen() {
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>
         <Typography style={styles.footNote} color={colors.muted}>
           <Typography style={styles.footNoteBold} color={colors.text}>
-            {count} window{count === 1 ? '' : 's'}
+            {t('busy.windows', { count })}
           </Typography>{' '}
-          marked busy across the next two weeks.
+          {t('busy.markedBusy')}
         </Typography>
         <Pressable onPress={done} disabled={joining} style={styles.cta}>
           {joining ? (
             <ActivityIndicator color={colors.white} />
           ) : (
             <Typography style={styles.ctaText} color={colors.white}>
-              {acceptParam === '1' ? 'Join the group' : 'Done, take me to the chat'}
+              {acceptParam === '1' ? t('busy.joinGroup') : t('busy.doneToChat')}
             </Typography>
           )}
         </Pressable>
@@ -169,14 +173,14 @@ function weekKey(d: Date): string {
   return m.toISOString().slice(0, 10);
 }
 
-function weekLabel(d: Date): string {
+function weekLabel(d: Date, t: TFunction): string {
   const start = new Date(d);
   const day = (start.getDay() + 6) % 7;
   start.setDate(start.getDate() - day);
   const end = new Date(start);
   end.setDate(start.getDate() + 6);
   const month = end.toLocaleDateString('en-US', { month: 'long' }).toUpperCase();
-  return `WEEK OF ${start.getDate()}–${end.getDate()} ${month}`;
+  return t('busy.weekOf', { from: start.getDate(), to: end.getDate(), month });
 }
 
 const styles = StyleSheet.create({

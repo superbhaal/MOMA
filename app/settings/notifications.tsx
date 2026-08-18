@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { MeCard } from '@/components/me/MeCard';
@@ -13,16 +15,19 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePreferences } from '@/hooks/usePreferences';
 import type { NotifChatCadence } from '@/types';
 
-const CADENCE: { value: NotifChatCadence; label: string }[] = [
-  { value: 'every', label: 'Every message' },
-  { value: 'daily', label: 'Daily digest' },
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'off', label: 'Off' },
-];
+function cadences(t: TFunction) {
+  return [
+    { value: 'every' as const, label: t('set.every') },
+    { value: 'daily' as const, label: t('set.daily') },
+    { value: 'weekly' as const, label: t('set.weekly') },
+    { value: 'off' as const, label: t('set.off') },
+  ];
+}
 
 const HOURS = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, '0')}:00`);
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { update } = usePreferences();
 
@@ -55,15 +60,15 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.container}>
-      <SettingsHeader title="Notifications" />
+      <SettingsHeader title={t('set.notifTitle')} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <MeSectionLabel label="Meetups" />
+        <MeSectionLabel label={t('set.meetups')} />
         <MeCard padded>
           <View style={styles.switchRow}>
             <View style={styles.switchText}>
               <Typography style={styles.rowTitle}>Meetup reminders</Typography>
               <Typography style={styles.rowSub}>
-                A nudge the day before a confirmed meetup.
+                {t('set.nudgeDayBefore')}
               </Typography>
             </View>
             <Switch
@@ -74,13 +79,13 @@ export default function NotificationsScreen() {
           </View>
         </MeCard>
 
-        <MeSectionLabel label="Group chat activity" />
+        <MeSectionLabel label={t('set.chatActivity')} />
         <MeCard padded>
           <Typography style={styles.rowSub}>
-            How often we let you know about new messages in your groups.
+            {t('set.howOften')}
           </Typography>
           <View style={styles.pills}>
-            {CADENCE.map((c) => (
+            {cadences(t).map((c) => (
               <Pill
                 key={c.value}
                 label={c.label}
@@ -92,13 +97,13 @@ export default function NotificationsScreen() {
           </View>
         </MeCard>
 
-        <MeSectionLabel label="Quiet hours" />
+        <MeSectionLabel label={t('set.quietHours')} />
         <MeCard padded>
           <View style={styles.switchRow}>
             <View style={styles.switchText}>
               <Typography style={styles.rowTitle}>Mute overnight</Typography>
               <Typography style={styles.rowSub}>
-                No pushes between your chosen hours.
+                {t('set.noPushBetween')}
               </Typography>
             </View>
             <Switch
@@ -127,7 +132,7 @@ export default function NotificationsScreen() {
         </MeCard>
 
         <Typography style={styles.footnote}>
-          Changes save automatically.
+          {t('set.savesAutomatically')}
         </Typography>
       </ScrollView>
     </View>

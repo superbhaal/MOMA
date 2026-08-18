@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Image,
@@ -28,6 +29,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { uploadAvatar } from '@/lib/avatar';
 
 export default function EditProfileScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
@@ -89,7 +91,7 @@ export default function EditProfileScreen() {
     const { url, error: upErr } = await uploadAvatar(user.id, localUri);
     setUploadingAvatar(false);
     if (upErr || !url) {
-      setError(upErr ?? 'Upload failed.');
+      setError(upErr ?? t('edit.uploadFailed'));
       return;
     }
     setAvatarUri(url);
@@ -98,7 +100,7 @@ export default function EditProfileScreen() {
   async function handleSave() {
     setError(null);
     if (!displayName.trim()) {
-      setError('A first name is required.');
+      setError(t('edit.firstNameRequired'));
       return;
     }
     // An address only counts once it resolves to coords; resolve() geocodes it
@@ -172,35 +174,35 @@ export default function EditProfileScreen() {
             )}
           </View>
           <Typography style={styles.avatarLabel}>
-            {avatarUri ? 'TAP TO CHANGE PHOTO' : 'TAP TO UPLOAD A PHOTO'}
+            {avatarUri ? t('edit.tapChange') : t('edit.tapUpload')}
           </Typography>
         </Pressable>
 
-        <Field label="FIRST NAME">
+        <Field label={t('edit.firstName')}>
           <TextInput
             style={styles.input}
             value={displayName}
             onChangeText={setDisplayName}
-            placeholder="Sofia"
+            placeholder={t('edit.pFirstName')}
             placeholderTextColor={colors.muted}
             autoCapitalize="words"
           />
         </Field>
 
-        <Field label="WHERE YOU LIVE">
+        <Field label={t('edit.whereLive')}>
           <AddressField
             field={locField}
-            placeholder="e.g. Jordaan, Amsterdam"
-            hint="Moving? This is what we match you on — tap the pin to use your location."
+            placeholder={t('edit.pWhereLive')}
+            hint={t('edit.whereHint')}
           />
         </Field>
 
-        <Field label="ABOUT ME">
+        <Field label={t('edit.aboutMe')}>
           <TextInput
             style={[styles.input, styles.multiline]}
             value={bio}
             onChangeText={setBio}
-            placeholder="A line or two about where you're at right now."
+            placeholder={t('edit.pAboutMe')}
             placeholderTextColor={colors.muted}
             multiline
             maxLength={280}
@@ -208,7 +210,7 @@ export default function EditProfileScreen() {
           <Typography style={styles.counter}>{bio.length}/280</Typography>
         </Field>
 
-        <Field label="INTERESTS">
+        <Field label={t('edit.interests')}>
           <View style={styles.chips}>
             {interests.map((tag) => (
               <Pressable key={tag} style={styles.chip} onPress={() => removeInterest(tag)}>
@@ -222,7 +224,7 @@ export default function EditProfileScreen() {
               style={[styles.input, { flex: 1, borderBottomWidth: 0 }]}
               value={interestDraft}
               onChangeText={setInterestDraft}
-              placeholder="Add an interest"
+              placeholder={t('edit.pInterest')}
               placeholderTextColor={colors.muted}
               autoCapitalize="none"
               returnKeyType="done"
@@ -239,14 +241,14 @@ export default function EditProfileScreen() {
           </View>
         </Field>
 
-        <Field label="INSTAGRAM">
+        <Field label={t('edit.instagram')}>
           <View style={styles.igRow}>
             <Typography style={styles.igAt}>@</Typography>
             <TextInput
               style={[styles.input, { flex: 1, borderBottomWidth: 0 }]}
               value={instagram}
               onChangeText={(v) => setInstagram(v.replace(/^@/, '').trim())}
-              placeholder="sofia.vandijk"
+              placeholder={t('edit.pInstagram')}
               placeholderTextColor={colors.muted}
               autoCapitalize="none"
               autoCorrect={false}
@@ -257,7 +259,7 @@ export default function EditProfileScreen() {
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>
         <Button
-          title={saving ? 'saving…' : 'Save changes'}
+          title={saving ? t('edit.saving') : t('edit.saveChanges')}
           onPress={handleSave}
           disabled={saving || uploadingAvatar}
           size="lg"

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,42 +14,33 @@ import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
 import { scaled } from '@/constants/scale';
 
-const FAQ = [
-  {
-    q: 'How does matching work?',
-    a: 'We form small local groups of 3–5 moms at a similar life stage, in your area, with overlapping free time. You preview a group before joining — and can always ask for another.',
-  },
-  {
-    q: 'Why can I only join two groups?',
-    a: 'Showing up matters more than collecting groups. Two is enough to find your people without spreading yourself thin.',
-  },
-  {
-    q: 'Can I pause without leaving my groups?',
-    a: 'Yes. Pause matching from your profile — your current groups stay open, you just stop being matched into new ones.',
-  },
-  {
-    q: 'Who can see my profile?',
-    a: 'Only the members of groups you join. There is no public profile and no stranger search.',
-  },
-];
+function faqs(t: TFunction): { q: string; a: string }[] {
+  return [
+    { q: t('set.q1'), a: t('set.a1') },
+    { q: t('set.q2'), a: t('set.a2') },
+    { q: t('set.q3'), a: t('set.a3') },
+    { q: t('set.q4'), a: t('set.a4') },
+  ];
+}
 
 export default function HelpScreen() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState<number | null>(null);
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   return (
     <View style={styles.container}>
-      <SettingsHeader title="Help & support" />
+      <SettingsHeader title={t('set.helpTitle')} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <MeSectionLabel label="Frequently asked" />
+        <MeSectionLabel label={t('set.faq')} />
         <MeCard>
-          {FAQ.map((item, i) => {
+          {faqs(t).map((item, i) => {
             const isOpen = open === i;
             return (
               <Pressable
                 key={i}
                 onPress={() => setOpen(isOpen ? null : i)}
-                style={[styles.faqRow, i === FAQ.length - 1 && styles.faqRowLast]}
+                style={[styles.faqRow, i === faqs(t).length - 1 && styles.faqRowLast]}
               >
                 <View style={styles.faqHead}>
                   <Typography style={styles.faqQ}>{item.q}</Typography>
@@ -63,13 +56,13 @@ export default function HelpScreen() {
           })}
         </MeCard>
 
-        <MeSectionLabel label="Get in touch" />
+        <MeSectionLabel label={t('set.getInTouch')} />
         <MeCard>
           <MeRow
             icon="mail-outline"
             iconTint={colors.cobalt}
             iconBg="#eef2ff"
-            label="Email support"
+            label={t('set.emailSupport')}
             value="hello@moma.app"
             onPress={() => Linking.openURL('mailto:hello@moma.app?subject=møma%20support')}
           />
@@ -77,7 +70,7 @@ export default function HelpScreen() {
             icon="document-text-outline"
             iconTint="#2a7a2a"
             iconBg="#f0faf0"
-            label="Community guidelines"
+            label={t('set.guidelines')}
             isLast
             onPress={() => Linking.openURL('https://moma.app/guidelines')}
           />
