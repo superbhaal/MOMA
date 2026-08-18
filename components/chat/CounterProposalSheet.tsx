@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
@@ -16,11 +18,15 @@ interface CounterProposalSheetProps {
   isCounter?: boolean;
 }
 
-const TIME_BLOCKS = [
-  { label: 'morning', hours: 10 },
-  { label: 'afternoon', hours: 14 },
-  { label: 'evening', hours: 18 },
-];
+// Built per render rather than held as a module constant: the labels are copy,
+// and a constant would freeze whichever language was active at import time.
+function timeBlocks(t: TFunction) {
+  return [
+    { label: t('grp.morning'), hours: 10 },
+    { label: t('grp.afternoon'), hours: 14 },
+    { label: t('grp.evening'), hours: 18 },
+  ];
+}
 
 /** Sheet to author a fresh proposal OR a counter-proposal (chained via parent_proposal_id by caller). */
 export function CounterProposalSheet({
@@ -29,8 +35,9 @@ export function CounterProposalSheet({
   onSubmit,
   isCounter,
 }: CounterProposalSheetProps) {
+  const { t } = useTranslation();
   const [dayOffset, setDayOffset] = useState(1);
-  const [block, setBlock] = useState(TIME_BLOCKS[0]);
+  const [block, setBlock] = useState(timeBlocks(t)[0]);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -94,7 +101,7 @@ export function CounterProposalSheet({
         TIME OF DAY
       </Typography>
       <View style={styles.blocksRow}>
-        {TIME_BLOCKS.map((b) => {
+        {timeBlocks(t).map((b) => {
           const active = b.label === block.label;
           return (
             <Pressable
@@ -116,7 +123,7 @@ export function CounterProposalSheet({
       <TextInput
         value={note}
         onChangeText={setNote}
-        placeholder="optional — anything we should know"
+        placeholder={t('grp.optionalNote')}
         placeholderTextColor={colors.muted}
         style={styles.input}
         multiline
@@ -124,7 +131,7 @@ export function CounterProposalSheet({
 
       <View style={{ marginTop: spacing.lg }}>
         <Button
-          title={busy ? 'sending...' : 'post proposal'}
+          title={busy ? t('grp.sending') : t('grp.postProposal')}
           onPress={handleSubmit}
           size="lg"
           disabled={busy}

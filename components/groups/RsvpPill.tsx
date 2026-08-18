@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
@@ -20,6 +21,7 @@ interface RsvpPillProps {
  * state, not the offer; that's the convention everywhere else.
  */
 export function RsvpPill({ going, onPress }: RsvpPillProps) {
+  const { t } = useTranslation();
   return (
     <Pressable
       onPress={onPress}
@@ -31,7 +33,7 @@ export function RsvpPill({ going, onPress }: RsvpPillProps) {
       ]}
     >
       <Typography color={going ? colors.white : colors.cobalt} style={styles.label}>
-        {going ? '✓ GOING' : 'GOING?'}
+        {going ? t('grp.going') : t('grp.goingQ')}
       </Typography>
     </Pressable>
   );

@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
@@ -28,6 +29,7 @@ import type { DmThreadItem } from '@/hooks/useDmThreads';
  * previews, small-caps timestamps). Ref: design/moma-v11.html · #screen-chats.
  */
 export default function ChatsScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { groups, loading, refresh } = useGroups();
@@ -91,7 +93,7 @@ export default function ChatsScreen() {
 
       {sortedGroups.length > 0 ? (
         <>
-          <SectionHeading label="GROUPS" />
+          <SectionHeading label={t('chats.groups')} />
           {sortedGroups.map((g) => (
             <GroupRow key={g.id} group={g} onPress={() => router.push(`/group/${g.id}/chat`)} />
           ))}
@@ -100,7 +102,7 @@ export default function ChatsScreen() {
 
       {sortedDms.length > 0 ? (
         <>
-          <SectionHeading label="DIRECT MESSAGES" />
+          <SectionHeading label={t('chats.directMessages')} />
           {sortedDms.map((t) => (
             <DmRow key={t.thread_id} dm={t} onPress={() => router.push(`/group/dm/${t.other.id}`)} />
           ))}

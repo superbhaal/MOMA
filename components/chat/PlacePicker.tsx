@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
@@ -19,6 +20,7 @@ interface PlacePickerProps {
 }
 
 export function PlacePicker({ visible, onClose, city, onPick }: PlacePickerProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PlaceAttachment[]>([]);
   const [searching, setSearching] = useState(false);
@@ -70,7 +72,7 @@ export function PlacePicker({ visible, onClose, city, onPick }: PlacePickerProps
   }
 
   return (
-    <ActionSheet visible={visible} onClose={onClose} title="share a place you love">
+    <ActionSheet visible={visible} onClose={onClose} title={t('grp.sharePlace')}>
       <TextInput
         value={query}
         onChangeText={setQuery}

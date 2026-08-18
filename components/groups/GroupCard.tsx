@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
@@ -23,6 +24,7 @@ interface GroupCardProps {
  * Ref: design/moma-v11.html · #screen-home .group-card.group-plate.
  */
 export function GroupCard({ group, onPress }: GroupCardProps) {
+  const { t } = useTranslation();
   const meetup = group.open_proposal;
   // A meetup that has been and gone stops counting down and starts asking for
   // the next one — the group's turn to say when they can't.
@@ -52,7 +54,7 @@ export function GroupCard({ group, onPress }: GroupCardProps) {
         <View style={styles.meetup}>
           <View style={styles.rule} />
           <Typography style={styles.meetupLabel} color={colors.mutedStrong}>
-            {past ? 'LAST MEETUP' : decided ? 'MEETUP LOCKED IN' : 'NEXT MEETUP'}
+            {past ? t('grp.lastMeetup') : decided ? t('grp.lockedIn') : t('grp.nextMeetup')}
           </Typography>
           <Typography style={styles.meetupTime} color={colors.mutedStrong}>
             {formatWhen(meetup.scheduled_at)}
@@ -71,7 +73,7 @@ export function GroupCard({ group, onPress }: GroupCardProps) {
             style={[styles.countdown, past && styles.countdownPast]}
             color={past ? colors.mutedStrong : colors.cobalt}
           >
-            {past ? 'PICKING THE NEXT ONE' : countdownLabel(meetup.scheduled_at).toUpperCase()}
+            {past ? t('grp.pickingNext') : countdownLabel(meetup.scheduled_at).toUpperCase()}
           </Typography>
         </View>
       ) : null}

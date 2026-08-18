@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Keyboard, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,8 +20,9 @@ interface ChatInputProps {
 export function ChatInput({
   onSend,
   onSharePlace,
-  placeholder = 'message your group',
+  placeholder,
 }: ChatInputProps) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
@@ -68,7 +70,7 @@ export function ChatInput({
         <TextInput
           value={text}
           onChangeText={setText}
-          placeholder={placeholder}
+          placeholder={placeholder ?? t('grp.messageGroup')}
           placeholderTextColor={colors.muted}
           style={styles.input}
           multiline

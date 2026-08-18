@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '@/components/ui/Typography';
 import { RsvpPill } from './RsvpPill';
 import { colors } from '@/constants/colors';
@@ -33,10 +34,11 @@ export function MeetupCard({
   onToggleGoing,
   groupName,
 }: MeetupCardProps) {
+  const { t } = useTranslation();
   const decided = proposal.state === 'decided';
   const expired = proposal.state === 'expired';
 
-  const label = decided ? 'MEETUP LOCKED IN' : expired ? 'PAST MEETUP' : 'NEXT MEETUP';
+  const label = decided ? t('grp.lockedIn') : expired ? t('grp.pastMeetup') : t('grp.nextMeetup');
   const going = expired ? `${goingCount} went` : `${goingCount} of ${totalMembers} going`;
   const hasPlace = !!proposal.location_name;
 

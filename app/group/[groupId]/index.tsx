@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
@@ -20,6 +21,7 @@ import { useAuth } from '@/hooks/useAuth';
  * Ref: design/moma-v11.html · #screen-detail.
  */
 export default function GroupDetailScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const insets = useSafeAreaInsets();
@@ -80,7 +82,7 @@ export default function GroupDetailScreen() {
               </View>
             ) : null}
 
-            {/* The standing "mark when you can't make it" link is gone from
+            {/* The standing {t('grp.markCant')} link is gone from
                 here too. Availability is asked once when you join, and again
                 when møma prompts — not as a permanent invitation to revisit a
                 grid most people filled in a fortnight ago. */}
@@ -108,7 +110,7 @@ export default function GroupDetailScreen() {
 
             <View style={{ marginTop: spacing.xxl }}>
               <Button
-                title="open chat"
+                title={t('grp.openChat')}
                 onPress={() => router.push(`/group/${groupId}/chat`)}
                 size="lg"
               />

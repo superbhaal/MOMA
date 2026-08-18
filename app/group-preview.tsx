@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { ActionSheet } from '@/components/ui/ActionSheet';
@@ -19,35 +21,20 @@ interface DeclineOption {
   sub: string;
 }
 
-const DECLINE_OPTIONS: DeclineOption[] = [
-  {
-    value: 'wrong_neighbourhood',
-    title: 'Wrong neighbourhood',
-    sub: 'Most are too far for a stroller walk.',
-  },
-  {
-    value: 'baby_age_mismatch',
-    title: "Baby ages don't quite match",
-    sub: 'A wider window felt better in theory.',
-  },
-  {
-    value: 'language',
-    title: 'Language mix not quite right',
-    sub: "I'd prefer a group that mainly speaks my primary language.",
-  },
-  {
-    value: 'vibe',
-    title: 'Vibe feels off',
-    sub: "Something I can't put a finger on. Try a different mix.",
-  },
-  {
-    value: 'curious',
-    title: 'Just curious — show me other options',
-    sub: 'No fixed objection. Re-run with different people.',
-  },
-];
+// Built from `t` rather than held as a module constant: these are copy, and a
+// constant would be frozen in whatever language was active at import time.
+function declineOptions(t: TFunction): DeclineOption[] {
+  return [
+    { value: 'wrong_neighbourhood', title: t('preview.rWrongTitle'), sub: t('preview.rWrongSub') },
+    { value: 'baby_age_mismatch', title: t('preview.rAgeTitle'), sub: t('preview.rAgeSub') },
+    { value: 'language', title: t('preview.rLangTitle'), sub: t('preview.rLangSub') },
+    { value: 'vibe', title: t('preview.rVibeTitle'), sub: t('preview.rVibeSub') },
+    { value: 'curious', title: t('preview.rCuriousTitle'), sub: t('preview.rCuriousSub') },
+  ];
+}
 
 export default function GroupPreviewScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user: me } = useAuth();
@@ -63,7 +50,7 @@ export default function GroupPreviewScreen() {
   );
 
   const { items: broughtItems } = useBroughtFor(others.map((o) => o.user.id));
-  const headlineSub = useMemo(() => composeHeadlineSub(others, me), [others, me]);
+  const headlineSub = useMemo(() => composeHeadlineSub(others, me, t), [others, me]);
 
   function handleAccept() {
     const groupId = previewMembers[0]?.group_id;
@@ -88,7 +75,7 @@ export default function GroupPreviewScreen() {
     const { error } = await declineWithReason(declineReason);
     setBusy(false);
     if (error) {
-      Alert.alert("Couldn't update your match", error.message);
+      Alert.alert(t('preview.updateFailed'), error.message);
       return;
     }
     setDeclineOpen(false);
@@ -105,12 +92,11 @@ export default function GroupPreviewScreen() {
           <View style={styles.eyebrowRow}>
             <View style={styles.eyebrowDot} />
             <Typography style={styles.eyebrow} color={colors.cobalt}>
-              YOUR GROUP IS READY
+              {t('home.groupReady')}
             </Typography>
           </View>
           <Typography style={styles.title} color={colors.cobalt}>
-            We found your{'\n'}
-            {wordForCount(others.length + 1)} moms.
+            {t('preview.weFound', { word: wordForCount(others.length + 1, t) })}
           </Typography>
           <Typography style={styles.sub} color={colors.muted}>
             {headlineSub}
@@ -120,18 +106,18 @@ export default function GroupPreviewScreen() {
         <View style={styles.members}>
           {loading ? (
             <Typography variant="bodyL" color={colors.muted}>
-              loading…
+              {t('preview.loading')}
             </Typography>
           ) : status !== 'previewing' ? (
             <Typography variant="bodyL" color={colors.muted} style={{ textAlign: 'center' }}>
-              No preview right now. We&rsquo;ll ping you when your next group is ready.
+              {t('preview.noPreview')}
             </Typography>
           ) : (
             others.map((m) => (
               <GroupPreviewCard
                 key={m.id}
                 member={m}
-                matchNote={composeMatchNote(m, me)}
+                matchNote={composeMatchNote(m, me, t)}
                 brought={broughtItems[m.user.id]}
               />
             ))
@@ -152,7 +138,7 @@ export default function GroupPreviewScreen() {
             style={[styles.joinBtn, busy && { opacity: 0.5 }]}
           >
             <Typography style={styles.joinBtnText} color={colors.white}>
-              JOIN THIS GROUP
+              {t('preview.join')}
             </Typography>
           </Pressable>
           <Pressable
@@ -162,7 +148,7 @@ export default function GroupPreviewScreen() {
             <Typography style={styles.findAnotherText} color={colors.muted}>
               Not quite right?{' '}
               <Typography style={styles.underline} color={colors.muted}>
-                Find me another
+                {t('preview.findAnother')}
               </Typography>
             </Typography>
           </Pressable>
@@ -175,14 +161,14 @@ export default function GroupPreviewScreen() {
           setDeclineOpen(false);
           setDeclineReason(null);
         }}
-        title="What feels off?"
+        title={t('preview.whatFeelsOff')}
       >
         <Typography variant="bodyM" color={colors.muted} style={styles.declineSub}>
-          No reason is required, but knowing helps us match you better next time.
+          {t('preview.noReasonRequired')}
           We&rsquo;ll re-run within 24 hours.
         </Typography>
         <View style={styles.reasonList}>
-          {DECLINE_OPTIONS.map((opt) => {
+          {declineOptions(t).map((opt) => {
             const active = declineReason === opt.value;
             return (
               <Pressable
@@ -224,7 +210,7 @@ export default function GroupPreviewScreen() {
             ]}
           >
             <Typography variant="bodyM" color={colors.white}>
-              Find me another group
+              {t('preview.findAnotherGroup')}
             </Typography>
           </Pressable>
         </View>
@@ -233,21 +219,21 @@ export default function GroupPreviewScreen() {
   );
 }
 
-function wordForCount(n: number): string {
+function wordForCount(n: number, t: TFunction): string {
   switch (n) {
     case 3:
-      return 'three';
+      return t('preview.num3');
     case 4:
-      return 'four';
+      return t('preview.num4');
     case 5:
-      return 'five';
+      return t('preview.num5');
     default:
       return String(n);
   }
 }
 
 /** Rough heuristic copy for the heading sub. */
-function composeHeadlineSub(others: GroupMemberWithUser[], me: User | null): string {
+function composeHeadlineSub(others: GroupMemberWithUser[], me: User | null, t: TFunction): string {
   if (others.length === 0) return '';
   const dobs = [me?.baby_dob, ...others.map((m) => m.user.baby_dob)].filter(
     Boolean,
@@ -259,12 +245,15 @@ function composeHeadlineSub(others: GroupMemberWithUser[], me: User | null): str
   if (weeks.length === 0) return '';
   const minW = Math.floor(Math.min(...weeks));
   const maxW = Math.ceil(Math.max(...weeks));
-  const range = minW === maxW ? `week ${minW}` : `weeks ${minW}–${maxW}`;
-  return `All a 10-minute walk away. All at ${range} with you.`;
+  const range =
+    minW === maxW
+      ? t('preview.weekOne', { n: minW })
+      : t('preview.weekRange', { lo: minW, hi: maxW });
+  return t('preview.allWalk', { range });
 }
 
 /** Per-member match-note. Cobalt italic line under each member. */
-function composeMatchNote(m: GroupMemberWithUser, me: User | null): string | undefined {
+function composeMatchNote(m: GroupMemberWithUser, me: User | null, t: TFunction): string | undefined {
   if (!me) return undefined;
   const them = m.user;
 
@@ -276,9 +265,9 @@ function composeMatchNote(m: GroupMemberWithUser, me: User | null): string | und
   const sameWeek =
     meDob && themDob && Math.abs(meDob - themDob) / (1000 * 60 * 60 * 24 * 7) <= 1;
 
-  if (sameNeighbourhood && sameWeek) return 'Same neighbourhood, same week.';
-  if (sameNeighbourhood) return 'Same neighbourhood.';
-  if (sameWeek) return 'Same baby-age window.';
+  if (sameNeighbourhood && sameWeek) return t('preview.sameHoodWeek');
+  if (sameNeighbourhood) return t('preview.sameHood');
+  if (sameWeek) return t('preview.sameWeek');
 
   // Language overlap
   const langs = new Set([
@@ -290,7 +279,7 @@ function composeMatchNote(m: GroupMemberWithUser, me: User | null): string | und
     ...(them.secondary_languages ?? []),
   ].filter(Boolean) as string[];
   const overlap = theirLangs.find((l) => langs.has(l));
-  if (overlap) return `Both speak ${overlap}.`;
+  if (overlap) return t('preview.bothSpeak', { language: overlap });
 
   return undefined;
 }

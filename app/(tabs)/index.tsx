@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { Card } from '@/components/ui/Card';
@@ -15,6 +17,7 @@ import { useGroups } from '@/hooks/useGroups';
 import { useMatching } from '@/hooks/useMatching';
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
@@ -57,9 +60,9 @@ export default function HomeScreen() {
   const atCap = visibleGroups.length >= 2;
   const showFindAnother = visibleGroups.length === 1 && matching.status === 'waiting';
 
-  const greeting = currentGreeting();
+  const greeting = currentGreeting(t);
   const firstName = user?.display_name?.split(' ')[0] ?? '';
-  const babyLabel = babyAgeLabel(user?.baby_dob);
+  const babyLabel = babyAgeLabel(user?.baby_dob, t);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -96,7 +99,7 @@ export default function HomeScreen() {
         ListHeaderComponent={
           <>
             <Typography style={styles.sectionLabel} color={colors.cobalt}>
-              YOUR GROUPS
+              {t('home.yourGroups')}
             </Typography>
 
             {previewing ? (
@@ -108,7 +111,7 @@ export default function HomeScreen() {
                       style={styles.previewEyebrow}
                       color={colors.cobalt}
                     >
-                      YOUR GROUP IS READY
+                      {t('home.groupReady')}
                     </Typography>
                   </View>
                   <Typography
@@ -116,14 +119,14 @@ export default function HomeScreen() {
                     color={colors.text}
                     style={{ marginTop: spacing.xs }}
                   >
-                    Meet your group
+                    {t('home.meetYourGroup')}
                   </Typography>
                   <Typography
                     variant="bodyL"
                     color={colors.muted}
                     style={{ marginTop: spacing.xs }}
                   >
-                    Tap to preview the moms we&rsquo;ve matched you with.
+                    {t('home.tapToPreview')}
                   </Typography>
                 </Card>
               </View>
@@ -148,16 +151,16 @@ export default function HomeScreen() {
             {showFindAnother ? (
               <Card>
                 <Typography variant="label" color={colors.muted}>
-                  STILL LOOKING
+                  {t('home.stillLooking')}
                 </Typography>
                 <Typography variant="bodyL" color={colors.text} style={{ marginTop: spacing.xs }}>
-                  we&rsquo;re looking for a second group that fits your prefs.
+                  {t('home.lookingSecond')}
                 </Typography>
               </Card>
             ) : null}
             {atCap ? (
               <Typography variant="bodyM" color={colors.muted} style={{ textAlign: 'center' }}>
-                you&rsquo;re at the 2-group cap. leave one to find another.
+                {t('home.atCap')}
               </Typography>
             ) : null}
           </View>
@@ -167,30 +170,30 @@ export default function HomeScreen() {
   );
 }
 
-function currentGreeting(): string {
+function currentGreeting(t: TFunction): string {
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
+  if (h < 12) return t('home.goodMorning');
+  if (h < 18) return t('home.goodAfternoon');
+  return t('home.goodEvening');
 }
 
-function babyAgeLabel(dob: string | null | undefined): string | null {
+function babyAgeLabel(dob: string | null | undefined, t: TFunction): string | null {
   if (!dob) return null;
   const days = Math.floor((Date.now() - new Date(dob).getTime()) / (1000 * 60 * 60 * 24));
   if (days < 0) {
     const w = Math.ceil(Math.abs(days) / 7);
-    return `Due in ${w} week${w === 1 ? '' : 's'}`;
+    return t('home.dueIn', { count: w });
   }
   if (days < 7 * 12) {
     const w = Math.max(1, Math.floor(days / 7));
-    return `Week ${w} with baby`;
+    return t('home.weekWithBaby', { count: w });
   }
   if (days < 365 * 2) {
     const m = Math.floor(days / 30);
-    return `${m} month${m === 1 ? '' : 's'} in`;
+    return t('home.monthsIn', { count: m });
   }
   const y = Math.floor(days / 365);
-  return `${y} year${y === 1 ? '' : 's'} in`;
+  return t('home.yearsIn', { count: y });
 }
 
 // How far the dancer hangs below the header. Two places need it: her offset,
