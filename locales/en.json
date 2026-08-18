@@ -562,6 +562,19 @@
     "pelvic_floor": "Pelvic floor",
     "dentists": "Dentist (kids)",
     "daycare": "Daycare",
-    "nannies": "Nanny"
+    "nannies": "Nanny",
+    "postedBy": "Posted by {{name}}",
+    "aMom": "a mom",
+    "openMaps": "Open in Google Maps  ↗",
+    "openMapsA11y": "Open {{name}} in Google Maps",
+    "disclaimerOne": "This is a personal recommendation from another mom. Always do your own due diligence for healthcare decisions.",
+    "justNow": "just now",
+    "yesterday": "yesterday",
+    "hAgo": "{{n}}h ago",
+    "dAgo": "{{n}} days ago",
+    "wAgo": "{{n}}w ago",
+    "moAgo": "{{n}}mo ago",
+    "yAgo": "{{n}}y ago",
+    "you": "You"
   }
 }

@@ -184,7 +184,7 @@ function ContributedRow({
           }
           hitSlop={12}
           accessibilityRole="button"
-          accessibilityLabel={`Open ${spot.name} in Google Maps`}
+          accessibilityLabel={t('expl.openMapsA11y', { name: spot.name })}
         >
           <Typography style={styles.openMaps} color={colors.cobalt}>
             Open in Maps ↗

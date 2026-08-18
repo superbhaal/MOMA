@@ -562,6 +562,19 @@
     "pelvic_floor": "Suelo pélvico",
     "dentists": "Dentista (infantil)",
     "daycare": "Guardería",
-    "nannies": "Niñera"
+    "nannies": "Niñera",
+    "postedBy": "Publicado por {{name}}",
+    "aMom": "una madre",
+    "openMaps": "Abrir en Google Maps  ↗",
+    "openMapsA11y": "Abrir {{name}} en Google Maps",
+    "disclaimerOne": "Es una recomendación personal de otra madre. Para decisiones de salud, comprueba siempre por tu cuenta.",
+    "justNow": "ahora mismo",
+    "yesterday": "ayer",
+    "hAgo": "hace {{n}} h",
+    "dAgo": "hace {{n}} días",
+    "wAgo": "hace {{n}} sem.",
+    "moAgo": "hace {{n}} meses",
+    "yAgo": "hace {{n}} años",
+    "you": "Tú"
   }
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -56,21 +57,19 @@ function ContactRow({
   );
 }
 
-const HEALTHCARE_NOTE =
-  'This is a personal recommendation from another mom. Always do your own due diligence for healthcare decisions.';
 
 /** Time-since in coarse, warm units ("3 days ago"). */
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, t: TFunction): string {
   const secs = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
   const day = 86400;
-  if (secs < 3600) return 'just now';
-  if (secs < day) return `${Math.floor(secs / 3600)}h ago`;
+  if (secs < 3600) return t('expl.justNow');
+  if (secs < day) return t('expl.hAgo', { n: Math.floor(secs / 3600) });
   const days = Math.floor(secs / day);
-  if (days === 1) return 'yesterday';
-  if (days < 7) return `${days} days ago`;
-  if (days < 30) return `${Math.floor(days / 7)}w ago`;
-  if (days < 365) return `${Math.floor(days / 30)}mo ago`;
-  return `${Math.floor(days / 365)}y ago`;
+  if (days === 1) return t('expl.yesterday');
+  if (days < 7) return t('expl.dAgo', { n: days });
+  if (days < 30) return t('expl.wAgo', { n: Math.floor(days / 7) });
+  if (days < 365) return t('expl.moAgo', { n: Math.floor(days / 30) });
+  return t('expl.yAgo', { n: Math.floor(days / 365) });
 }
 
 export default function LovedSpotDetail() {
@@ -150,7 +149,7 @@ export default function LovedSpotDetail() {
   // The hero's identity treatment follows the first recommendation — for a
   // person, whose face the page is about, that's whoever vouched for them first.
   const ring = spot.recommendations[0]?.poster_color ?? colors.fuchsia;
-  const who = spot.recommendations[0]?.poster_name ?? 'a mom';
+  const who = spot.recommendations[0]?.poster_name ?? t('expl.aMom');
   const heroUri = discoverMapUri([spot], { width: 393, height: HERO_H, zoom: 15 });
 
   const onOpenMaps = () =>
@@ -191,7 +190,7 @@ export default function LovedSpotDetail() {
             <Pressable
               onPress={onOpenMaps}
               accessibilityRole="button"
-              accessibilityLabel={`Open ${spot.name} in Google Maps`}
+              accessibilityLabel={t('expl.openMapsA11y', { name: spot.name })}
             >
               <Image
                 source={{ uri: heroUri }}
@@ -258,17 +257,17 @@ export default function LovedSpotDetail() {
                 {/* Her identity, not her photo of the café — those are two
                     different pictures and the avatar belongs to the first. */}
                 <Avatar
-                  name={r.poster_name ?? 'a mom'}
+                  name={r.poster_name ?? t('expl.aMom')}
                   ringColor={r.poster_color ?? colors.fuchsia}
                   size={48}
                   ringWidth={2}
                 />
                 <View style={styles.postedMid}>
                   <Typography style={styles.postedName} color={colors.text}>
-                    Posted by {r.poster_name ?? 'a mom'}
+                    {t('expl.postedBy', { name: r.poster_name ?? t('expl.aMom') })}
                   </Typography>
                   <Typography style={styles.postedTime} color={colors.labelMuted}>
-                    {timeAgo(r.created_at)}
+                    {timeAgo(r.created_at, t)}
                   </Typography>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={colors.labelTertiary} />
@@ -295,7 +294,7 @@ export default function LovedSpotDetail() {
             </View>
           ))}
 
-          <Button title="Open in Google Maps  ↗" onPress={onOpenMaps} />
+          <Button title={t('expl.openMaps')} onPress={onOpenMaps} />
 
           {/* Whatever the poster offered as a way through. Still no booking
               CTA — we hand over the details, we don't run someone else's
@@ -334,7 +333,7 @@ export default function LovedSpotDetail() {
           {isPerson ? (
             <View style={styles.disclaimer}>
               <Typography style={styles.disclaimerText} color={colors.soleilInkSm}>
-                {HEALTHCARE_NOTE}
+                {t('expl.disclaimerOne')}
               </Typography>
             </View>
           ) : null}

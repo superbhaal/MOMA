@@ -31,14 +31,14 @@ export function LovedSpotRow({ spot, onPress, addedByYou }: LovedSpotRowProps) {
   const [thumbFailed, setThumbFailed] = useState(false);
   const recs = spot.recommendations ?? [];
   const ring = recs[0]?.poster_color ?? colors.fuchsia;
-  const who = recs[0]?.poster_name ?? 'a mom';
+  const who = recs[0]?.poster_name ?? t('expl.aMom');
   const cat = categoryLabel(spot.category, t);
   const names =
     recs.length <= 2
-      ? recs.map((r) => r.poster_name ?? 'a mom').join(' & ')
+      ? recs.map((r) => r.poster_name ?? t('expl.aMom')).join(' & ')
       : `${recs
           .slice(0, 2)
-          .map((r) => r.poster_name ?? 'a mom')
+          .map((r) => r.poster_name ?? t('expl.aMom'))
           .join(', ')} +${recs.length - 2}`;
   const meta = spot.kind === 'place' ? `${names} · ${cat}` : `Loved by ${names} · ${cat}`;
   // Her photo before the street plan — same order as the detail hero.

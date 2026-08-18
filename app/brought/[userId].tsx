@@ -59,7 +59,7 @@ export default function BroughtDetail() {
   }
   if (!item) return <View style={styles.container} />;
 
-  const who = isMine ? 'You' : item.poster_name ?? 'a mom';
+  const who = isMine ? t('expl.you') : item.poster_name ?? t('expl.aMom');
   const title = item.kind === 'tip' ? str('tip') : str('title');
 
   return (
@@ -93,7 +93,7 @@ export default function BroughtDetail() {
 
           <View style={styles.byRow}>
             <Avatar
-              name={item.poster_name ?? 'a mom'}
+              name={item.poster_name ?? t('expl.aMom')}
               ringColor={item.poster_color ?? colors.fuchsia}
               size={36}
               ringWidth={2}

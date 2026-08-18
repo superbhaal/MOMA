@@ -562,6 +562,19 @@
     "pelvic_floor": "Périnée",
     "dentists": "Dentiste (enfants)",
     "daycare": "Crèche",
-    "nannies": "Nounou"
+    "nannies": "Nounou",
+    "postedBy": "Publié par {{name}}",
+    "aMom": "une maman",
+    "openMaps": "Ouvrir dans Google Maps  ↗",
+    "openMapsA11y": "Ouvrir {{name}} dans Google Maps",
+    "disclaimerOne": "C’est une recommandation personnelle d’une autre maman. Pour toute décision de santé, vérifiez toujours par vous-même.",
+    "justNow": "à l’instant",
+    "yesterday": "hier",
+    "hAgo": "il y a {{n}} h",
+    "dAgo": "il y a {{n}} jours",
+    "wAgo": "il y a {{n}} sem.",
+    "moAgo": "il y a {{n}} mois",
+    "yAgo": "il y a {{n}} ans",
+    "you": "Vous"
   }
 }
