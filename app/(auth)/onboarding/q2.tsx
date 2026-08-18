@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
@@ -48,6 +49,7 @@ function toIsoDate(d: Date): string {
 
 export default function Q2BabyDobScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { onboardingData, saveProgress } = useOnboarding();
   const [babyDob, setBabyDob] = useState(onboardingData.babyDob);
@@ -80,15 +82,15 @@ export default function Q2BabyDobScreen() {
   // - Otherwise: focused on the youngest, regardless of how many.
   const isFirstBaby = onboardingData.isFirstBaby;
   const heading = isFirstBaby
-    ? 'When are you due,\nor when was your baby born?'
-    : 'When was your\nyoungest baby born?';
+    ? t('ob.q2headingFirst')
+    : t('ob.q2headingOther');
 
   return (
     <View style={styles.container}>
       <OnboardingHeader current={2} total={4} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>{heading}</Typography>
-        <Typography style={styles.sub}>Roughly. Doesn&rsquo;t have to be exact.</Typography>
+        <Typography style={styles.sub}>{t('ob.q2sub')}</Typography>
 
         {error ? (
           <Typography variant="bodyM" color={colors.cherry} style={{ marginBottom: spacing.sm }}>
@@ -117,7 +119,7 @@ export default function Q2BabyDobScreen() {
         <ActionSheet
           visible={pickerOpen}
           onClose={() => setPickerOpen(false)}
-          title="baby's date"
+          title={t('ob.q2babysDate')}
         >
           <DateTimePicker
             value={babyDob ? new Date(babyDob) : new Date()}
@@ -131,7 +133,7 @@ export default function Q2BabyDobScreen() {
             }}
           />
           <Button
-            title="done"
+            title={t('ob.q2done')}
             size="lg"
             onPress={() => setPickerOpen(false)}
             style={{ marginTop: spacing.md }}

@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
@@ -20,6 +21,7 @@ import { useAppStore } from '@/store/useAppStore';
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { signUp, signInWithGoogle, signInWithApple } = useAuth();
   const { updateOnboarding } = useAppStore();
   const [email, setEmail] = useState('');
@@ -41,7 +43,7 @@ export default function SignUpScreen() {
       return;
     }
     if (password.length < 6) {
-      setError('password must be at least 6 characters');
+      setError(t('auth.passwordTooShort'));
       return;
     }
     setLoading(true);
@@ -99,12 +101,12 @@ export default function SignUpScreen() {
             møma
           </Typography>
           <Typography color={colors.muted} style={styles.tagline}>
-            EVERYONE BRINGS SOMETHING TO THE TABLE.
+            {t('welcome.tagline')}
           </Typography>
         </View>
 
         <Typography variant="displayL" color={colors.cobalt} style={styles.heading}>
-          create your account
+          {t('auth.createYourAccount')}
         </Typography>
 
         {error ? (
@@ -118,13 +120,13 @@ export default function SignUpScreen() {
         <View style={styles.fields}>
           <View style={styles.field}>
             <Typography variant="label" color={colors.muted}>
-              EMAIL
+              {t('auth.email')}
             </Typography>
             <TextInput
               style={styles.input}
               value={email}
               onChangeText={setEmail}
-              placeholder="hello@email.com"
+              placeholder={t('auth.emailPlaceholder')}
               placeholderTextColor={colors.muted}
               keyboardType="email-address"
               autoCapitalize="none"
@@ -137,13 +139,13 @@ export default function SignUpScreen() {
 
           <View style={styles.field}>
             <Typography variant="label" color={colors.muted}>
-              PASSWORD
+              {t('auth.password')}
             </Typography>
             <TextInput
               style={styles.input}
               value={password}
               onChangeText={setPassword}
-              placeholder="at least 6 characters"
+              placeholder={t('auth.passwordMinPlaceholder')}
               placeholderTextColor={colors.muted}
               secureTextEntry
               textContentType="oneTimeCode"
@@ -154,13 +156,13 @@ export default function SignUpScreen() {
 
           <View style={styles.field}>
             <Typography variant="label" color={colors.muted}>
-              CONFIRM PASSWORD
+              {t('auth.confirmPassword')}
             </Typography>
             <TextInput
               style={styles.input}
               value={confirm}
               onChangeText={setConfirm}
-              placeholder="repeat your password"
+              placeholder={t('auth.repeatPassword')}
               placeholderTextColor={colors.muted}
               secureTextEntry
               textContentType="oneTimeCode"
@@ -177,7 +179,7 @@ export default function SignUpScreen() {
 
         <View style={styles.actions}>
           <Button
-            title={loading ? 'creating account...' : 'create account'}
+            title={loading ? t('auth.creatingAccount') : t('auth.createAccount')}
             onPress={handleSignUp}
             disabled={!canSubmit}
             size="lg"
@@ -193,7 +195,7 @@ export default function SignUpScreen() {
 
           {Platform.OS === 'ios' ? (
             <Button
-              title="continue with apple"
+              title={t('auth.continueApple')}
               variant="secondary"
               size="lg"
               onPress={handleApple}
@@ -202,7 +204,7 @@ export default function SignUpScreen() {
             />
           ) : null}
           <Button
-            title="continue with google"
+            title={t('auth.continueGoogle')}
             variant="secondary"
             size="lg"
             onPress={handleGoogle}
@@ -211,7 +213,7 @@ export default function SignUpScreen() {
           />
 
           <Button
-            title="already have an account? log in"
+            title={t('auth.haveAccountLogin')}
             variant="ghost"
             onPress={() => router.replace('/(auth)/login')}
           />

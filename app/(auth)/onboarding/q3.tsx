@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
@@ -25,6 +26,7 @@ const MAX_SECONDARY = 2;
 
 export default function Q3LanguagesScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { onboardingData, saveProgress } = useOnboarding();
 
@@ -119,9 +121,9 @@ export default function Q3LanguagesScreen() {
       <OnboardingHeader current={3} total={4} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>
-          What languages{'\n'}do you speak?
+          {t('ob.q3heading')}
         </Typography>
-        <Typography style={styles.sub}>A soft matching signal.</Typography>
+        <Typography style={styles.sub}>{t('ob.q3sub')}</Typography>
 
         {error ? (
           <Typography variant="bodyM" color={colors.cherry} style={{ marginBottom: spacing.sm }}>
@@ -153,11 +155,11 @@ export default function Q3LanguagesScreen() {
 
         <View style={styles.sectionGap}>
           <View style={styles.alsoRow}>
-            <Typography style={styles.sectionLabel}>ALSO SPEAK</Typography>
+            <Typography style={styles.sectionLabel}>{t('ob.q3alsoSpeak')}</Typography>
             <Typography style={[styles.sectionLabel, styles.alsoRight]}>(UP TO TWO)</Typography>
           </View>
           <Typography style={styles.sectionSub}>
-            Optional. Helps match with bilingual groups.
+            {t('ob.q3optional')}
           </Typography>
         </View>
         <View style={styles.grid}>
@@ -219,7 +221,7 @@ export default function Q3LanguagesScreen() {
             style={styles.sheetInput}
             value={draft}
             onChangeText={setDraft}
-            placeholder="e.g. Catalan, Wolof, Mandarin"
+            placeholder={t('ob.q3addPlaceholder')}
             placeholderTextColor={colors.muted}
             autoCapitalize="words"
             autoCorrect={false}
@@ -228,7 +230,7 @@ export default function Q3LanguagesScreen() {
             maxLength={32}
           />
           <Button
-            title="Add"
+            title={t('ob.q3add')}
             size="lg"
             onPress={commitAdd}
             disabled={!draft.trim()}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
@@ -33,6 +34,7 @@ function webmailUrlFor(email: string): string | null {
 
 export default function VerifyEmailScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { email = '' } = useLocalSearchParams<{ email?: string }>();
   const { resendConfirmationEmail } = useAuth();
 
@@ -55,14 +57,14 @@ export default function VerifyEmailScreen() {
     const { error: e } = await resendConfirmationEmail(email);
     if (e) {
       const msg = /rate limit/i.test(e.message)
-        ? 'too many requests. please wait a moment before trying again.'
+        ? t('verify.tooManyRequests')
         : e.message;
       setError(msg);
       // Always cool down on failure too so a flurry of taps can't worsen the limit.
       setCooldown(RESEND_COOLDOWN_S);
       return;
     }
-    setInfo('we sent a new confirmation link.');
+    setInfo(t('verify.newLinkSent'));
     setCooldown(RESEND_COOLDOWN_S);
   }
 
@@ -89,14 +91,14 @@ export default function VerifyEmailScreen() {
     <View style={styles.container}>
       <View style={styles.content}>
         <Typography variant="displayL" color={colors.cobalt}>
-          check your email
+          {t('verify.title')}
         </Typography>
         <Typography variant="bodyL" color={colors.muted} style={{ marginTop: spacing.md }}>
-          we sent a confirmation link to{' '}
+          {t('verify.sentTo')}
           <Typography variant="bodyL" color={colors.text}>
             {email}
           </Typography>
-          . tap the link in the email and you&rsquo;ll come right back here, signed in.
+          {t('verify.tapLink')}
         </Typography>
 
         {error ? (
@@ -115,15 +117,15 @@ export default function VerifyEmailScreen() {
             variant="labelS"
             color={cooldown > 0 ? colors.muted : colors.cobalt}
           >
-            {cooldown > 0 ? `RESEND IN ${cooldown}S` : 'RESEND LINK'}
+            {cooldown > 0 ? t('verify.resendIn', { seconds: cooldown }) : t('verify.resendLink')}
           </Typography>
         </Pressable>
       </View>
 
       <View style={styles.actions}>
-        <Button title="open mail app" onPress={openMail} size="lg" />
+        <Button title={t('verify.openMail')} onPress={openMail} size="lg" />
         <Button
-          title="back to sign up"
+          title={t('verify.backToSignUp')}
           variant="ghost"
           onPress={() => router.replace('/(auth)/signup')}
         />

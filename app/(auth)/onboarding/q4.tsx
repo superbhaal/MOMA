@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
@@ -16,6 +17,7 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 
 export default function Q4ColourScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { onboardingData, saveProgress } = useOnboarding();
   const [colorHex, setColorHex] = useState<string | null>(onboardingData.profileColor);
@@ -48,9 +50,9 @@ export default function Q4ColourScreen() {
     <View style={styles.container}>
       <OnboardingHeader current={4} total={4} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Typography style={styles.heading}>Pick a colour.</Typography>
+        <Typography style={styles.heading}>{t('ob.q4heading')}</Typography>
         <Typography style={styles.sub}>
-          This is yours. You&rsquo;ll see it on your profile and in the chat.
+          {t('ob.q4sub')}
         </Typography>
 
         {error ? (
@@ -94,7 +96,7 @@ export default function Q4ColourScreen() {
             </Typography>
           ) : (
             <Typography style={styles.captionEmpty}>
-              Tap a swatch to pick yours.
+              {t('ob.q4tapSwatch')}
             </Typography>
           )}
         </View>

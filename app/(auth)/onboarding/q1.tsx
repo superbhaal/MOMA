@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
@@ -14,6 +15,7 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 
 export default function Q1FirstBabyScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { onboardingData, saveProgress } = useOnboarding();
   const [isFirst, setIsFirst] = useState<boolean | null>(onboardingData.isFirstBaby);
@@ -43,10 +45,10 @@ export default function Q1FirstBabyScreen() {
       <OnboardingHeader current={1} total={4} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>
-          Is this your{'\n'}first baby?
+          {t('ob.q1heading')}
         </Typography>
         <Typography style={styles.sub}>
-          This helps us match you with moms in a similar place.
+          {t('ob.q1sub')}
         </Typography>
 
         {error ? (
@@ -58,14 +60,14 @@ export default function Q1FirstBabyScreen() {
         <View style={styles.options}>
           <OptionCard
             letter="a"
-            title="Yes"
+            title={t('ob.yes')}
             desc="Doing this for the first time."
             selected={isFirst === true}
             onPress={() => setIsFirst(true)}
           />
           <OptionCard
             letter="b"
-            title="No"
+            title={t('ob.no')}
             desc="Been here before."
             selected={isFirst === false}
             onPress={() => setIsFirst(false)}

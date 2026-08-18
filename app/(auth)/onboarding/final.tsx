@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
@@ -15,6 +16,7 @@ import { Pressable } from 'react-native';
 
 export default function FinalScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user, fetchProfile } = useAuth();
   const [count, setCount] = useState<number | null>(null);
@@ -81,8 +83,8 @@ export default function FinalScreen() {
             <Typography style={styles.name}>{firstName}.</Typography>
             <Typography style={styles.sub}>
               {showCount
-                ? `We’re looking at ${count} moms in ${area} right now, finding your best 3 matches. You’ll hear within 48 hours.`
-                : `We’re looking for moms in ${area} right now, finding your best 3 matches. You’ll hear within 48 hours.`}
+                ? t('ob.finalLooking', { count, area })
+                : t('ob.finalLookingNone', { area })}
             </Typography>
 
             <View style={styles.avatars}>
@@ -104,7 +106,7 @@ export default function FinalScreen() {
             </View>
 
             <Pressable onPress={() => router.replace('/(tabs)')} style={styles.cta}>
-              <Typography style={styles.ctaText}>GO TO YOUR GROUPS</Typography>
+              <Typography style={styles.ctaText}>{t('ob.finalCta')}</Typography>
             </Pressable>
           </>
         )}

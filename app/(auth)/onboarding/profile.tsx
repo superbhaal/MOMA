@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { ensurePhotoPermission } from '@/lib/photoPermission';
@@ -29,6 +30,7 @@ import { supabase } from '@/lib/supabase';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { signOut } = useAuth();
   const { onboardingData, saveProgress } = useOnboarding();
 
@@ -104,7 +106,7 @@ export default function ProfileScreen() {
     const { data: { session } } = await supabase.auth.getSession();
     const uid = session?.user?.id;
     if (!uid) {
-      setError('your session expired — please sign in again.');
+      setError(t('ob.pfSessionExpired'));
       setAvatarUri(null);
       return;
     }
@@ -192,7 +194,7 @@ export default function ProfileScreen() {
     // distance-based, so we don't let anyone through without a verified location.
     const addrTyped = address.trim();
     if (!addrTyped) {
-      setError('please add where you live so we can match you with nearby moms.');
+      setError(t('ob.pfNeedAddress'));
       return;
     }
     const geo = resolved.latitude != null ? resolved : await verifyAddress();
@@ -251,7 +253,7 @@ export default function ProfileScreen() {
           Tell us a little{'\n'}about you.
         </Typography>
         <Typography variant="bodyL" color={colors.muted} style={styles.subhead}>
-          Only shared with your matched group. Never public.
+          {t('ob.pfOnlyShared')}
         </Typography>
 
         {error ? (
@@ -280,7 +282,7 @@ export default function ProfileScreen() {
         <View style={styles.nameRow}>
           <View style={styles.nameCol}>
             <Typography variant="label" color={colors.muted}>
-              FIRST NAME
+              {t('ob.pfFirstName')}
             </Typography>
             <TextInput
               style={styles.input}
@@ -295,7 +297,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.nameCol}>
             <Typography variant="label" color={colors.muted}>
-              LAST NAME
+              {t('ob.pfLastName')}
             </Typography>
             <TextInput
               style={styles.input}
@@ -312,7 +314,7 @@ export default function ProfileScreen() {
 
         <View style={styles.field}>
           <Typography variant="label" color={colors.muted}>
-            YOUR AGE
+            {t('ob.pfAge')}
           </Typography>
           <TextInput
             style={styles.input}
@@ -324,7 +326,7 @@ export default function ProfileScreen() {
             maxLength={2}
           />
           <Typography variant="bodyM" color={colors.muted} style={styles.helper}>
-            Used softly in matching. We avoid very wide age gaps.
+            {t('ob.pfAgeHint')}
           </Typography>
         </View>
 
@@ -375,7 +377,7 @@ export default function ProfileScreen() {
             </View>
           ) : (
             <Typography variant="bodyM" color={colors.muted} style={styles.helper}>
-              We match you with moms within walking distance, so we verify your address. Only your group sees it.
+              {t('ob.pfAddressHint')}
             </Typography>
           )}
         </View>
@@ -388,7 +390,7 @@ export default function ProfileScreen() {
             style={[styles.input, styles.multiline]}
             value={bio}
             onChangeText={setBio}
-            placeholder="A sentence or two your group will see."
+            placeholder={t('ob.pfBioPlaceholder')}
             placeholderTextColor={colors.muted}
             multiline
             maxLength={280}
@@ -403,12 +405,12 @@ export default function ProfileScreen() {
             style={styles.input}
             value={interests}
             onChangeText={setInterests}
-            placeholder="yoga, cooking, long walks"
+            placeholder={t('ob.pfInterestsPlaceholder')}
             placeholderTextColor={colors.muted}
             autoCapitalize="none"
           />
           <Typography variant="bodyM" color={colors.muted} style={styles.helper}>
-            Separate with commas.
+            {t('ob.pfCommas')}
           </Typography>
         </View>
 

@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
@@ -19,6 +20,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { signIn, signInWithGoogle, signInWithApple } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -70,12 +72,12 @@ export default function LoginScreen() {
             møma
           </Typography>
           <Typography color={colors.muted} style={styles.tagline}>
-            EVERYONE BRINGS SOMETHING TO THE TABLE.
+            {t('welcome.tagline')}
           </Typography>
         </View>
 
         <Typography variant="displayL" color={colors.cobalt} style={styles.heading}>
-          welcome back
+          {t('auth.welcomeBack')}
         </Typography>
 
         {error ? (
@@ -89,13 +91,13 @@ export default function LoginScreen() {
         <View style={styles.fields}>
           <View style={styles.field}>
             <Typography variant="label" color={colors.muted}>
-              EMAIL
+              {t('auth.email')}
             </Typography>
             <TextInput
               style={styles.input}
               value={email}
               onChangeText={setEmail}
-              placeholder="hello@email.com"
+              placeholder={t('auth.emailPlaceholder')}
               placeholderTextColor={colors.muted}
               keyboardType="email-address"
               autoCapitalize="none"
@@ -108,13 +110,13 @@ export default function LoginScreen() {
 
           <View style={styles.field}>
             <Typography variant="label" color={colors.muted}>
-              PASSWORD
+              {t('auth.password')}
             </Typography>
             <TextInput
               style={styles.input}
               value={password}
               onChangeText={setPassword}
-              placeholder="your password"
+              placeholder={t('auth.passwordPlaceholder')}
               placeholderTextColor={colors.muted}
               secureTextEntry
               textContentType="oneTimeCode"
@@ -135,14 +137,14 @@ export default function LoginScreen() {
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
             <Typography variant="bodyM" color={colors.muted} style={styles.dividerText}>
-              or
+              {t('auth.or')}
             </Typography>
             <View style={styles.dividerLine} />
           </View>
 
           {Platform.OS === 'ios' ? (
             <Button
-              title="continue with apple"
+              title={t('auth.continueApple')}
               variant="secondary"
               size="lg"
               onPress={handleApple}
@@ -151,7 +153,7 @@ export default function LoginScreen() {
             />
           ) : null}
           <Button
-            title="continue with google"
+            title={t('auth.continueGoogle')}
             variant="secondary"
             size="lg"
             onPress={handleGoogle}
@@ -160,7 +162,7 @@ export default function LoginScreen() {
           />
 
           <Button
-            title="no account? sign up"
+            title={t('auth.noAccountSignUp')}
             variant="ghost"
             onPress={() => router.replace('/(auth)/signup')}
           />

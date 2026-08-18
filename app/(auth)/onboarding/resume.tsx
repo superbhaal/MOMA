@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,6 +21,7 @@ const TOTAL_STEPS = TOTAL_QUIZ_STEPS;
  */
 export default function ResumeScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user, authLoading } = useAuth();
   const [starting, setStarting] = useState(false);
@@ -48,7 +50,7 @@ export default function ResumeScreen() {
     <View style={[styles.container, { paddingTop: insets.top + spacing.xxl, paddingBottom: insets.bottom + spacing.xl }]}>
       <View style={styles.body}>
         <Typography variant="labelS" color={colors.muted} style={styles.eyebrow}>
-          WELCOME BACK
+          {t('ob.resumeWelcome')}
         </Typography>
         <Typography style={styles.heading}>
           You were{'\n'}almost there.
@@ -60,7 +62,7 @@ export default function ResumeScreen() {
         <View style={styles.progressCard}>
           <View style={styles.progressTop}>
             <Typography variant="labelS" color={colors.muted}>
-              PROGRESS
+              {t('ob.resumeProgress')}
             </Typography>
             <Typography variant="labelS" color={colors.cobalt}>
               {progress.answered} / {TOTAL_STEPS}
@@ -86,7 +88,7 @@ export default function ResumeScreen() {
           style={styles.continueBtn}
         >
           <Typography variant="label" color={colors.white}>
-            CONTINUE WHERE I LEFT OFF
+            {t('ob.resumeContinue')}
           </Typography>
         </Pressable>
         <Pressable
@@ -100,7 +102,7 @@ export default function ResumeScreen() {
           disabled={starting}
         >
           <Typography variant="bodyL" color={colors.muted}>
-            Start over instead
+            {t('ob.resumeStartOver')}
           </Typography>
         </Pressable>
       </View>
