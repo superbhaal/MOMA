@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
@@ -26,11 +27,12 @@ interface LovedSpotRowProps {
  * moms who vouched, not of anonymous taps.
  */
 export function LovedSpotRow({ spot, onPress, addedByYou }: LovedSpotRowProps) {
+  const { t } = useTranslation();
   const [thumbFailed, setThumbFailed] = useState(false);
   const recs = spot.recommendations ?? [];
   const ring = recs[0]?.poster_color ?? colors.fuchsia;
   const who = recs[0]?.poster_name ?? 'a mom';
-  const cat = categoryLabel(spot.category);
+  const cat = categoryLabel(spot.category, t);
   const names =
     recs.length <= 2
       ? recs.map((r) => r.poster_name ?? 'a mom').join(' & ')

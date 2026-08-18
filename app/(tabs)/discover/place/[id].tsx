@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -73,6 +74,7 @@ function timeAgo(iso: string): string {
 }
 
 export default function LovedSpotDetail() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -224,7 +226,7 @@ export default function LovedSpotDetail() {
 
           <View style={styles.catPill}>
             <Typography style={styles.catText} color={colors.labelMuted}>
-              {categoryLabel(spot.category).toUpperCase()}
+              {categoryLabel(spot.category, t).toUpperCase()}
             </Typography>
           </View>
 

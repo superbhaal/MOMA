@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 import type {
   LovedKind,
   LovedCategory,
@@ -20,37 +22,41 @@ export interface CategoryChip {
 // mom looking for a pram were sent to the same filter. Split, plus the three
 // the client named: somewhere to sleep with a baby, somewhere to be looked
 // after, and the two kinds of shopping.
-export const PLACE_CATEGORIES: { value: PlaceCategory; label: string }[] = [
-  { value: 'cafes', label: 'Café' },
-  { value: 'restaurants', label: 'Restaurant' },
-  { value: 'parks', label: 'Park' },
-  { value: 'playgrounds', label: 'Playground' },
-  { value: 'classes', label: 'Class' },
-  { value: 'baby_shops', label: 'Baby & kids' },
-  { value: 'mom_shops', label: 'For mom' },
-  { value: 'wellness', label: 'Spa & massage' },
-  { value: 'stays', label: 'Family stay' },
-];
+export function placeCategories(t: TFunction): { value: PlaceCategory; label: string }[] {
+  return [
+    { value: 'cafes', label: t('expl.cafes') },
+    { value: 'restaurants', label: t('expl.restaurants') },
+    { value: 'parks', label: t('expl.parks') },
+    { value: 'playgrounds', label: t('expl.playgrounds') },
+    { value: 'classes', label: t('expl.classes') },
+    { value: 'baby_shops', label: t('expl.baby_shops') },
+    { value: 'mom_shops', label: t('expl.mom_shops') },
+    { value: 'wellness', label: t('expl.wellness') },
+    { value: 'stays', label: t('expl.stays') },
+  ];
+}
 
 // The v11 composer names eight kinds of practitioner where this list had five.
 // "Physios" is gone, replaced by the narrower "Pelvic floor" the mockup asks
 // for — no row had ever used it, so nothing was orphaned.
-export const PERSON_CATEGORIES: { value: PersonCategory; label: string }[] = [
-  { value: 'pediatricians', label: 'Pediatrician' },
-  { value: 'gynecologists', label: 'Gynecologist' },
-  { value: 'midwives_doulas', label: 'Midwife & doula' },
-  { value: 'lactation', label: 'Lactation consultant' },
-  { value: 'therapists', label: 'Therapist' },
-  { value: 'pelvic_floor', label: 'Pelvic floor' },
-  { value: 'dentists', label: 'Dentist (kids)' },
-  { value: 'daycare', label: 'Daycare' },
-  { value: 'nannies', label: 'Nanny' },
-];
+export function personCategories(t: TFunction): { value: PersonCategory; label: string }[] {
+  return [
+    { value: 'pediatricians', label: t('expl.pediatricians') },
+    { value: 'gynecologists', label: t('expl.gynecologists') },
+    { value: 'midwives_doulas', label: t('expl.midwives_doulas') },
+    { value: 'lactation', label: t('expl.lactation') },
+    { value: 'therapists', label: t('expl.therapists') },
+    { value: 'pelvic_floor', label: t('expl.pelvic_floor') },
+    { value: 'dentists', label: t('expl.dentists') },
+    { value: 'daycare', label: t('expl.daycare') },
+    { value: 'nannies', label: t('expl.nannies') },
+  ];
+}
 
 /** Chip row for a mode, with the leading "All" chip. */
-export function categoryChips(kind: LovedKind): CategoryChip[] {
-  const set = kind === 'place' ? PLACE_CATEGORIES : PERSON_CATEGORIES;
-  return [{ value: 'all', label: 'All' }, ...set];
+export function categoryChips(kind: LovedKind, t: TFunction): CategoryChip[] {
+  const set = kind === 'place' ? placeCategories(t) : personCategories(t);
+  return [{ value: 'all', label: t('expl.all') }, ...set];
 }
 
 /**
@@ -95,30 +101,14 @@ export const STAGE_CHIP_GROUPS: { group: string; rows: { value: string; label: s
   },
 ];
 
-const LABELS: Record<LovedCategory, string> = {
-  cafes: 'Café',
-  restaurants: 'Restaurant',
-  parks: 'Park',
-  playgrounds: 'Playground',
-  classes: 'Class',
-  baby_shops: 'Baby & kids',
-  mom_shops: 'For mom',
-  wellness: 'Spa & massage',
-  stays: 'Family stay',
-  pediatricians: 'Pediatrician',
-  gynecologists: 'Gynecologist',
-  midwives_doulas: 'Midwife & doula',
-  lactation: 'Lactation consultant',
-  therapists: 'Therapist',
-  pelvic_floor: 'Pelvic floor',
-  dentists: 'Dentist (kids)',
-  daycare: 'Daycare',
-  nannies: 'Nanny',
-};
 
 /** Singular, human label for a category — used on cards and the detail pill. */
-export function categoryLabel(category: LovedCategory): string {
-  return LABELS[category] ?? category;
+export function categoryLabel(category: LovedCategory, t: TFunction): string {
+  const key = `expl.${category}`;
+  const label = t(key);
+  // t() returns the key itself when it has no entry — fall back to the raw
+  // category rather than showing 'expl.something' on a map pin.
+  return label === key ? category : label;
 }
 
 /**

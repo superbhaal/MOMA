@@ -286,9 +286,12 @@ export default function MeScreen() {
         {tips.length === 0 ? (
           <View style={styles.savedEmpty}>
             <Typography style={styles.savedEmptyText}>
-              Heart a tip in Learn and it lands here,{' '}
-              <Typography style={styles.savedEmptyStrong}>your private shelf</Typography> of places,
-              rituals, and things worth remembering.
+              {/* Split in three rather than one interpolated string: the middle
+                  segment is styled, and the emphasis has to sit on the right
+                  words in each language, not at a fixed character offset. */}
+              {t('me.savedEmptyA')}
+              <Typography style={styles.savedEmptyStrong}>{t('me.savedEmptyStrong')}</Typography>
+              {t('me.savedEmptyB')}
             </Typography>
           </View>
         ) : (
@@ -322,8 +325,7 @@ export default function MeScreen() {
         {groups.length === 0 ? (
           <View style={styles.savedEmpty}>
             <Typography style={styles.savedEmptyText}>
-              You&rsquo;re not in a group yet. We&rsquo;ll let you know the moment a circle forms
-              near you.
+              {t('me.noGroupYet')}
             </Typography>
           </View>
         ) : (

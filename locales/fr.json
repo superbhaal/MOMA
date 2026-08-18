@@ -111,7 +111,9 @@
   },
   "chats": {
     "groups": "GROUPES",
-    "directMessages": "MESSAGES PRIVÉS"
+    "directMessages": "MESSAGES PRIVÉS",
+    "title": "Messages",
+    "empty": "vos discussions de groupe apparaîtront ici une fois le groupe formé."
   },
   "preview": {
     "weFound": "Nous avons trouvé vos\n{{word}} mamans.",
@@ -223,7 +225,11 @@
     "leaveConfirmBlurb": "Toute votre conversation part aussi — messages, photos, les lieux que vous avez partagés.",
     "leaveAndDelete": "Quitter et supprimer le chat",
     "undoTitle": "Finalement empêchée ?",
-    "undoBlurb": "Vous n’êtes plus sur la liste — discrètement. Le groupe voit le compte baisser, sans explication."
+    "undoBlurb": "Vous n’êtes plus sur la liste — discrètement. Le groupe voit le compte baisser, sans explication.",
+    "savedEmptyA": "Aimez un conseil dans Apprendre et il atterrit ici, ",
+    "savedEmptyStrong": "votre étagère privée",
+    "savedEmptyB": " de lieux, de rituels et de choses qui méritent qu’on s’en souvienne.",
+    "noGroupYet": "Vous n’êtes pas encore dans un groupe. On vous prévient dès qu’un cercle se forme près de chez vous."
   },
   "prefs": {
     "whoMatched": "AVEC QUI ON VOUS RAPPROCHE",
@@ -527,5 +533,35 @@
     "wellness": "Prendre soin de vous",
     "wellnessSub": "Votre corps, votre tête, votre repos",
     "filterNote": "On filtrera Apprendre et Regarder en conséquence."
+  },
+  "wait": {
+    "title": "On met votre table",
+    "blurb": "On préfère bien composer votre table plutôt que la composer vite. Vous serez prévenue dès qu’elle est prête.",
+    "looking": "RECHERCHE"
+  },
+  "expl": {
+    "lovedBy": "Aimés par les mamans de {{city}}",
+    "search": "Chercher un lieu ou une personne…",
+    "places": "Lieux",
+    "people": "Personnes",
+    "all": "Tous",
+    "cafes": "Café",
+    "restaurants": "Restaurant",
+    "parks": "Parc",
+    "playgrounds": "Aire de jeux",
+    "classes": "Cours",
+    "baby_shops": "Bébé et enfants",
+    "mom_shops": "Pour maman",
+    "wellness": "Spa et massage",
+    "stays": "Séjour en famille",
+    "pediatricians": "Pédiatre",
+    "gynecologists": "Gynécologue",
+    "midwives_doulas": "Sage-femme et doula",
+    "lactation": "Consultante en lactation",
+    "therapists": "Thérapeute",
+    "pelvic_floor": "Périnée",
+    "dentists": "Dentiste (enfants)",
+    "daycare": "Crèche",
+    "nannies": "Nounou"
   }
 }

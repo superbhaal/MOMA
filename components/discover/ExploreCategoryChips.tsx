@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { textStyles } from '@/constants/typography';
@@ -17,7 +18,8 @@ interface ExploreCategoryChipsProps {
  * Places↔People swaps the whole row. Active = ink fill / white text.
  */
 export function ExploreCategoryChips({ kind, value, onChange }: ExploreCategoryChipsProps) {
-  const chips = categoryChips(kind);
+  const { t } = useTranslation();
+  const chips = categoryChips(kind, t);
   return (
     <ScrollView
       horizontal

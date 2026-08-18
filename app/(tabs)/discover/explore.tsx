@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,6 +26,7 @@ import type { LovedKind, LovedCategory, LovedPlace } from '@/types';
  * attributed list sheet. Places / People modes each keep their own category.
  */
 export default function DiscoverExplore() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
@@ -63,7 +65,7 @@ export default function DiscoverExplore() {
       matchesQuery(query, [
         s.name,
         s.address,
-        categoryLabel(s.category),
+        categoryLabel(s.category, t),
         ...s.recommendations.map((r) => r.poster_name),
       ]),
     );
@@ -96,8 +98,8 @@ export default function DiscoverExplore() {
   return (
     <View style={styles.container}>
       <DiscoverHeader
-        subtitle={`Loved by moms in ${city}`}
-        searchPlaceholder="Search places & people…"
+        subtitle={t('expl.lovedBy', { city })}
+        searchPlaceholder={t('expl.search')}
         searchValue={query}
         onSearchChange={setQuery}
         topInset={insets.top}

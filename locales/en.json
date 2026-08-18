@@ -111,7 +111,9 @@
   },
   "chats": {
     "groups": "GROUPS",
-    "directMessages": "DIRECT MESSAGES"
+    "directMessages": "DIRECT MESSAGES",
+    "title": "Chats",
+    "empty": "your group chats land here once you’re matched."
   },
   "preview": {
     "weFound": "We found your\n{{word}} moms.",
@@ -223,7 +225,11 @@
     "leaveConfirmBlurb": "Your whole conversation with them goes too — messages, photos, the places you shared.",
     "leaveAndDelete": "Leave and delete the chat",
     "undoTitle": "Can't make it after all?",
-    "undoBlurb": "You’re off the list — quietly. The group sees the count drop, no reason needed."
+    "undoBlurb": "You’re off the list — quietly. The group sees the count drop, no reason needed.",
+    "savedEmptyA": "Heart a tip in Learn and it lands here, ",
+    "savedEmptyStrong": "your private shelf",
+    "savedEmptyB": " of places, rituals, and things worth remembering.",
+    "noGroupYet": "You’re not in a group yet. We’ll let you know the moment a circle forms near you."
   },
   "prefs": {
     "whoMatched": "WHO YOU GET MATCHED WITH",
@@ -527,5 +533,35 @@
     "wellness": "Wellness for you",
     "wellnessSub": "Your body, your head, your rest",
     "filterNote": "We’ll filter Learn and Watch to match."
+  },
+  "wait": {
+    "title": "We’re setting your table",
+    "blurb": "We’d rather get your table right than get it fast. You’ll hear the moment it’s ready.",
+    "looking": "LOOKING"
+  },
+  "expl": {
+    "lovedBy": "Loved by moms in {{city}}",
+    "search": "Search places & people…",
+    "places": "Places",
+    "people": "People",
+    "all": "All",
+    "cafes": "Café",
+    "restaurants": "Restaurant",
+    "parks": "Park",
+    "playgrounds": "Playground",
+    "classes": "Class",
+    "baby_shops": "Baby & kids",
+    "mom_shops": "For mom",
+    "wellness": "Spa & massage",
+    "stays": "Family stay",
+    "pediatricians": "Pediatrician",
+    "gynecologists": "Gynecologist",
+    "midwives_doulas": "Midwife & doula",
+    "lactation": "Lactation consultant",
+    "therapists": "Therapist",
+    "pelvic_floor": "Pelvic floor",
+    "dentists": "Dentist (kids)",
+    "daycare": "Daycare",
+    "nannies": "Nanny"
   }
 }

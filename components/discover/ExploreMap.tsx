@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import MapView, { Marker, PROVIDER_DEFAULT, type Region } from 'react-native-maps';
 import { colors } from '@/constants/colors';
 import { categoryColor, categoryLabel } from '@/constants/discover';
@@ -48,6 +49,7 @@ function initialRegion(
  * area; pan/zoom to reach places further out (the list stays authoritative).
  */
 export function ExploreMap({ places, me, currentUserId, onSelectSpot }: ExploreMapProps) {
+  const { t } = useTranslation();
   const withCoords = places.filter((s) => s.lat != null && s.lng != null);
   const coords = withCoords.map((s) => ({ latitude: s.lat as number, longitude: s.lng as number }));
 
@@ -73,7 +75,7 @@ export function ExploreMap({ places, me, currentUserId, onSelectSpot }: ExploreM
               : categoryColor(s.category)
           }
           onPress={() => onSelectSpot(s.id)}
-          accessibilityLabel={`${s.name} — ${categoryLabel(s.category)}`}
+          accessibilityLabel={`${s.name} — ${categoryLabel(s.category, t)}`}
           tracksViewChanges={false}
         />
       ))}

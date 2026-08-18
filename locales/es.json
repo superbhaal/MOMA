@@ -111,7 +111,9 @@
   },
   "chats": {
     "groups": "GRUPOS",
-    "directMessages": "MENSAJES DIRECTOS"
+    "directMessages": "MENSAJES DIRECTOS",
+    "title": "Mensajes",
+    "empty": "tus chats de grupo aparecerán aquí en cuanto tengas grupo."
   },
   "preview": {
     "weFound": "Encontramos a tus\n{{word}} madres.",
@@ -223,7 +225,11 @@
     "leaveConfirmBlurb": "También se va toda vuestra conversación — mensajes, fotos, los sitios que compartisteis.",
     "leaveAndDelete": "Salir y borrar el chat",
     "undoTitle": "¿Al final no puedes?",
-    "undoBlurb": "Ya no estás en la lista — sin ruido. El grupo ve bajar el número, sin explicaciones."
+    "undoBlurb": "Ya no estás en la lista — sin ruido. El grupo ve bajar el número, sin explicaciones.",
+    "savedEmptyA": "Dale al corazón en Aprender y aterriza aquí, ",
+    "savedEmptyStrong": "tu estantería privada",
+    "savedEmptyB": " de sitios, rituales y cosas que merece la pena recordar.",
+    "noGroupYet": "Aún no estás en un grupo. Te avisamos en cuanto se forme un círculo cerca de ti."
   },
   "prefs": {
     "whoMatched": "CON QUIÉN TE JUNTAMOS",
@@ -527,5 +533,35 @@
     "wellness": "Cuidarte a ti",
     "wellnessSub": "Tu cuerpo, tu cabeza, tu descanso",
     "filterNote": "Filtraremos Aprender y Ver en consecuencia."
+  },
+  "wait": {
+    "title": "Estamos poniendo tu mesa",
+    "blurb": "Preferimos acertar con tu mesa antes que darte una rápido. Te avisamos en cuanto esté lista.",
+    "looking": "BUSCANDO"
+  },
+  "expl": {
+    "lovedBy": "Los favoritos de las madres de {{city}}",
+    "search": "Buscar un sitio o una persona…",
+    "places": "Sitios",
+    "people": "Personas",
+    "all": "Todos",
+    "cafes": "Café",
+    "restaurants": "Restaurante",
+    "parks": "Parque",
+    "playgrounds": "Parque infantil",
+    "classes": "Clase",
+    "baby_shops": "Bebé y niños",
+    "mom_shops": "Para mamá",
+    "wellness": "Spa y masaje",
+    "stays": "Alojamiento familiar",
+    "pediatricians": "Pediatra",
+    "gynecologists": "Ginecóloga",
+    "midwives_doulas": "Matrona y doula",
+    "lactation": "Asesora de lactancia",
+    "therapists": "Terapeuta",
+    "pelvic_floor": "Suelo pélvico",
+    "dentists": "Dentista (infantil)",
+    "daycare": "Guardería",
+    "nannies": "Niñera"
   }
 }

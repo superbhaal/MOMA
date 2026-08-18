@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
@@ -12,6 +13,7 @@ const RING_RADIUS = 18;
  * Matches `.group-waiting-card` + `.gw-orbit` from design/moma standalone.
  */
 export function WaitingForMatchCard() {
+  const { t } = useTranslation();
   const rotate = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -74,15 +76,14 @@ export function WaitingForMatchCard() {
 
       <View style={styles.body}>
         <Typography style={styles.title} color={colors.cobalt}>
-          We&rsquo;re setting your table
+          {t('wait.title')}
         </Typography>
         <Typography style={styles.sub} color="rgba(26,75,204,0.65)">
-          We&rsquo;d rather get your table right than get it fast. You&rsquo;ll hear the
-          moment it&rsquo;s ready.
+          {t('wait.blurb')}
         </Typography>
         <View style={styles.progressRow}>
           <Typography style={styles.progressLabel} color={colors.cobalt}>
-            LOOKING
+            {t('wait.looking')}
           </Typography>
           <View style={styles.progressDots}>
             {[0, 1, 2, 3].map((i) => (

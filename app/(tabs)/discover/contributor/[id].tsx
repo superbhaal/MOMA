@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Image,
@@ -22,6 +23,7 @@ import { useContributor } from '@/hooks/useLovedSpots';
 import type { LovedSpotWithPoster } from '@/types';
 
 export default function ContributorProfile() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -132,6 +134,7 @@ function ContributedRow({
   highlighted?: boolean;
   onPress: () => void;
 }) {
+  const { t } = useTranslation();
   const [failed, setFailed] = useState(false);
   const ring = spot.poster?.profile_color ?? colors.fuchsia;
   const thumb = staticMapUri(spot);
@@ -165,7 +168,7 @@ function ContributedRow({
       <View style={styles.rowFoot}>
         <View style={styles.catPill}>
           <Typography style={styles.catText} color={colors.labelMuted}>
-            {categoryLabel(spot.category).toUpperCase()}
+            {categoryLabel(spot.category, t).toUpperCase()}
           </Typography>
         </View>
         <Pressable

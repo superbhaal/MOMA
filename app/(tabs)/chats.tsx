@@ -75,7 +75,7 @@ export default function ChatsScreen() {
       showsVerticalScrollIndicator={false}
     >
       <Typography style={styles.title} color={colors.cobalt}>
-        Chats
+        {t('chats.title')}
       </Typography>
       <Typography style={styles.motif} color={colors.cobalt}>
         ❖
@@ -87,7 +87,7 @@ export default function ChatsScreen() {
 
       {empty ? (
         <Typography variant="bodyL" color={colors.muted} style={styles.empty}>
-          your group chats land here once you&rsquo;re matched.
+          {t('chats.empty')}
         </Typography>
       ) : null}
 

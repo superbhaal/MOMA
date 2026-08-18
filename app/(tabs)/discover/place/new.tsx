@@ -23,7 +23,7 @@ import { ProgressSegments } from '@/components/discover/composer/ProgressSegment
 import { colors } from '@/constants/colors';
 import { fonts, textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
-import { PLACE_CATEGORIES, PERSON_CATEGORIES, categoryLabel } from '@/constants/discover';
+import { placeCategories, personCategories, categoryLabel } from '@/constants/discover';
 import { scaled } from '@/constants/scale';
 import { searchPlaces } from '@/lib/places';
 import { staticMapUri } from '@/lib/maps';
@@ -613,7 +613,7 @@ function StepCategory({
   onPick: (c: LovedCategory) => void;
 }) {
   const { t } = useTranslation();
-  const set = kind === 'place' ? PLACE_CATEGORIES : PERSON_CATEGORIES;
+  const set = kind === 'place' ? placeCategories(t) : personCategories(t);
   return (
     <ComposerChips
       options={set}
@@ -739,7 +739,7 @@ function StepPreview({
           &ldquo;{draft.note.trim()}&rdquo;
         </Typography>
         <Typography style={styles.previewCategory} color={colors.mutedStrong}>
-          {categoryLabel(draft.category).toUpperCase()}
+          {categoryLabel(draft.category, t).toUpperCase()}
         </Typography>
       </View>
 

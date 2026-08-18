@@ -1,14 +1,18 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { fonts, textStyles } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 import type { LovedKind } from '@/types';
 
-const TABS: { key: LovedKind; label: string }[] = [
-  { key: 'place', label: 'Places' },
-  { key: 'person', label: 'People' },
-];
+function modeTabs(t: TFunction) {
+  return [
+    { key: 'place' as const, label: t('expl.places') },
+    { key: 'person' as const, label: t('expl.people') },
+  ];
+}
 
 interface ExploreModeTabsProps {
   active: LovedKind;
@@ -17,9 +21,10 @@ interface ExploreModeTabsProps {
 
 /** Places / People underline tabs. Active = ink label + 2px ink underline. */
 export function ExploreModeTabs({ active, onChange }: ExploreModeTabsProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.row} accessibilityRole="tablist">
-      {TABS.map((t) => {
+      {modeTabs(t).map((t) => {
         const on = t.key === active;
         return (
           <Pressable
