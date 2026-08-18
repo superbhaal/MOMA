@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -23,6 +24,7 @@ import { useState } from 'react';
 import type { Message, User } from '@/types';
 
 export default function DmScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { userId, fromGroup } = useLocalSearchParams<{ userId: string; fromGroup?: string }>();
   const insets = useSafeAreaInsets();
@@ -85,7 +87,7 @@ export default function DmScreen() {
               {other?.display_name ?? '...'}
             </Typography>
             <Typography style={styles.headerMeta} color={colors.muted}>
-              DIRECT MESSAGE
+              {t('misc.directMessage')}
             </Typography>
           </View>
         </Pressable>

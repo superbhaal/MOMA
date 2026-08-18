@@ -1,3 +1,4 @@
+import i18n from '@/lib/i18n';
 import { useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
@@ -32,7 +33,7 @@ export function useOnboarding() {
         if ((error as any).code === '23503') {
           await supabase.auth.signOut();
           return {
-            error: { message: 'Your session expired. Please sign in again.' },
+            error: { message: i18n.t('misc.sessionExpired') },
           };
         }
         return { error };

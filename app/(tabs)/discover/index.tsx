@@ -178,7 +178,7 @@ export default function DiscoverIndex() {
       {/* Watch only: a contributor can share a reel, but the Read feed is
           editorial — there's nothing there for them to add. */}
       {tab === 'watch' ? (
-        <ComposeFab accessibilityLabel="Share a reel" onPress={() => setShareSheet(true)} />
+        <ComposeFab accessibilityLabel={t('misc.shareReel')} onPress={() => setShareSheet(true)} />
       ) : null}
 
       <ShareReelSheet

@@ -1,4 +1,5 @@
 import { ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Image,
@@ -50,6 +51,7 @@ export function ComposerField({
   hint?: string;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <View>
       <ComposerLabel label={label} hint={hint} />
@@ -248,6 +250,7 @@ export function ComposerPhoto({
   hint?: string;
   optional?: boolean;
 }) {
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
 
   async function pick() {
@@ -301,7 +304,7 @@ export function ComposerPhoto({
       <Pressable style={styles.dropzone} onPress={pick} accessibilityRole="button">
         <Ionicons name="add" size={26} color={colors.cobalt} />
         <Typography style={styles.dropzoneLabel} color={colors.cobalt}>
-          Add a photo
+          {t('misc.addPhoto')}
         </Typography>
         {hint ? (
           <Typography style={styles.dropzoneHint} color={colors.muted}>
@@ -317,7 +320,7 @@ export function ComposerPhoto({
       {onSkip ? (
         <Pressable onPress={onSkip} style={styles.skip} hitSlop={8}>
           <Typography style={styles.skipText} color={colors.mutedStrong}>
-            Skip for now
+            {t('misc.skipForNow')}
           </Typography>
         </Pressable>
       ) : null}

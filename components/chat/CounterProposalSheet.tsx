@@ -98,7 +98,7 @@ export function CounterProposalSheet({
       </View>
 
       <Typography variant="label" color={colors.muted} style={styles.label}>
-        TIME OF DAY
+            {t('misc.timeOfDay')}
       </Typography>
       <View style={styles.blocksRow}>
         {timeBlocks(t).map((b) => {

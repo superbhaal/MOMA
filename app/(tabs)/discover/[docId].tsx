@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Linking,
   Platform,
@@ -40,6 +41,7 @@ const STAGE_LABEL: Record<string, string> = {
 };
 
 export default function DiscoverDetail() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { docId } = useLocalSearchParams<{ docId: string }>();
@@ -64,7 +66,7 @@ export default function DiscoverDetail() {
         <Pressable onPress={() => router.back()} hitSlop={10} style={styles.backBtn}>
           <Ionicons name="chevron-back" size={16} color={colors.cobalt} />
           <Typography style={styles.backText} color={colors.cobalt} numberOfLines={1}>
-            How to build a human
+            {t('dis.masthead')}
           </Typography>
         </Pressable>
         {isArticle ? (
@@ -107,6 +109,7 @@ export default function DiscoverDetail() {
 }
 
 function ArticleReader({ article }: { article: LearnArticle }) {
+  const { t } = useTranslation();
   const { isSaved, toggle } = useSavedTips();
   const saved = isSaved(article._id);
 
@@ -181,7 +184,7 @@ function ArticleReader({ article }: { article: LearnArticle }) {
       {article.keyPoints && article.keyPoints.length > 0 ? (
         <View style={styles.keyPoints}>
           <Typography style={styles.keyLabel} color={colors.cobalt}>
-            KEY POINTS
+              {t('misc.keyPoints')}
           </Typography>
           {article.keyPoints.map((kp, i) => (
             <View key={i} style={styles.keyRow}>

@@ -138,14 +138,14 @@ export default function BringSomethingScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Typography style={styles.head} color={colors.text}>
-          Bring something
+          {t('brought.headBring')}
         </Typography>
         <Typography style={styles.deck} color={colors.mutedStrong}>
-          One thing you’d actually pass along. It sits on your profile for everyone at the table.
+          {t('brought.deckBring')}
         </Typography>
         {replacing ? (
           <Typography style={styles.onlyOne} color={colors.cobalt}>
-            You can have one out at a time — this replaces what’s on your profile now.
+            {t('brought.onlyOne')}
           </Typography>
         ) : null}
 

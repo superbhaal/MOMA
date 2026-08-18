@@ -56,7 +56,7 @@ export default function BusyWindowsScreen() {
       const { error } = await accept();
       setJoining(false);
       if (error) {
-        Alert.alert("Couldn't join this group", error.message);
+        Alert.alert(t('misc.couldntJoin'), error.message);
         return;
       }
       // Out of the modal entirely before opening the chat.

@@ -1,10 +1,12 @@
 import { Link, Stack } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { View, StyleSheet } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 
 export default function NotFoundScreen() {
+  const { t } = useTranslation();
   return (
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
@@ -12,7 +14,7 @@ export default function NotFoundScreen() {
         <Typography variant="displayM">Page not found</Typography>
         <Link href="/" style={styles.link}>
           <Typography variant="bodyL" color={colors.cobalt}>
-            Go to home screen
+        {t('misc.goHome')}
           </Typography>
         </Link>
       </View>

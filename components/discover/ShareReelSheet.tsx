@@ -159,14 +159,14 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
         <PlatformOption
           platform="instagram"
           title={t('reel.anIg')}
-          sub="Paste a link, we’ll embed it for you."
+          sub={t('misc.pasteEmbed')}
           active={platform === 'instagram'}
           onPress={() => setPlatform('instagram')}
         />
         <PlatformOption
           platform="tiktok"
           title={t('reel.aTt')}
-          sub="Same idea. Paste the link and you’re done."
+          sub={t('misc.pasteSame')}
           active={platform === 'tiktok'}
           onPress={() => setPlatform('tiktok')}
         />

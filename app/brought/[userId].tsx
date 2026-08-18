@@ -47,11 +47,11 @@ export default function BroughtDetail() {
     return (
       <View style={[styles.container, styles.center]}>
         <Typography variant="bodyL" color={colors.muted} style={styles.centerText}>
-          There’s nothing on the table here.
+          {t('brought.nothingHere')}
         </Typography>
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Typography style={styles.backLink} color={colors.cobalt}>
-            ‹ Back
+            {t('brought.backChev')}
           </Typography>
         </Pressable>
       </View>
@@ -78,7 +78,7 @@ export default function BroughtDetail() {
           onPress={() => router.back()}
           hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t('brought.backA11y')}
         >
           <Ionicons name="chevron-back" size={24} color={colors.white} />
         </Pressable>
@@ -114,7 +114,7 @@ export default function BroughtDetail() {
 
           {item.kind === 'book' ? (
             <>
-              <Detail label="Author" value={str('author')} />
+              <Detail label={t('brought.dAuthor')} value={str('author')} />
               {str('quote') ? (
                 <View style={styles.underlined}>
                   <Typography style={styles.underlinedText} color={colors.text}>
@@ -128,26 +128,26 @@ export default function BroughtDetail() {
             </>
           ) : null}
 
-          {item.kind === 'find' ? <Detail label="Where she got it" value={str('where')} /> : null}
+          {item.kind === 'find' ? <Detail label={t('brought.dWhereGot')} value={str('where')} /> : null}
 
           {item.kind === 'listen' ? (
             <>
-              <Detail label="Who made it" value={str('maker')} />
-              <Detail label="When it works" value={str('when')} />
+              <Detail label={t('brought.dWhoMade')} value={str('maker')} />
+              <Detail label={t('brought.dWhenWorks')} value={str('when')} />
             </>
           ) : null}
 
           {item.kind === 'tip' ? (
             <>
-              <Detail label="How she found out" value={str('how')} />
-              <Detail label="Who told her" value={str('who')} />
+              <Detail label={t('brought.dHowFound')} value={str('how')} />
+              <Detail label={t('brought.dWhoTold')} value={str('who')} />
             </>
           ) : null}
 
           {item.kind === 'recipe' && ingredients.length ? (
             <View style={styles.block}>
               <Typography style={styles.blockLabel} color={colors.cobalt}>
-                INGREDIENTS
+                {t('brought.ingredients')}
               </Typography>
               {ingredients.map((ing, i) => (
                 <View key={i} style={styles.ingRow}>
@@ -188,7 +188,7 @@ export default function BroughtDetail() {
               accessibilityRole="button"
             >
               <Typography style={styles.editText} color={colors.cobalt}>
-                Edit what’s on the table
+                {t('brought.editTable')}
               </Typography>
             </Pressable>
           ) : null}

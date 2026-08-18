@@ -1,4 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '@/components/ui/Typography';
 import { AVAILABILITY_TIME_BLOCKS, EMPTY_AVAILABILITY } from '@/constants/onboarding';
 import { colors } from '@/constants/colors';
@@ -12,16 +14,19 @@ interface Props {
 
 type CellKey = keyof RecurringAvailability;
 
-const ROWS: { dayType: 'weekday' | 'weekend'; label: string }[] = [
-  { dayType: 'weekday', label: 'Weekdays' },
-  { dayType: 'weekend', label: 'Weekends' },
-];
+function rows(t: TFunction): { dayType: 'weekday' | 'weekend'; label: string }[] {
+  return [
+    { dayType: 'weekday', label: t('misc.weekdays') },
+    { dayType: 'weekend', label: t('misc.weekends') },
+  ];
+}
 
 /**
  * 2×3 matrix: Weekdays/Weekends × Morning/Afternoon/Evening.
  * Used in onboarding Q2 (`/q2`). Designed for the cobalt onboarding screen.
  */
 export function AvailabilityMatrix({ value, onChange }: Props) {
+  const { t } = useTranslation();
   const matrix = value ?? EMPTY_AVAILABILITY;
 
   function toggle(key: CellKey) {
@@ -44,7 +49,7 @@ export function AvailabilityMatrix({ value, onChange }: Props) {
         ))}
       </View>
 
-      {ROWS.map((row) => (
+      {rows(t).map((row) => (
         <View key={row.dayType} style={styles.row}>
           <Typography
             variant="bodyM"

@@ -1,4 +1,5 @@
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
@@ -13,13 +14,14 @@ import type { AddressFieldState } from '@/hooks/useAddressField';
  */
 export function AddressField({
   field,
-  placeholder = 'e.g. Rue de Rivoli, Paris',
-  hint = 'Used to match you with moms within walking distance.',
+  placeholder,
+  hint,
 }: {
   field: AddressFieldState;
   placeholder?: string;
   hint?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <View style={styles.inputWithIcon}>
@@ -29,7 +31,7 @@ export function AddressField({
           onChangeText={field.setAddress}
           onSubmitEditing={field.verify}
           returnKeyType="search"
-          placeholder={placeholder}
+          placeholder={placeholder ?? t('misc.addressPlaceholder')}
           placeholderTextColor={colors.muted}
           autoCapitalize="words"
         />
@@ -59,7 +61,7 @@ export function AddressField({
         </Typography>
       ) : (
         <Typography variant="bodyM" color={colors.muted} style={[styles.note, styles.hint]}>
-          {hint}
+          {hint ?? t('misc.addressHint')}
         </Typography>
       )}
     </>

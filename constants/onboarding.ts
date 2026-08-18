@@ -28,6 +28,11 @@ export const EMPTY_AVAILABILITY: RecurringAvailability = {
 // ──────────────────────────────────────────────────────────────
 
 export interface LanguageOption {
+  /**
+   * ALSO the stored value: users.primary_language holds this exact string and
+   * the matcher compares on it. Never translate it — use languageLabel() at the
+   * render site instead.
+   */
   label: string;
   /** Shown on the pill in Matching preferences. */
   flag?: string;
@@ -86,3 +91,18 @@ export const PROFILE_COLOUR_SWATCHES: ProfileColourSwatch[] = [
   { name: 'klein',    label: 'klein',    hex: colors.klein,    group: 'bold' },
   { name: 'lime',     label: 'lime',     hex: colors.lime,     group: 'bold' },
 ];
+
+/**
+ * Display name for a language, in the reading language. Separate from `label`
+ * on purpose: that one is the canonical value written to users.primary_language
+ * and compared by the matcher, so translating it in place would write
+ * 'Néerlandais' into a column the matcher expects to hold 'Dutch'.
+ *
+ * Falls back to the value itself, which is what custom languages a mom typed
+ * herself should do.
+ */
+export function languageLabel(value: string, t: (k: string) => string): string {
+  const key = `lang.${value}`;
+  const out = t(key);
+  return out === key ? value : out;
+}

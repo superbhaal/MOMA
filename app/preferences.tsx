@@ -21,7 +21,7 @@ import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
 import { scaled } from '@/constants/scale';
-import { LANGUAGE_OPTIONS, PROFILE_COLOUR_SWATCHES } from '@/constants/onboarding';
+import { LANGUAGE_OPTIONS, PROFILE_COLOUR_SWATCHES, languageLabel } from '@/constants/onboarding';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useAuth } from '@/hooks/useAuth';
 import { lifeStageFromDob } from '@/lib/lifeStage';
@@ -173,7 +173,7 @@ export default function PreferencesScreen() {
             {allLanguages.map((l) => (
               <Choice
                 key={l.label}
-                label={l.flag ? `${l.flag}  ${l.label}` : l.label}
+                label={l.flag ? `${l.flag}  ${languageLabel(l.label, t)}` : languageLabel(l.label, t)}
                 active={languages.includes(l.label)}
                 onPress={() => toggleLanguage(l.label)}
               />

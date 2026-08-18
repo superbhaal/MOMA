@@ -172,11 +172,11 @@ export default function ProfileScreen() {
     // the welcome / login-signup screen.
     Alert.alert(
       'Start over?',
-      'This clears everything you entered and takes you back to sign in.',
+      t('misc.discardBodyP'),
       [
-        { text: 'Keep editing', style: 'cancel' },
+        { text: t('misc.keepEditing'), style: 'cancel' },
         {
-          text: 'Discard',
+          text: t('misc.discard'),
           style: 'destructive',
           onPress: async () => {
             await signOut();
@@ -288,7 +288,7 @@ export default function ProfileScreen() {
               style={styles.input}
               value={displayName}
               onChangeText={setDisplayName}
-              placeholder="Sofia"
+              placeholder={t('edit.pFirstName')}
               placeholderTextColor={colors.muted}
               textContentType="givenName"
               autoComplete="name-given"
@@ -351,7 +351,7 @@ export default function ProfileScreen() {
               }}
               onSubmitEditing={verifyAddress}
               returnKeyType="search"
-              placeholder="e.g. Rue de Rivoli, Paris"
+              placeholder={t('misc.addressPlaceholder')}
               placeholderTextColor={colors.muted}
               textContentType="fullStreetAddress"
               autoCapitalize="words"

@@ -32,7 +32,7 @@ export default function PrivacyScreen() {
     try {
       await Share.share({
         message: JSON.stringify(payload, null, 2),
-        title: 'My møma data',
+        title: t('misc.myMomaData'),
       });
     } catch {
       // dismissed
@@ -44,9 +44,9 @@ export default function PrivacyScreen() {
       t('set.deleteTitle'),
       t('set.deleteBody'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('misc.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('misc.delete'),
           style: 'destructive',
           onPress: async () => {
             setBusy(true);

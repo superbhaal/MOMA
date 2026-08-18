@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
@@ -13,6 +14,7 @@ interface PlaceCardProps {
 /** Shared-place message: static Google map thumbnail + name / address / rating.
  *  Tapping opens the place in Google Maps. */
 export function PlaceCard({ place }: PlaceCardProps) {
+  const { t } = useTranslation();
   const mapUri = staticMapUri(place);
   const [mapFailed, setMapFailed] = useState(false);
 
@@ -57,7 +59,7 @@ export function PlaceCard({ place }: PlaceCardProps) {
           </Typography>
         ) : null}
         <Typography variant="labelS" color={colors.cobalt} style={{ marginTop: spacing.sm }}>
-          OPEN IN MAPS
+              {t('misc.openInMaps')}
         </Typography>
       </View>
     </Pressable>

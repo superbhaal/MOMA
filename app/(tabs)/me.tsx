@@ -40,11 +40,13 @@ function pauseOptions(t: TFunction) {
   ];
 }
 
-const SAVED_META: Record<SavedDocType, { label: string; bg: string; fg: string; noun: string }> = {
-  read_article: { label: 'Read', bg: '#D8E8C8', fg: '#2a5a1a', noun: 'article' },
-  watch_reel: { label: 'Watch', bg: '#e0f8fa', fg: '#007a88', noun: 'reel' },
-  recommendation: { label: 'Recco', bg: '#fce8f4', fg: '#b0246e', noun: 'recommendation' },
-};
+function savedMeta(t: TFunction): Record<SavedDocType, { label: string; bg: string; fg: string; noun: string }> {
+  return {
+  read_article: { label: t('misc.read'), bg: '#D8E8C8', fg: '#2a5a1a', noun: 'article' },
+  watch_reel: { label: t('misc.watchLabel'), bg: '#e0f8fa', fg: '#007a88', noun: 'reel' },
+  recommendation: { label: t('misc.recco'), bg: '#fce8f4', fg: '#b0246e', noun: 'recommendation' },
+  };
+}
 
 export default function MeScreen() {
   const { t } = useTranslation();
@@ -258,8 +260,7 @@ export default function MeScreen() {
               {t('me.readyToBring')}
             </Typography>
             <Typography style={styles.broughtAskNote} color={colors.mutedStrong}>
-              A recipe, a book, a find, something to listen to, or one thing you learned the hard
-              way. Just the one — whatever you’d actually pass along.
+              {t('me.bringBlurb')}
             </Typography>
             <Pressable onPress={() => router.push('/brought/new')} hitSlop={8}>
               <Typography style={styles.broughtBtn} color={colors.cobalt}>
@@ -296,7 +297,7 @@ export default function MeScreen() {
           </View>
         ) : (
           tips.map((tip, i) => {
-            const meta = SAVED_META[tip.doc_type];
+            const meta = savedMeta(t)[tip.doc_type];
             return (
               <View key={tip.id} style={[styles.savedRow, i === tips.length - 1 && styles.savedRowLast]}>
                 <View style={[styles.savedCat, { backgroundColor: meta.bg }]}>
@@ -502,9 +503,7 @@ export default function MeScreen() {
         title={`Leave ${leaveTarget?.name ?? 'this group'}?`}
       >
         <Typography style={styles.sheetSub}>
-          Your whole conversation with them goes too — messages, photos, the places
-          you shared. It can&rsquo;t be brought back, and you&rsquo;d need a new match to
-          be in a group with them again.
+          {t('me.leaveConfirmBlurb')}
         </Typography>
         <Pressable
           style={styles.sheetItem}

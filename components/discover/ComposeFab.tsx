@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
@@ -29,8 +30,9 @@ export function ComposeFab({
   // way up the last card and read as floating loose over the feed.
   bottom = 20,
   onPress,
-  accessibilityLabel = 'Share a recommendation',
+  accessibilityLabel,
 }: ComposeFabProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { canPost } = useDiscoverRole();
 
@@ -41,7 +43,7 @@ export function ComposeFab({
       style={({ pressed }) => [styles.fab, { bottom }, pressed && styles.fabPressed]}
       onPress={onPress ?? (() => router.push('/discover/place/new'))}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
+      accessibilityLabel={accessibilityLabel ?? t('misc.shareRecommendation')}
     >
       <Ionicons name="add" size={24} color={colors.white} />
     </Pressable>

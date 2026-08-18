@@ -90,17 +90,17 @@ export default function LovedSpotDetail() {
   function confirmDelete() {
     if (!spot) return;
     Alert.alert(
-      'Remove your recommendation?',
-      'It comes off the map. If other moms have recommended this place too, theirs stay.',
+      t('misc.removeTitle'),
+      t('misc.removeBody'),
       [
-        { text: 'Keep it', style: 'cancel' },
+        { text: t('misc.keepIt'), style: 'cancel' },
         {
-          text: 'Remove',
+          text: t('misc.remove'),
           style: 'destructive',
           onPress: async () => {
             const { error: err } = await remove(mine!.spot_id);
             if (err) {
-              Alert.alert("Couldn't remove it", err);
+              Alert.alert(t('misc.couldntRemove'), err);
               return;
             }
             // The place survives if others recommended it too — but this route
@@ -207,7 +207,7 @@ export default function LovedSpotDetail() {
             onPress={back}
             hitSlop={8}
             accessibilityRole="button"
-            accessibilityLabel="Back"
+            accessibilityLabel={t('misc.back')}
           >
             <Ionicons name="chevron-back" size={24} color={colors.white} />
           </Pressable>
@@ -353,7 +353,7 @@ export default function LovedSpotDetail() {
                 <ActivityIndicator size="small" color={colors.cherry} />
               ) : (
                 <Typography style={styles.deleteText} color={colors.cherry}>
-                  Remove my recommendation
+                  {t('misc.removeMyRec')}
                 </Typography>
               )}
             </Pressable>

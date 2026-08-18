@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
@@ -124,6 +125,7 @@ function SectionHeading({ label }: { label: string }) {
 }
 
 function GroupRow({ group, onPress }: { group: GroupWithDetails; onPress: () => void }) {
+  const { t } = useTranslation();
   const senderName = group.last_message
     ? group.members.find((m) => m.user_id === group.last_message!.sender_id)?.user.display_name
     : undefined;
@@ -157,13 +159,13 @@ function GroupRow({ group, onPress }: { group: GroupWithDetails; onPress: () => 
               {group.last_message.content}
             </>
           ) : (
-            'it’s quiet — say hi.'
+            t('chats.quietSayHi')
           )}
         </Typography>
       </View>
       <View style={styles.rowEnd}>
         <Typography style={styles.rowTime} color={colors.muted}>
-          {timeLabel(group.last_message?.created_at ?? group.last_active_at)}
+          {timeLabel(group.last_message?.created_at ?? group.last_active_at, t)}
         </Typography>
         {group.unread_count > 0 ? <View style={styles.unreadDot} /> : null}
       </View>
@@ -172,6 +174,7 @@ function GroupRow({ group, onPress }: { group: GroupWithDetails; onPress: () => 
 }
 
 function DmRow({ dm, onPress }: { dm: DmThreadItem; onPress: () => void }) {
+  const { t } = useTranslation();
   return (
     <Pressable style={({ pressed }) => [styles.row, pressed && styles.pressed]} onPress={onPress}>
       <View style={styles.avatarStack}>
@@ -193,14 +196,14 @@ function DmRow({ dm, onPress }: { dm: DmThreadItem; onPress: () => void }) {
         ) : null}
       </View>
       <Typography style={styles.rowTime} color={colors.muted}>
-        {timeLabel(dm.last_message?.created_at ?? null)}
+        {timeLabel(dm.last_message?.created_at ?? null, t)}
       </Typography>
     </Pressable>
   );
 }
 
 /** Compact v11 timestamp: 8:52 (today) · YESTERDAY · 2D · 3W. */
-function timeLabel(iso: string | null | undefined): string {
+function timeLabel(iso: string | null | undefined, t: TFunction): string {
   if (!iso) return '';
   const d = new Date(iso);
   const mins = (Date.now() - d.getTime()) / 60000;
@@ -210,7 +213,7 @@ function timeLabel(iso: string | null | undefined): string {
     return formatTime(d);
   }
   const days = Math.floor(mins / (60 * 24));
-  if (days <= 1) return 'YESTERDAY';
+  if (days <= 1) return t('misc.yesterdayCaps');
   if (days < 7) return `${days}D`;
   return `${Math.floor(days / 7)}W`;
 }

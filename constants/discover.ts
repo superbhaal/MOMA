@@ -97,7 +97,7 @@ export const STAGE_CHIP_GROUPS: { group: string; rows: { value: string; label: s
   // filter and vice versa. Its own group keeps that legible.
   {
     group: 'For you',
-    rows: [{ value: 'wellness', label: 'Wellness' }],
+    rows: [{ value: 'wellness', label: 'Wellness' }], // display goes through t('dis.wellness')
   },
 ];
 

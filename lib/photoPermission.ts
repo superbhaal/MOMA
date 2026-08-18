@@ -1,3 +1,4 @@
+import i18n from '@/lib/i18n';
 import { Alert, Linking } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -19,11 +20,11 @@ export async function ensurePhotoPermission(): Promise<boolean> {
   // canAskAgain === false → the OS dialog will never appear again.
   if (!perm.canAskAgain) {
     Alert.alert(
-      'Photo access is off',
-      'møma needs access to your photos to set your picture. You can turn it on in Settings.',
+      i18n.t('misc.photoOffTitle'),
+      i18n.t('misc.photoOffBody'),
       [
-        { text: 'Not now', style: 'cancel' },
-        { text: 'Open Settings', onPress: () => Linking.openSettings().catch(() => {}) },
+        { text: i18n.t('misc.notNow'), style: 'cancel' },
+        { text: i18n.t('misc.openSettings'), onPress: () => Linking.openSettings().catch(() => {}) },
       ],
     );
   }

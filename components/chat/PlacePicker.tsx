@@ -118,7 +118,7 @@ export function PlacePicker({ visible, onClose, city, onPick }: PlacePickerProps
       {query.trim().length >= 2 && !searching && results.length === 0 ? (
         <View style={{ marginTop: spacing.md }}>
           <Typography variant="bodyM" color={colors.muted} style={{ marginBottom: spacing.sm }}>
-            No match found — share it by name anyway.
+            {t('misc.noMatchShare')}
           </Typography>
           <Button
             title={`Share "${query.trim()}"`}

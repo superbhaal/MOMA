@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
@@ -73,7 +74,7 @@ export function GroupCard({ group, onPress }: GroupCardProps) {
             style={[styles.countdown, past && styles.countdownPast]}
             color={past ? colors.mutedStrong : colors.cobalt}
           >
-            {past ? t('grp.pickingNext') : countdownLabel(meetup.scheduled_at).toUpperCase()}
+            {past ? t('grp.pickingNext') : countdownLabel(meetup.scheduled_at, t).toUpperCase()}
           </Typography>
         </View>
       ) : null}
@@ -123,12 +124,12 @@ export function GroupCard({ group, onPress }: GroupCardProps) {
 const formatWhen = formatShortWhen;
 
 // Only ever called for a meetup still ahead — `isPastMeetup` handles the rest.
-function countdownLabel(iso: string): string {
+function countdownLabel(iso: string, t: TFunction): string {
   const ms = new Date(iso).getTime() - Date.now();
   const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
-  if (days <= 0) return 'Today';
-  if (days === 1) return 'Tomorrow';
-  return `In ${days} days`;
+  if (days <= 0) return t('misc.today');
+  if (days === 1) return t('misc.tomorrow');
+  return t('grp.inDays', { count: days });
 }
 
 const styles = StyleSheet.create({

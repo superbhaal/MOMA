@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { spacing, radius } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
-import { LANGUAGE_OPTIONS } from '@/constants/onboarding';
+import { LANGUAGE_OPTIONS, languageLabel } from '@/constants/onboarding';
 import { scaled } from '@/constants/scale';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
@@ -143,7 +143,7 @@ export default function Q3LanguagesScreen() {
                 style={[styles.pill, active && styles.pillSel]}
               >
                 <Typography style={[styles.pillText, active && styles.pillTextSel]}>
-                  {label}
+                  {languageLabel(label, t)}
                 </Typography>
               </Pressable>
             );
@@ -186,7 +186,7 @@ export default function Q3LanguagesScreen() {
                     disabled && styles.pillTextDisabled,
                   ]}
                 >
-                  {label}
+                  {languageLabel(label, t)}
                 </Typography>
               </Pressable>
             );
