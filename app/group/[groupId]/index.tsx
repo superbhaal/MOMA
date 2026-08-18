@@ -88,7 +88,7 @@ export default function GroupDetailScreen() {
                 grid most people filled in a fortnight ago. */}
             <View style={styles.membersHead}>
               <Typography style={styles.membersLabel} color={colors.cobalt}>
-                MEMBERS
+                {t('grp.membersHeading')}
               </Typography>
               <View style={styles.membersRule} />
             </View>

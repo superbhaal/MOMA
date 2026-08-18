@@ -1,4 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { ActionSheet } from '@/components/ui/ActionSheet';
@@ -19,46 +21,54 @@ interface StageGroup {
   rows: StageOption[];
 }
 
-const ALL: StageOption = { value: 'all', label: 'All stages', sub: 'Everything in the feed' };
+// Built from `t`: these are labels, and a module constant would freeze the
+// language chosen at import.
+function allOption(t: TFunction): StageOption {
+  return { value: 'all', label: t('dis.allStages'), sub: t('dis.everything') };
+}
 
-const GROUPS: StageGroup[] = [
-  {
-    group: 'Pregnancy',
-    rows: [
-      { value: 'T1', label: '1st trimester', sub: 'Weeks 1–13' },
-      { value: 'T2', label: '2nd trimester', sub: 'Weeks 14–27' },
-      { value: 'T3', label: '3rd trimester', sub: 'Weeks 28–40' },
-    ],
-  },
-  {
-    group: 'Baby',
-    rows: [
-      { value: '0-4wks', label: 'Newborn', sub: '0–4 weeks' },
-      { value: '1-3mo', label: '1–3 months' },
-      { value: '3-6mo', label: '3–6 months' },
-      { value: '6-12mo', label: '6–12 months' },
-    ],
-  },
-  {
-    group: 'Toddler & kid',
-    rows: [
-      { value: '1-2yr', label: '1–2 years' },
-      { value: '2-3yr', label: '2–3 years' },
-      { value: '3+yr', label: '3+ years' },
-    ],
-  },
-  // The one entry on this axis that isn't an age. See the note on
-  // STAGE_CHIP_GROUPS in constants/discover.
-  {
-    group: 'For you',
-    rows: [{ value: 'wellness', label: 'Wellness for you', sub: 'Your body, your head, your rest' }],
-  },
-];
+function groups(t: TFunction): StageGroup[] {
+  return [
+    {
+      group: t('dis.pregnancy'),
+      rows: [
+        { value: 'T1', label: t('dis.t1'), sub: t('dis.t1sub') },
+        { value: 'T2', label: t('dis.t2'), sub: t('dis.t2sub') },
+        { value: 'T3', label: t('dis.t3'), sub: t('dis.t3sub') },
+      ],
+    },
+    {
+      group: t('dis.baby'),
+      rows: [
+        { value: '0-4wks', label: t('dis.newborn'), sub: t('dis.newbornSub') },
+        { value: '1-3mo', label: t('dis.m13') },
+        { value: '3-6mo', label: t('dis.m36') },
+        { value: '6-12mo', label: t('dis.m612') },
+      ],
+    },
+    {
+      group: t('dis.toddler'),
+      rows: [
+        { value: '1-2yr', label: t('dis.y12') },
+        { value: '2-3yr', label: t('dis.y23') },
+        { value: '3+yr', label: t('dis.y3') },
+      ],
+    },
+    // The one entry on this axis that isn't an age. See the note on
+    // STAGE_CHIP_GROUPS in constants/discover.
+    {
+      group: t('dis.forYou'),
+      rows: [{ value: 'wellness', label: t('dis.wellness'), sub: t('dis.wellnessSub') }],
+    },
+  ];
+}
 
-const LABEL_BY_VALUE: Record<string, string> = [ALL, ...GROUPS.flatMap((g) => g.rows)].reduce(
-  (acc, o) => ({ ...acc, [o.value]: o.label }),
-  {},
-);
+function labelByValue(t: TFunction): Record<string, string> {
+  return [allOption(t), ...groups(t).flatMap((g) => g.rows)].reduce(
+    (acc, o) => ({ ...acc, [o.value]: o.label }),
+    {},
+  );
+}
 
 interface StageFilterProps {
   value: string;
@@ -70,6 +80,7 @@ interface StageFilterProps {
 /** Funnel row + grouped picker sheet. Shows the current stage; tapping opens the
  *  sheet. Filters Learn & Watch to match (handoff §3). */
 export function StageFilter({ value, onChange, open, onOpenChange }: StageFilterProps) {
+  const { t } = useTranslation();
   return (
     <>
       <Pressable style={styles.row} onPress={() => onOpenChange(true)}>
@@ -78,19 +89,19 @@ export function StageFilter({ value, onChange, open, onOpenChange }: StageFilter
           STAGE
         </Typography>
         <Typography style={styles.rowValue} color={colors.text}>
-          {LABEL_BY_VALUE[value] ?? 'All stages'}
+          {labelByValue(t)[value] ?? t('dis.allStages')}
         </Typography>
         <View style={{ flex: 1 }} />
         <Ionicons name="chevron-down" size={16} color={colors.muted} />
       </Pressable>
 
-      <ActionSheet visible={open} onClose={() => onOpenChange(false)} title="Show me content for…">
+      <ActionSheet visible={open} onClose={() => onOpenChange(false)} title={t('dis.showMeFor')}>
         <Typography style={styles.sheetSub} color={colors.muted}>
-          We&rsquo;ll filter Learn and Watch to match.
+          {t('dis.filterNote')}
         </Typography>
         <ScrollView style={styles.sheetScroll} showsVerticalScrollIndicator={false}>
-          <Row option={ALL} active={value === ALL.value} onPress={() => pick(ALL.value)} />
-          {GROUPS.map((g) => (
+          <Row option={allOption(t)} active={value === allOption(t).value} onPress={() => pick(allOption(t).value)} />
+          {groups(t).map((g) => (
             <View key={g.group}>
               <Typography style={styles.groupLabel} color={colors.muted}>
                 {g.group.toUpperCase()}

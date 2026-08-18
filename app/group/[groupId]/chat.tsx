@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -28,6 +29,7 @@ import { hasUpcomingMeetup } from '@/lib/meetup';
 import type { Message, User } from '@/types';
 
 export default function GroupChatScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const insets = useSafeAreaInsets();
@@ -71,7 +73,7 @@ export default function GroupChatScreen() {
               {group?.name ?? ''}
             </Typography>
             <Typography style={styles.headerMeta} color={colors.muted}>
-              {members.length > 0 ? `${members.length} MEMBERS` : ''}
+              {members.length > 0 ? t('grp.members', { count: members.length }) : ''}
             </Typography>
           </View>
         </Pressable>
@@ -97,9 +99,7 @@ export default function GroupChatScreen() {
       ) : (
         <View style={styles.holding}>
           <Typography style={styles.holdingText} color={colors.mutedStrong}>
-            We&rsquo;re holding the chat for a moment. Once everyone shares their
-            availability, m&oslash;ma will drop a time and place into the chat. Feel
-            free to share a place you love in the meantime.
+            {t('grp.holding')}
           </Typography>
           {/* No availability link here any more. It's asked once, as a
               condition of joining, and then only when møma comes back to ask —
@@ -108,7 +108,7 @@ export default function GroupChatScreen() {
           <View style={styles.findingPill}>
             <View style={styles.findingDot} />
             <Typography style={styles.findingText} color={colors.mutedStrong}>
-              SETTING THE TABLE
+              {t('grp.settingTable')}
             </Typography>
           </View>
         </View>
@@ -179,7 +179,7 @@ export default function GroupChatScreen() {
           }}
         >
           <Typography variant="bodyL" color={colors.text}>
-            View profile
+            {t('grp.viewProfile')}
           </Typography>
         </Pressable>
       </ActionSheet>

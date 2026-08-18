@@ -1,4 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { textStyles } from '@/constants/typography';
@@ -6,11 +8,13 @@ import { radius, spacing } from '@/constants/spacing';
 
 export type DiscoverTab = 'learn' | 'watch' | 'explore';
 
-const TABS: { key: DiscoverTab; label: string }[] = [
-  { key: 'learn', label: 'Learn' },
-  { key: 'watch', label: 'Watch' },
-  { key: 'explore', label: 'Explore' },
-];
+function subTabs(t: TFunction) {
+  return [
+    { key: 'learn' as const, label: t('dis.tabLearn') },
+    { key: 'watch' as const, label: t('dis.tabWatch') },
+    { key: 'explore' as const, label: t('dis.tabExplore') },
+  ];
+}
 
 interface DiscoverSubTabsProps {
   active: DiscoverTab;
@@ -23,9 +27,10 @@ interface DiscoverSubTabsProps {
  * (own map lifecycle), handled by the caller.
  */
 export function DiscoverSubTabs({ active, onChange }: DiscoverSubTabsProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.row} accessibilityRole="tablist">
-      {TABS.map((t) => {
+      {subTabs(t).map((t) => {
         const on = t.key === active;
         return (
           <Pressable

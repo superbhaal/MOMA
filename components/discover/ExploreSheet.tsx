@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Animated,
   PanResponder,
@@ -15,9 +16,6 @@ import { colors } from '@/constants/colors';
 import { fonts, textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import type { LovedKind, LovedPlace } from '@/types';
-
-const DISCLAIMER =
-  'These are personal recommendations from other moms. Always do your own due diligence for healthcare decisions.';
 
 const COLLAPSED_DEFAULT = 244;
 const EXPANDED_DEFAULT = 560;
@@ -71,6 +69,7 @@ export function ExploreSheet({
   collapsedHeight = COLLAPSED_DEFAULT,
   expandedHeight = EXPANDED_DEFAULT,
 }: ExploreSheetProps) {
+  const { t } = useTranslation();
   const height = useRef(new Animated.Value(collapsedHeight)).current;
   // Mirrors `height` for the gesture maths — an Animated.Value can't be read
   // synchronously mid-drag.
@@ -166,7 +165,7 @@ export function ExploreSheet({
 
   const count = spots.length;
   const countLabel =
-    mode === 'place' ? 'places loved nearby' : 'people moms trust nearby';
+    mode === 'place' ? t('dis.placesNearby') : t('dis.peopleNearby');
   const isPeople = mode === 'person';
 
   return (
@@ -181,7 +180,7 @@ export function ExploreSheet({
           onPress={onToggle}
           style={styles.handleHit}
           accessibilityRole="button"
-          accessibilityLabel={expanded ? 'Collapse list' : 'Expand list'}
+          accessibilityLabel={expanded ? t('dis.collapseList') : t('dis.expandList')}
           accessibilityHint="Drag up for the full list, down for the map"
           accessibilityState={{ expanded }}
         >
@@ -212,7 +211,7 @@ export function ExploreSheet({
             </Typography>
             <Pressable onPress={onRetry} style={styles.retryBtn} accessibilityRole="button">
               <Typography style={styles.retryText} color={colors.cobalt}>
-                Try again
+                {t('dis.tryAgain')}
               </Typography>
             </Pressable>
           </View>
@@ -220,11 +219,11 @@ export function ExploreSheet({
           // Nothing in THIS category, but other categories may have spots.
           <View style={styles.state}>
             <Typography variant="bodyL" color={colors.muted} style={styles.stateText}>
-              Nothing in this category yet.
+              {t('dis.nothingCategory')}
             </Typography>
             <Pressable onPress={onClearFilters} style={styles.retryBtn} accessibilityRole="button">
               <Typography style={styles.retryText} color={colors.cobalt}>
-                Clear filters
+                {t('dis.clearFilters')}
               </Typography>
             </Pressable>
           </View>
@@ -232,7 +231,7 @@ export function ExploreSheet({
           // Truly empty. Contributors are invited to seed it; readers are not.
           <View style={styles.state}>
             <Typography variant="bodyL" color={colors.muted} style={styles.stateText}>
-              No one has added anything here yet.
+              {t('dis.noOneYet')}
             </Typography>
             {canPost ? (
               <Pressable onPress={onCompose} style={styles.retryBtn} accessibilityRole="button">
@@ -260,7 +259,7 @@ export function ExploreSheet({
             style={[styles.disclaimerText, isPeople && styles.disclaimerTextPeople]}
             color={isPeople ? colors.soleilInkSm : colors.muted}
           >
-            {DISCLAIMER}
+            {t('dis.disclaimer')}
           </Typography>
         </View>
       </ScrollView>

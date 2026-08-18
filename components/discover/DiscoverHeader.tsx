@@ -1,4 +1,5 @@
 import { StyleSheet, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
 import { Illustration, type IllustrationName } from '@/components/ui/Illustration';
@@ -34,15 +35,16 @@ interface DiscoverHeaderProps {
  * lines of copy change now.
  */
 export function DiscoverHeader({
-  title = 'How to build a human',
+  title,
   subtitle,
-  searchPlaceholder = 'Search…',
+  searchPlaceholder,
   searchValue,
   onSearchChange,
   topInset = 0,
   titleRight,
   illustration,
 }: DiscoverHeaderProps) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.band, { paddingTop: topInset + 26 }]}>
       <View style={styles.titleRow}>
@@ -52,7 +54,7 @@ export function DiscoverHeader({
           style={[styles.title, illustration && styles.titleInset]}
           color={colors.cobalt}
         >
-          {title}
+          {title ?? t('dis.masthead')}
         </Typography>
         {/* Both live in the right margin, and the badge carries meaning where
             the drawing is decoration — so the badge wins when they collide. */}
@@ -70,7 +72,7 @@ export function DiscoverHeader({
         <Ionicons name="search" size={15} color={colors.muted} />
         <TextInput
           style={styles.searchInput}
-          placeholder={searchPlaceholder}
+          placeholder={searchPlaceholder ?? t('dis.searchDefault')}
           placeholderTextColor={colors.muted}
           value={searchValue}
           onChangeText={onSearchChange}

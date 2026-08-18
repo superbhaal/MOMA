@@ -61,7 +61,7 @@ export function ChatInput({
           <Pressable onPress={onSharePlace} style={styles.placeChip}>
             <Ionicons name="location-outline" size={13} color={colors.cobalt} />
             <Typography style={styles.placeChipText} color={colors.cobalt}>
-              SHARE A PLACE YOU LOVE
+              {t('grp.sharePlaceCta')}
             </Typography>
           </Pressable>
         </View>

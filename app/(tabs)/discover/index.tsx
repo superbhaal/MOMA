@@ -1,4 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,14 +25,12 @@ import type { LearnArticle, LearnReel } from '@/types';
 // Learn → editorial articles; Watch → vetted reels. The old "Recco" format is
 // gone — peer recommendations now live on the Explore map (own route).
 type FeedTab = Exclude<DiscoverTab, 'explore'>;
-const SUBTITLE: Record<FeedTab, string> = {
-  learn: 'Evidence-based, peer-reviewed',
-  watch: 'Reels & videos moms are sharing',
-};
-const SECTION_LABEL: Record<FeedTab, string> = {
-  learn: 'From the møma team',
-  watch: 'From the community',
-};
+function subtitles(t: TFunction): Record<FeedTab, string> {
+  return { learn: t('dis.subLearn'), watch: t('dis.subWatch') };
+}
+function sectionLabels(t: TFunction): Record<FeedTab, string> {
+  return { learn: t('dis.secLearn'), watch: t('dis.secWatch') };
+}
 // Each sub-tab carries its own drawing in the masthead.
 const ILLO: Record<FeedTab, IllustrationName> = {
   learn: 'picnic',
@@ -38,6 +38,7 @@ const ILLO: Record<FeedTab, IllustrationName> = {
 };
 
 export default function DiscoverIndex() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   // Shared with Explore, which is a sibling route: coming back from the map on
@@ -107,11 +108,11 @@ export default function DiscoverIndex() {
         ListHeaderComponent={
           <View>
             <DiscoverHeader
-              subtitle={SUBTITLE[tab]}
+              subtitle={subtitles(t)[tab]}
               topInset={insets.top}
               illustration={ILLO[tab]}
               searchPlaceholder={
-                tab === 'learn' ? 'Search articles…' : 'Search reels…'
+                tab === 'learn' ? t('dis.searchArticles') : t('dis.searchReels')
               }
               searchValue={query}
               onSearchChange={setQuery}
@@ -126,7 +127,7 @@ export default function DiscoverIndex() {
             <Typography style={styles.sectionLabel} color={colors.cobalt}>
               {query.trim()
                 ? `${results.length} ${results.length === 1 ? 'RESULT' : 'RESULTS'}`
-                : SECTION_LABEL[tab].toUpperCase()}
+                : sectionLabels(t)[tab].toUpperCase()}
             </Typography>
             {error ? (
               <Typography variant="bodyL" color={colors.cherry} style={styles.error}>
@@ -158,17 +159,17 @@ export default function DiscoverIndex() {
             <View style={styles.empty}>
               <Typography variant="bodyL" color={colors.muted} style={styles.emptyText}>
                 Nothing matches &ldquo;{query.trim()}&rdquo;
-                {stage !== 'all' ? ' in this stage' : ''}.
+                {stage !== 'all' ? t('dis.inThisStage') : ''}.
               </Typography>
               <Pressable onPress={() => setQuery('')} hitSlop={10}>
                 <Typography style={styles.clearLink} color={colors.cobalt}>
-                  Clear search
+                  {t('dis.clearSearch')}
                 </Typography>
               </Pressable>
             </View>
           ) : (
             <Typography variant="bodyL" color={colors.muted} style={styles.emptyText}>
-              nothing here yet — content lands as we publish it.
+              {t('dis.emptyFeed')}
             </Typography>
           )
         }
