@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fetchLearnDoc, fetchLearnFeed, type LearnFeedFilters } from '@/lib/sanity';
 import { fetchCommunityReels } from '@/lib/communityReels';
 import type { LearnDoc } from '@/types';
@@ -12,11 +13,17 @@ import type { LearnDoc } from '@/types';
  * feed has a community half; Read is editorial by definition.
  */
 export function useLearn(filters: LearnFeedFilters = {}) {
+  // The reading language is part of the query, not a caller's concern: every
+  // screen that lists Learn content wants it in the language she reads.
+  const { i18n } = useTranslation();
+  const lang = i18n.language?.split('-')[0] ?? 'en';
   const [docs, setDocs] = useState<LearnDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const key = `${filters.format ?? ''}|${filters.babyStage ?? ''}`;
+  // `lang` joins the key so switching language refetches instead of showing
+  // the previous language's cached feed.
+  const key = `${filters.format ?? ''}|${filters.babyStage ?? ''}|${lang}`;
   const wantsReels = filters.format === undefined || filters.format === 'learnReel';
 
   const refresh = useCallback(async () => {
@@ -26,7 +33,7 @@ export function useLearn(filters: LearnFeedFilters = {}) {
       // Settled, not all: Sanity being unreachable shouldn't blank the reels a
       // mom posted, and vice versa. A half-feed beats an error screen.
       const [editorial, community] = await Promise.allSettled([
-        fetchLearnFeed(filters),
+        fetchLearnFeed({ ...filters, lang }),
         wantsReels ? fetchCommunityReels(filters.babyStage) : Promise.resolve([]),
       ]);
 

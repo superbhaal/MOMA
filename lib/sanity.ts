@@ -33,8 +33,12 @@ export async function sanityFetch<T>(
 // Learn feed — discriminated union of three doc types
 // ──────────────────────────────────────────────────────────────
 
+// coalesce(language,"en") rather than language == $lang: documents seeded
+// before the field existed carry no language at all, and they are English.
+// Without the coalesce they would vanish from every feed, including English.
 const LEARN_FEED_QUERY = `
   *[_type in ["learnArticle","learnReel","learnRecommendation"]
+    && coalesce(language, "en") == $lang
     && (!defined($babyStage) || babyStage == $babyStage)
     && (!defined($format) || _type == $format)]
   | order(publishedAt desc)
@@ -44,6 +48,8 @@ const LEARN_FEED_QUERY = `
 export interface LearnFeedFilters {
   babyStage?: string; // T1 | T2 | ... | 3+yr
   format?: 'learnArticle' | 'learnReel' | 'learnRecommendation';
+  /** Reading language. Defaults to English so a caller that forgets still works. */
+  lang?: string;
 }
 
 export function fetchLearnFeed(filters: LearnFeedFilters = {}): Promise<LearnDoc[]> {
@@ -52,6 +58,7 @@ export function fetchLearnFeed(filters: LearnFeedFilters = {}): Promise<LearnDoc
   return sanityFetch<LearnDoc[]>(LEARN_FEED_QUERY, {
     babyStage: filters.babyStage ?? null,
     format: filters.format ?? null,
+    lang: filters.lang ?? 'en',
   });
 }
 

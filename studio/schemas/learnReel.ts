@@ -8,6 +8,22 @@ export const learnReel = defineType({
   title: 'Watch · Reel',
   type: 'document',
   fields: [
+    defineField({
+      name: 'language',
+      title: 'Language',
+      type: 'string',
+      description: 'Which language this document is written in. English is the source; fr/es are translations of it.',
+      options: { list: [{ title: 'English', value: 'en' }, { title: 'Français', value: 'fr' }, { title: 'Español', value: 'es' }] },
+      initialValue: 'en',
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: 'translationOf',
+      title: 'Translation of',
+      type: 'string',
+      description: 'The _id of the English original. Empty on the English document itself.',
+      hidden: ({ document }) => document?.language === 'en',
+    }),
     defineField({ name: 'title', type: 'string', validation: (r) => r.required() }),
     defineField({
       name: 'platform',

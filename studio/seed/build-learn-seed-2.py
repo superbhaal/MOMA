@@ -186,12 +186,14 @@ for i, a in enumerate(ARTICLES):
     d["_type"] = "learnArticle"
     d["body"] = body(a["paragraphs"])
     d["publishedAt"] = f"2026-08-{14 - i:02d}T09:00:00Z"
+    d["language"] = "en"
     docs.append(d)
 
 for i, r in enumerate(REELS):
     d = dict(r)
     d["_type"] = "learnReel"
     d["publishedAt"] = f"2026-08-{13 - i:02d}T09:00:00Z"
+    d["language"] = "en"
     docs.append(d)
 
 out = pathlib.Path(__file__).parent / "learn-seed-2.ndjson"
