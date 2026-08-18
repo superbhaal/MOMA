@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "org.joinmoma.moma",
-      "buildNumber": "21",
+      "buildNumber": "22",
       "usesAppleSignIn": true,
       "associatedDomains": [
         "applinks:joinmoma.org"
@@ -81,7 +81,8 @@
           "calendarPermission": "møma adds your group meetups to your calendar so you don't miss them."
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

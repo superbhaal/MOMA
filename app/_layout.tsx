@@ -5,6 +5,7 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
+import { applyProfileLanguage, initI18n } from '@/lib/i18n';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
@@ -37,6 +38,13 @@ export default function RootLayout() {
 
   // Warm the drawings alongside the fonts, so a screen never renders its text
   // first and its illustration a beat later.
+  // Translations are part of the boot gate, not an afterthought: a screen that
+  // renders before i18n is ready shows raw keys for a frame.
+  const [i18nReady, setI18nReady] = useState(false);
+  useEffect(() => {
+    initI18n().finally(() => setI18nReady(true));
+  }, []);
+
   const [illosLoaded, setIllosLoaded] = useState(false);
   useEffect(() => {
     // Capped: a drawing still renders on demand, so a slow dev server must
@@ -95,15 +103,22 @@ export default function RootLayout() {
     if (!authLoading && fontsLoaded) setBootDone(true);
   }, [authLoading, fontsLoaded]);
 
+  // Step 2 of the language chain, once the profile lands. It backs off if she
+  // has already chosen on this device, so this can fire freely on every load.
+  useEffect(() => {
+    if (!i18nReady || !user) return;
+    applyProfileLanguage(user);
+  }, [i18nReady, user?.locale, user?.primary_language]);
+
   useEffect(() => {
     if (fontError) throw fontError;
   }, [fontError]);
 
   useEffect(() => {
-    if (fontsLoaded && illosLoaded && !authLoading) {
+    if (fontsLoaded && illosLoaded && i18nReady && !authLoading) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, illosLoaded, authLoading]);
+  }, [fontsLoaded, illosLoaded, i18nReady, authLoading]);
 
   useEffect(() => {
     if (!fontsLoaded || authLoading) return;
@@ -182,6 +197,7 @@ export default function RootLayout() {
         <Stack.Screen name="profile/edit" options={{ presentation: 'modal' }} />
         <Stack.Screen name="brought/new" options={{ presentation: 'modal' }} />
         <Stack.Screen name="brought/[userId]" />
+        <Stack.Screen name="settings/language" />
         <Stack.Screen name="settings/notifications" />
         <Stack.Screen name="settings/privacy" />
         <Stack.Screen name="settings/help" />

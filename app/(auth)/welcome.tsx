@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
@@ -9,6 +10,7 @@ import { scaled } from '@/constants/scale';
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
@@ -17,18 +19,18 @@ export default function WelcomeScreen() {
           møma
         </Typography>
         <Typography color={colors.muted} style={styles.tagline}>
-          EVERYONE BRINGS SOMETHING TO THE TABLE.
+          {t('welcome.tagline')}
         </Typography>
       </View>
 
       <View style={styles.actions}>
         <Button
-          title="create an account"
+          title={t('welcome.createAccount')}
           size="lg"
           onPress={() => router.push('/(auth)/signup')}
         />
         <Button
-          title="i already have an account"
+          title={t('welcome.haveAccount')}
           variant="secondary"
           size="lg"
           onPress={() => router.push('/(auth)/login')}

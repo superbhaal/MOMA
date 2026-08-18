@@ -1,0 +1,24 @@
+{
+  "welcome": {
+    "tagline": "CHACUNE APPORTE QUELQUE CHOSE À LA TABLE.",
+    "createAccount": "créer un compte",
+    "haveAccount": "j'ai déjà un compte"
+  },
+  "settings": {
+    "section": "Réglages",
+    "language": "Langue",
+    "languageTitle": "Langue",
+    "languageHint": "S'applique immédiatement, partout dans l'app.",
+    "systemDefault": "Suivre mon téléphone",
+    "systemDefaultHint": "Actuellement : {{name}}.",
+    "en": "English",
+    "fr": "Français",
+    "es": "Español"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "done": "Terminé",
+    "back": "Retour"
+  }
+}

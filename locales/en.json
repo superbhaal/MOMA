@@ -1,0 +1,24 @@
+{
+  "welcome": {
+    "tagline": "EVERYONE BRINGS SOMETHING TO THE TABLE.",
+    "createAccount": "create an account",
+    "haveAccount": "i already have an account"
+  },
+  "settings": {
+    "section": "Settings",
+    "language": "Language",
+    "languageTitle": "Language",
+    "languageHint": "Applies straight away, everywhere in the app.",
+    "systemDefault": "Match my phone",
+    "systemDefaultHint": "Right now that's {{name}}.",
+    "en": "English",
+    "fr": "Français",
+    "es": "Español"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "done": "Done",
+    "back": "Back"
+  }
+}

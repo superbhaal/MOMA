@@ -1,0 +1,24 @@
+{
+  "welcome": {
+    "tagline": "CADA UNA TRAE ALGO A LA MESA.",
+    "createAccount": "crear una cuenta",
+    "haveAccount": "ya tengo una cuenta"
+  },
+  "settings": {
+    "section": "Ajustes",
+    "language": "Idioma",
+    "languageTitle": "Idioma",
+    "languageHint": "Se aplica de inmediato, en toda la app.",
+    "systemDefault": "Seguir mi teléfono",
+    "systemDefaultHint": "Ahora mismo: {{name}}.",
+    "en": "English",
+    "fr": "Français",
+    "es": "Español"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "done": "Listo",
+    "back": "Atrás"
+  }
+}

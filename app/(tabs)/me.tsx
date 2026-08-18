@@ -385,6 +385,13 @@ export default function MeScreen() {
       <MeSectionLabel label="Settings" />
       <MeCard>
         <MeRow
+          icon="language-outline"
+          iconTint={colors.lavender}
+          iconBg="rgba(152,120,200,0.14)"
+          label="Language"
+          onPress={() => router.push('/settings/language')}
+        />
+        <MeRow
           icon="notifications-outline"
           iconTint={colors.cobalt}
           iconBg="#eef2ff"

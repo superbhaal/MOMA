@@ -121,6 +121,12 @@ export interface User {
   is_first_baby: boolean | null;
   primary_language: string | null;
   secondary_languages: string[] | null;
+  /**
+   * UI language as an ISO code. Distinct from primary_language, which is the
+   * language she SPEAKS and is used for matching. Null = never chosen
+   * explicitly, so the client resolves it from the OS instead.
+   */
+  locale: 'en' | 'fr' | 'es' | null;
 
   pref_age_window_weeks: number;
   pref_distance_minutes: number;
