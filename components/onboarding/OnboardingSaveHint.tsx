@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { scaled } from '@/constants/scale';
@@ -9,11 +10,12 @@ import { scaled } from '@/constants/scale';
  * button's lower padding — mirrors .ob-save-hint in the standalone.
  */
 export function OnboardingSaveHint() {
+  const { t } = useTranslation();
   return (
     <View style={styles.wrap} pointerEvents="none">
       <View style={styles.dot} />
       <Typography style={styles.text}>
-        Auto-saved · close anytime, you&rsquo;ll pick up where you left off
+        {t('ob.autoSaved')}
       </Typography>
     </View>
   );

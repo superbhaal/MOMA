@@ -48,8 +48,16 @@ export function DiscoverHeader({
   return (
     <View style={[styles.band, { paddingTop: topInset + 26 }]}>
       <View style={styles.titleRow}>
-        {/* The drawing sits outside the title box, so the title keeps its
-            centred two-line break instead of flowing around it. */}
+        {/* The drawing renders BEFORE the title, so the words paint over it.
+            It used to come after, which was invisible in English — 'How to
+            build a human' fits inside the inset — and broke in every other
+            language: 'Comment fabriquer un humain' and 'Cómo se construye un
+            humano' are longer, run under the absolutely-positioned drawing,
+            and the drawing is a JPEG, so its opaque white corner cropped the
+            word. Both testers reported it on the same build. */}
+        {illustration && !titleRight ? (
+          <Illustration name={illustration} size="lg" style={styles.illo} />
+        ) : null}
         <Typography
           style={[styles.title, illustration && styles.titleInset]}
           color={colors.cobalt}
@@ -58,9 +66,6 @@ export function DiscoverHeader({
         </Typography>
         {/* Both live in the right margin, and the badge carries meaning where
             the drawing is decoration — so the badge wins when they collide. */}
-        {illustration && !titleRight ? (
-          <Illustration name={illustration} size="lg" style={styles.illo} />
-        ) : null}
         {titleRight ? <View style={styles.titleRight}>{titleRight}</View> : null}
       </View>
 
@@ -94,6 +99,9 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   title: {
+    // Explicit, so re-ordering the JSX can't silently put the drawing back on
+    // top of the words.
+    zIndex: 1,
     fontFamily: fonts.serifItal,
     fontSize: scaled(34),
     lineHeight: scaled(40),

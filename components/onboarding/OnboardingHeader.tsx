@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
@@ -22,17 +23,18 @@ interface OnboardingHeaderProps {
  * Ref: design/moma-v11.html · #screen-onboard (Refined skin).
  */
 export function OnboardingHeader({ current, total = 4, onSkip }: OnboardingHeaderProps) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const progress = Math.min(1, Math.max(0, current / total));
   return (
     <View style={[styles.wrap, { paddingTop: insets.top + spacing.sm }]}>
       <View style={styles.row}>
         <Typography style={styles.step}>
-          STEP {current} OF {total}
+          {t('ob.step', { current, total })}
         </Typography>
         {onSkip ? (
           <Pressable onPress={onSkip} hitSlop={10}>
-            <Typography style={styles.skip}>SKIP</Typography>
+            <Typography style={styles.skip}>{t('ob.skip')}</Typography>
           </Pressable>
         ) : null}
         <View style={styles.bar}>

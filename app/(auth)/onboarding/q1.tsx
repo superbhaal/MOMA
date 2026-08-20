@@ -77,7 +77,7 @@ export default function Q1FirstBabyScreen() {
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom + 4, spacing.xl) }]}>
         <OnboardingButton
-          title={saving ? 'saving…' : 'Continue'}
+          title={saving ? t('ob.saving') : t('ob.continue')}
           onPress={() => advance(false)}
           disabled={isFirst === null || saving}
         />

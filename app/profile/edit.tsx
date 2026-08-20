@@ -146,7 +146,7 @@ export default function EditProfileScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backBtn}>
           <Ionicons name="chevron-back" size={22} color={colors.cobalt} />
         </Pressable>
-        <Typography style={styles.headerTitle}>Edit profile</Typography>
+        <Typography style={styles.headerTitle}>{t('grp.editProfile')}</Typography>
         <View style={styles.backBtn} />
       </View>
 

@@ -131,8 +131,8 @@ export default function Q3LanguagesScreen() {
           </Typography>
         ) : null}
 
-        <Typography style={styles.sectionLabel}>PRIMARY</Typography>
-        <Typography style={styles.sectionSub}>Your strongest language.</Typography>
+        <Typography style={styles.sectionLabel}>{t('ob.primary')}</Typography>
+        <Typography style={styles.sectionSub}>{t('ob.strongest')}</Typography>
         <View style={styles.grid}>
           {allLanguages.map((label) => {
             const active = primary === label;
@@ -149,14 +149,14 @@ export default function Q3LanguagesScreen() {
             );
           })}
           <Pressable style={[styles.pill, styles.pillAdd]} onPress={() => openAdd('primary')}>
-            <Typography style={[styles.pillText, styles.pillAddText]}>+ add</Typography>
+            <Typography style={[styles.pillText, styles.pillAddText]}>{t('ob.addPill')}</Typography>
           </Pressable>
         </View>
 
         <View style={styles.sectionGap}>
           <View style={styles.alsoRow}>
             <Typography style={styles.sectionLabel}>{t('ob.q3alsoSpeak')}</Typography>
-            <Typography style={[styles.sectionLabel, styles.alsoRight]}>(UP TO TWO)</Typography>
+            <Typography style={[styles.sectionLabel, styles.alsoRight]}>{t('ob.upToTwo')}</Typography>
           </View>
           <Typography style={styles.sectionSub}>
             {t('ob.q3optional')}
@@ -192,14 +192,14 @@ export default function Q3LanguagesScreen() {
             );
           })}
           <Pressable style={[styles.pill, styles.pillAdd]} onPress={() => openAdd('secondary')}>
-            <Typography style={[styles.pillText, styles.pillAddText]}>+ add</Typography>
+            <Typography style={[styles.pillText, styles.pillAddText]}>{t('ob.addPill')}</Typography>
           </Pressable>
         </View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom + 4, spacing.xl) }]}>
         <OnboardingButton
-          title={saving ? 'saving…' : 'Continue'}
+          title={saving ? t('ob.saving') : t('ob.continue')}
           onPress={() => advance(false)}
           disabled={!primary || saving}
         />

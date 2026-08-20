@@ -61,7 +61,7 @@ export default function Q4ColourScreen() {
           </Typography>
         ) : null}
 
-        <Typography style={styles.groupLabel}>SOFT</Typography>
+        <Typography style={styles.groupLabel}>{t('ob.soft')}</Typography>
         <View style={styles.swatches}>
           {soft.map((s) => (
             <ColorSwatch
@@ -74,7 +74,7 @@ export default function Q4ColourScreen() {
           ))}
         </View>
 
-        <Typography style={[styles.groupLabel, { marginTop: spacing.lg }]}>BOLD</Typography>
+        <Typography style={[styles.groupLabel, { marginTop: spacing.lg }]}>{t('ob.bold')}</Typography>
         <View style={styles.swatches}>
           {bold.map((s) => (
             <ColorSwatch
@@ -90,7 +90,7 @@ export default function Q4ColourScreen() {
         <View style={styles.captionWrap}>
           {picked ? (
             <Typography style={styles.caption}>
-              <Typography style={styles.captionPicked}>Picked </Typography>
+              <Typography style={styles.captionPicked}>{t('ob.picked')}</Typography>
               <Typography style={styles.captionDash}>— </Typography>
               <Typography style={styles.captionName}>{picked.label}</Typography>
             </Typography>
@@ -104,7 +104,7 @@ export default function Q4ColourScreen() {
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom + 4, spacing.xl) }]}>
         <OnboardingButton
-          title={saving ? 'saving…' : 'Find my group'}
+          title={saving ? t('ob.saving') : t('ob.findMyGroup')}
           onPress={() => advance(false)}
           disabled={!colorHex || saving}
         />

@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
@@ -16,13 +17,14 @@ const OPENERS = [
 
 /** Empty-state chips on group chat. */
 export function OpenerChips({ onPick }: OpenerChipsProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.wrap}>
       <Typography variant="bodyL" color={colors.muted} style={styles.heading}>
-        it&rsquo;s quiet in here.
+        {t('grp.quietHere')}
       </Typography>
       <Typography variant="bodyM" color={colors.muted} style={styles.sub}>
-        break the ice with one of these — tap to send as your first message.
+        {t('grp.breakIce')}
       </Typography>
       <View style={styles.chips}>
         {OPENERS.map((t) => (

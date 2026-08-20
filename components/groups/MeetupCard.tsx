@@ -39,7 +39,9 @@ export function MeetupCard({
   const expired = proposal.state === 'expired';
 
   const label = decided ? t('grp.lockedIn') : expired ? t('grp.pastMeetup') : t('grp.nextMeetup');
-  const going = expired ? `${goingCount} went` : `${goingCount} of ${totalMembers} going`;
+  const going = expired
+    ? t('grp.went', { count: goingCount })
+    : t('grp.goingOf', { going: goingCount, total: totalMembers });
   const hasPlace = !!proposal.location_name;
 
   const openMaps = () =>
@@ -86,7 +88,7 @@ export function MeetupCard({
       {!expired ? (
         <Pressable onPress={() => addToCalendar(proposal, groupName)} hitSlop={8}>
           <Typography style={styles.calendar} color={colors.cobalt}>
-            + Add to calendar
+            {t('grp.addToCalendar')}
           </Typography>
         </Pressable>
       ) : null}

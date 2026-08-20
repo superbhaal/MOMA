@@ -145,7 +145,7 @@ export default function MeScreen() {
           style={({ pressed }) => [styles.editBtn, pressed && styles.editBtnPressed]}
           onPress={() => router.push('/profile/edit')}
         >
-          <Typography style={styles.editBtnText}>Edit profile</Typography>
+          <Typography style={styles.editBtnText}>{t('grp.editProfile')}</Typography>
         </Pressable>
       </View>
 
@@ -518,7 +518,7 @@ export default function MeScreen() {
           </Typography>
         </Pressable>
         <Pressable style={[styles.sheetItem, styles.sheetItemLast]} onPress={() => setLeaveTarget(null)}>
-          <Typography style={styles.sheetItemTitle}>Stay in the group</Typography>
+          <Typography style={styles.sheetItemTitle}>{t('grp.stayInGroup')}</Typography>
         </Pressable>
       </ActionSheet>
 
@@ -534,7 +534,7 @@ export default function MeScreen() {
             setUndoOpen(false);
           }}
         >
-          <Typography style={styles.sheetItemTitle}>Just remove me</Typography>
+          <Typography style={styles.sheetItemTitle}>{t('grp.justRemoveMe')}</Typography>
         </Pressable>
         {/* "Suggest a time instead" is gone at the client's request. It was the
             only route from Me to a counter-proposal, so that path now lives in

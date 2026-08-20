@@ -236,11 +236,11 @@ export default function ProfileScreen() {
         >
           <Ionicons name="arrow-back" size={18} color={colors.cobalt} />
           <Typography variant="bodyL" color={colors.cobalt} style={styles.backText}>
-            Back
+            {t('ob.back')}
           </Typography>
         </Pressable>
         <Typography variant="labelS" style={styles.stepLabel}>
-          STEP 2 OF 2 · ABOUT YOU
+          {t('ob.stepAbout')}
         </Typography>
         <View style={styles.stepBar}>
           <View style={[styles.stepSeg, styles.stepSegHalfDone]} />
@@ -275,7 +275,7 @@ export default function ProfileScreen() {
             )}
           </View>
           <Typography variant="label" color={photoValid ? colors.muted : colors.cobalt} style={styles.avatarLabel}>
-            {photoValid ? 'TAP TO CHANGE PHOTO' : 'TAP TO UPLOAD A PHOTO · REQUIRED'}
+            {photoValid ? t('ob.tapChange') : `${t('ob.tapUpload')} · ${t('ob.required')}`}
           </Typography>
         </Pressable>
 
@@ -332,7 +332,7 @@ export default function ProfileScreen() {
 
         <View style={styles.field}>
           <Typography variant="label" color={colors.muted}>
-            WHERE YOU LIVE · REQUIRED
+            {t('ob.whereYouLive')} · {t('ob.required')}
           </Typography>
           <View style={styles.inputWithIcon}>
             <TextInput
@@ -384,7 +384,7 @@ export default function ProfileScreen() {
 
         <View style={styles.field}>
           <Typography variant="label" color={colors.muted}>
-            A LITTLE ABOUT YOU · OPTIONAL
+            {t('ob.aLittleAbout')} · {t('ob.optional')}
           </Typography>
           <TextInput
             style={[styles.input, styles.multiline]}
@@ -399,7 +399,7 @@ export default function ProfileScreen() {
 
         <View style={styles.field}>
           <Typography variant="label" color={colors.muted}>
-            INTERESTS · OPTIONAL
+            {t('ob.interests')} · {t('ob.optional')}
           </Typography>
           <TextInput
             style={styles.input}
@@ -416,7 +416,7 @@ export default function ProfileScreen() {
 
         <View style={styles.field}>
           <Typography variant="label" color={colors.muted}>
-            INSTAGRAM · OPTIONAL
+            {t('ob.instagram')} · {t('ob.optional')}
           </Typography>
           <View style={styles.inputWithIcon}>
             <Typography variant="bodyL" color={colors.muted}>
@@ -437,7 +437,7 @@ export default function ProfileScreen() {
 
       <View style={styles.footer}>
         <Button
-          title={saving ? 'saving...' : 'Continue to matching quiz →'}
+          title={saving ? t('ob.saving') : t('ob.continueQuiz')}
           onPress={handleContinue}
           disabled={!canContinue}
           size="lg"
