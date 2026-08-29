@@ -124,6 +124,12 @@
   .vbtn.on-maybe{background:var(--warn);color:var(--warnText);border-color:transparent}
   .vbtn.on-cant{background:var(--bad);color:var(--badText);border-color:transparent}
 </style>
+<style>
+  .env-badge{margin-left:10px;padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:.4px}
+  .env-prod{background:#fde7ea;color:#9b1c31}
+  .env-preprod{background:#e6f4ea;color:#1b6b3a}
+  body.is-prod{box-shadow:inset 0 4px 0 #e11d48}
+</style>
 </head>
 <body>
 
@@ -145,7 +151,12 @@
 <div id="app" class="hidden">
   <header>
     <h1>møma <span style="color:var(--muted);font-weight:400">admin</span></h1>
+    <span id="envBadge" class="env-badge"></span>
     <span class="grow"></span>
+    <select id="envPick" class="btn-ghost" title="Environnement">
+      <option value="prod">Production</option>
+      <option value="preprod">Pré-prod</option>
+    </select>
     <button class="btn-ghost" id="refreshBtn">Refresh</button>
     <button class="btn-ghost" id="logoutBtn">Log out</button>
   </header>
@@ -354,8 +365,33 @@
 </div>
 
 <script>
-const API = "https://rqesqrlrlxetnvihpoxt.supabase.co/functions/v1/admin-api";
-const CREDS_KEY = "moma_admin_creds";
+// Two environments, one panel. Production and pre-prod are SEPARATE Supabase
+// projects — different database, different auth, different data — so the only
+// thing that changes here is which host the calls go to.
+//
+// The choice is remembered per browser, and the credentials are keyed per
+// environment: the two projects have different admin passwords, and a single
+// shared key would have logged you out of one every time you switched.
+const ENVS = {
+  prod:    { label: "Production", ref: "rqesqrlrlxetnvihpoxt" },
+  preprod: { label: "Pré-prod",   ref: "PREPROD_REF" },
+};
+const ENV_KEY = "moma_admin_env";
+let ENV = localStorage.getItem(ENV_KEY) === "preprod" ? "preprod" : "prod";
+const apiFor = (e) => `https://${ENVS[e].ref}.supabase.co/functions/v1/admin-api`;
+let API = apiFor(ENV);
+
+function setEnv(next) {
+  if (!ENVS[next] || next === ENV) return;
+  ENV = next;
+  API = apiFor(ENV);
+  localStorage.setItem(ENV_KEY, ENV);
+  // A hard reload rather than a re-fetch: every list, cache and selection on
+  // this page belongs to the environment we are leaving, and re-using them
+  // against the other project is how you delete the wrong person's account.
+  location.reload();
+}
+const CREDS_KEY = "moma_admin_creds_" + ENV;
 const BLOCKS = [["morning","MORNING"],["afternoon","AFTERNOON"],["evening","EVENING"]];
 let USERS = [], MDATA = null, SELSLOT = null, SELPLACE = null, GROUPS_LOADED = false;
 
@@ -811,6 +847,16 @@ $("#dropBtn").onclick=drop;
 $("#manualPlace").oninput=()=>{ if($("#manualPlace").value.trim()){SELPLACE=null;renderPlaces();} updateSummary(); };
 
 // auto-resume session
+(function initEnv(){
+  const b = document.getElementById("envBadge");
+  b.textContent = ENVS[ENV].label.toUpperCase();
+  b.className = "env-badge " + (ENV === "prod" ? "env-prod" : "env-preprod");
+  if (ENV === "prod") document.body.classList.add("is-prod");
+  const pick = document.getElementById("envPick");
+  pick.value = ENV;
+  pick.addEventListener("change", (e) => setEnv(e.target.value));
+})();
+
 if (sessionStorage.getItem(CREDS_KEY)) {
   api("list_users").then(()=>{ $("#login").classList.add("hidden"); $("#app").classList.remove("hidden"); load(); })
     .catch(()=>logout());
