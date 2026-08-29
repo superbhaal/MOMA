@@ -20,3 +20,17 @@
 -- Not enforced: uniqueness. Two groups can be C.I.M.S, and the client didn't
 -- ask for more — a mom sees at most two groups, and they'd have to share four
 -- initials to collide in her own list.
+
+-- ── Reviewed 2026-08-29 ─────────────────────────────────────────────────────
+-- Intentionally a no-op on a fresh database, and this is the honest version of
+-- what was here before: an empty file that LOOKED like a migration.
+--
+-- Everything this migration created — group_initials(), refresh_group_name(),
+-- refresh_group_names_for_user() and their two triggers — is dropped again by
+-- 034_group_city_table_name.sql, which replaced the initials scheme with
+-- "<City> Table n°X". 034 drops with IF EXISTS, so a replay that never creates
+-- them is correct and silent.
+--
+-- Kept as a file so the numbering matches the production migration history,
+-- where `group_initials_name` and `group_initials_stable_order` really did run.
+select 1 where false;
