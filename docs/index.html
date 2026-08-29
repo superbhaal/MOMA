@@ -126,9 +126,9 @@
 </style>
 <style>
   .env-badge{margin-left:10px;padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:.4px}
-  .env-prod{background:#fde7ea;color:#9b1c31}
-  .env-preprod{background:#e6f4ea;color:#1b6b3a}
-  body.is-prod{box-shadow:inset 0 4px 0 #e11d48}
+  .env-dev{background:#eef1f5;color:#44506b}
+  .env-preprod{background:#fde7ea;color:#9b1c31}
+  body.is-preprod{box-shadow:inset 0 4px 0 #e11d48}
 </style>
 </head>
 <body>
@@ -154,7 +154,7 @@
     <span id="envBadge" class="env-badge"></span>
     <span class="grow"></span>
     <select id="envPick" class="btn-ghost" title="Environnement">
-      <option value="prod">Production</option>
+      <option value="dev">Dev</option>
       <option value="preprod">Pré-prod</option>
     </select>
     <button class="btn-ghost" id="refreshBtn">Refresh</button>
@@ -365,19 +365,22 @@
 </div>
 
 <script>
-// Two environments, one panel. Production and pre-prod are SEPARATE Supabase
-// projects — different database, different auth, different data — so the only
-// thing that changes here is which host the calls go to.
+// Two environments, one panel. Dev and pre-prod are SEPARATE Supabase projects
+// — different database, different auth, different data — so the only thing that
+// changes here is which host the calls go to.
 //
-// The choice is remembered per browser, and the credentials are keyed per
-// environment: the two projects have different admin passwords, and a single
-// shared key would have logged you out of one every time you switched.
+// One set of credentials for both, deliberately. An earlier version keyed them
+// per environment so switching logged you out; that was friction pretending to
+// be safety. What actually tells you where you are is the badge and the colour,
+// not a login prompt. Both projects carry the same ADMIN_PASSWORD secret.
 const ENVS = {
-  prod:    { label: "Production", ref: "rqesqrlrlxetnvihpoxt" },
-  preprod: { label: "Pré-prod",   ref: "uxpbekyllfagnxqguppz" },
+  dev:     { label: "Dev",      ref: "rqesqrlrlxetnvihpoxt" },
+  preprod: { label: "Pré-prod", ref: "uxpbekyllfagnxqguppz" },
 };
 const ENV_KEY = "moma_admin_env";
-let ENV = localStorage.getItem(ENV_KEY) === "preprod" ? "preprod" : "prod";
+// "prod" is the old stored value from before this was renamed.
+const stored = localStorage.getItem(ENV_KEY);
+let ENV = stored === "preprod" ? "preprod" : "dev";
 const apiFor = (e) => `https://${ENVS[e].ref}.supabase.co/functions/v1/admin-api`;
 let API = apiFor(ENV);
 
@@ -391,7 +394,7 @@ function setEnv(next) {
   // against the other project is how you delete the wrong person's account.
   location.reload();
 }
-const CREDS_KEY = "moma_admin_creds_" + ENV;
+const CREDS_KEY = "moma_admin_creds";
 const BLOCKS = [["morning","MORNING"],["afternoon","AFTERNOON"],["evening","EVENING"]];
 let USERS = [], MDATA = null, SELSLOT = null, SELPLACE = null, GROUPS_LOADED = false;
 
@@ -850,8 +853,8 @@ $("#manualPlace").oninput=()=>{ if($("#manualPlace").value.trim()){SELPLACE=null
 (function initEnv(){
   const b = document.getElementById("envBadge");
   b.textContent = ENVS[ENV].label.toUpperCase();
-  b.className = "env-badge " + (ENV === "prod" ? "env-prod" : "env-preprod");
-  if (ENV === "prod") document.body.classList.add("is-prod");
+  b.className = "env-badge env-" + ENV;
+  if (ENV === "preprod") document.body.classList.add("is-preprod");
   const pick = document.getElementById("envPick");
   pick.value = ENV;
   pick.addEventListener("change", (e) => setEnv(e.target.value));
