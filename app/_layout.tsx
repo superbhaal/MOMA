@@ -6,6 +6,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
 import { applyProfileLanguage, initI18n } from '@/lib/i18n';
+import { EnvBadge } from '@/components/ui/EnvBadge';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
@@ -202,6 +203,9 @@ export default function RootLayout() {
         <Stack.Screen name="settings/privacy" />
         <Stack.Screen name="settings/help" />
       </Stack>
+      {/* After the Stack, so it floats above every screen. Renders nothing at
+          all unless the app is pointed at the dev backend. */}
+      <EnvBadge />
     </SafeAreaProvider>
   );
 }
