@@ -581,7 +581,14 @@
     "y3": "3+ years",
     "wellness": "Wellness for you",
     "wellnessSub": "Your body, your head, your rest",
-    "filterNote": "We’ll filter Learn and Watch to match."
+    "filterNote": "We’ll filter Learn and Watch to match.",
+    "tabRegular": "Regular",
+    "regularOne": "Regular",
+    "searchRegulars": "Search a regular…",
+    "noRegulars": "No regular matches that.",
+    "regularsEmpty": "No regulars yet.",
+    "spotsCount_one": "{{count}} spot",
+    "spotsCount_other": "{{count}} spots"
   },
   "wait": {
     "title": "We’re setting your table",

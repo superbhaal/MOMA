@@ -24,7 +24,7 @@ import type { LearnArticle, LearnReel } from '@/types';
 
 // Learn → editorial articles; Watch → vetted reels. The old "Recco" format is
 // gone — peer recommendations now live on the Explore map (own route).
-type FeedTab = Exclude<DiscoverTab, 'explore'>;
+type FeedTab = Exclude<DiscoverTab, 'explore' | 'regular'>;
 function subtitles(t: TFunction): Record<FeedTab, string> {
   return { learn: t('dis.subLearn'), watch: t('dis.subWatch') };
 }
@@ -90,6 +90,12 @@ export default function DiscoverIndex() {
   const onTabChange = (next: DiscoverTab) => {
     if (next === 'explore') {
       router.push('/discover/explore');
+      return;
+    }
+    // Regulars live on their own route for the same reason Explore does: the
+    // feed screen is built around a Sanity query, and this list is people.
+    if (next === 'regular') {
+      router.push('/discover/regulars');
       return;
     }
     setTab(next);

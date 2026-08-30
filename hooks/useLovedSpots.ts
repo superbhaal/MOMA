@@ -161,3 +161,54 @@ export function useContributor(id: string | undefined) {
 
   return { contributor, spots, loading, error };
 }
+
+/** One Regular, as the fourth Discover tab lists them. */
+export interface Regular {
+  id: string;
+  display_name: string;
+  profile_color: string | null;
+  avatar_url: string | null;
+  neighbourhood: string | null;
+  city: string | null;
+  bio: string | null;
+  spot_count: number;
+  reel_count: number;
+}
+
+/**
+ * The Regulars list, with a name search.
+ *
+ * Search runs in Postgres rather than by filtering a fetched array, so it stays
+ * accent-insensitive — "amelie" finds Amélie — which a JS `includes` would not.
+ * Debounced, because it fires on every keystroke.
+ */
+export function useRegulars(query: string) {
+  const [regulars, setRegulars] = useState<Regular[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      const { data, error: rpcError } = await supabase.rpc('discover_regulars', {
+        p_query: query.trim() || null,
+      });
+      if (cancelled) return;
+      if (rpcError) {
+        setError(rpcError.message);
+        setRegulars([]);
+      } else {
+        setError(null);
+        setRegulars((data as Regular[]) ?? []);
+      }
+      setLoading(false);
+    }, query ? 250 : 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [query]);
+
+  return { regulars, loading, error };
+}

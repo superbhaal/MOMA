@@ -67,7 +67,7 @@ export function LovedSpotRow({ spot, onPress, addedByYou }: LovedSpotRowProps) {
           </View>
         )
       ) : (
-        <Avatar name={who} ringColor={ring} size={48} ringWidth={2} />
+        <Avatar name={who} ringColor={ring} size={48} ringWidth={2} isRegular />
       )}
 
       <View style={styles.middle}>

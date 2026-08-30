@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { isRegular } from '@/constants/roles';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
@@ -19,6 +20,7 @@ export function MemberRow({ member, isSelf, onPress, onMessage }: MemberRowProps
   return (
     <Pressable onPress={onPress} style={styles.row}>
       <Avatar
+        isRegular={isRegular(u.role)}
         name={u.display_name}
         ringColor={u.profile_color ?? colors.fuchsia}
         photoUrl={u.avatar_url ?? undefined}

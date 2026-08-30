@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { isRegular } from '@/constants/roles';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -132,6 +133,7 @@ export default function MeScreen() {
             photoUrl={user?.avatar_url ?? undefined}
             size={84}
             ringWidth={2}
+            isRegular={isRegular(user?.role)}
           />
           <View
             style={[styles.colorDot, { backgroundColor: user?.profile_color ?? colors.fuchsia }]}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { isRegular } from '@/constants/roles';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -67,6 +68,7 @@ export default function MemberScreen() {
                 photoUrl={u.avatar_url ?? undefined}
                 size={104}
                 ringWidth={3}
+                isRegular={isRegular(u.role)}
               />
               <Typography style={styles.name} color={colors.cobalt}>
                 {u.display_name}

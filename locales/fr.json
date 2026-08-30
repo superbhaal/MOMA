@@ -581,7 +581,14 @@
     "y3": "3 ans et plus",
     "wellness": "Prendre soin de vous",
     "wellnessSub": "Votre corps, votre tête, votre repos",
-    "filterNote": "On filtrera Apprendre et Regarder en conséquence."
+    "filterNote": "On filtrera Apprendre et Regarder en conséquence.",
+    "tabRegular": "Habitué",
+    "regularOne": "Habitué",
+    "searchRegulars": "Chercher un habitué…",
+    "noRegulars": "Aucun habitué ne correspond.",
+    "regularsEmpty": "Pas encore d’habitués.",
+    "spotsCount_one": "{{count}} adresse",
+    "spotsCount_other": "{{count}} adresses"
   },
   "wait": {
     "title": "On met votre table",

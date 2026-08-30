@@ -581,7 +581,14 @@
     "y3": "3 años o más",
     "wellness": "Cuidarte a ti",
     "wellnessSub": "Tu cuerpo, tu cabeza, tu descanso",
-    "filterNote": "Filtraremos Aprender y Ver en consecuencia."
+    "filterNote": "Filtraremos Aprender y Ver en consecuencia.",
+    "tabRegular": "Habitual",
+    "regularOne": "Habitual",
+    "searchRegulars": "Buscar un habitual…",
+    "noRegulars": "Ningún habitual coincide.",
+    "regularsEmpty": "Todavía no hay habituales.",
+    "spotsCount_one": "{{count}} sitio",
+    "spotsCount_other": "{{count}} sitios"
   },
   "wait": {
     "title": "Estamos poniendo tu mesa",

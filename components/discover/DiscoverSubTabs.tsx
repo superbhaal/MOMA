@@ -6,13 +6,14 @@ import { colors } from '@/constants/colors';
 import { textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 
-export type DiscoverTab = 'learn' | 'watch' | 'explore';
+export type DiscoverTab = 'learn' | 'watch' | 'explore' | 'regular';
 
 function subTabs(t: TFunction) {
   return [
     { key: 'learn' as const, label: t('dis.tabLearn') },
     { key: 'watch' as const, label: t('dis.tabWatch') },
     { key: 'explore' as const, label: t('dis.tabExplore') },
+    { key: 'regular' as const, label: t('dis.tabRegular') },
   ];
 }
 

@@ -86,6 +86,12 @@ export default function DiscoverExplore() {
 
   const onSubTab = (next: DiscoverTab) => {
     if (next === 'explore') return;
+    // Regulars are a sibling route, not a feed tab: replace rather than
+    // stacking a third screen on top of the map.
+    if (next === 'regular') {
+      router.replace('/discover/regulars');
+      return;
+    }
     // Leave by the chips, the same way Learn ↔ Watch swap. `dismissTo` pops back
     // to the feed already sitting under the map instead of stacking a second
     // copy of it — and the tab goes through the store, because that feed is
