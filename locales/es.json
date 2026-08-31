@@ -594,7 +594,10 @@
     "noRegulars": "Ningún habitual coincide.",
     "regularsEmpty": "Todavía no hay habituales.",
     "spotsCount_one": "{{count}} sitio",
-    "spotsCount_other": "{{count}} sitios"
+    "spotsCount_other": "{{count}} sitios",
+    "readMin": "LECTURA · {{n}} MIN",
+    "watchLabelCaps": "VÍDEO",
+    "watchPlatform": "VÍDEO · {{p}}"
   },
   "wait": {
     "title": "Estamos poniendo tu mesa",

@@ -12,7 +12,7 @@ export default function LearnLayout() {
           their slide: those are genuinely somewhere else. */}
       <Stack.Screen name="index" options={{ animation: 'none' }} />
       <Stack.Screen name="explore" options={{ animation: 'none', gestureEnabled: false }} />
-      <Stack.Screen name="regulars" />
+      <Stack.Screen name="regulars" options={{ animation: 'none' }} />
       <Stack.Screen name="place/new" options={{ presentation: 'modal' }} />
       <Stack.Screen name="place/[id]" />
       <Stack.Screen name="contributor/[id]" />

@@ -139,7 +139,14 @@ export function Avatar({
           ]}
         >
           <Typography
-            style={[styles.discText, { fontSize: Math.round(disc * 0.58) }]}
+            style={[
+              styles.discText,
+              {
+                fontSize: Math.round(disc * 0.58),
+                lineHeight: Math.round(disc * 0.58),
+                marginTop: Math.round(disc * 0.04),
+              },
+            ]}
             color={colors.white}
           >
             ø
@@ -160,7 +167,13 @@ const styles = StyleSheet.create({
   },
   discText: {
     fontFamily: 'DMSans-SemiBold',
-    lineHeight: undefined,
+    // Text vertical centring is done by the glyph's baseline, not its visual
+    // middle, so a bare justifyContent leaves the ø sitting high. Pinning the
+    // line box to the glyph and nudging it down by a fraction of its size puts
+    // the ring of the ø on the centre of the disc.
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    includeFontPadding: false,
   },
   badgeRow: {
     position: 'absolute',

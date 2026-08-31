@@ -86,7 +86,7 @@ export function StageFilter({ value, onChange, open, onOpenChange }: StageFilter
       <Pressable style={styles.row} onPress={() => onOpenChange(true)}>
         <Ionicons name="funnel-outline" size={16} color={colors.muted} />
         <Typography style={styles.rowLabel} color={colors.muted}>
-          STAGE
+          {t('dis.stage')}
         </Typography>
         <Typography style={styles.rowValue} color={colors.text}>
           {labelByValue(t)[value] ?? t('dis.allStages')}

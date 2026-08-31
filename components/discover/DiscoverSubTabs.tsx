@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Typography } from '@/components/ui/Typography';
@@ -30,7 +30,17 @@ interface DiscoverSubTabsProps {
 export function DiscoverSubTabs({ active, onChange }: DiscoverSubTabsProps) {
   const { t } = useTranslation();
   return (
-    <View style={styles.row} accessibilityRole="tablist">
+    // Scrollable rather than tuned to fit. Four chips at 372pt of French on a
+    // 390pt iPhone is a hair from overflowing, and an SE at 375pt would. This
+    // centres when the row fits and glides when it does not, which also holds
+    // for whatever the next translation is.
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.rowScroll}
+      contentContainerStyle={styles.row}
+      accessibilityRole="tablist"
+    >
       {subTabs(t).map((t) => {
         const on = t.key === active;
         return (
@@ -48,16 +58,22 @@ export function DiscoverSubTabs({ active, onChange }: DiscoverSubTabsProps) {
           </Pressable>
         );
       })}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  rowScroll: { flexGrow: 0, backgroundColor: colors.white },
   row: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: 26,
+    // flexGrow so the content still centres when it is narrower than the screen.
+    flexGrow: 1,
+    // Four chips where there were three. On a 390pt iPhone the old padding and
+    // gap pushed the last one off the edge, so both shrink — the row is
+    // centred, so the overflow showed on the right first.
+    gap: 6,
+    paddingHorizontal: 12,
     paddingVertical: spacing.sm,
     backgroundColor: colors.white,
   },
@@ -71,7 +87,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.lineStrong,
     borderRadius: radius.pill,
-    paddingHorizontal: 13,
+    paddingHorizontal: 10,
     paddingVertical: 7,
   },
   chipActive: {

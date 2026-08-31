@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '@/components/ui/Typography';
 import { SaveHeart } from './SaveHeart';
 import { colors } from '@/constants/colors';
@@ -14,6 +15,7 @@ interface ReadCardProps {
 /** Long-form article card (handoff §Read card). White surface, hairline, cobalt
  *  meta dot, Cormorant title, one-line takeaway, cobalt-soft source pill. */
 export function ReadCard({ article, onPress }: ReadCardProps) {
+  const { t } = useTranslation();
   return (
     <Pressable
       onPress={onPress}
@@ -24,7 +26,7 @@ export function ReadCard({ article, onPress }: ReadCardProps) {
         <View style={styles.metaRow}>
           <View style={styles.dot} />
           <Typography style={styles.meta} color={colors.muted}>
-            READ · {article.readMinutes ?? 5} MIN
+            {t('dis.readMin', { n: article.readMinutes ?? 5 })}
           </Typography>
         </View>
         <SaveHeart docId={article._id} docType="read_article" title={article.title} />

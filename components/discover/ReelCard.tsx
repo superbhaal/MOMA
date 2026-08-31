@@ -1,4 +1,5 @@
 import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
@@ -18,6 +19,7 @@ const IG_GRADIENT = ['#f9ce34', '#ee2a7b', '#6228d7'] as const;
 /** Vetted-creator reel card (handoff §Reel card). Whole card opens the platform
  *  deep link. Credential pill is mandatory — a reel without one shouldn't ship. */
 export function ReelCard({ reel }: ReelCardProps) {
+  const { t } = useTranslation();
   const isIg = reel.platform === 'instagram';
   const open = () => {
     if (reel.externalUrl) Linking.openURL(reel.externalUrl).catch(() => {});
@@ -86,7 +88,7 @@ export function ReelCard({ reel }: ReelCardProps) {
           <View style={styles.metaRow}>
             <View style={styles.dot} />
             <Typography style={styles.meta} color={colors.muted}>
-              WATCH · {reel.platform.toUpperCase()}
+              {t('dis.watchPlatform', { p: reel.platform.toUpperCase() })}
             </Typography>
           </View>
           <SaveHeart docId={reel._id} docType="watch_reel" title={reel.title} />

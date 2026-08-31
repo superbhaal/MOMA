@@ -594,7 +594,10 @@
     "noRegulars": "Aucun habitué ne correspond.",
     "regularsEmpty": "Pas encore d’habitués.",
     "spotsCount_one": "{{count}} adresse",
-    "spotsCount_other": "{{count}} adresses"
+    "spotsCount_other": "{{count}} adresses",
+    "readMin": "LECTURE · {{n}} MIN",
+    "watchLabelCaps": "VIDÉO",
+    "watchPlatform": "VIDÉO · {{p}}"
   },
   "wait": {
     "title": "On met votre table",

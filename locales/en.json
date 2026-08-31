@@ -594,7 +594,10 @@
     "noRegulars": "No regular matches that.",
     "regularsEmpty": "No regulars yet.",
     "spotsCount_one": "{{count}} spot",
-    "spotsCount_other": "{{count}} spots"
+    "spotsCount_other": "{{count}} spots",
+    "readMin": "READ · {{n}} MIN",
+    "watchLabelCaps": "WATCH",
+    "watchPlatform": "WATCH · {{p}}"
   },
   "wait": {
     "title": "We’re setting your table",
