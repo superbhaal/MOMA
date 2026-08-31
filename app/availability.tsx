@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,6 +23,7 @@ const BLOCKS: { value: AvailabilityBlock; label: string; hours: string; spoken: 
 ];
 
 export default function AvailabilityScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { slots, isBusy, toggleBusy } = useAvailability(14);
@@ -105,10 +107,10 @@ export default function AvailabilityScreen() {
       <View style={styles.footer}>
         <Typography variant="bodyM" color={colors.muted} style={{ flex: 1 }}>
           {blockedCount === 0
-            ? 'all free so far'
-            : `${blockedCount} slot${blockedCount === 1 ? '' : 's'} blocked`}
+            ? t('busy.allFree')
+            : t('busy.slotsBlocked', { count: blockedCount })}
         </Typography>
-        <Button title="done" onPress={() => router.back()} />
+        <Button title={t('busy.done')} onPress={() => router.back()} />
       </View>
     </View>
   );

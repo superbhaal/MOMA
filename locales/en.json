@@ -217,7 +217,9 @@
     "went": "{{count}} went",
     "goingOf": "{{going}} of {{total}} going",
     "quietHere": "it’s quiet in here.",
-    "breakIce": "break the ice with one of these — tap to send as your first message."
+    "breakIce": "break the ice with one of these — tap to send as your first message.",
+    "membersCount_one": "{{count}} member",
+    "membersCount_other": "{{count}} members"
   },
   "me": {
     "aboutMe": "About me",
@@ -485,7 +487,11 @@
     "markedBusy": "marked busy across the next two weeks.",
     "weekOf": "WEEK OF {{from}}–{{to}} {{month}}",
     "joinGroup": "Join the group",
-    "doneToChat": "Done, take me to the chat"
+    "doneToChat": "Done, take me to the chat",
+    "allFree": "all free so far",
+    "slotsBlocked_one": "{{count}} slot blocked",
+    "slotsBlocked_other": "{{count}} slots blocked",
+    "done": "done"
   },
   "set": {
     "tabHome": "Home",

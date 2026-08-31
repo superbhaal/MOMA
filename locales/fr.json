@@ -217,7 +217,9 @@
     "went": "{{count}} y sont allées",
     "goingOf": "{{going}} sur {{total}} y vont",
     "quietHere": "c’est calme ici.",
-    "breakIce": "lancez la conversation — touchez pour envoyer comme premier message."
+    "breakIce": "lancez la conversation — touchez pour envoyer comme premier message.",
+    "membersCount_one": "{{count}} membre",
+    "membersCount_other": "{{count}} membres"
   },
   "me": {
     "aboutMe": "À propos de moi",
@@ -485,7 +487,11 @@
     "markedBusy": "marqués occupés sur les deux prochaines semaines.",
     "weekOf": "SEMAINE DU {{from}} AU {{to}} {{month}}",
     "joinGroup": "Rejoindre le groupe",
-    "doneToChat": "C’est bon, ouvrez le chat"
+    "doneToChat": "C’est bon, ouvrez le chat",
+    "allFree": "tout est libre pour l’instant",
+    "slotsBlocked_one": "{{count}} créneau bloqué",
+    "slotsBlocked_other": "{{count}} créneaux bloqués",
+    "done": "terminé"
   },
   "set": {
     "tabHome": "Accueil",

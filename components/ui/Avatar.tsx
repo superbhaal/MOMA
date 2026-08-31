@@ -43,19 +43,16 @@ export function Avatar({
   const gap = Math.max(1.5, ringWidth * 0.9);
   const inner = size - (ringWidth + gap) * 2;
 
-  // The client's mockup: a pill straddling the bottom of the ring, reading
-  // Regular / Habitué / Habitual.
+  // Two marks, not one pill in two sizes. A shrunken pill was tried and it
+  // failed: at list scale the word truncated to "HABIT…" and covered half the
+  // face. So the word gets a pill where there is room for it, and everywhere
+  // else it becomes the ø of møma in a disc — the brand mark, which reads at
+  // any size and needs no translation.
   //
-  // Two sizes, because one does not fit. At the mockup's scale the pill is
-  // ~65px wide, which is wider than the 48px avatar in a member row and would
-  // sit on the name beside it. The compact variant measures about 50px — the
-  // width of the avatar itself — so it holds in a list without pushing into
-  // the text column.
-  //
-  // Below 44px nothing is drawn: avatar stacks and chat bubbles carry no mark,
-  // which the client accepted. A pill there would be unreadable anyway.
-  const showBadge = isRegular && size >= 44;
-  const compact = size < 72;
+  // Below 32px nothing is drawn; a disc there is a smudge.
+  const showBadge = isRegular && size >= 32;
+  const asPill = size >= 72;
+  const disc = Math.max(13, Math.round(size * 0.34));
 
   const avatar = (
     <View
@@ -116,33 +113,55 @@ export function Avatar({
   // Not clipped to the avatar's box: the pill is wider than the circle and has
   // to be free to overhang on both sides, as in the mockup.
   return (
-    <View style={{ width: size, height: size, alignItems: 'center' }}>
+    <View style={{ width: size, height: size, alignItems: asPill ? 'center' : undefined }}>
       {avatar}
-      <View pointerEvents="none" style={[styles.badgeRow, compact && styles.badgeRowCompact]}>
+      {asPill ? (
+        <View pointerEvents="none" style={styles.badgeRow}>
+          <View style={[styles.badge, { backgroundColor: outlineColor ?? colors.white }]}>
+            <Typography style={styles.badgeText} color={colors.cobalt} numberOfLines={1}>
+              {regularLabel}
+            </Typography>
+          </View>
+        </View>
+      ) : (
         <View
+          pointerEvents="none"
           style={[
-            styles.badge,
-            compact && styles.badgeCompact,
-            { backgroundColor: outlineColor ?? colors.white },
+            styles.disc,
+            {
+              width: disc,
+              height: disc,
+              borderRadius: disc / 2,
+              right: -disc * 0.1,
+              bottom: -disc * 0.1,
+              borderColor: outlineColor ?? colors.white,
+            },
           ]}
         >
           <Typography
-            style={[styles.badgeText, compact && styles.badgeTextCompact]}
-            color={colors.cobalt}
-            numberOfLines={1}
+            style={[styles.discText, { fontSize: Math.round(disc * 0.58) }]}
+            color={colors.white}
           >
-            {regularLabel}
+            ø
           </Typography>
         </View>
-      </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  badgeRowCompact: { bottom: -8 },
-  badgeCompact: { paddingHorizontal: 6, paddingVertical: 2 },
-  badgeTextCompact: { fontSize: scaled(8), letterSpacing: 0.6 },
+  disc: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.cobalt,
+    borderWidth: 1.5,
+  },
+  discText: {
+    fontFamily: 'DMSans-SemiBold',
+    lineHeight: undefined,
+  },
   badgeRow: {
     position: 'absolute',
     bottom: -11,

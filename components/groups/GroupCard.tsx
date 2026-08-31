@@ -32,7 +32,7 @@ export function GroupCard({ group, onPress }: GroupCardProps) {
   const past = !!meetup && isPastMeetup(meetup);
   const decided = meetup?.state === 'decided' && !past;
   const memberCount = group.members.length;
-  const meta = [group.neighbourhood, `${memberCount} member${memberCount === 1 ? '' : 's'}`]
+  const meta = [group.neighbourhood, t('grp.membersCount', { count: memberCount })]
     .filter(Boolean)
     .join(' · ');
   // Resolve the last message's sender from the member list (no extra join).

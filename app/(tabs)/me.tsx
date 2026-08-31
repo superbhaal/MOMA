@@ -135,9 +135,14 @@ export default function MeScreen() {
             ringWidth={2}
             isRegular={isRegular(user?.role)}
           />
-          <View
-            style={[styles.colorDot, { backgroundColor: user?.profile_color ?? colors.fuchsia }]}
-          />
+          {/* The colour dot and the Regular pill land in the same corner. The
+              dot only repeats the ring, which is already that colour, so the
+              pill wins when both would show. */}
+          {!isRegular(user?.role) ? (
+            <View
+              style={[styles.colorDot, { backgroundColor: user?.profile_color ?? colors.fuchsia }]}
+            />
+          ) : null}
         </View>
         <Typography style={styles.name}>{user?.display_name ?? '—'}</Typography>
         <Typography style={styles.babyInfo}>
