@@ -83,23 +83,29 @@ Deno.serve(async (req) => {
   // dies as "Base64Coder: incorrect characters for decoding", which says nothing
   // about what to fix. Normalise, and if it still fails say WHY in terms that
   // point at the secret without ever printing it.
-  // How Supabase encodes this secret is not documented and their own example
-  // does not survive contact with it: the dashboard hands out
-  // `v1,whsec_<base64url>`, standardwebhooks decodes standard base64, and the
-  // two disagree on '-' and '_'. Converting the alphabet got us past
-  // "Base64Coder: incorrect characters" and straight into "No matching
-  // signature", which means the bytes were still not the ones GoTrue signed
-  // with.
+  // The secret is plain `v1,whsec_<base64>` and standardwebhooks reads it
+  // straight — confirmed against a live send, which logs "base64-as-is".
   //
-  // So stop guessing and try the plausible readings, in order, and say which
-  // one worked. Whichever it is, it is stable — the log line below is what a
-  // future reader needs when this breaks again.
+  // The alternatives below are kept because getting here cost an hour of
+  // chasing the wrong thing. "Base64Coder: incorrect characters for decoding"
+  // was not Supabase encoding anything oddly: a Resend API key had been pasted
+  // into SEND_EMAIL_HOOK_SECRET, and `re_xxxxxxxx_yyyy…` is 36 characters with
+  // exactly two underscores — which is precisely what the diagnostic reported,
+  // and which I read as evidence of base64url. Wrong conclusion, right data.
+  //
+  // So the candidates stay, and so does the log line naming the winner: when
+  // this breaks again it will say which reading worked instead of leaving the
+  // next person to infer it.
   const bare = secret.trim().replace(/^v1,/, '').replace(/^whsec_/, '').trim();
   const candidates: { name: string; key: string }[] = [
-    // base64url decoded to the same bytes standard base64 would give
-    { name: 'base64url->base64', key: bare.replace(/-/g, '+').replace(/_/g, '/') },
-    // already standard base64
+    // Standard base64 first: it is what the spec says and what Supabase's own
+    // example assumes. Ordering matters for the log line below — the base64url
+    // conversion is a no-op on standard base64, so having it first made every
+    // success report itself as base64url and sent me chasing an encoding bug
+    // that did not exist.
     { name: 'base64-as-is', key: bare },
+    // Genuine base64url, if it ever turns out to be that.
+    { name: 'base64url->base64', key: bare.replace(/-/g, '+').replace(/_/g, '/') },
     // the string itself IS the key, so re-encode it for a library that decodes
     { name: 'raw-string-key', key: btoa(bare) },
     // the key includes the prefix
