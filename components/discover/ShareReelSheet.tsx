@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
@@ -10,7 +11,7 @@ import { colors } from '@/constants/colors';
 import { fonts, textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
-import { STAGE_CHIP_GROUPS } from '@/constants/discover';
+import { stageChipGroups } from '@/constants/discover';
 import {
   ComposerChips,
   ComposerCta,
@@ -50,6 +51,14 @@ interface ShareReelSheetProps {
   onClose: () => void;
   /** Fired after a successful post, so the feed can refetch. */
   onPosted: () => void;
+  /**
+   * Rendered as a route under `presentation: 'modal'` rather than as an in-page
+   * sheet. The native presentation already draws the surface AND brings the
+   * pull-down-to-dismiss that the in-page ActionSheet never had — which is the
+   * whole reason this option exists: Explore's "+" was a modal route and could
+   * be swiped away, Watch's "+" was this component and could not.
+   */
+  standalone?: boolean;
 }
 
 /**
@@ -60,7 +69,8 @@ interface ShareReelSheetProps {
  * few chips is not a journey, and making it one would be the reason nobody
  * posts twice.
  */
-export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetProps) {
+export function ShareReelSheet({ visible, onClose, onPosted, standalone }: ShareReelSheetProps) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { resolve, create, resolving, submitting, error, setError } = useCreateReel();
 
@@ -142,8 +152,7 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
     }
   }
 
-  return (
-    <ActionSheet visible={visible} onClose={onClose}>
+  const body = (
       <ScrollView
         style={styles.scroll}
         keyboardShouldPersistTaps="handled"
@@ -208,7 +217,7 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
             </ComposerField>
 
             <ComposerLabel label={t('reel.whoFor')} hint={t('reel.whoForHint')} />
-            {STAGE_CHIP_GROUPS.map((g) => (
+            {stageChipGroups(t).map((g) => (
               <View key={g.group} style={styles.stageGroup}>
                 <Typography style={styles.stageGroupLabel} color={colors.mutedStrong}>
                   {g.group.toUpperCase()}
@@ -246,10 +255,23 @@ export function ShareReelSheet({ visible, onClose, onPosted }: ShareReelSheetPro
 
         <Pressable onPress={onClose} style={styles.notNow} hitSlop={8}>
           <Typography style={styles.notNowLabel} color={colors.mutedStrong}>
-            Not now
+            {t('misc.notNow')}
           </Typography>
         </Pressable>
       </ScrollView>
+  );
+
+  if (standalone) {
+    // ActionSheet used to supply these; the native presentation supplies the
+    // card and the gesture but not the margins, so the title sat against the
+    // rounded corner without them.
+    return (
+      <View style={[styles.screen, { paddingBottom: insets.bottom }]}>{body}</View>
+    );
+  }
+  return (
+    <ActionSheet visible={visible} onClose={onClose}>
+      {body}
     </ActionSheet>
   );
 }
@@ -301,6 +323,14 @@ function PlatformOption({
 }
 
 const styles = StyleSheet.create({
+  // The modal presentation supplies the rounded card and the grabber; this only
+  // has to paint the ground under the scroller.
+  screen: {
+    flex: 1,
+    backgroundColor: colors.white,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
+  },
   // The sheet caps its own height; this has to be allowed to shrink into it,
   // or it would measure at full content height and get clipped rather than
   // scrolled. RN defaults flexShrink to 0, so it has to be said.

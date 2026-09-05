@@ -14,6 +14,9 @@ export default function LearnLayout() {
       <Stack.Screen name="explore" options={{ animation: 'none', gestureEnabled: false }} />
       <Stack.Screen name="regulars" options={{ animation: 'none' }} />
       <Stack.Screen name="place/new" options={{ presentation: 'modal' }} />
+      {/* Same presentation as place/new, so both "+" buttons behave alike —
+          including the pull-down-to-dismiss Watch's sheet was missing. */}
+      <Stack.Screen name="reel/new" options={{ presentation: 'modal' }} />
       <Stack.Screen name="place/[id]" />
       <Stack.Screen name="contributor/[id]" />
       <Stack.Screen name="[docId]" />

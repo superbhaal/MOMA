@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Typography } from '@/components/ui/Typography';
@@ -30,17 +30,7 @@ interface DiscoverSubTabsProps {
 export function DiscoverSubTabs({ active, onChange }: DiscoverSubTabsProps) {
   const { t } = useTranslation();
   return (
-    // Scrollable rather than tuned to fit. Four chips at 372pt of French on a
-    // 390pt iPhone is a hair from overflowing, and an SE at 375pt would. This
-    // centres when the row fits and glides when it does not, which also holds
-    // for whatever the next translation is.
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={styles.rowScroll}
-      contentContainerStyle={styles.row}
-      accessibilityRole="tablist"
-    >
+    <View style={styles.row} accessibilityRole="tablist">
       {subTabs(t).map((t) => {
         const on = t.key === active;
         return (
@@ -58,22 +48,26 @@ export function DiscoverSubTabs({ active, onChange }: DiscoverSubTabsProps) {
           </Pressable>
         );
       })}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  rowScroll: { flexGrow: 0, backgroundColor: colors.white },
   row: {
     flexDirection: 'row',
     justifyContent: 'center',
-    // flexGrow so the content still centres when it is narrower than the screen.
-    flexGrow: 1,
-    // Four chips where there were three. On a 390pt iPhone the old padding and
-    // gap pushed the last one off the edge, so both shrink — the row is
-    // centred, so the overflow showed on the right first.
-    gap: 6,
-    paddingHorizontal: 12,
+    // Four chips where there were three, and French is the widest set:
+    // APPRENDRE · REGARDER · EXPLORER · HABITUÉ measured 395pt against a 390pt
+    // screen, so the last one was clipped. Tightened to ~364pt.
+    //
+    // A horizontal ScrollView was tried first and rejected: the chips painted
+    // but their labels did not, on this screen only. flexWrap is the honest
+    // fallback — if a future translation is wider still, the row breaks onto a
+    // second line rather than hiding a tab.
+    flexWrap: 'wrap',
+    rowGap: 6,
+    gap: 5,
+    paddingHorizontal: 10,
     paddingVertical: spacing.sm,
     backgroundColor: colors.white,
   },
@@ -87,12 +81,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.lineStrong,
     borderRadius: radius.pill,
-    paddingHorizontal: 10,
+    paddingHorizontal: 7,
     paddingVertical: 7,
+    // 'VER' is three letters. Without a floor it collapses to a disc while its
+    // neighbours stay capsules, which our tester flagged as looking broken.
+    minWidth: 58,
+    alignItems: 'center',
   },
   chipActive: {
     backgroundColor: colors.cobalt,
     borderColor: colors.cobalt,
   },
-  label: textStyles.controlCaps,
+  label: {
+    ...textStyles.controlCaps,
+    // 1.5 is the house tracking for caps controls, but four chips of French
+    // spend ~51pt of the row on tracking alone and 'HABITUÉES' pushed it over
+    // the edge. 1.0 still reads as a control strip and buys back ~17pt.
+    letterSpacing: 1,
+  },
 });

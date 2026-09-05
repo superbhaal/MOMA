@@ -44,12 +44,12 @@ export default function RegularsScreen() {
   return (
     <View style={styles.container}>
       <DiscoverHeader
-        subtitle={t('dis.tabRegular')}
+        subtitle={t('dis.subRegular')}
         searchPlaceholder={t('dis.searchRegulars')}
         searchValue={query}
         onSearchChange={setQuery}
         topInset={insets.top}
-        illustration="picnic"
+        illustration="poolside"
       />
       <DiscoverSubTabs active="regular" onChange={onSubTab} />
 

@@ -43,9 +43,9 @@ function pauseOptions(t: TFunction) {
 
 function savedMeta(t: TFunction): Record<SavedDocType, { label: string; bg: string; fg: string; noun: string }> {
   return {
-  read_article: { label: t('misc.read'), bg: '#D8E8C8', fg: '#2a5a1a', noun: 'article' },
-  watch_reel: { label: t('misc.watchLabel'), bg: '#e0f8fa', fg: '#007a88', noun: 'reel' },
-  recommendation: { label: t('misc.recco'), bg: '#fce8f4', fg: '#b0246e', noun: 'recommendation' },
+  read_article: { label: t('misc.read'), bg: '#D8E8C8', fg: '#2a5a1a', noun: t('me.savedRead') },
+  watch_reel: { label: t('misc.watchLabel'), bg: '#e0f8fa', fg: '#007a88', noun: t('me.savedWatch') },
+  recommendation: { label: t('misc.recco'), bg: '#fce8f4', fg: '#b0246e', noun: t('me.savedRecco') },
   };
 }
 
@@ -146,7 +146,7 @@ export default function MeScreen() {
         </View>
         <Typography style={styles.name}>{user?.display_name ?? '—'}</Typography>
         <Typography style={styles.babyInfo}>
-          {babyMetaLine(user?.baby_dob, user?.neighbourhood)}
+          {babyMetaLine(user?.baby_dob, user?.neighbourhood, t)}
         </Typography>
         <Pressable
           style={({ pressed }) => [styles.editBtn, pressed && styles.editBtnPressed]}
@@ -160,11 +160,11 @@ export default function MeScreen() {
       {hasAbout ? (
         <>
           <MeSectionLabel label={t('me.aboutMe')} />
-          <MeCard padded>
+          <MeCard style={styles.aboutCard}>
             {user?.bio ? <Typography style={styles.bio}>{user.bio}</Typography> : null}
             {(user?.interests?.length ?? 0) > 0 ? (
               <>
-                <Typography style={styles.interestsLabel}>INTERESTS</Typography>
+                <Typography style={styles.interestsLabel}>{t('edit.interests')}</Typography>
                 <View style={styles.interests}>
                   {user!.interests!.map((tag) => (
                     <View key={tag} style={styles.interestPill}>
@@ -316,7 +316,7 @@ export default function MeScreen() {
                     before 030 have none, so they keep the old generic line —
                     better than an empty row where a name should be. */}
                 <Typography style={styles.savedText} numberOfLines={2}>
-                  {tip.title || `Saved ${meta.noun}`}
+                  {tip.title || meta.noun}
                 </Typography>
                 <Pressable onPress={() => toggleTip(tip.sanity_doc_id, tip.doc_type)} hitSlop={8}>
                   <Ionicons name="heart" size={16} color={colors.fuchsia} />
@@ -344,7 +344,7 @@ export default function MeScreen() {
               iconTint={colors.fuchsia}
               iconBg="#fce8f4"
               label={g.name}
-              value={`${g.members.length} member${g.members.length === 1 ? '' : 's'}`}
+              value={t('grp.membersCount', { count: g.members.length })}
               onPress={() => router.push(`/group/${g.id}`)}
             />
           ))
@@ -497,7 +497,7 @@ export default function MeScreen() {
               {t('me.leaveNamed', { name: g.name })}
             </Typography>
             <Typography style={styles.sheetItemSub}>
-              {g.members.length} member{g.members.length === 1 ? '' : 's'} · frees up 1 of 2 slots.
+              {t('me.freesSlot', { count: g.members.length })}
             </Typography>
           </Pressable>
         ))}
@@ -507,7 +507,7 @@ export default function MeScreen() {
       <ActionSheet
         visible={!!leaveTarget}
         onClose={() => setLeaveTarget(null)}
-        title={`Leave ${leaveTarget?.name ?? 'this group'}?`}
+        title={t('me.leaveTitle', { name: leaveTarget?.name ?? t('me.thisGroup') })}
       >
         <Typography style={styles.sheetSub}>
           {t('me.leaveConfirmBlurb')}
@@ -625,6 +625,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   meetupPlace: { textDecorationLine: 'underline' },
+  // No horizontal padding, unlike every other padded MeCard: the section
+  // labels sit at spacing.lg from the screen edge and so does this card's
+  // margin, so dropping the padding puts the bio and the INTERESTS label on
+  // exactly the same line as ABOUT ME. The padding was invisible anyway — the
+  // card is white on a white screen — so it only ever read as a stray indent.
+  aboutCard: {
+    paddingVertical: spacing.lg,
+  },
   interestsLabel: {
     fontFamily: fonts.bodySemi,
     fontSize: scaled(10.5),

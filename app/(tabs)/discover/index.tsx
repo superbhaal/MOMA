@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import type { IllustrationName } from '@/components/ui/Illustration';
@@ -10,7 +10,6 @@ import { DiscoverHeader } from '@/components/discover/DiscoverHeader';
 import { DiscoverSubTabs, type DiscoverTab } from '@/components/discover/DiscoverSubTabs';
 import { StageFilter } from '@/components/discover/StageFilter';
 import { ComposeFab } from '@/components/discover/ComposeFab';
-import { ShareReelSheet } from '@/components/discover/ShareReelSheet';
 import { ReadCard } from '@/components/discover/ReadCard';
 import { ReelCard } from '@/components/discover/ReelCard';
 import { DiscoverSkeleton } from '@/components/discover/DiscoverSkeleton';
@@ -40,6 +39,7 @@ const ILLO: Record<FeedTab, IllustrationName> = {
 export default function DiscoverIndex() {
   const { t } = useTranslation();
   const router = useRouter();
+
   const insets = useSafeAreaInsets();
   // Shared with Explore, which is a sibling route: coming back from the map on
   // "Watch" has to show Watch, and this screen is still mounted underneath it.
@@ -47,13 +47,20 @@ export default function DiscoverIndex() {
   const setTab = useAppStore((s) => s.setDiscoverFeedTab);
   const [stage, setStage] = useState<string>('all');
   const [stageSheet, setStageSheet] = useState(false);
-  const [shareSheet, setShareSheet] = useState(false);
   const [query, setQuery] = useState('');
 
   const { docs, loading, error, refresh } = useLearn({
     format: tab === 'learn' ? 'learnArticle' : 'learnReel',
     babyStage: stage === 'all' ? undefined : stage,
   });
+  // The reel composer is a modal route now, so a fresh post lands while this
+  // screen is unmounted-or-blurred. Refetching on focus is what Explore already
+  // does after place/new, and it covers every way back, not just a clean submit.
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
 
   // Filtered in memory: the Learn corpus is curated and already fetched, so a
   // round-trip per keystroke would buy nothing. Search covers what someone
@@ -184,14 +191,11 @@ export default function DiscoverIndex() {
       {/* Watch only: a contributor can share a reel, but the Read feed is
           editorial — there's nothing there for them to add. */}
       {tab === 'watch' ? (
-        <ComposeFab accessibilityLabel={t('misc.shareReel')} onPress={() => setShareSheet(true)} />
+        <ComposeFab
+          accessibilityLabel={t('misc.shareReel')}
+          onPress={() => router.push('/discover/reel/new')}
+        />
       ) : null}
-
-      <ShareReelSheet
-        visible={shareSheet}
-        onClose={() => setShareSheet(false)}
-        onPosted={refresh}
-      />
     </View>
   );
 }

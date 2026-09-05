@@ -17,6 +17,7 @@ export const ILLUSTRATION_SOURCES = {
   picnic: require('@/assets/illustrations/picnic.jpg'),        // Discover · Learn
   movieNight: require('@/assets/illustrations/movie-night.jpg'), // Discover · Watch
   table: require('@/assets/illustrations/table.jpg'),          // Discover · Explore
+  poolside: require('@/assets/illustrations/poolside.jpg'),    // Discover · Regulars
   tomato: require('@/assets/illustrations/tomato.jpg'),        // Me
   stars: require('@/assets/illustrations/stars.jpg'),          // Me
   microphone: require('@/assets/illustrations/microphone.jpg'), // Me

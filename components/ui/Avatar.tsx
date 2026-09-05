@@ -178,8 +178,13 @@ const styles = StyleSheet.create({
   badgeRow: {
     position: 'absolute',
     bottom: -11,
-    left: 0,
-    right: 0,
+    // Deliberately wider than the avatar. The comment above says the pill has
+    // to be free to overhang on both sides — but left/right of 0 bounded it to
+    // the circle, so the longest label was ellipsised instead: Spanish
+    // 'HABITUAL' rendered as 'HABITU…' and French 'HABITUÉE' would have too.
+    // English 'REGULAR' happened to fit, which is why it was never noticed.
+    left: -60,
+    right: -60,
     alignItems: 'center',
   },
   badge: {
