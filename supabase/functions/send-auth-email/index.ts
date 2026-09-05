@@ -83,37 +83,47 @@ Deno.serve(async (req) => {
   // dies as "Base64Coder: incorrect characters for decoding", which says nothing
   // about what to fix. Normalise, and if it still fails say WHY in terms that
   // point at the secret without ever printing it.
+  // How Supabase encodes this secret is not documented and their own example
+  // does not survive contact with it: the dashboard hands out
+  // `v1,whsec_<base64url>`, standardwebhooks decodes standard base64, and the
+  // two disagree on '-' and '_'. Converting the alphabet got us past
+  // "Base64Coder: incorrect characters" and straight into "No matching
+  // signature", which means the bytes were still not the ones GoTrue signed
+  // with.
   //
-  // And it arrives base64URL-encoded — '-' and '_' where standard base64 has
-  // '+' and '/'. standardwebhooks decodes as standard base64, so Supabase's own
-  // secret fails its own recommended library with "Base64Coder: incorrect
-  // characters for decoding". Diagnosed from a live send: length=36,
-  // nonBase64Chars=__. Translating the alphabet is the whole fix.
-  const bare = secret
-    .trim()
-    .replace(/^v1,/, '')
-    .replace(/^whsec_/, '')
-    .trim()
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
+  // So stop guessing and try the plausible readings, in order, and say which
+  // one worked. Whichever it is, it is stable — the log line below is what a
+  // future reader needs when this breaks again.
+  const bare = secret.trim().replace(/^v1,/, '').replace(/^whsec_/, '').trim();
+  const candidates: { name: string; key: string }[] = [
+    // base64url decoded to the same bytes standard base64 would give
+    { name: 'base64url->base64', key: bare.replace(/-/g, '+').replace(/_/g, '/') },
+    // already standard base64
+    { name: 'base64-as-is', key: bare },
+    // the string itself IS the key, so re-encode it for a library that decodes
+    { name: 'raw-string-key', key: btoa(bare) },
+    // the key includes the prefix
+    { name: 'raw-with-prefix', key: btoa(secret.trim()) },
+  ];
 
-  let payload: HookPayload;
-  try {
-    const wh = new Webhook(bare);
-    payload = wh.verify(raw, Object.fromEntries(req.headers)) as HookPayload;
-  } catch (e) {
-    const msg = String(e);
-    if (msg.includes('Base64')) {
-      // A shape problem, not a mismatch: the secret itself is unusable.
-      console.error(
-        '[send-auth-email] SEND_EMAIL_HOOK_SECRET is not valid base64 after ' +
-          'stripping the v1,whsec_ prefix. length=' + bare.length +
-          ' nonBase64Chars=' + (bare.match(/[^A-Za-z0-9+/=]/g) ?? []).join('') +
-          ' — re-copy it from Authentication > Hooks, whole and unquoted.',
-      );
-    } else {
-      console.error('[send-auth-email] signature rejected', msg);
+  let payload: HookPayload | null = null;
+  const failures: string[] = [];
+  for (const c of candidates) {
+    try {
+      payload = new Webhook(c.key).verify(raw, Object.fromEntries(req.headers)) as HookPayload;
+      console.log(`[send-auth-email] secret interpreted as ${c.name}`);
+      break;
+    } catch (e) {
+      failures.push(`${c.name}: ${String(e).slice(0, 60)}`);
     }
+  }
+
+  if (!payload) {
+    console.error(
+      '[send-auth-email] no reading of SEND_EMAIL_HOOK_SECRET verifies the ' +
+        'signature. length=' + bare.length + ' — check it is THIS project\'s hook ' +
+        'secret (dev and pre-prod each have their own). Tried: ' + failures.join(' | '),
+    );
     return json({ error: { http_code: 401, message: 'invalid signature' } }, 401);
   }
 
