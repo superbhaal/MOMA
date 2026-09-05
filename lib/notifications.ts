@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import type { Router } from 'expo-router';
 import { supabase } from './supabase';
+import { debugLog } from './log';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -66,9 +67,9 @@ export async function registerAndSaveToken(userId: string): Promise<void> {
       .from('users')
       .update({ expo_push_token: token })
       .eq('id', userId);
-    if (error) console.log('[push] saveToken error', error.message);
+    if (error) debugLog('[push] saveToken error', error.message);
   } catch (e: any) {
-    console.log('[push] registerAndSaveToken failed', e?.message);
+    debugLog('[push] registerAndSaveToken failed', e?.message);
   }
 }
 
@@ -80,7 +81,7 @@ export async function clearPushTokenInDb(userId: string): Promise<void> {
   try {
     await supabase.from('users').update({ expo_push_token: null }).eq('id', userId);
   } catch (e: any) {
-    console.log('[push] clearPushToken failed', e?.message);
+    debugLog('[push] clearPushToken failed', e?.message);
   }
 }
 

@@ -1,12 +1,5 @@
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +10,7 @@ import { spacing } from '@/constants/spacing';
 import { fonts } from '@/constants/typography';
 import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
+import { debugLog } from '@/lib/log';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -46,14 +40,14 @@ export default function LoginScreen() {
   }
 
   async function handleApple() {
-    console.log('[Login] handleApple start');
+    debugLog('[Login] handleApple start');
     setError(null);
     setLoading(true);
     const result = await signInWithApple({ requireExistingAccount: true });
-    console.log('[Login] handleApple result', result);
+    debugLog('[Login] handleApple result', result);
     setLoading(false);
     if (result.error) {
-      console.log('[Login] setError:', result.error.message);
+      debugLog('[Login] setError:', result.error.message);
       setError(result.error.message);
     }
   }
@@ -126,9 +120,15 @@ export default function LoginScreen() {
           </View>
         </View>
 
+        <Pressable onPress={() => router.push('/(auth)/forgot-password')} hitSlop={10}>
+          <Typography variant="bodyM" color={colors.cobalt} style={styles.forgot}>
+            {t('auth.forgotLink')}
+          </Typography>
+        </Pressable>
+
         <View style={styles.actions}>
           <Button
-            title={loading ? 'logging in...' : 'log in'}
+            title={loading ? t('auth.loggingIn') : t('auth.logIn')}
             onPress={handleLogin}
             disabled={!canSubmit}
             size="lg"
@@ -223,6 +223,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.line,
     paddingVertical: spacing.md,
   },
+  forgot: { textAlign: 'right', marginTop: spacing.md },
   actions: {
     gap: spacing.md,
   },

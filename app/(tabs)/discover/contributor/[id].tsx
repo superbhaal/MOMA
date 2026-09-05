@@ -13,6 +13,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
+import { isRegular } from '@/constants/roles';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
@@ -75,7 +76,14 @@ export default function ContributorProfile() {
 
         {/* Hero */}
         <View style={styles.hero}>
-          <Avatar name={contributor.display_name} ringColor={ring} size={110} ringWidth={3} />
+          <Avatar
+            name={contributor.display_name}
+            photoUrl={contributor.avatar_url ?? undefined}
+            isRegular={isRegular(contributor.role)}
+            ringColor={ring}
+            size={110}
+            ringWidth={3}
+          />
           <Typography style={styles.name} color={colors.cobalt}>
             {contributor.display_name}
           </Typography>

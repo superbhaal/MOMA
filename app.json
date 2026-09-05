@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "org.joinmoma.moma",
-      "buildNumber": "25",
+      "buildNumber": "28",
       "usesAppleSignIn": true,
       "associatedDomains": [
         "applinks:joinmoma.org"

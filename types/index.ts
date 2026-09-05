@@ -263,6 +263,8 @@ export interface Contributor {
   bio: string | null;
   interests: string[] | null;
   spot_count: number;
+  role: DiscoverRole | null;
+  avatar_url: string | null;
 }
 
 /** One mom's recommendation of a place, inside that place's group. */

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, LogBox, View } from 'react-native';
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRootNavigationState, useRouter, useSegments } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
 import { applyProfileLanguage, initI18n } from '@/lib/i18n';
@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { registerAndSaveToken, routeFromNotificationData } from '@/lib/notifications';
 import { colors } from '@/constants/colors';
 import { ILLUSTRATION_SOURCES } from '@/components/ui/Illustration';
+import { debugLog } from '@/lib/log';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -61,7 +62,7 @@ export default function RootLayout() {
     return () => clearTimeout(timer);
   }, []);
 
-  const { user, isAuthenticated, isOnboarded, authLoading } = useAuth();
+  const { user, isAuthenticated, isOnboarded, authLoading, passwordRecovery } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -76,24 +77,26 @@ export default function RootLayout() {
     if (!isAuthenticated) registeredFor.current = null;
   }, [isAuthenticated, isOnboarded, user?.id]);
 
-  // Route on notification tap — both cold-start (app killed) and while running.
+  // Notification taps are only CAPTURED here — never navigated on the spot.
+  // On a cold start this effect runs while bootDone is still false, so the
+  // <Stack> below has not mounted and a router.push would be thrown away,
+  // stranding the user on the boot spinner. That was the bug: tapping a DM
+  // notification with møma closed opened a frozen screen, while the same tap
+  // from the background worked because the navigator was already up.
+  const [pendingTap, setPendingTap] = useState<Notifications.NotificationResponse | null>(null);
   useEffect(() => {
+    let cancelled = false;
+    // Cold start: the tap that launched the app.
     Notifications.getLastNotificationResponseAsync().then((response) => {
-      if (response) {
-        routeFromNotificationData(
-          response.notification.request.content.data as Record<string, unknown>,
-          router,
-        );
-      }
+      if (!cancelled && response) setPendingTap(response);
     });
-    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
-      routeFromNotificationData(
-        response.notification.request.content.data as Record<string, unknown>,
-        router,
-      );
-    });
-    return () => sub.remove();
-  }, [router]);
+    // Warm: taps while the app is alive.
+    const sub = Notifications.addNotificationResponseReceivedListener(setPendingTap);
+    return () => {
+      cancelled = true;
+      sub.remove();
+    };
+  }, []);
 
   // Latch: once the initial auth check completes, never unmount the Stack again.
   // Subsequent authLoading toggles (during sign-in/sign-up actions) must not
@@ -103,6 +106,33 @@ export default function RootLayout() {
   useEffect(() => {
     if (!authLoading && fontsLoaded) setBootDone(true);
   }, [authLoading, fontsLoaded]);
+
+  // ...and dispatched here, once there is somewhere to navigate to. Three
+  // conditions have to hold: the navigator is mounted (rootNavState.key), boot
+  // is finished, and the auth gate has settled — otherwise the gate's own
+  // router.replace would immediately overwrite the deep link.
+  const rootNavState = useRootNavigationState();
+  const handledTaps = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!pendingTap || !rootNavState?.key || !bootDone || authLoading) return;
+    // A signed-out or half-onboarded user has no business being deep-linked
+    // into a chat. Hold the tap: the gate takes her where she needs to go, and
+    // this fires the moment she is through.
+    if (!isAuthenticated || !isOnboarded) return;
+
+    // The cold-start response and the listener can both deliver the same tap.
+    const id = pendingTap.notification.request.identifier;
+    if (handledTaps.current.has(id)) {
+      setPendingTap(null);
+      return;
+    }
+    handledTaps.current.add(id);
+    routeFromNotificationData(
+      pendingTap.notification.request.content.data as Record<string, unknown>,
+      router,
+    );
+    setPendingTap(null);
+  }, [pendingTap, rootNavState?.key, bootDone, authLoading, isAuthenticated, isOnboarded, router]);
 
   // Step 2 of the language chain, once the profile lands. It backs off if she
   // has already chosen on this device, so this can fire freely on every load.
@@ -127,7 +157,7 @@ export default function RootLayout() {
     const inAuth = segments[0] === '(auth)';
     const inOnboarding = inAuth && segments[1] === 'onboarding';
 
-    console.log('[AuthGate] eval', {
+    debugLog('[AuthGate] eval', {
       segments,
       isAuthenticated,
       isOnboarded,
@@ -139,18 +169,30 @@ export default function RootLayout() {
     // Skip transient empty-segments state. Expo Router emits segments=[] briefly
     // during native modal flows.
     if (!segments[0]) {
-      console.log('[AuthGate] skip (empty segments)');
+      debugLog('[AuthGate] skip (empty segments)');
+      return;
+    }
+
+    // A recovery link signs her in BEFORE she has chosen a new password, so
+    // every branch below would happily wave her through to Home with the
+    // password she has forgotten still in force. This wins over all of them,
+    // and only updatePassword() releases it.
+    if (passwordRecovery) {
+      if (segments[1] !== 'reset-password') {
+        debugLog('[AuthGate] → /reset-password');
+        router.replace('/(auth)/reset-password');
+      }
       return;
     }
 
     if (!isAuthenticated) {
       if (!inAuth || inOnboarding) {
-        console.log('[AuthGate] → /welcome');
+        debugLog('[AuthGate] → /welcome');
         router.replace('/(auth)/welcome');
       }
     } else if (!isOnboarded) {
       if (!inOnboarding) {
-        console.log('[AuthGate] → /onboarding/resume');
+        debugLog('[AuthGate] → /onboarding/resume');
         router.replace('/(auth)/onboarding/resume');
       }
     } else if (inAuth) {
@@ -163,11 +205,11 @@ export default function RootLayout() {
       // sit on (it routes itself to /(tabs)), so leave that alone.
       const onFinal = segments[1] === 'onboarding' && segments[2] === 'final';
       if (!onFinal) {
-        console.log('[AuthGate] → /(tabs)');
+        debugLog('[AuthGate] → /(tabs)');
         router.replace('/(tabs)');
       }
     }
-  }, [isAuthenticated, isOnboarded, authLoading, fontsLoaded, segments, router]);
+  }, [isAuthenticated, isOnboarded, authLoading, fontsLoaded, segments, router, passwordRecovery]);
 
   if (!bootDone) {
     return (

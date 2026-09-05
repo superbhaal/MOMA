@@ -75,6 +75,10 @@ interface AppState {
   isAuthenticated: boolean;
   isOnboarded: boolean;
   authLoading: boolean;
+  /** True between a recovery link opening a session and a new password being
+   *  saved. The session is live at that point, so nothing else would stop her
+   *  landing on Home with the password she has forgotten still in force. */
+  passwordRecovery: boolean;
 
   // Onboarding accumulator
   onboardingData: OnboardingData;
@@ -87,6 +91,7 @@ interface AppState {
   setAuthenticated: (value: boolean) => void;
   setOnboarded: (value: boolean) => void;
   setAuthLoading: (value: boolean) => void;
+  setPasswordRecovery: (value: boolean) => void;
   updateOnboarding: (partial: Partial<OnboardingData>) => void;
   resetOnboarding: () => void;
   setDiscoverFeedTab: (tab: DiscoverFeedTab) => void;
@@ -98,6 +103,7 @@ export const useAppStore = create<AppState>((set) => ({
   isAuthenticated: false,
   isOnboarded: false,
   authLoading: true,
+  passwordRecovery: false,
   onboardingData: { ...EMPTY_ONBOARDING },
   discoverFeedTab: 'learn',
 
@@ -105,6 +111,7 @@ export const useAppStore = create<AppState>((set) => ({
   setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
   setOnboarded: (isOnboarded) => set({ isOnboarded }),
   setAuthLoading: (authLoading) => set({ authLoading }),
+  setPasswordRecovery: (passwordRecovery) => set({ passwordRecovery }),
   updateOnboarding: (partial) =>
     set((state) => ({
       onboardingData: { ...state.onboardingData, ...partial },
@@ -117,6 +124,7 @@ export const useAppStore = create<AppState>((set) => ({
       isAuthenticated: false,
       isOnboarded: false,
       authLoading: false,
+      passwordRecovery: false,
       onboardingData: { ...EMPTY_ONBOARDING },
       discoverFeedTab: 'learn',
     }),

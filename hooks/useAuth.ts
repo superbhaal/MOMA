@@ -9,6 +9,7 @@ import { clearPushTokenInDb } from '@/lib/notifications';
 import { useAppStore } from '@/store/useAppStore';
 import { userToOnboardingPatch } from './useOnboarding';
 import type { User } from '@/types';
+import { debugLog } from '@/lib/log';
 
 // Required so the browser modal closes properly after Google auth on iOS.
 WebBrowser.maybeCompleteAuthSession();
@@ -32,6 +33,8 @@ export function useAuth() {
     isAuthenticated,
     isOnboarded,
     authLoading,
+    passwordRecovery,
+    setPasswordRecovery,
     setUser,
     setAuthenticated,
     setOnboarded,
@@ -63,7 +66,7 @@ export function useAuth() {
           return;
         }
 
-        console.log('[init] getSession', { hasSession: !!session?.user, userId: session?.user?.id });
+        debugLog('[init] getSession', { hasSession: !!session?.user, userId: session?.user?.id });
 
         if (session?.user) {
           setAuthenticated(true);
@@ -89,7 +92,7 @@ export function useAuth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
-        console.log('[onAuthStateChange]', { event, hasSession: !!session?.user });
+        debugLog('[onAuthStateChange]', { event, hasSession: !!session?.user });
         if (_suppressAuthStateChange) return;
         // Startup is owned by init() above. init() awaits getSession(), which
         // refreshes the cached token before returning — so its result is never
@@ -99,6 +102,14 @@ export function useAuth() {
         // 401 → user stranded as authenticated-but-not-onboarded. Ignore it;
         // init() covers the cached session.
         if (event === 'INITIAL_SESSION') return;
+        // Kept as a belt to handleAuthCallback's braces, not as the mechanism.
+        // supabase-js only emits PASSWORD_RECOVERY when IT parses the URL
+        // (detectSessionInUrl, web only). This app reads the deep link itself
+        // and calls setSession, which emits SIGNED_IN — so relying on this
+        // event alone silently did nothing, and a recovery link dropped the
+        // woman into onboarding with her forgotten password still live. The
+        // flag is set from the URL in handleAuthCallback instead.
+        if (event === 'PASSWORD_RECOVERY') setPasswordRecovery(true);
         if (session?.user) {
           // Hold authLoading high so the auth gate doesn't kick the user to
           // /resume while isOnboarded is still false (it's not been read yet).
@@ -159,7 +170,7 @@ export function useAuth() {
       ]);
 
       const { data, error } = result;
-      console.log('[fetchProfile]', {
+      debugLog('[fetchProfile]', {
         userId,
         signOutIfMissing: !!options?.signOutIfMissing,
         hasData: !!data,
@@ -246,21 +257,21 @@ export function useAuth() {
   }
 
   async function signInWithApple(options?: { requireExistingAccount?: boolean }) {
-    console.log('[Apple] signInWithApple called', options);
+    debugLog('[Apple] signInWithApple called', options);
     if (Platform.OS !== 'ios') {
-      console.log('[Apple] not iOS — abort');
+      debugLog('[Apple] not iOS — abort');
       return { error: { message: 'Apple Sign-In is only available on iOS' } };
     }
 
     try {
-      console.log('[Apple] requesting Apple credential…');
+      debugLog('[Apple] requesting Apple credential…');
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [
           AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
           AppleAuthentication.AppleAuthenticationScope.EMAIL,
         ],
       });
-      console.log('[Apple] credential received', {
+      debugLog('[Apple] credential received', {
         hasIdentityToken: !!credential.identityToken,
         hasEmail: !!credential.email,
         hasFullName: !!credential.fullName,
@@ -268,7 +279,7 @@ export function useAuth() {
       });
 
       if (!credential.identityToken) {
-        console.log('[Apple] no identityToken — abort');
+        debugLog('[Apple] no identityToken — abort');
         return { error: { message: 'No identity token returned from Apple' } };
       }
 
@@ -278,12 +289,12 @@ export function useAuth() {
       // into onboarding).
       if (options?.requireExistingAccount) _suppressAuthStateChange = true;
 
-      console.log('[Apple] calling supabase.auth.signInWithIdToken…');
+      debugLog('[Apple] calling supabase.auth.signInWithIdToken…');
       const { data, error } = await supabase.auth.signInWithIdToken({
         provider: 'apple',
         token: credential.identityToken,
       });
-      console.log('[Apple] signInWithIdToken result', {
+      debugLog('[Apple] signInWithIdToken result', {
         hasUser: !!data?.user,
         hasSession: !!data?.session,
         userId: data?.user?.id,
@@ -318,7 +329,7 @@ export function useAuth() {
 
       return { error: null, fullName: credential.fullName };
     } catch (e: any) {
-      console.log('[Apple] caught error', {
+      debugLog('[Apple] caught error', {
         code: e?.code,
         message: e?.message,
         name: e?.name,
@@ -341,6 +352,31 @@ export function useAuth() {
       .eq('id', userId)
       .maybeSingle();
     return !!data;
+  }
+
+  /**
+   * Ask Supabase to email a recovery link.
+   *
+   * Deliberately says nothing about whether the address is registered — the
+   * caller shows the same "if an account exists" line either way, because a
+   * different answer would turn this screen into a way to find out who is on
+   * møma. Supabase's own response does not distinguish them either.
+   */
+  async function requestPasswordReset(email: string) {
+    const redirectTo = AuthSession.makeRedirectUri({ scheme: 'moma', path: 'auth/callback' });
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+    return { error };
+  }
+
+  /** Set a new password on the session the recovery link opened. */
+  async function updatePassword(password: string) {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (!error) setPasswordRecovery(false);
+    return { error };
+  }
+
+  function clearPasswordRecovery() {
+    setPasswordRecovery(false);
   }
 
   async function signInWithGoogle(options?: { requireExistingAccount?: boolean }) {
@@ -500,11 +536,16 @@ export function useAuth() {
       const refresh_token = params.get('refresh_token');
       if (access_token && refresh_token) {
         setAuthLoading(true);
+        // Read this BEFORE the session lands: setSession fires SIGNED_IN, which
+        // sends the auth gate looking for somewhere to put her, and it must
+        // already know this is a recovery.
+        const isRecovery = params.get('type') === 'recovery';
         const { data, error } = await supabase.auth.setSession({
           access_token,
           refresh_token,
         });
         if (!error && data.user) {
+          if (isRecovery) setPasswordRecovery(true);
           setAuthenticated(true);
           await fetchProfile(data.user.id);
         }
@@ -528,6 +569,7 @@ export function useAuth() {
           type: type as any,
         });
         if (!error && data?.user) {
+          if (type === 'recovery') setPasswordRecovery(true);
           setAuthenticated(true);
           await fetchProfile(data.user.id);
         }
@@ -556,6 +598,10 @@ export function useAuth() {
     signInWithGoogle,
     handleAuthCallback,
     resendConfirmationEmail,
+    requestPasswordReset,
+    updatePassword,
+    passwordRecovery,
+    clearPasswordRecovery,
     signOut,
     deleteAccount,
     fetchProfile,
