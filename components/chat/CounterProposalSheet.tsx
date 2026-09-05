@@ -118,7 +118,7 @@ export function CounterProposalSheet({
       </View>
 
       <Typography variant="label" color={colors.muted} style={styles.label}>
-        NOTE
+        {t('grp.noteLabel')}
       </Typography>
       <TextInput
         value={note}

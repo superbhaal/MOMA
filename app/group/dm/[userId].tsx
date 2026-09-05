@@ -113,7 +113,7 @@ export default function DmScreen() {
         ListEmptyComponent={
           <View style={styles.empty}>
             <Typography variant="bodyL" color={colors.muted} style={{ textAlign: 'center' }}>
-              say hi to {other?.display_name?.toLowerCase() ?? 'them'}.
+              {t('grp.dmEmpty', { name: other?.display_name?.toLowerCase() ?? 'them' })}
             </Typography>
           </View>
         }

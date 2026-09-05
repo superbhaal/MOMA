@@ -26,7 +26,7 @@
     "createYourAccount": "créez votre compte",
     "email": "E-MAIL",
     "password": "MOT DE PASSE",
-    "confirmPassword": "CONFIRMEZ LE MOT DE PASSE",
+    "confirmPassword": "CONFIRMEZ-LE",
     "emailPlaceholder": "bonjour@email.com",
     "passwordPlaceholder": "votre mot de passe",
     "passwordMinPlaceholder": "au moins 6 caractères",
@@ -39,7 +39,24 @@
     "logIn": "se connecter",
     "createAccount": "créer un compte",
     "creatingAccount": "création du compte...",
-    "passwordTooShort": "le mot de passe doit faire au moins 6 caractères"
+    "passwordTooShort": "le mot de passe doit faire au moins 6 caractères",
+    "loggingIn": "connexion…",
+    "forgotLink": "Mot de passe oublié ?",
+    "forgotTitle": "réinitialiser votre\nmot de passe",
+    "forgotBlurb": "Saisissez l’adresse avec laquelle vous vous êtes inscrite. Nous vous enverrons un lien pour choisir un nouveau mot de passe.",
+    "forgotSend": "envoyer le lien",
+    "forgotSending": "envoi…",
+    "forgotSentTitle": "regardez vos\nemails",
+    "forgotSentBlurb": "Si un compte existe pour {{email}}, le lien est en route. Il expire dans une heure.",
+    "backToLogin": "retour à la connexion",
+    "newPwTitle": "choisissez un\nnouveau mot de passe",
+    "newPwBlurb": "Presque fini. Choisissez quelque chose dont vous vous souviendrez.",
+    "newPassword": "NOUVEAU MOT DE PASSE",
+    "newPwSave": "enregistrer",
+    "newPwSaving": "enregistrement…",
+    "pwTooShort": "Au moins 8 caractères.",
+    "pwMismatch": "Les deux ne correspondent pas.",
+    "pwLinkExpired": "Ce lien a expiré. Demandez-en un nouveau."
   },
   "verify": {
     "title": "vérifiez vos e-mails",
@@ -112,7 +129,11 @@
     "interests": "CENTRES D’INTÉRÊT",
     "instagram": "INSTAGRAM",
     "tapChange": "TOUCHEZ POUR CHANGER LA PHOTO",
-    "tapUpload": "TOUCHEZ POUR AJOUTER UNE PHOTO"
+    "tapUpload": "TOUCHEZ POUR AJOUTER UNE PHOTO",
+    "resumeTitle": "Vous y étiez\npresque.",
+    "resumeBody": "Vous avez répondu à {{answered}} questions sur {{total}}. Reprenez où vous en étiez, vos réponses sont bien gardées.",
+    "pfTitle": "Parlez-nous un peu\nde vous.",
+    "agePlaceholder": "ex. 28"
   },
   "home": {
     "yourGroups": "VOS GROUPES",
@@ -219,7 +240,16 @@
     "quietHere": "c’est calme ici.",
     "breakIce": "lancez la conversation — touchez pour envoyer comme premier message.",
     "membersCount_one": "{{count}} membre",
-    "membersCount_other": "{{count}} membres"
+    "membersCount_other": "{{count}} membres",
+    "dmEmpty": "dites bonjour à {{name}}.",
+    "noteLabel": "NOTE",
+    "messageBtn": "Message",
+    "dueInW": "Terme dans {{count}} sem",
+    "babyDays": "Bébé : {{count}} j",
+    "babyWeeks": "Bébé : {{count}} sem",
+    "babyMonths": "Bébé : {{count}} mois",
+    "babyYears_one": "Bébé : {{count}} an",
+    "babyYears_other": "Bébé : {{count}} ans"
   },
   "me": {
     "aboutMe": "À propos de moi",
@@ -264,7 +294,17 @@
     "savedEmptyA": "Aimez un conseil dans Apprendre et il atterrit ici, ",
     "savedEmptyStrong": "votre étagère privée",
     "savedEmptyB": " de lieux, de rituels et de choses qui méritent qu’on s’en souvienne.",
-    "noGroupYet": "Vous n’êtes pas encore dans un groupe. On vous prévient dès qu’un cercle se forme près de chez vous."
+    "noGroupYet": "Vous n’êtes pas encore dans un groupe. On vous prévient dès qu’un cercle se forme près de chez vous.",
+    "bornOn": "Bébé né le {{date}}",
+    "dueOn": "Terme le {{date}}",
+    "weekN": "Semaine {{count}}",
+    "freesSlot_one": "{{count}} membre · libère 1 place sur 2.",
+    "freesSlot_other": "{{count}} membres · libère 1 place sur 2.",
+    "savedRead": "Article enregistré",
+    "savedWatch": "Reel enregistré",
+    "savedRecco": "Recommandation enregistrée",
+    "leaveTitle": "Quitter {{name}} ?",
+    "thisGroup": "ce groupe"
   },
   "prefs": {
     "whoMatched": "AVEC QUI ON VOUS RAPPROCHE",
@@ -291,7 +331,8 @@
     "done": "terminé",
     "addLanguage": "Ajouter une langue",
     "add": "Ajouter",
-    "langPlaceholder": "ex. catalan, wolof, mandarin"
+    "langPlaceholder": "ex. catalan, wolof, mandarin",
+    "title": "Préférences de\nrapprochement"
   },
   "brought": {
     "kRecipe": "Recette",
@@ -380,7 +421,12 @@
     "onlyOne": "Une seule à la fois — celle-ci remplacera ce qui est sur votre profil.",
     "dWhenWorks": "Quand ça marche",
     "dHowFound": "Comment elle l’a découvert",
-    "dWhoTold": "Qui le lui a dit"
+    "dWhoTold": "Qui le lui a dit",
+    "by": "Apporté par {{name}}",
+    "underlined": "Une phrase qu’elle a soulignée",
+    "method": "PRÉPARATION",
+    "publicNote": "Public · tout le monde à la table peut le voir",
+    "stepN": "Étape {{n}}"
   },
   "disc": {
     "postingPlaces": "LIEUX",
@@ -433,7 +479,9 @@
     "goesPlaces": "Elle rejoint la carte des lieux, à votre nom.",
     "goesPeople": "Elle rejoint la carte des personnes, à votre nom.",
     "pWhyTitle": "Pourquoi est-elle formidable avec les mamans ?",
-    "pWhySub": "Restez affirmative et positive : c’est une vraie recommandation, sur laquelle une autre maman va agir. Les mises en garde ont leur place dans les messages privés, pas sur une carte publique."
+    "pWhySub": "Restez affirmative et positive : c’est une vraie recommandation, sur laquelle une autre maman va agir. Les mises en garde ont leur place dans les messages privés, pas sur une carte publique.",
+    "moreChars_one": "encore {{count}} caractère",
+    "moreChars_other": "encore {{count}} caractères"
   },
   "reel": {
     "igLabel": "Lien Instagram",
@@ -588,16 +636,35 @@
     "wellness": "Prendre soin de vous",
     "wellnessSub": "Votre corps, votre tête, votre repos",
     "filterNote": "On filtrera Apprendre et Regarder en conséquence.",
-    "tabRegular": "Habitué",
-    "regularOne": "Habitué",
-    "searchRegulars": "Chercher un habitué…",
+    "tabRegular": "Habituées",
+    "regularOne": "Habituée",
+    "searchRegulars": "Chercher une habituée…",
     "noRegulars": "Aucun habitué ne correspond.",
     "regularsEmpty": "Pas encore d’habitués.",
     "spotsCount_one": "{{count}} adresse",
     "spotsCount_other": "{{count}} adresses",
     "readMin": "LECTURE · {{n}} MIN",
     "watchLabelCaps": "VIDÉO",
-    "watchPlatform": "VIDÉO · {{p}}"
+    "watchPlatform": "VIDÉO · {{p}}",
+    "minLeft": "{{count}} MIN RESTANTES",
+    "addedByYou": "ajouté par vous",
+    "lovedByCount_one": "Aimé par {{count}} maman",
+    "lovedByCount_other": "Aimé par {{count}} mamans",
+    "subRegular": "Celles qui connaissent le quartier",
+    "cT1": "1er tri",
+    "cT2": "2e tri",
+    "cT3": "3e tri",
+    "c04wks": "0–4 sem",
+    "c13mo": "1–3 mois",
+    "c36mo": "3–6 mois",
+    "c612mo": "6–12 mois",
+    "c12yr": "1–2 ans",
+    "c23yr": "2–3 ans",
+    "c3yr": "3+ ans",
+    "cWellness": "Bien-être",
+    "minRead": "{{count}} min de lecture",
+    "openIn": "Ouvrir dans {{platform}}",
+    "sharedFrom": "Partagé depuis {{platform}}"
   },
   "wait": {
     "title": "On met votre table",
@@ -640,7 +707,12 @@
     "wAgo": "il y a {{n}} sem.",
     "moAgo": "il y a {{n}} mois",
     "yAgo": "il y a {{n}} ans",
-    "you": "Vous"
+    "you": "Vous",
+    "a11ySeeProfile": "Voir le profil de {{name}}",
+    "a11yCall": "Appeler {{name}}",
+    "a11yEmail": "Écrire à {{name}}",
+    "a11yWebsite": "Ouvrir le site de {{name}}",
+    "lovedByWho": "Recommandé par {{names}}"
   },
   "lang": {
     "English": "Anglais",
@@ -697,6 +769,11 @@
     "removeTitle": "Retirer votre recommandation ?",
     "removeBody": "Elle disparaît de la carte. Si d’autres mamans ont recommandé ce lieu, les leurs restent.",
     "discardTitleP": "Abandonner ce que vous avez saisi ?",
-    "discardBodyP": "Cela efface tout ce que vous avez saisi et vous ramène à la connexion."
+    "discardBodyP": "Cela efface tout ce que vous avez saisi et vous ramène à la connexion.",
+    "shareAction": "Partager",
+    "replace": "Remplacer",
+    "you": "(vous)",
+    "photoHint": "JPG, PNG · jusqu’à 8 Mo",
+    "calendarMeetup": "Rencontre møma"
   }
 }

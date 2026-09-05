@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { babyAgeCompact } from '@/lib/babyAge';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
@@ -41,7 +42,7 @@ export function GroupPreviewCard({ member, matchNote, brought }: GroupPreviewCar
           </Typography>
         </View>
         <Typography style={styles.detail} color={colors.muted}>
-          {babyAgeShort(u.baby_dob, u.life_stage)}
+          {babyAgeCompact(u.baby_dob, u.life_stage, t)}
           {u.neighbourhood ? ` · ${u.neighbourhood}` : ''}
         </Typography>
         {matchNote ? (
@@ -68,19 +69,6 @@ export function GroupPreviewCard({ member, matchNote, brought }: GroupPreviewCar
   );
 }
 
-function babyAgeShort(dob: string, stage: string | null): string {
-  const days = Math.floor(
-    (Date.now() - new Date(dob).getTime()) / (1000 * 60 * 60 * 24),
-  );
-  if (stage === 'expecting' || days < 0) {
-    const w = Math.max(1, Math.ceil(Math.abs(days) / 7));
-    return `Due in ${w}w`;
-  }
-  if (days < 14) return `Baby: ${days}d`;
-  if (days < 90) return `Baby: ${Math.floor(days / 7)}w`;
-  if (days < 365 * 2) return `Baby: ${Math.floor(days / 30)}mo`;
-  return `Baby: ${Math.floor(days / 365)}y`;
-}
 
 const styles = StyleSheet.create({
   row: {

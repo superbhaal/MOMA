@@ -26,7 +26,7 @@
     "createYourAccount": "create your account",
     "email": "EMAIL",
     "password": "PASSWORD",
-    "confirmPassword": "CONFIRM PASSWORD",
+    "confirmPassword": "CONFIRM IT",
     "emailPlaceholder": "hello@email.com",
     "passwordPlaceholder": "your password",
     "passwordMinPlaceholder": "at least 6 characters",
@@ -39,7 +39,24 @@
     "logIn": "log in",
     "createAccount": "create account",
     "creatingAccount": "creating account...",
-    "passwordTooShort": "password must be at least 6 characters"
+    "passwordTooShort": "password must be at least 6 characters",
+    "loggingIn": "logging in…",
+    "forgotLink": "Forgot your password?",
+    "forgotTitle": "reset your\npassword",
+    "forgotBlurb": "Enter the address you signed up with. We'll send a link to choose a new password.",
+    "forgotSend": "send the link",
+    "forgotSending": "sending…",
+    "forgotSentTitle": "check your\nemail",
+    "forgotSentBlurb": "If an account exists for {{email}}, the link is on its way. It expires in an hour.",
+    "backToLogin": "back to log in",
+    "newPwTitle": "choose a new\npassword",
+    "newPwBlurb": "Almost there. Pick something you'll remember.",
+    "newPassword": "NEW PASSWORD",
+    "newPwSave": "save it",
+    "newPwSaving": "saving…",
+    "pwTooShort": "At least 8 characters.",
+    "pwMismatch": "The two don't match.",
+    "pwLinkExpired": "That link has expired. Ask for a new one."
   },
   "verify": {
     "title": "check your email",
@@ -112,7 +129,11 @@
     "interests": "INTERESTS",
     "instagram": "INSTAGRAM",
     "tapChange": "TAP TO CHANGE PHOTO",
-    "tapUpload": "TAP TO UPLOAD A PHOTO"
+    "tapUpload": "TAP TO UPLOAD A PHOTO",
+    "resumeTitle": "You were\nalmost there.",
+    "resumeBody": "You answered {{answered}} of {{total}} questions. Pick up where you left off. We kept your answers safe.",
+    "pfTitle": "Tell us a little\nabout you.",
+    "agePlaceholder": "e.g. 28"
   },
   "home": {
     "yourGroups": "YOUR GROUPS",
@@ -219,7 +240,16 @@
     "quietHere": "it’s quiet in here.",
     "breakIce": "break the ice with one of these — tap to send as your first message.",
     "membersCount_one": "{{count}} member",
-    "membersCount_other": "{{count}} members"
+    "membersCount_other": "{{count}} members",
+    "dmEmpty": "say hi to {{name}}.",
+    "noteLabel": "NOTE",
+    "messageBtn": "Message",
+    "dueInW": "Due in {{count}}w",
+    "babyDays": "Baby: {{count}}d",
+    "babyWeeks": "Baby: {{count}}w",
+    "babyMonths": "Baby: {{count}}mo",
+    "babyYears_one": "Baby: {{count}}y",
+    "babyYears_other": "Baby: {{count}}y"
   },
   "me": {
     "aboutMe": "About me",
@@ -264,7 +294,17 @@
     "savedEmptyA": "Heart a tip in Learn and it lands here, ",
     "savedEmptyStrong": "your private shelf",
     "savedEmptyB": " of places, rituals, and things worth remembering.",
-    "noGroupYet": "You’re not in a group yet. We’ll let you know the moment a circle forms near you."
+    "noGroupYet": "You’re not in a group yet. We’ll let you know the moment a circle forms near you.",
+    "bornOn": "Baby born {{date}}",
+    "dueOn": "Due {{date}}",
+    "weekN": "Week {{count}}",
+    "freesSlot_one": "{{count}} member · frees up 1 of 2 slots.",
+    "freesSlot_other": "{{count}} members · frees up 1 of 2 slots.",
+    "savedRead": "Saved article",
+    "savedWatch": "Saved reel",
+    "savedRecco": "Saved recommendation",
+    "leaveTitle": "Leave {{name}}?",
+    "thisGroup": "this group"
   },
   "prefs": {
     "whoMatched": "WHO YOU GET MATCHED WITH",
@@ -291,7 +331,8 @@
     "done": "done",
     "addLanguage": "Add a language",
     "add": "Add",
-    "langPlaceholder": "e.g. Catalan, Wolof, Mandarin"
+    "langPlaceholder": "e.g. Catalan, Wolof, Mandarin",
+    "title": "Matching\npreferences"
   },
   "brought": {
     "kRecipe": "Recipe",
@@ -380,7 +421,12 @@
     "onlyOne": "You can have one out at a time — this replaces what’s on your profile now.",
     "dWhenWorks": "When it works",
     "dHowFound": "How she found out",
-    "dWhoTold": "Who told her"
+    "dWhoTold": "Who told her",
+    "by": "Brought by {{name}}",
+    "underlined": "A line she underlined",
+    "method": "METHOD",
+    "publicNote": "Public · everyone at the table can see it",
+    "stepN": "Step {{n}}"
   },
   "disc": {
     "postingPlaces": "PLACES",
@@ -433,7 +479,9 @@
     "goesPlaces": "It goes on the Places map, attributed to you.",
     "goesPeople": "It goes on the People map, attributed to you.",
     "pWhyTitle": "Why is she/he great with moms?",
-    "pWhySub": "Keep it affirmative & positive, this is a real recommendation another mom will act on. Warnings belong in private chats, not on a public map."
+    "pWhySub": "Keep it affirmative & positive, this is a real recommendation another mom will act on. Warnings belong in private chats, not on a public map.",
+    "moreChars_one": "{{count}} more character",
+    "moreChars_other": "{{count}} more characters"
   },
   "reel": {
     "igLabel": "Instagram link",
@@ -588,7 +636,7 @@
     "wellness": "Wellness for you",
     "wellnessSub": "Your body, your head, your rest",
     "filterNote": "We’ll filter Learn and Watch to match.",
-    "tabRegular": "Regular",
+    "tabRegular": "Regulars",
     "regularOne": "Regular",
     "searchRegulars": "Search a regular…",
     "noRegulars": "No regular matches that.",
@@ -597,7 +645,26 @@
     "spotsCount_other": "{{count}} spots",
     "readMin": "READ · {{n}} MIN",
     "watchLabelCaps": "WATCH",
-    "watchPlatform": "WATCH · {{p}}"
+    "watchPlatform": "WATCH · {{p}}",
+    "minLeft": "{{count}} MIN LEFT",
+    "addedByYou": "added by you",
+    "lovedByCount_one": "Loved by {{count}} mom",
+    "lovedByCount_other": "Loved by {{count}} moms",
+    "subRegular": "The ones who know the neighbourhood",
+    "cT1": "1st tri",
+    "cT2": "2nd tri",
+    "cT3": "3rd tri",
+    "c04wks": "0–4 wks",
+    "c13mo": "1–3 mo",
+    "c36mo": "3–6 mo",
+    "c612mo": "6–12 mo",
+    "c12yr": "1–2 yr",
+    "c23yr": "2–3 yr",
+    "c3yr": "3+ yr",
+    "cWellness": "Wellness",
+    "minRead": "{{count}} min read",
+    "openIn": "Open in {{platform}}",
+    "sharedFrom": "Shared from {{platform}}"
   },
   "wait": {
     "title": "We’re setting your table",
@@ -640,7 +707,12 @@
     "wAgo": "{{n}}w ago",
     "moAgo": "{{n}}mo ago",
     "yAgo": "{{n}}y ago",
-    "you": "You"
+    "you": "You",
+    "a11ySeeProfile": "See {{name}}'s profile",
+    "a11yCall": "Call {{name}}",
+    "a11yEmail": "Email {{name}}",
+    "a11yWebsite": "Open {{name}}'s website",
+    "lovedByWho": "Loved by {{names}}"
   },
   "lang": {
     "English": "English",
@@ -697,6 +769,11 @@
     "removeTitle": "Remove your recommendation?",
     "removeBody": "It comes off the map. If other moms have recommended this place too, theirs stay.",
     "discardTitleP": "Discard what you entered?",
-    "discardBodyP": "This clears everything you entered and takes you back to sign in."
+    "discardBodyP": "This clears everything you entered and takes you back to sign in.",
+    "shareAction": "Share",
+    "replace": "Replace",
+    "you": "(you)",
+    "photoHint": "JPG, PNG · up to 8MB",
+    "calendarMeetup": "møma meetup"
   }
 }

@@ -236,7 +236,7 @@ export default function LovedSpotDetail() {
             <View style={styles.lovesRow}>
               <Ionicons name="heart" size={15} color={colors.fuchsia} />
               <Typography style={styles.lovesText} color={colors.fuchsia}>
-                Loved by {spot.rec_count} moms
+                {t('dis.lovedByCount', { count: spot.rec_count })}
               </Typography>
             </View>
           ) : null}
@@ -252,7 +252,7 @@ export default function LovedSpotDetail() {
                   })
                 }
                 accessibilityRole="button"
-                accessibilityLabel={`See ${r.poster_name ?? 'her'} profile`}
+                accessibilityLabel={t('expl.a11ySeeProfile', { name: r.poster_name ?? t('expl.aMom') })}
               >
                 {/* Her identity, not her photo of the café — those are two
                     different pictures and the avatar belongs to the first. */}
@@ -305,7 +305,7 @@ export default function LovedSpotDetail() {
               icon="call-outline"
               label={spot.phone}
               onPress={() => Linking.openURL(`tel:${spot.phone}`).catch(() => {})}
-              accessibilityLabel={`Call ${spot.name}`}
+              accessibilityLabel={t('expl.a11yCall', { name: spot.name })}
             />
           ) : null}
           {spot.email ? (
@@ -313,7 +313,7 @@ export default function LovedSpotDetail() {
               icon="mail-outline"
               label={spot.email}
               onPress={() => Linking.openURL(`mailto:${spot.email}`).catch(() => {})}
-              accessibilityLabel={`Email ${spot.name}`}
+              accessibilityLabel={t('expl.a11yEmail', { name: spot.name })}
             />
           ) : null}
           {spot.booking_url ? (
@@ -326,7 +326,7 @@ export default function LovedSpotDetail() {
                   : `https://${spot.booking_url}`;
                 Linking.openURL(url).catch(() => {});
               }}
-              accessibilityLabel={`Open ${spot.name}'s website`}
+              accessibilityLabel={t('expl.a11yWebsite', { name: spot.name })}
             />
           ) : null}
 

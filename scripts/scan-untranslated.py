@@ -18,7 +18,14 @@ It over-reports on purpose. Known and accepted noise:
   * hooks/*.ts 'not authenticated', 'missing context' — internal error strings
     that never reach a screen unrendered.
   * long prose inside comments.
-import re, pathlib, json, sys
+  * onboarding/profile.tsx 'van Dijk' — a sample surname in a placeholder, not
+    copy; it reads as a name in every language.
+
+A JSX line counts as copy once its {...} expressions are stripped out — that is
+what catches titles broken by a manual line break, e.g. Matching{'\n'}preferences,
+which no contiguous-string search can ever see.
+"""
+import re, pathlib
 
 # Codes, styles, valeurs techniques : jamais de la copie.
 TECH = re.compile(r"^(#|rgba?\(|https?:|[a-z0-9_.-]+/[a-z0-9_./-]+$|@[a-z@/-]|\d)|"
@@ -32,21 +39,50 @@ TECH = re.compile(r"^(#|rgba?\(|https?:|[a-z0-9_.-]+/[a-z0-9_./-]+$|@[a-z@/-]|\d
                   r"morning|afternoon|evening|en|fr|es)$", re.I)
 FONT = re.compile(r"(DMSans|Cormorant|Lora)-")
 # Au moins deux mots alphabétiques, ou un mot capitalisé de 4+ lettres.
-COPYISH = re.compile(r"^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ’'.,!?&()·—–-]*( +[A-Za-zÀ-ÿ’'.,!?&()·—–-]+)+$|^[A-Z][a-zA-Z]{3,}$")
+# Les chiffres comptent : « frees up 1 of 2 slots » est de la copie, et sans
+# 0-9 dans les classes ce genre de phrase passait sous le radar.
+COPYISH = re.compile(r"^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9’'.,!?&()·—–-]*( +[A-Za-zÀ-ÿ0-9’'.,!?&()·—–-]+)+$|^[A-Z][a-zA-Z]{3,}$")
 
 # Positions qui rendent une chaîne visible.
 ATTR = re.compile(r"\b(label|title|placeholder|hint|sub|note|text|accessibilityLabel|q|a|body|deck|lead|message)\s*[:=]\s*(['\"])(.+?)\2")
 JSXATTR = re.compile(r"\b(label|title|placeholder|hint|accessibilityLabel)=\"([^\"]+)\"")
-JSXTEXT = re.compile(r"^\s{4,}([A-ZÀ-Ý][A-Za-zÀ-ÿ’'.,!?&() —–-]{7,})\s*$")
+BRACE = re.compile(r"\{[^{}]*\}")
+# && || ?: sont du JSX conditionnel, jamais de la copie.
+NOTCOPY = re.compile(r"[=;\[\]<>]|\w\(|\)\w|&&|\|\||\?|(^|\s)\w+\.\w+($|\s)")
+
+def jsx_text(line: str):
+    """The visible text of a JSX line, or None if the line is not copy."""
+    st = line.strip()
+    if len(line) - len(line.lstrip()) < 4: return None
+    if not st or st[0] in '<}/': return None
+    if st.startswith('{') and st.endswith('}'): return None   # pure expression
+    t = BRACE.sub(' ', st).strip()                            # drop {'\n'}, {count}...
+    t = re.sub(r'\s+', ' ', t)
+    if not t or NOTCOPY.search(t): return None
+    # « return ( » ouvre du JSX ; de la copie parenthésée est toujours équilibrée.
+    if t.count('(') != t.count(')'): return None
+    return t
 ALERT = re.compile(r"Alert\.alert\(\s*(['\"])(.+?)\1")
+TEMPLATE = re.compile(r"`([^`]*)`")
+SUBST = re.compile(r"\$\{[^{}]*\}")
 RETSTR = re.compile(r"return\s+(['\"])([A-Za-z][^'\"]{6,})\1")
 
 hits = []
 for d in ('app', 'components', 'constants', 'hooks', 'lib'):
     for f in sorted(pathlib.Path(d).rglob('*.ts*')):
         src = f.read_text()
+        in_block = False
         for n, line in enumerate(src.split('\n'), 1):
             st = line.strip()
+            # Suivre les commentaires de bloc : leurs lignes de continuation ne
+            # commencent pas toutes par * et se lisaient comme de la prose.
+            if in_block:
+                if '*/' in st: in_block = False
+                continue
+            # {/* ... */} sur plusieurs lignes : la forme JSX du commentaire.
+            if st.startswith(('/*', '{/*')) and '*/' not in st:
+                in_block = True
+                continue
             if st.startswith(('//', '*', '/*')) or 'import ' in st: continue
             if "t('" in line or 't(`' in line: continue
             if FONT.search(line): continue
@@ -54,9 +90,12 @@ for d in ('app', 'components', 'constants', 'hooks', 'lib'):
             for m in ATTR.finditer(line): found.add(m.group(3))
             for m in JSXATTR.finditer(line): found.add(m.group(2))
             for m in ALERT.finditer(line): found.add(m.group(2))
+            for m in TEMPLATE.finditer(line):
+                lit = re.sub(r'\s+', ' ', SUBST.sub(' ', m.group(1))).strip()
+                if lit: found.add(lit)
             for m in RETSTR.finditer(line): found.add(m.group(2))
-            m = JSXTEXT.match(line)
-            if m: found.add(m.group(1))
+            jt = jsx_text(line)
+            if jt: found.add(jt)
             for s in found:
                 if TECH.match(s) or not COPYISH.match(s): continue
                 hits.append((str(f), n, s[:70]))

@@ -53,10 +53,10 @@ export default function ResumeScreen() {
           {t('ob.resumeWelcome')}
         </Typography>
         <Typography style={styles.heading}>
-          You were{'\n'}almost there.
+          {t('ob.resumeTitle')}
         </Typography>
         <Typography variant="bodyL" color={colors.mutedStrong} style={styles.sub}>
-          You answered {progress.answered} of {TOTAL_STEPS} questions. Pick up where you left off. We kept your answers safe.
+          {t('ob.resumeBody', { answered: progress.answered, total: TOTAL_STEPS })}
         </Typography>
 
         <View style={styles.progressCard}>

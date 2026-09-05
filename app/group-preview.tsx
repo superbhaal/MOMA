@@ -198,7 +198,7 @@ export default function GroupPreviewScreen() {
             style={styles.declineCancel}
           >
             <Typography variant="bodyM" color={colors.text}>
-              Back
+              {t('misc.back')}
             </Typography>
           </Pressable>
           <Pressable

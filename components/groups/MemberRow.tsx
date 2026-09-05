@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { isRegular } from '@/constants/roles';
+import { babyAgeCompact } from '@/lib/babyAge';
 import { Typography } from '@/components/ui/Typography';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
@@ -16,6 +18,7 @@ interface MemberRowProps {
 }
 
 export function MemberRow({ member, isSelf, onPress, onMessage }: MemberRowProps) {
+  const { t } = useTranslation();
   const u = member.user;
   return (
     <Pressable onPress={onPress} style={styles.row}>
@@ -32,13 +35,13 @@ export function MemberRow({ member, isSelf, onPress, onMessage }: MemberRowProps
             {u.display_name}
             {isSelf ? (
               <Typography style={styles.you} color={colors.muted}>
-                {'  '}(you)
+                {'  '}{t('misc.you')}
               </Typography>
             ) : null}
           </Typography>
         </View>
         <Typography variant="bodyM" color={colors.muted} style={{ marginTop: 2 }}>
-          Baby: {babyAgeShort(u.baby_dob)}
+          {babyAgeCompact(u.baby_dob, u.life_stage, t)}
           {u.neighbourhood ? ` · ${u.neighbourhood}` : ''}
         </Typography>
       </View>
@@ -49,7 +52,7 @@ export function MemberRow({ member, isSelf, onPress, onMessage }: MemberRowProps
           style={({ pressed }) => [styles.msgBtn, pressed && { opacity: 0.6 }]}
         >
           <Typography style={styles.msgLabel} color={colors.cobalt}>
-            Message
+            {t('grp.messageBtn')}
           </Typography>
         </Pressable>
       ) : null}
@@ -57,17 +60,6 @@ export function MemberRow({ member, isSelf, onPress, onMessage }: MemberRowProps
   );
 }
 
-function babyAgeShort(dob: string): string {
-  const diffDays = Math.floor((Date.now() - new Date(dob).getTime()) / (1000 * 60 * 60 * 24));
-  if (diffDays < 0) {
-    const w = Math.ceil(Math.abs(diffDays) / 7);
-    return `expecting · ${w}w left`;
-  }
-  if (diffDays < 14) return `${diffDays} days`;
-  if (diffDays < 90) return `${Math.floor(diffDays / 7)} weeks`;
-  if (diffDays < 365 * 2) return `${Math.floor(diffDays / 30)} months`;
-  return `${Math.floor(diffDays / 365)} years`;
-}
 
 const styles = StyleSheet.create({
   row: {

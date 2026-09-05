@@ -130,7 +130,7 @@ export default function PreferencesScreen() {
           </Typography>
         </Pressable>
         <Typography style={styles.title} color={colors.cobalt}>
-          Matching{'\n'}preferences
+          {t('prefs.title')}
         </Typography>
       </View>
 

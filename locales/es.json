@@ -26,7 +26,7 @@
     "createYourAccount": "crea tu cuenta",
     "email": "CORREO",
     "password": "CONTRASEÑA",
-    "confirmPassword": "CONFIRMA LA CONTRASEÑA",
+    "confirmPassword": "CONFÍRMALA",
     "emailPlaceholder": "hola@email.com",
     "passwordPlaceholder": "tu contraseña",
     "passwordMinPlaceholder": "al menos 6 caracteres",
@@ -39,7 +39,24 @@
     "logIn": "iniciar sesión",
     "createAccount": "crear cuenta",
     "creatingAccount": "creando la cuenta...",
-    "passwordTooShort": "la contraseña debe tener al menos 6 caracteres"
+    "passwordTooShort": "la contraseña debe tener al menos 6 caracteres",
+    "loggingIn": "iniciando sesión…",
+    "forgotLink": "¿Olvidaste tu contraseña?",
+    "forgotTitle": "restablecer tu\ncontraseña",
+    "forgotBlurb": "Escribe el correo con el que te registraste. Te enviaremos un enlace para elegir una contraseña nueva.",
+    "forgotSend": "enviar el enlace",
+    "forgotSending": "enviando…",
+    "forgotSentTitle": "revisa tu\ncorreo",
+    "forgotSentBlurb": "Si existe una cuenta para {{email}}, el enlace está en camino. Caduca en una hora.",
+    "backToLogin": "volver a iniciar sesión",
+    "newPwTitle": "elige una\ncontraseña nueva",
+    "newPwBlurb": "Ya casi. Elige algo que puedas recordar.",
+    "newPassword": "CONTRASEÑA NUEVA",
+    "newPwSave": "guardar",
+    "newPwSaving": "guardando…",
+    "pwTooShort": "Al menos 8 caracteres.",
+    "pwMismatch": "Las dos no coinciden.",
+    "pwLinkExpired": "Ese enlace ha caducado. Pide uno nuevo."
   },
   "verify": {
     "title": "revisa tu correo",
@@ -112,7 +129,11 @@
     "interests": "INTERESES",
     "instagram": "INSTAGRAM",
     "tapChange": "TOCA PARA CAMBIAR LA FOTO",
-    "tapUpload": "TOCA PARA SUBIR UNA FOTO"
+    "tapUpload": "TOCA PARA SUBIR UNA FOTO",
+    "resumeTitle": "Ya casi\nestabas.",
+    "resumeBody": "Respondiste {{answered}} de {{total}} preguntas. Retoma donde lo dejaste: guardamos tus respuestas.",
+    "pfTitle": "Cuéntanos un poco\nsobre ti.",
+    "agePlaceholder": "p. ej. 28"
   },
   "home": {
     "yourGroups": "TUS GRUPOS",
@@ -219,7 +240,16 @@
     "quietHere": "esto está tranquilo.",
     "breakIce": "rompe el hielo con una de estas — toca para enviarla como tu primer mensaje.",
     "membersCount_one": "{{count}} integrante",
-    "membersCount_other": "{{count}} integrantes"
+    "membersCount_other": "{{count}} integrantes",
+    "dmEmpty": "saluda a {{name}}.",
+    "noteLabel": "NOTA",
+    "messageBtn": "Mensaje",
+    "dueInW": "Nace en {{count}} sem",
+    "babyDays": "Bebé: {{count}} d",
+    "babyWeeks": "Bebé: {{count}} sem",
+    "babyMonths": "Bebé: {{count}} m",
+    "babyYears_one": "Bebé: {{count}} año",
+    "babyYears_other": "Bebé: {{count}} años"
   },
   "me": {
     "aboutMe": "Sobre mí",
@@ -264,7 +294,17 @@
     "savedEmptyA": "Dale al corazón en Aprender y aterriza aquí, ",
     "savedEmptyStrong": "tu estantería privada",
     "savedEmptyB": " de sitios, rituales y cosas que merece la pena recordar.",
-    "noGroupYet": "Aún no estás en un grupo. Te avisamos en cuanto se forme un círculo cerca de ti."
+    "noGroupYet": "Aún no estás en un grupo. Te avisamos en cuanto se forme un círculo cerca de ti.",
+    "bornOn": "Bebé nacido el {{date}}",
+    "dueOn": "Sale de cuentas el {{date}}",
+    "weekN": "Semana {{count}}",
+    "freesSlot_one": "{{count}} integrante · libera 1 de 2 plazas.",
+    "freesSlot_other": "{{count}} integrantes · libera 1 de 2 plazas.",
+    "savedRead": "Artículo guardado",
+    "savedWatch": "Reel guardado",
+    "savedRecco": "Recomendación guardada",
+    "leaveTitle": "¿Salir de {{name}}?",
+    "thisGroup": "este grupo"
   },
   "prefs": {
     "whoMatched": "CON QUIÉN TE JUNTAMOS",
@@ -291,7 +331,8 @@
     "done": "listo",
     "addLanguage": "Añadir un idioma",
     "add": "Añadir",
-    "langPlaceholder": "p. ej. catalán, wolof, mandarín"
+    "langPlaceholder": "p. ej. catalán, wolof, mandarín",
+    "title": "Preferencias de\ngrupo"
   },
   "brought": {
     "kRecipe": "Receta",
@@ -380,7 +421,12 @@
     "onlyOne": "Solo una cada vez — esta reemplaza la que tienes ahora en el perfil.",
     "dWhenWorks": "Cuándo funciona",
     "dHowFound": "Cómo lo descubrió",
-    "dWhoTold": "Quién se lo dijo"
+    "dWhoTold": "Quién se lo dijo",
+    "by": "Traído por {{name}}",
+    "underlined": "Una frase que subrayó",
+    "method": "PREPARACIÓN",
+    "publicNote": "Público · todas en la mesa pueden verlo",
+    "stepN": "Paso {{n}}"
   },
   "disc": {
     "postingPlaces": "SITIOS",
@@ -433,7 +479,9 @@
     "goesPlaces": "Va al mapa de Sitios, a tu nombre.",
     "goesPeople": "Va al mapa de Personas, a tu nombre.",
     "pWhyTitle": "¿Por qué es genial con las madres?",
-    "pWhySub": "Que sea afirmativo y positivo: es una recomendación real, y otra madre va a actuar según ella. Las advertencias van en los chats privados, no en un mapa público."
+    "pWhySub": "Que sea afirmativo y positivo: es una recomendación real, y otra madre va a actuar según ella. Las advertencias van en los chats privados, no en un mapa público.",
+    "moreChars_one": "{{count}} carácter más",
+    "moreChars_other": "{{count}} caracteres más"
   },
   "reel": {
     "igLabel": "Enlace de Instagram",
@@ -588,16 +636,35 @@
     "wellness": "Cuidarte a ti",
     "wellnessSub": "Tu cuerpo, tu cabeza, tu descanso",
     "filterNote": "Filtraremos Aprender y Ver en consecuencia.",
-    "tabRegular": "Habitual",
+    "tabRegular": "Habituales",
     "regularOne": "Habitual",
-    "searchRegulars": "Buscar un habitual…",
+    "searchRegulars": "Buscar una habitual…",
     "noRegulars": "Ningún habitual coincide.",
     "regularsEmpty": "Todavía no hay habituales.",
     "spotsCount_one": "{{count}} sitio",
     "spotsCount_other": "{{count}} sitios",
     "readMin": "LECTURA · {{n}} MIN",
     "watchLabelCaps": "VÍDEO",
-    "watchPlatform": "VÍDEO · {{p}}"
+    "watchPlatform": "VÍDEO · {{p}}",
+    "minLeft": "QUEDAN {{count}} MIN",
+    "addedByYou": "añadido por ti",
+    "lovedByCount_one": "Favorito de {{count}} madre",
+    "lovedByCount_other": "Favorito de {{count}} madres",
+    "subRegular": "Las que se saben el barrio",
+    "cT1": "1er tri",
+    "cT2": "2º tri",
+    "cT3": "3er tri",
+    "c04wks": "0–4 sem",
+    "c13mo": "1–3 meses",
+    "c36mo": "3–6 meses",
+    "c612mo": "6–12 meses",
+    "c12yr": "1–2 años",
+    "c23yr": "2–3 años",
+    "c3yr": "3+ años",
+    "cWellness": "Bienestar",
+    "minRead": "{{count}} min de lectura",
+    "openIn": "Abrir en {{platform}}",
+    "sharedFrom": "Compartido desde {{platform}}"
   },
   "wait": {
     "title": "Estamos poniendo tu mesa",
@@ -640,7 +707,12 @@
     "wAgo": "hace {{n}} sem.",
     "moAgo": "hace {{n}} meses",
     "yAgo": "hace {{n}} años",
-    "you": "Tú"
+    "you": "Tú",
+    "a11ySeeProfile": "Ver el perfil de {{name}}",
+    "a11yCall": "Llamar a {{name}}",
+    "a11yEmail": "Escribir a {{name}}",
+    "a11yWebsite": "Abrir el sitio de {{name}}",
+    "lovedByWho": "Recomendado por {{names}}"
   },
   "lang": {
     "English": "Inglés",
@@ -697,6 +769,11 @@
     "removeTitle": "¿Quitar tu recomendación?",
     "removeBody": "Sale del mapa. Si otras madres han recomendado este sitio, las suyas se quedan.",
     "discardTitleP": "¿Descartar lo que has escrito?",
-    "discardBodyP": "Esto borra todo lo que has escrito y te devuelve al inicio de sesión."
+    "discardBodyP": "Esto borra todo lo que has escrito y te devuelve al inicio de sesión.",
+    "shareAction": "Compartir",
+    "replace": "Reemplazar",
+    "you": "(tú)",
+    "photoHint": "JPG, PNG · hasta 8 MB",
+    "calendarMeetup": "Encuentro møma"
   }
 }

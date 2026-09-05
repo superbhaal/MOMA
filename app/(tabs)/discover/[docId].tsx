@@ -72,7 +72,7 @@ export default function DiscoverDetail() {
         {isArticle ? (
           <View style={styles.progressPill}>
             <Typography style={styles.progressText} color={colors.muted}>
-              {minutesLeft} MIN LEFT
+              {t('dis.minLeft', { count: minutesLeft })}
             </Typography>
           </View>
         ) : null}
@@ -161,7 +161,9 @@ function ArticleReader({ article }: { article: LearnArticle }) {
             {article.author}
           </Typography>
           <Typography style={styles.bylineMeta} color={colors.muted}>
-            {[article.authorTitle, `${article.readMinutes ?? 5} min read`].filter(Boolean).join(' · ')}
+            {[article.authorTitle, t('dis.minRead', { count: article.readMinutes ?? 5 })]
+              .filter(Boolean)
+              .join(' · ')}
           </Typography>
         </View>
         {article.source ? (
@@ -215,7 +217,7 @@ function ArticleReader({ article }: { article: LearnArticle }) {
         <Pressable style={styles.actionBtn} onPress={onShare}>
           <Ionicons name="arrow-redo-outline" size={18} color={colors.text} />
           <Typography style={styles.actionText} color={colors.text}>
-            Share
+            {t('misc.shareAction')}
           </Typography>
         </Pressable>
       </View>
@@ -250,6 +252,7 @@ function renderBody(blocks: SanityBlock[]) {
 }
 
 function ReelDetail({ reel }: { reel: LearnReel }) {
+  const { t } = useTranslation();
   return (
     <>
       <Typography style={styles.h1} color={colors.cobalt}>
@@ -260,7 +263,7 @@ function ReelDetail({ reel }: { reel: LearnReel }) {
       </Typography>
       <View style={{ marginTop: spacing.xl }}>
         <Button
-          title={`Open in ${reel.platform}`}
+          title={t('dis.openIn', { platform: reel.platform })}
           size="lg"
           onPress={() => Linking.openURL(reel.externalUrl)}
         />

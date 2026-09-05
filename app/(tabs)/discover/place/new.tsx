@@ -658,7 +658,9 @@ function StepNote({
         style={styles.charCount}
         color={len < NOTE_MIN ? colors.muted : colors.mutedStrong}
       >
-        {len < NOTE_MIN ? `${NOTE_MIN - len} more characters` : `${value.length}/${NOTE_MAX}`}
+        {len < NOTE_MIN
+          ? t('disc.moreChars', { count: NOTE_MIN - len })
+          : `${value.length}/${NOTE_MAX}`}
       </Typography>
 
       <ComposerDisclosure title={t('disc.tipsTitle')}>

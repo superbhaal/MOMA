@@ -40,7 +40,10 @@ export function LovedSpotRow({ spot, onPress, addedByYou }: LovedSpotRowProps) {
           .slice(0, 2)
           .map((r) => r.poster_name ?? t('expl.aMom'))
           .join(', ')} +${recs.length - 2}`;
-  const meta = spot.kind === 'place' ? `${names} · ${cat}` : `Loved by ${names} · ${cat}`;
+  const meta =
+    spot.kind === 'place'
+      ? `${names} · ${cat}`
+      : `${t('expl.lovedByWho', { names })} · ${cat}`;
   // Her photo before the street plan — same order as the detail hero.
   const thumb = spot.photo_url ?? staticMapUri(spot);
 
@@ -81,7 +84,7 @@ export function LovedSpotRow({ spot, onPress, addedByYou }: LovedSpotRowProps) {
           {addedByYou ? (
             <View style={styles.youTag}>
               <Typography style={styles.youText} color={colors.cobalt}>
-                added by you
+                {t('dis.addedByYou')}
               </Typography>
             </View>
           ) : null}

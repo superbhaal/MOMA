@@ -15,7 +15,7 @@ import type { LearnDoc } from '@/types';
 export function useLearn(filters: LearnFeedFilters = {}) {
   // The reading language is part of the query, not a caller's concern: every
   // screen that lists Learn content wants it in the language she reads.
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const lang = i18n.language?.split('-')[0] ?? 'en';
   const [docs, setDocs] = useState<LearnDoc[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ export function useLearn(filters: LearnFeedFilters = {}) {
       // mom posted, and vice versa. A half-feed beats an error screen.
       const [editorial, community] = await Promise.allSettled([
         fetchLearnFeed({ ...filters, lang }),
-        wantsReels ? fetchCommunityReels(filters.babyStage) : Promise.resolve([]),
+        wantsReels ? fetchCommunityReels(filters.babyStage, t) : Promise.resolve([]),
       ]);
 
       const merged: LearnDoc[] = [

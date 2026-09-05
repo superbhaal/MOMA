@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Linking } from 'react-native';
 import * as Calendar from 'expo-calendar';
 import type { MeetupProposal } from '@/types';
@@ -16,8 +17,10 @@ function toUtcStamp(d: Date): string {
   );
 }
 
-function meetupTitle(groupName?: string | null): string {
-  return groupName ? `møma · ${groupName}` : 'møma meetup';
+// `t` is threaded in from the calling component: this lands in the woman's own
+// calendar, so it has to be in her reading language like everything else.
+function meetupTitle(groupName: string | null | undefined, t: TFunction): string {
+  return groupName ? `møma · ${groupName}` : t('misc.calendarMeetup');
 }
 
 function eventWindow(proposal: MeetupLike): { start: Date; end: Date } {
@@ -30,11 +33,15 @@ function eventWindow(proposal: MeetupLike): { start: Date; end: Date } {
  * Google Calendar "add event" template URL — used as the fallback if the native
  * calendar editor is unavailable or errors.
  */
-export function googleCalendarUrl(proposal: MeetupLike, groupName?: string | null): string {
+export function googleCalendarUrl(
+  proposal: MeetupLike,
+  groupName: string | null | undefined,
+  t: TFunction,
+): string {
   const { start, end } = eventWindow(proposal);
   const params = new URLSearchParams({
     action: 'TEMPLATE',
-    text: meetupTitle(groupName),
+    text: meetupTitle(groupName, t),
     dates: `${toUtcStamp(start)}/${toUtcStamp(end)}`,
   });
   if (proposal.location_name) params.set('location', proposal.location_name);
@@ -52,18 +59,19 @@ export function googleCalendarUrl(proposal: MeetupLike, groupName?: string | nul
  */
 export async function addToCalendar(
   proposal: MeetupLike,
-  groupName?: string | null,
+  groupName: string | null | undefined,
+  t: TFunction,
 ): Promise<void> {
   const { start, end } = eventWindow(proposal);
   try {
     await Calendar.createEventInCalendarAsync({
-      title: meetupTitle(groupName),
+      title: meetupTitle(groupName, t),
       startDate: start,
       endDate: end,
       location: proposal.location_name ?? undefined,
       notes: proposal.note ?? undefined,
     });
   } catch {
-    await Linking.openURL(googleCalendarUrl(proposal, groupName));
+    await Linking.openURL(googleCalendarUrl(proposal, groupName, t));
   }
 }

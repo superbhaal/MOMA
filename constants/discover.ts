@@ -64,42 +64,50 @@ export function categoryChips(kind: LovedKind, t: TFunction): CategoryChip[] {
  * answer is plural and has to fit on a phone. Same `value` codes as the Stage
  * filter and Sanity's `babyStage`; shorter labels, because a chip is read at a
  * glance and a filter row is read once.
+ *
+ * A function, not a constant: as a module-level array it captured English at
+ * import and never let go, so the whole group shipped untranslated inside an
+ * otherwise Spanish sheet. Every list of copy in this codebase has to take t.
  */
-export const STAGE_CHIP_GROUPS: { group: string; rows: { value: string; label: string }[] }[] = [
-  {
-    group: 'Pregnancy',
-    rows: [
-      { value: 'T1', label: '1st tri' },
-      { value: 'T2', label: '2nd tri' },
-      { value: 'T3', label: '3rd tri' },
-    ],
-  },
-  {
-    group: 'Baby',
-    rows: [
-      { value: '0-4wks', label: '0–4 wks' },
-      { value: '1-3mo', label: '1–3 mo' },
-      { value: '3-6mo', label: '3–6 mo' },
-      { value: '6-12mo', label: '6–12 mo' },
-    ],
-  },
-  {
-    group: 'Toddler & up',
-    rows: [
-      { value: '1-2yr', label: '1–2 yr' },
-      { value: '2-3yr', label: '2–3 yr' },
-      { value: '3+yr', label: '3+ yr' },
-    ],
-  },
-  // Not an age, and deliberately so — the client's call. Everything above
-  // answers "how old is your baby"; this one answers "and what about you". It
-  // shares the axis, which means a wellness piece won't surface under an age
-  // filter and vice versa. Its own group keeps that legible.
-  {
-    group: 'For you',
-    rows: [{ value: 'wellness', label: 'Wellness' }], // display goes through t('dis.wellness')
-  },
-];
+export function stageChipGroups(
+  t: TFunction,
+): { group: string; rows: { value: string; label: string }[] }[] {
+  return [
+    {
+      group: t('dis.pregnancy'),
+      rows: [
+        { value: 'T1', label: t('dis.cT1') },
+        { value: 'T2', label: t('dis.cT2') },
+        { value: 'T3', label: t('dis.cT3') },
+      ],
+    },
+    {
+      group: t('dis.baby'),
+      rows: [
+        { value: '0-4wks', label: t('dis.c04wks') },
+        { value: '1-3mo', label: t('dis.c13mo') },
+        { value: '3-6mo', label: t('dis.c36mo') },
+        { value: '6-12mo', label: t('dis.c612mo') },
+      ],
+    },
+    {
+      group: t('dis.toddler'),
+      rows: [
+        { value: '1-2yr', label: t('dis.c12yr') },
+        { value: '2-3yr', label: t('dis.c23yr') },
+        { value: '3+yr', label: t('dis.c3yr') },
+      ],
+    },
+    // Not an age, and deliberately so — the client's call. Everything above
+    // answers "how old is your baby"; this one answers "and what about you". It
+    // shares the axis, which means a wellness piece won't surface under an age
+    // filter and vice versa. Its own group keeps that legible.
+    {
+      group: t('dis.forYou'),
+      rows: [{ value: 'wellness', label: t('dis.cWellness') }],
+    },
+  ];
+}
 
 
 /** Singular, human label for a category — used on cards and the detail pill. */

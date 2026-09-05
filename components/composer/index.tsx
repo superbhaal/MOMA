@@ -238,7 +238,9 @@ export function ComposerPhoto({
   onPick,
   onClear,
   onSkip,
-  hint = 'JPG, PNG · up to 8MB',
+  /** Overrides the default "JPG, PNG · up to 8MB". A default parameter can't
+      call t(), which is exactly how that line stayed English everywhere. */
+  hint,
   /** Shown under the hint — "optional" reads better as its own quiet line. */
   optional,
 }: {
@@ -281,12 +283,12 @@ export function ComposerPhoto({
         <View style={styles.photoActions}>
           <Pressable onPress={pick} hitSlop={8}>
             <Typography style={styles.photoAction} color={colors.cobalt}>
-              Replace
+              {t('misc.replace')}
             </Typography>
           </Pressable>
           <Pressable onPress={onClear} hitSlop={8}>
             <Typography style={styles.photoAction} color={colors.cherry}>
-              Remove
+              {t('misc.remove')}
             </Typography>
           </Pressable>
         </View>
@@ -306,11 +308,9 @@ export function ComposerPhoto({
         <Typography style={styles.dropzoneLabel} color={colors.cobalt}>
           {t('misc.addPhoto')}
         </Typography>
-        {hint ? (
-          <Typography style={styles.dropzoneHint} color={colors.muted}>
-            {hint}
-          </Typography>
-        ) : null}
+        <Typography style={styles.dropzoneHint} color={colors.muted}>
+          {hint ?? t('misc.photoHint')}
+        </Typography>
         {optional ? (
           <Typography style={styles.dropzoneHint} color={colors.muted}>
             optional

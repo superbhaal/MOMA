@@ -43,6 +43,12 @@ function tag(): string {
   return TAG[currentLocale()];
 }
 
+/** The BCP-47 tag for the reading language, for callers formatting their own
+ *  dates (baby ages, for one) rather than a clock time. */
+export function localeTag(): string {
+  return tag();
+}
+
 /** "11:00 AM" in English, "11:00" in French and Spanish. */
 export function formatTime(iso: string | Date): string {
   const d = typeof iso === 'string' ? new Date(iso) : iso;

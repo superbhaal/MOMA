@@ -126,7 +126,7 @@ export default function BringSomethingScreen() {
       <View style={styles.topbar}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Typography style={styles.cancel} color={colors.mutedStrong}>
-            Cancel
+            {t('misc.cancel')}
           </Typography>
         </Pressable>
       </View>
@@ -248,7 +248,7 @@ export default function BringSomethingScreen() {
 
             <ComposerLabel label={t('brought.fSteps')} hint={t('brought.optional')} />
             {steps.map((st, i) => (
-              <ComposerField key={i} label={`Step ${i + 1}`}>
+              <ComposerField key={i} label={t('brought.stepN', { n: i + 1 })}>
                 <ComposerInput
                   value={st}
                   onChangeText={(v) => {
@@ -383,7 +383,7 @@ export default function BringSomethingScreen() {
         ) : null}
 
         <Typography style={styles.visibility} color={colors.muted}>
-          Public · everyone at the table can see it
+          {t('brought.publicNote')}
         </Typography>
       </ScrollView>
 

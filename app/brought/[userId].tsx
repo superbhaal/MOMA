@@ -99,7 +99,7 @@ export default function BroughtDetail() {
               ringWidth={2}
             />
             <Typography style={styles.by} color={colors.mutedStrong}>
-              Brought by {who}
+              {t('brought.by', { name: who })}
             </Typography>
           </View>
 
@@ -121,7 +121,7 @@ export default function BroughtDetail() {
                     “{str('quote')}”
                   </Typography>
                   <Typography style={styles.underlinedNote} color={colors.muted}>
-                    A line she underlined
+                    {t('brought.underlined')}
                   </Typography>
                 </View>
               ) : null}
@@ -165,7 +165,7 @@ export default function BroughtDetail() {
           {item.kind === 'recipe' && steps.length ? (
             <View style={styles.block}>
               <Typography style={styles.blockLabel} color={colors.cobalt}>
-                METHOD
+                {t('brought.method')}
               </Typography>
               {steps.map((st, i) => (
                 <View key={i} style={styles.stepRow}>

@@ -86,7 +86,7 @@ export function MeetupCard({
           hid it exactly when someone wants to block the slot out. Only a past
           meetup has nothing left to add. */}
       {!expired ? (
-        <Pressable onPress={() => addToCalendar(proposal, groupName)} hitSlop={8}>
+        <Pressable onPress={() => addToCalendar(proposal, groupName, t)} hitSlop={8}>
           <Typography style={styles.calendar} color={colors.cobalt}>
             {t('grp.addToCalendar')}
           </Typography>

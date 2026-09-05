@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { supabase } from '@/lib/supabase';
 import { colors } from '@/constants/colors';
 import type { LearnReel } from '@/types';
@@ -37,15 +38,20 @@ interface FeedRow {
  *  keys on it, and the two id spaces are independent. */
 export const COMMUNITY_ID_PREFIX = 'community:';
 
-export async function fetchCommunityReels(babyStage?: string): Promise<LearnReel[]> {
+export async function fetchCommunityReels(
+  babyStage: string | undefined,
+  t: TFunction,
+): Promise<LearnReel[]> {
   const { data, error } = await supabase.rpc('community_reels_feed', {
     p_stage: babyStage ?? null,
   });
   if (error) throw new Error(error.message);
-  return ((data ?? []) as FeedRow[]).map(toLearnReel);
+  return ((data ?? []) as FeedRow[]).map((row) => toLearnReel(row, t));
 }
 
-function toLearnReel(row: FeedRow): LearnReel {
+// The last-resort title when a shared reel has no title, note or creator —
+// visible on the card, so it follows the reading language.
+function toLearnReel(row: FeedRow, t: TFunction): LearnReel {
   return {
     _id: `${COMMUNITY_ID_PREFIX}${row.id}`,
     _type: 'learnReel',
@@ -57,7 +63,7 @@ function toLearnReel(row: FeedRow): LearnReel {
       row.title ||
       row.note ||
       row.creator_label ||
-      `Shared from ${row.platform === 'tiktok' ? 'TikTok' : 'Instagram'}`,
+      t('dis.sharedFrom', { platform: row.platform === 'tiktok' ? 'TikTok' : 'Instagram' }),
     platform: row.platform,
     externalUrl: row.external_url,
     thumbnailHex: row.thumbnail_hex || colors.lavender,

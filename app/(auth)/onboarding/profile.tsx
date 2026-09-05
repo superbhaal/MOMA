@@ -250,7 +250,7 @@ export default function ProfileScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <Typography variant="displayL" style={styles.heading}>
-          Tell us a little{'\n'}about you.
+          {t('ob.pfTitle')}
         </Typography>
         <Typography variant="bodyL" color={colors.muted} style={styles.subhead}>
           {t('ob.pfOnlyShared')}
@@ -320,7 +320,7 @@ export default function ProfileScreen() {
             style={styles.input}
             value={age}
             onChangeText={(v) => setAge(v.replace(/[^0-9]/g, ''))}
-            placeholder="e.g. 28"
+            placeholder={t('ob.agePlaceholder')}
             placeholderTextColor={colors.muted}
             keyboardType="number-pad"
             maxLength={2}
