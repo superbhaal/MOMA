@@ -146,7 +146,10 @@ Deno.serve(async (req) => {
     const res = await fetch(RESEND_URL, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${resendKey}`,
+        // Trimmed: a stray newline from a dashboard paste makes the header
+        // malformed and Resend answers 401 "API key is invalid", which reads
+        // like the key is wrong rather than merely dirty.
+        Authorization: `Bearer ${resendKey.trim()}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -159,7 +162,11 @@ Deno.serve(async (req) => {
 
     if (!res.ok) {
       const body = await res.text();
-      console.error('[send-auth-email] resend rejected', res.status, body.slice(0, 300));
+      const k = resendKey.trim();
+      console.error(
+        '[send-auth-email] resend rejected', res.status, body.slice(0, 200),
+        `| key len=${k.length} startsWithRe_=${k.startsWith('re_')} hadWhitespace=${k !== resendKey}`,
+      );
       return json({ error: { http_code: res.status, message: 'send failed' } }, 500);
     }
 
