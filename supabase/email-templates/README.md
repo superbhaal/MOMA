@@ -21,6 +21,14 @@ caused it, and two are fixed here:
    saying what to do if it wasn't you.
 3. Zero domain reputation — only time and volume fix that.
 
+## Why the URL is absolute, not {{ .SiteURL }}
+
+Both projects set Site URL to `https://joinmoma.org/auth/confirm` — a path, not
+a root — so `{{ .SiteURL }}/auth/confirm` doubles it and the button leads
+nowhere. The mail still arrives and still looks right, which is exactly how this
+went unnoticed. Hardcoded instead; the domain is the same on both projects, and
+it has to match the sender's domain anyway or Gmail flags the mail.
+
 ## Fonts
 
 Google Fonts do not load in most mail clients, so the serif falls back to

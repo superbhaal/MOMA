@@ -31,6 +31,11 @@ import {
 const RESEND_URL = 'https://api.resend.com/emails';
 const FROM = 'møma <hello@joinmoma.org>';
 
+/** Where auth links point. Must match the sender's domain — that match is what
+ *  stopped Gmail flagging these as phishing — and must NOT come from the hook
+ *  payload, which reports the supabase.co host instead. */
+const LINK_ORIGIN = 'https://joinmoma.org';
+
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
@@ -137,11 +142,20 @@ Deno.serve(async (req) => {
     const { user, email_data: d } = payload;
     const locale = await localeFor(user.id);
 
-    // site_url comes from the project's Site URL, which is joinmoma.org on both
-    // projects — so the link's domain matches the sender's. redirect_to is
-    // carried through so a link that asked for a particular landing still gets
-    // it once the token is verified.
-    const base = (d.site_url || 'https://joinmoma.org').replace(/\/+$/, '');
+    // Deliberately NOT email_data.site_url. Two things were wrong with trusting
+    // it, found one after the other by logging the URL actually built:
+    //
+    //  1. The projects set Site URL to https://joinmoma.org/auth/confirm — a
+    //     path, not a root — so appending /auth/confirm doubled it.
+    //  2. And the payload's site_url is not that setting at all: it is
+    //     https://<ref>.supabase.co, which is the very domain we moved the link
+    //     off to stop Gmail flagging the mail as phishing.
+    //
+    // Both produced a mail that arrived, looked right, and had a dead button.
+    // Nothing logged an error: as far as GoTrue and Resend were concerned the
+    // send succeeded. Hence the log line below prints the link's base, so a
+    // regression here is visible without opening an inbox.
+    const base = LINK_ORIGIN;
     const params = new URLSearchParams({
       token_hash: d.token_hash,
       type: d.email_action_type,
@@ -176,7 +190,9 @@ Deno.serve(async (req) => {
       return json({ error: { http_code: res.status, message: 'send failed' } }, 500);
     }
 
-    console.log(`[send-auth-email] sent ${d.email_action_type} in ${locale}`);
+    console.log(
+      `[send-auth-email] sent ${d.email_action_type} in ${locale} -> ${base}/auth/confirm`,
+    );
     return json({});
   } catch (e) {
     console.error('[send-auth-email] failed', String(e));
