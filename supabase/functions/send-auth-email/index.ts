@@ -78,13 +78,42 @@ Deno.serve(async (req) => {
 
   const raw = await req.text();
 
+  // The dashboard shows the secret as `v1,whsec_<base64>` but people paste it in
+  // several shapes, and standardwebhooks wants the bare base64 — anything else
+  // dies as "Base64Coder: incorrect characters for decoding", which says nothing
+  // about what to fix. Normalise, and if it still fails say WHY in terms that
+  // point at the secret without ever printing it.
+  //
+  // And it arrives base64URL-encoded — '-' and '_' where standard base64 has
+  // '+' and '/'. standardwebhooks decodes as standard base64, so Supabase's own
+  // secret fails its own recommended library with "Base64Coder: incorrect
+  // characters for decoding". Diagnosed from a live send: length=36,
+  // nonBase64Chars=__. Translating the alphabet is the whole fix.
+  const bare = secret
+    .trim()
+    .replace(/^v1,/, '')
+    .replace(/^whsec_/, '')
+    .trim()
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+
   let payload: HookPayload;
   try {
-    const wh = new Webhook(secret.replace('v1,whsec_', ''));
+    const wh = new Webhook(bare);
     payload = wh.verify(raw, Object.fromEntries(req.headers)) as HookPayload;
   } catch (e) {
-    // Not ours to send. Refusing loudly beats sending on an unverified request.
-    console.error('[send-auth-email] signature rejected', String(e));
+    const msg = String(e);
+    if (msg.includes('Base64')) {
+      // A shape problem, not a mismatch: the secret itself is unusable.
+      console.error(
+        '[send-auth-email] SEND_EMAIL_HOOK_SECRET is not valid base64 after ' +
+          'stripping the v1,whsec_ prefix. length=' + bare.length +
+          ' nonBase64Chars=' + (bare.match(/[^A-Za-z0-9+/=]/g) ?? []).join('') +
+          ' — re-copy it from Authentication > Hooks, whole and unquoted.',
+      );
+    } else {
+      console.error('[send-auth-email] signature rejected', msg);
+    }
     return json({ error: { http_code: 401, message: 'invalid signature' } }, 401);
   }
 
