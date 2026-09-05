@@ -51,7 +51,18 @@ FNS=$(ls -d supabase/functions/*/ | grep -v _shared | xargs -n1 basename)
 if [ "$APPLY" = "--apply" ]; then
   for f in $FNS; do
     printf "  %-26s " "$f"
-    extra=""; [ "$f" = "admin-api" ] && extra="--no-verify-jwt"
+    # Functions that are NOT called with a Supabase JWT. Getting this wrong is
+    # silent: the function deploys fine and then rejects every real caller.
+    #   admin-api       — the panel authenticates with its own password
+    #   discover-map    — <Image source={{uri}}> cannot send a header
+    #   place-map       — same
+    #   send-auth-email — GoTrue signs with a standardwebhooks signature
+    # Only admin-api was listed here before, so promoting would have broken the
+    # two map functions the moment pre-prod served a real image.
+    extra=""
+    case "$f" in
+      admin-api|discover-map|place-map|send-auth-email) extra="--no-verify-jwt" ;;
+    esac
     npx --yes supabase functions deploy "$f" $extra 2>&1 | grep -oE '"message":"[^"]*"' | head -1
   done
 else
