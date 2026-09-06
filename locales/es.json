@@ -281,7 +281,8 @@
     "themFallback": "esta persona",
     "counterProposeTitle": "no puedes — propón otro momento",
     "suggestTimeTitle": "proponer un momento",
-    "dayLabel": "DÍA"
+    "dayLabel": "DÍA",
+    "sendFailed": "no se pudo enviar — revisa tu conexión y vuelve a enviarlo"
   },
   "me": {
     "aboutMe": "Sobre mí",

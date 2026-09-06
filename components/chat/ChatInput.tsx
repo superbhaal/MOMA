@@ -9,10 +9,13 @@ import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 
+/** What the send helpers actually return. Narrow enough to read the failure. */
+type SendResult = { error?: unknown } | void;
+
 interface ChatInputProps {
-  // Return type is intentionally loose — send helpers return { error } but the
-  // composer only cares that it's callable/awaitable.
-  onSend: (text: string) => Promise<unknown> | unknown;
+  // The return type used to be `unknown`, and the composer threw it away. That
+  // is how a failed message became a silent one — see handleSend.
+  onSend: (text: string) => Promise<SendResult> | SendResult;
   onSharePlace?: () => void;
   placeholder?: string;
 }
@@ -26,6 +29,7 @@ export function ChatInput({
   const insets = useSafeAreaInsets();
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [keyboardUp, setKeyboardUp] = useState(false);
 
   useEffect(() => {
@@ -42,13 +46,37 @@ export function ChatInput({
 
   const bottomPad = keyboardUp ? spacing.sm : Math.max(insets.bottom, spacing.sm);
 
+  /**
+   * Send, and keep her words if it fails.
+   *
+   * This used to clear the field BEFORE awaiting, and discard the result. So a
+   * failed send — offline, an RLS refusal, a thread that could not be opened —
+   * emptied the composer, put nothing in the thread (the optimistic append is
+   * guarded on success), and said nothing. She watched what she had written
+   * disappear with no way to get it back.
+   *
+   * The field now clears only on success. That single change is most of the
+   * fix; the line underneath is so she knows why the message is still sitting
+   * there.
+   */
   async function handleSend() {
     const v = text.trim();
     if (!v || busy) return;
     setBusy(true);
-    setText('');
+    setFailed(false);
     try {
-      await onSend(v);
+      const result = await onSend(v);
+      const failure =
+        result && typeof result === 'object' && 'error' in result
+          ? (result as { error?: unknown }).error
+          : null;
+      if (failure) {
+        setFailed(true);
+        return;
+      }
+      setText('');
+    } catch {
+      setFailed(true);
     } finally {
       setBusy(false);
     }
@@ -66,10 +94,19 @@ export function ChatInput({
           </Pressable>
         </View>
       ) : null}
+      {failed ? (
+        <Typography style={styles.failed} color={colors.cherry}>
+          {t('grp.sendFailed')}
+        </Typography>
+      ) : null}
       <View style={styles.row}>
         <TextInput
           value={text}
-          onChangeText={setText}
+          onChangeText={(v) => {
+            // Touching the message is the retry gesture; drop the warning.
+            if (failed) setFailed(false);
+            setText(v);
+          }}
           placeholder={placeholder ?? t('grp.messageGroup')}
           placeholderTextColor={colors.muted}
           style={styles.input}
@@ -101,6 +138,12 @@ const styles = StyleSheet.create({
   },
   actions: {
     alignItems: 'center',
+    paddingBottom: spacing.sm,
+  },
+  failed: {
+    fontFamily: fonts.body,
+    fontSize: scaled(12.5),
+    textAlign: 'center',
     paddingBottom: spacing.sm,
   },
   placeChip: {
