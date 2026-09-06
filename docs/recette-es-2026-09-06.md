@@ -159,7 +159,7 @@ manque, sans icône ni rouge. Vérifié à l'écran : « falta la foto de perfil
 | 1 | E-mail d'inscription toujours en anglais | corrigé — la langue passe par `user_metadata` à l'inscription |
 | 2 | Badge « BÊTA » avec accent français | corrigé — vérifié à l'écran |
 | 3 | « REENVIAR EN 58S » | non traité — convention typographique mineure |
-| 4 | Autorisations iOS en anglais | corrigé — plugin `withLocalizedPermissions` |
+| 4 | Autorisations iOS en anglais | corrigé — plugin `withLocalizedPermissions`, sources dans `localization/` à la racine |
 | 5 | Bouton désactivé muet | corrigé — vérifié à l'écran |
 | 6 | Nom de groupe mixte | clos par décision (voir ci-dessus) |
 | 7 | Barre de progression sous le badge | non traité — chevauchement mineur à l'étape 5/5 |
@@ -170,3 +170,21 @@ manque, sans icône ni rouge. Vérifié à l'écran : « falta la foto de perfil
 | 12 | « Bebé nacido el 1 sept » | **retiré** — c'est la forme abrégée d'Intl pour es-ES |
 | — | Registre *vosotros* | corrigé — zéro forme restante, on tutoie partout |
 | — | « Next up: languages » (trouvé en vérifiant) | corrigé — le hook rendait des libellés anglais en dur |
+
+## Une leçon d'infrastructure, payée cher
+
+Les traductions d'autorisations vivaient dans `ios/localization/`. Deux erreurs
+dans ce seul choix de chemin :
+
+1. **`ios/` est gitignoré.** `git add -A` ne les a donc jamais prises. Un commit
+   antérieur les annonçait comme ajoutées — c'était faux, elles n'existaient que
+   sur un disque.
+2. **`expo prebuild --clean` efface `ios/` en entier.** C'est comme ça que la
+   première série a disparu, au moment précis où j'essayais de la câbler.
+
+La règle qui en sort, écrite dans `localization/README.md` : *ce que le build
+consomme ne doit jamais vivre dans le répertoire que le build régénère.*
+
+Le plugin, lui, a bien fait son travail : il a refusé de compiler plutôt que de
+livrer l'anglais en silence. C'est le garde-fou qui a rendu la perte visible
+tout de suite au lieu de la laisser filer jusqu'en production.

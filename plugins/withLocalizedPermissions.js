@@ -11,12 +11,16 @@
  * you can add a picture to your profile…". That line is the first thing a woman
  * reads about møma's intentions, in a modal she did not ask for.
  *
- * The translations live in ios/localization/<lang>.lproj/InfoPlist.strings.
- * They were written before this plugin existed and sat unused, because ios/ is
- * generated: anything added to the Xcode project by hand disappears at the next
- * prebuild. So the wiring has to happen AT prebuild, which is what this does —
- * copy the files in, register the languages, and attach the variant group to
- * the target's resources.
+ * The translations live in localization/<lang>.lproj/InfoPlist.strings — at the
+ * repo root, deliberately. They started under ios/, which was wrong twice over:
+ * ios/ is gitignored, so they were never really committed, and
+ * `expo prebuild --clean` deletes that directory outright, which is how the
+ * first set was lost. Anything the build CONSUMES must sit outside the
+ * directory the build REGENERATES.
+ *
+ * The wiring has to happen at prebuild too, since a hand-edited Xcode project
+ * does not survive one: copy the files in, register the languages, attach the
+ * variant group to the target's resources.
  */
 
 const { withXcodeProject, withDangerousMod } = require('@expo/config-plugins');
@@ -24,7 +28,7 @@ const fs = require('fs');
 const path = require('path');
 
 const LANGS = ['fr', 'es'];
-const SOURCE_DIR = 'ios/localization';
+const SOURCE_DIR = 'localization';
 const FILENAME = 'InfoPlist.strings';
 
 /** Copy <lang>.lproj/InfoPlist.strings into the generated iOS project. */
@@ -74,21 +78,28 @@ function withStringsInProject(config) {
     );
     if (already) return cfg;
 
+    // Two things this got wrong the first time, both found by reading the
+    // build log rather than the project file:
+    //
+    //  1. The child's NAME must be the language code, not the filename. Xcode
+    //     reads the language off the variant group's children; naming them all
+    //     "InfoPlist.strings" leaves it with no idea which is which.
+    //  2. The path is relative to the enclosing group, and the "mma" group
+    //     carries a name but no path — so "<group>" resolves to ios/, not
+    //     ios/mma/. Its siblings all declare "mma/Info.plist", "mma/Images.
+    //     xcassets"; ours has to match, or the build looks for
+    //     ios/fr.lproj/InfoPlist.strings and fails on a missing input.
     const children = LANGS.map((lang) => {
       const fileRef = project.generateUuid();
-      project.addToPbxFileReferenceSection({
-        uuid: fileRef,
-        fileRef,
-        basename: FILENAME,
-        path: `${lang}.lproj/${FILENAME}`,
-        group: 'Resources',
+      project.hash.project.objects.PBXFileReference[fileRef] = {
+        isa: 'PBXFileReference',
+        fileEncoding: 4,
         lastKnownFileType: 'text.plist.strings',
+        name: lang,
+        path: `${appName}/${lang}.lproj/${FILENAME}`,
         sourceTree: '"<group>"',
-        explicitFileType: undefined,
-        defaultEncoding: 4,
-        includeInIndex: 0,
-        settings: undefined,
-      });
+      };
+      project.hash.project.objects.PBXFileReference[`${fileRef}_comment`] = lang;
       return { value: fileRef, comment: lang };
     });
 

@@ -1,0 +1,15 @@
+/* Las frases que møma dice de sí misma cuando iOS pide un permiso.
+   iOS traduce sus propios botones; estas líneas no — vienen de Info.plist
+   y se quedan en el idioma en que están escritas. */
+
+"NSPhotoLibraryUsageDescription" = "møma necesita tus fotos para que puedas ilustrar tu perfil y lo que traes a la mesa.";
+"NSCameraUsageDescription" = "møma usa tu cámara para que puedas hacer una foto de perfil, o de lo que traes.";
+"NSMicrophoneUsageDescription" = "møma no graba sonido. Este permiso lo pide un componente que usamos para las vistas previas de vídeo.";
+"NSFaceIDUsageDescription" = "møma usa Face ID para mantener tu sesión sin volver a escribir la contraseña.";
+"NSLocationWhenInUseUsageDescription" = "møma usa tu ubicación para juntarte con madres de tu barrio.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "møma usa tu ubicación para juntarte con madres de tu barrio.";
+"NSLocationAlwaysUsageDescription" = "møma usa tu ubicación para juntarte con madres de tu barrio.";
+"NSCalendarsUsageDescription" = "møma añade los encuentros de tu grupo a tu calendario para que no se te pasen.";
+"NSCalendarsFullAccessUsageDescription" = "møma añade los encuentros de tu grupo a tu calendario para que no se te pasen.";
+"NSRemindersUsageDescription" = "møma puede añadir los encuentros de tu grupo a tus recordatorios para que no se te pasen.";
+"NSRemindersFullAccessUsageDescription" = "møma puede añadir los encuentros de tu grupo a tus recordatorios para que no se te pasen.";
