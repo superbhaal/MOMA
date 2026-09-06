@@ -183,11 +183,10 @@ export default function BringSomethingScreen() {
           ))}
         </View>
 
+        {/* The invitation under each course title is gone at Maria's request:
+            "remove all of it". The titles carry it now. */}
         <Typography style={styles.course} color={ink.text}>
           {course.title}
-        </Typography>
-        <Typography style={styles.courseNote} color={colors.mutedStrong}>
-          {course.note}
         </Typography>
 
         {KIND_HAS_PHOTO[kind] ? (
@@ -454,13 +453,6 @@ const styles = StyleSheet.create({
     fontSize: scaled(22),
     lineHeight: scaled(28),
     textAlign: 'center',
-  },
-  courseNote: {
-    ...textStyles.cardBody,
-    fontFamily: fonts.readingItal,
-    textAlign: 'center',
-    marginTop: 4,
-    marginBottom: spacing.lg,
   },
   photoWrap: { marginBottom: spacing.sm },
 

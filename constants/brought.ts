@@ -31,14 +31,19 @@ export function kindLabel(t: TFunction): Record<BroughtKind, string> {
   };
 }
 
-/** The course header and its invitation, per kind. */
-export function kindCourse(t: TFunction): Record<BroughtKind, { title: string; note: string }> {
+/**
+ * The course header, per kind. Each used to carry an invitation underneath —
+ * "the dish you'd actually make this week", and four like it. Maria asked for
+ * all five to go: the titles say enough, and the sub-lines pushed the first
+ * real field further down a screen that already scrolls.
+ */
+export function kindCourse(t: TFunction): Record<BroughtKind, { title: string }> {
   return {
-    recipe: { title: t('brought.cRecipeTitle'), note: t('brought.cRecipeNote') },
-    book: { title: t('brought.cBookTitle'), note: t('brought.cBookNote') },
-    find: { title: t('brought.cFindTitle'), note: t('brought.cFindNote') },
-    listen: { title: t('brought.cListenTitle'), note: t('brought.cListenNote') },
-    tip: { title: t('brought.cTipTitle'), note: t('brought.cTipNote') },
+    recipe: { title: t('brought.cRecipeTitle') },
+    book: { title: t('brought.cBookTitle') },
+    find: { title: t('brought.cFindTitle') },
+    listen: { title: t('brought.cListenTitle') },
+    tip: { title: t('brought.cTipTitle') },
   };
 }
 
