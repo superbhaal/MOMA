@@ -25,6 +25,26 @@ import { scaled } from '@/constants/scale';
 
 const DEV_REF = 'rqesqrlrlxetnvihpoxt';
 
+/** True when the badge will actually render. */
+export function envBadgeVisible(): boolean {
+  return (process.env.EXPO_PUBLIC_SUPABASE_URL ?? '').includes(DEV_REF);
+}
+
+/**
+ * Horizontal room a top-aligned row should leave for the badge, in points.
+ * Zero everywhere the badge does not render, so nothing is reserved in
+ * pre-prod or production.
+ *
+ * Exists because the badge is absolutely positioned with a huge zIndex — it
+ * floats over whatever is beneath it, and on the onboarding header at step 5
+ * of 5 that was the progress bar, which runs the full width and disappeared
+ * under it exactly when it was most worth seeing. The badge knows whether it
+ * is there; nobody else should have to guess.
+ */
+export function envBadgeInset(): number {
+  return envBadgeVisible() ? 52 : 0;
+}
+
 export function EnvBadge() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();

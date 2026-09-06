@@ -6,6 +6,7 @@ import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
+import { envBadgeInset } from '@/components/ui/EnvBadge';
 
 interface OnboardingHeaderProps {
   /** 1-based step number. */
@@ -27,7 +28,12 @@ export function OnboardingHeader({ current, total = 4, onSkip }: OnboardingHeade
   const insets = useSafeAreaInsets();
   const progress = Math.min(1, Math.max(0, current / total));
   return (
-    <View style={[styles.wrap, { paddingTop: insets.top + spacing.sm }]}>
+    <View
+      style={[
+        styles.wrap,
+        { paddingTop: insets.top + spacing.sm, paddingRight: 26 + envBadgeInset() },
+      ]}
+    >
       <View style={styles.row}>
         <Typography style={styles.step}>
           {t('ob.step', { current, total })}

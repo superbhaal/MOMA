@@ -69,7 +69,7 @@
     "title": "vérifiez vos e-mails",
     "sentTo": "nous avons envoyé un lien de confirmation à ",
     "tapLink": ". touchez le lien dans l’e-mail et vous reviendrez ici, connectée.",
-    "resendIn": "RENVOYER DANS {{seconds}}S",
+    "resendIn": "RENVOYER DANS {{seconds}} s",
     "resendLink": "RENVOYER LE LIEN",
     "openMail": "ouvrir la messagerie",
     "backToSignUp": "retour à l’inscription",
@@ -146,7 +146,6 @@
     "dobPlaceholder": "jj / mm / aaaa",
     "stepAboutN": "ÉTAPE {{current}} SUR {{total}} · À PROPOS DE VOUS",
     "missingPhoto": "il manque la photo de profil",
-    "missingName": "il manque votre nom",
     "missingAge": "il manque votre âge",
     "missingAddress": "il manque où vous habitez",
     "nextUp": "Ensuite : {{step}}",
@@ -155,7 +154,9 @@
     "nextDob": "la date de naissance du bébé",
     "nextLanguages": "les langues",
     "nextColour": "choisir votre couleur",
-    "nextFinal": "la dernière étape"
+    "nextFinal": "la dernière étape",
+    "missingFirstName": "il manque votre prénom",
+    "missingLastName": "il manque votre nom"
   },
   "home": {
     "yourGroups": "VOS GROUPES",
@@ -786,7 +787,7 @@
     "skipForNow": "Passer pour l’instant",
     "weekdays": "En semaine",
     "weekends": "Le week-end",
-    "addressPlaceholder": "ex. rue de Rivoli, Paris",
+    "addressPlaceholder": "ex. Prinsengracht, Amsterdam",
     "addressHint": "Sert à vous rapprocher de mamans à distance de marche.",
     "notNow": "Pas maintenant",
     "openSettings": "Ouvrir les réglages",

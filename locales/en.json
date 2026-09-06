@@ -69,7 +69,7 @@
     "title": "check your email",
     "sentTo": "we sent a confirmation link to ",
     "tapLink": ". tap the link in the email and you’ll come right back here, signed in.",
-    "resendIn": "RESEND IN {{seconds}}S",
+    "resendIn": "RESEND IN {{seconds}}s",
     "resendLink": "RESEND LINK",
     "openMail": "open mail app",
     "backToSignUp": "back to sign up",
@@ -146,7 +146,6 @@
     "dobPlaceholder": "mm / dd / yyyy",
     "stepAboutN": "STEP {{current}} OF {{total}} · ABOUT YOU",
     "missingPhoto": "a profile photo is missing",
-    "missingName": "your name is missing",
     "missingAge": "your age is missing",
     "missingAddress": "where you live is missing",
     "nextUp": "Next up: {{step}}",
@@ -155,7 +154,9 @@
     "nextDob": "baby’s date of birth",
     "nextLanguages": "languages",
     "nextColour": "pick your color",
-    "nextFinal": "the last step"
+    "nextFinal": "the last step",
+    "missingFirstName": "your first name is missing",
+    "missingLastName": "your last name is missing"
   },
   "home": {
     "yourGroups": "YOUR GROUPS",
@@ -786,7 +787,7 @@
     "skipForNow": "Skip for now",
     "weekdays": "Weekdays",
     "weekends": "Weekends",
-    "addressPlaceholder": "e.g. Rue de Rivoli, Paris",
+    "addressPlaceholder": "e.g. Prinsengracht, Amsterdam",
     "addressHint": "Used to match you with moms within walking distance.",
     "notNow": "Not now",
     "openSettings": "Open Settings",

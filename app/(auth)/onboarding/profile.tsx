@@ -95,7 +95,8 @@ export default function ProfileScreen() {
   const missingLabel = (() => {
     if (canContinue || saving || uploadingAvatar || locating || verifying) return null;
     if (!photoValid) return t('ob.missingPhoto');
-    if (!displayName.trim() || !lastName.trim()) return t('ob.missingName');
+    if (!displayName.trim()) return t('ob.missingFirstName');
+    if (!lastName.trim()) return t('ob.missingLastName');
     if (!ageValid) return t('ob.missingAge');
     if (!address.trim()) return t('ob.missingAddress');
     return null;

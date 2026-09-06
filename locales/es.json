@@ -69,7 +69,7 @@
     "title": "revisa tu correo",
     "sentTo": "te enviamos un enlace de confirmación a ",
     "tapLink": ". toca el enlace del correo y volverás aquí, con la sesión iniciada.",
-    "resendIn": "REENVIAR EN {{seconds}}S",
+    "resendIn": "REENVIAR EN {{seconds}} s",
     "resendLink": "REENVIAR ENLACE",
     "openMail": "abrir el correo",
     "backToSignUp": "volver al registro",
@@ -146,7 +146,6 @@
     "dobPlaceholder": "dd / mm / aaaa",
     "stepAboutN": "PASO {{current}} DE {{total}} · SOBRE TI",
     "missingPhoto": "falta la foto de perfil",
-    "missingName": "falta tu nombre",
     "missingAge": "falta tu edad",
     "missingAddress": "falta dónde vives",
     "nextUp": "Después: {{step}}",
@@ -155,7 +154,9 @@
     "nextDob": "la fecha de nacimiento del bebé",
     "nextLanguages": "los idiomas",
     "nextColour": "elegir tu color",
-    "nextFinal": "el último paso"
+    "nextFinal": "el último paso",
+    "missingFirstName": "falta tu nombre",
+    "missingLastName": "falta tu apellido"
   },
   "home": {
     "yourGroups": "TUS GRUPOS",
@@ -786,7 +787,7 @@
     "skipForNow": "Ahora no",
     "weekdays": "Entre semana",
     "weekends": "Fin de semana",
-    "addressPlaceholder": "p. ej. calle de Rivoli, París",
+    "addressPlaceholder": "p. ej. Prinsengracht, Ámsterdam",
     "addressHint": "Sirve para juntarte con madres a distancia caminando.",
     "notNow": "Ahora no",
     "openSettings": "Abrir Ajustes",
