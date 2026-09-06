@@ -41,13 +41,15 @@ Cosmétique, mais c'est le premier repère géographique que voit l'utilisatrice
 27 occurrences de « mom / moms » (américain ; le britannique dit « mum ») contre
 9 tournures d'orthographe britannique (« colour » ×3, « neighbourhood » ×4,
 « cancelled », « practise »). Zéro « mum ».
-Ce n'est pas un accident isolé : les deux registres sont installés. Trois voies :
- - **tout basculer en britannique** (mum/mums) — cohérent avec la bêta
-   d'Amsterdam, où l'anglais de référence est européen ;
- - **tout basculer en américain** (color, neighborhood) — cohérent avec « moms »,
-   qui est déjà le mot de la marque et apparaît 27 fois ;
- - **assumer le mélange** — « moms » comme mot de marque, orthographe
-   britannique pour le reste. Défendable, mais c'est un choix à poser, pas un
-   hasard.
+**Tranché par Simon : on passe en américain.** Neuf chaînes converties —
+colour → color (3), neighbourhood → neighborhood (4), cancelled → canceled,
+practise → practice. Zéro forme britannique restante dans `en.json`. Les
+32 « moms » étaient déjà américains et deviennent cohérents avec le reste.
+Vérifié à l'écran : « Your color » dans les préférences de rapprochement.
+
+Restent britanniques, volontairement : la colonne `users.neighbourhood` et les
+identifiants de code (`PROFILE_COLOUR_SWATCHES`, variables locales). Ce ne sont
+pas des chaînes affichées ; les renommer serait une migration pour zéro
+bénéfice utilisateur.
 Vérifié au passage : « practise » (verbe) / « practice » (nom) est correct en
 britannique, ce n'est pas une incohérence.
