@@ -16,12 +16,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
+import { envBadgeInset } from '@/components/ui/EnvBadge';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
+import { learnCategoryLabel, stageLabel } from '@/constants/discover';
 import { useLearnDoc } from '@/hooks/useLearn';
 import { useSavedTips } from '@/hooks/useSavedTips';
 import type { LearnArticle, LearnReel, SanityBlock } from '@/types';
@@ -40,19 +42,6 @@ import { learnSaveId } from '@/lib/sanity';
 function articleUrl(docId: string, locale: string): string {
   return `https://joinmoma.org/learn/${encodeURIComponent(docId)}?lang=${locale}`;
 }
-
-const STAGE_LABEL: Record<string, string> = {
-  T1: '1st trimester',
-  T2: '2nd trimester',
-  T3: '3rd trimester',
-  '0-4wks': 'Newborn',
-  '1-3mo': '1–3 months',
-  '3-6mo': '3–6 months',
-  '6-12mo': '6–12 months',
-  '1-2yr': '1–2 years',
-  '2-3yr': '2–3 years',
-  '3+yr': '3+ years',
-};
 
 export default function DiscoverDetail() {
   const { t } = useTranslation();
@@ -76,7 +65,10 @@ export default function DiscoverDetail() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Top bar */}
-      <View style={styles.topbar}>
+      {/* The env badge floats over the top-right corner with a huge zIndex,
+          and the reading-time pill sits exactly under it. envBadgeInset is 0
+          wherever the badge doesn't render, so nothing shifts in production. */}
+      <View style={[styles.topbar, { paddingRight: spacing.xl + envBadgeInset() }]}>
         <Pressable onPress={() => router.back()} hitSlop={10} style={styles.backBtn}>
           <Ionicons name="chevron-back" size={16} color={colors.cobalt} />
           <Typography style={styles.backText} color={colors.cobalt} numberOfLines={1}>
@@ -128,11 +120,16 @@ function ArticleReader({ article }: { article: LearnArticle }) {
   const saved = isSaved(learnSaveId(article));
 
   const eyebrow = useMemo(() => {
-    const parts = [article.category, article.babyStage ? STAGE_LABEL[article.babyStage] : null].filter(
+    const parts = [
+      learnCategoryLabel(article.category, t),
+      article.babyStage ? stageLabel(article.babyStage, t) : null,
+    ].filter(
       Boolean,
     );
     return parts.join(' · ');
-  }, [article.category, article.babyStage]);
+    // t belongs in the deps: without it the eyebrow keeps the language it
+    // was first rendered in when she switches in Settings.
+  }, [article.category, article.babyStage, t]);
 
   // Articles have no page of their own on the web, so the link we share is the
   // site. Without it the share sheet only ever carried a bare line of text —
@@ -142,7 +139,7 @@ function ArticleReader({ article }: { article: LearnArticle }) {
     const text = [article.title, article.deck, article.source ? `Source: ${article.source}` : null]
       .filter(Boolean)
       .join('\n\n');
-    const url = articleUrl(article._id, currentLocale());
+    const url = articleUrl(learnSaveId(article), currentLocale());
     Share.share(
       Platform.OS === 'ios'
         ? { message: text, url, title: article.title }

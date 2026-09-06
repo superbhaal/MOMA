@@ -61,8 +61,10 @@ export function useLearn(filters: LearnFeedFilters = {}) {
   return { docs, loading, error, refresh };
 }
 
-/** Single Learn document by Sanity _id. */
+/** Single Learn document by Sanity _id, in the language she reads. */
 export function useLearnDoc(id: string | undefined) {
+  const { i18n } = useTranslation();
+  const lang = i18n.language?.split('-')[0] ?? 'en';
   const [doc, setDoc] = useState<LearnDoc | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +76,7 @@ export function useLearnDoc(id: string | undefined) {
     }
     let cancelled = false;
     setLoading(true);
-    fetchLearnDoc(id)
+    fetchLearnDoc(id, lang)
       .then((d) => {
         if (cancelled) return;
         setDoc(d);
@@ -89,7 +91,7 @@ export function useLearnDoc(id: string | undefined) {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, lang]);
 
   return { doc, loading, error };
 }

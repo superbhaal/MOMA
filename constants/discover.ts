@@ -154,3 +154,35 @@ const PIN_COLORS: Record<LovedCategory, string> = {
 export function categoryColor(category: LovedCategory): string {
   return PIN_COLORS[category] ?? '#111118';
 }
+
+/**
+ * A stage code as a reader-facing label — "3–6 months", her language.
+ *
+ * The article reader carried its own frozen Record of these in English, so a
+ * Spanish reader opening a shared link met "SLEEP · 3–6 MONTHS" above Spanish
+ * prose. Derived from stageChipGroups so the taxonomy is stated once: adding a
+ * stage there is enough.
+ */
+export function stageLabel(code: string, t: TFunction): string | null {
+  for (const group of stageChipGroups(t)) {
+    const row = group.rows.find((r) => r.value === code);
+    if (row) return row.label;
+  }
+  return null;
+}
+
+/**
+ * A Learn category as a reader-facing label.
+ *
+ * Sanity carries these in English on every document, translations included —
+ * the prose is translated, the taxonomy field is not. Rather than duplicate a
+ * closed vocabulary across three datasets, the app translates it on the way
+ * out. An unknown category falls through unchanged, so publishing a new one
+ * never blanks a card.
+ */
+export function learnCategoryLabel(category: string | undefined, t: TFunction): string {
+  if (!category) return '';
+  const key = `dis.cat${category}`;
+  const label = t(key);
+  return label === key ? category : label;
+}

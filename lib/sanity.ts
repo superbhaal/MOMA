@@ -62,8 +62,39 @@ export function fetchLearnFeed(filters: LearnFeedFilters = {}): Promise<LearnDoc
   });
 }
 
-export function fetchLearnDoc(id: string): Promise<LearnDoc | null> {
-  return sanityFetch<LearnDoc | null>(`*[_id == $id][0]`, { id });
+/**
+ * One Learn document, in the reader's language when it exists.
+ *
+ * A shared link carries an id, and each piece exists once per language — so a
+ * link sent by a French mother used to open in French for a Spanish reader,
+ * and every link opened in English for everyone once the app started sharing
+ * the English original. The id in the URL identifies the piece; the language
+ * is the reader's, not the sender's.
+ *
+ * One round trip: the group is `_id == $id` (the original, or a legacy link
+ * that names a translation directly) plus everything that declares it as its
+ * `translationOf`. Falls back to the requested document, then to whatever the
+ * group holds, so a piece with no translation still opens.
+ */
+export async function fetchLearnDoc(id: string, lang = 'en'): Promise<LearnDoc | null> {
+  const group = await sanityFetch<LearnDoc[]>(
+    `*[_id == $id || translationOf == $id]`,
+    { id },
+  );
+  if (!group?.length) return null;
+
+  const requested = group.find((d) => d._id === id) ?? null;
+
+  // A link that names a translation (learn-x-es) reaches only itself here:
+  // its siblings hang off the base id, not off it. Resolve from the base.
+  const base = requested?.translationOf;
+  if (base && (requested?.language ?? 'en') !== lang) {
+    return fetchLearnDoc(base, lang);
+  }
+
+  return (
+    group.find((d) => (d.language ?? 'en') === lang) ?? requested ?? group[0]
+  );
 }
 
 // Convenience helpers if a screen wants a single format

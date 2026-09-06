@@ -415,6 +415,9 @@ export interface SanityBlock {
 export interface LearnArticle {
   _id: string;
   _type: 'learnArticle';
+  /** The language this document is written in. Absent on documents seeded
+   *  before the field existed, which are English. */
+  language?: 'en' | 'fr' | 'es';
   /** _id of the English original; absent on the English document itself. */
   translationOf?: string;
   title: string;
@@ -434,6 +437,9 @@ export interface LearnArticle {
 export interface LearnReel {
   _id: string;
   _type: 'learnReel';
+  /** The language this document is written in. Absent on documents seeded
+   *  before the field existed, which are English. */
+  language?: 'en' | 'fr' | 'es';
   /** _id of the English original; absent on the English document itself. */
   translationOf?: string;
   title: string;
@@ -456,6 +462,9 @@ export interface LearnReel {
 export interface LearnRecommendation {
   _id: string;
   _type: 'learnRecommendation';
+  /** The language this document is written in. Absent on documents seeded
+   *  before the field existed, which are English. */
+  language?: 'en' | 'fr' | 'es';
   /** _id of the English original; absent on the English document itself. */
   translationOf?: string;
   title: string;
