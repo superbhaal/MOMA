@@ -1,3 +1,4 @@
+import { currentLocale } from '@/lib/i18n';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -25,7 +26,19 @@ import { useLearnDoc } from '@/hooks/useLearn';
 import { useSavedTips } from '@/hooks/useSavedTips';
 import type { LearnArticle, LearnReel, SanityBlock } from '@/types';
 
-const MOMA_URL = 'https://joinmoma.org';
+/**
+ * Where a shared article points.
+ *
+ * This used to be the bare https://joinmoma.org — the coming-soon page. Whoever received the share
+ * got the title as plain text and a link to a landing page that said nothing
+ * about it. /learn/<id> is registered in the AASA, so someone who has møma
+ * lands on the piece itself, and someone who does not gets a page offering the
+ * app. Maria described exactly this, and it is the same pattern as
+ * /auth/confirm and /group-preview.
+ */
+function articleUrl(docId: string, locale: string): string {
+  return `https://joinmoma.org/learn/${encodeURIComponent(docId)}?lang=${locale}`;
+}
 
 const STAGE_LABEL: Record<string, string> = {
   T1: '1st trimester',
@@ -128,10 +141,11 @@ function ArticleReader({ article }: { article: LearnArticle }) {
     const text = [article.title, article.deck, article.source ? `Source: ${article.source}` : null]
       .filter(Boolean)
       .join('\n\n');
+    const url = articleUrl(article._id, currentLocale());
     Share.share(
       Platform.OS === 'ios'
-        ? { message: text, url: MOMA_URL, title: article.title }
-        : { message: `${text}\n\n${MOMA_URL}`, title: article.title },
+        ? { message: text, url, title: article.title }
+        : { message: `${text}\n\n${url}`, title: article.title },
     ).catch(() => {});
   };
 
@@ -153,7 +167,15 @@ function ArticleReader({ article }: { article: LearnArticle }) {
         </Typography>
       ) : null}
 
-      {/* Byline */}
+      {/* Byline.
+          The source pill used to sit in this row, beside the name. React
+          Native defaults flexShrink to 0 — unlike the web — so a long source
+          ("Archives of Women's Mental Health, 2023") claimed its full width
+          and squeezed the author column to about forty points. The name then
+          wrapped at one or two characters per line, down the whole screen.
+          Maria: "if the tag of the source is too long then put it at the top
+          or bottom". It now sits below, on its own line, where its length
+          cannot cost anything. */}
       <View style={styles.byline}>
         <Avatar name={article.author ?? '—'} size={48} ringColor={colors.cobalt} ringWidth={1.5} />
         <View style={styles.bylineText}>
@@ -165,14 +187,14 @@ function ArticleReader({ article }: { article: LearnArticle }) {
               .filter(Boolean)
               .join(' · ')}
           </Typography>
+          {article.source ? (
+            <View style={styles.sourcePill}>
+              <Typography style={styles.sourceText} color={colors.cobalt} numberOfLines={2}>
+                {article.source}
+              </Typography>
+            </View>
+          ) : null}
         </View>
-        {article.source ? (
-          <View style={styles.sourcePill}>
-            <Typography style={styles.sourceText} color={colors.cobalt} numberOfLines={1}>
-              {article.source}
-            </Typography>
-          </View>
-        ) : null}
       </View>
 
       {article.lead ? (
@@ -203,7 +225,12 @@ function ArticleReader({ article }: { article: LearnArticle }) {
       <View style={styles.actions}>
         <Pressable
           style={[styles.actionBtn, saved && styles.actionBtnActive]}
-          onPress={() => toggle(article._id, 'read_article')}
+          // The title has to travel with the save. SaveHeart on the feed cards
+          // passes it; this button — the one you actually reach, at the end of
+          // the article — did not, so the shelf showed "an article you saved"
+          // with no way to tell which. Maria reported it on build 11 and again
+          // on 30; it was one missing argument the whole time.
+          onPress={() => toggle(article._id, 'read_article', article.title)}
         >
           <Ionicons
             name={saved ? 'heart' : 'heart-outline'}
@@ -310,6 +337,8 @@ const styles = StyleSheet.create({
   bylineName: { fontFamily: fonts.body, fontSize: scaled(14) },
   bylineMeta: { fontFamily: fonts.body, fontSize: scaled(12.5), marginTop: 2 },
   sourcePill: {
+    alignSelf: 'flex-start',
+    marginTop: spacing.sm,
     backgroundColor: colors.cobaltSoft,
     borderRadius: radius.pill,
     paddingHorizontal: 11,

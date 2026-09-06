@@ -175,11 +175,12 @@ function ContributedRow({
       </View>
       <View style={styles.rowFoot}>
         <View style={styles.catPill}>
-          <Typography style={styles.catText} color={colors.labelMuted}>
+          <Typography style={styles.catText} color={colors.labelMuted} numberOfLines={1}>
             {categoryLabel(spot.category, t).toUpperCase()}
           </Typography>
         </View>
         <Pressable
+          style={styles.mapsBtn}
           onPress={() =>
             openInGoogleMaps({
               name: spot.name,
@@ -194,7 +195,7 @@ function ContributedRow({
           accessibilityRole="button"
           accessibilityLabel={t('expl.openMapsA11y', { name: spot.name })}
         >
-          <Typography style={styles.openMaps} color={colors.cobalt}>
+          <Typography style={styles.openMaps} color={colors.cobalt} numberOfLines={1}>
             {t('expl.openInMaps')} ↗
           </Typography>
         </Pressable>
@@ -244,7 +245,17 @@ const styles = StyleSheet.create({
   },
   miniMap: { width: '100%', height: 150, borderRadius: radius.lg, backgroundColor: '#EAF0E6' },
 
-  row: { paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.line },
+  // paddingHorizontal matches rowHighlight's padding so the two kinds of row
+  // line up down the column. The highlighted card is a filled block and needs
+  // its inset; the plain rows had none, so their content sat a spacing.lg
+  // further left than the card's — which is what Simon saw comparing the
+  // "Consultante en lactation" pill with "Séjour en famille" below it.
+  row: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
   rowHighlight: {
     backgroundColor: colors.cobaltSoft,
     borderRadius: radius.lg,
@@ -263,10 +274,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    // React Native defaults flexShrink to 0. With a long category —
+    // "CONSULTANTE EN LACTATION" — the pill kept its full width and pushed
+    // "Ouvrir dans Maps" off the right edge, arrow and all. The pill gives way
+    // now; the link never does, because a link you cannot reach is worse than
+    // a category you cannot read in full.
+    gap: spacing.sm,
     marginTop: spacing.md,
     paddingLeft: 56 + spacing.md,
   },
+  mapsBtn: { flexShrink: 0 },
   catPill: {
+    flexShrink: 1,
     backgroundColor: 'rgba(17,17,24,0.05)',
     borderRadius: radius.pill,
     paddingHorizontal: 10,

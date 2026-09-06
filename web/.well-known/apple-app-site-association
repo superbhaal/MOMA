@@ -13,6 +13,10 @@
           {
             "/": "/group-preview",
             "comment": "møma \"your group is ready\" email — opens the app on the preview"
+          },
+          {
+            "/": "/learn/*",
+            "comment": "møma Learn articles shared from the app — opens the piece directly"
           }
         ]
       }

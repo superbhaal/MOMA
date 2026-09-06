@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>møma</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --cobalt: #1A4BCC; --cream: #FAF6F1; --text: #111118; --muted: #6F6F88; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #fff; color: var(--text);
+      min-height: 100dvh; display: flex; align-items: center; justify-content: center;
+      padding: 24px; text-align: center;
+    }
+    main { max-width: 430px; }
+    .wordmark {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: 40px; color: var(--cobalt); letter-spacing: 0.5px; margin-bottom: 24px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif; font-weight: 400;
+      font-size: 28px; line-height: 1.2; margin-bottom: 12px;
+    }
+    p { color: var(--muted); font-size: 15.5px; line-height: 1.6; }
+    .actions { margin-top: 30px; display: flex; flex-direction: column; gap: 12px; }
+    .btn {
+      display: block; padding: 15px 24px; border-radius: 100px;
+      text-decoration: none; font-weight: 600; font-size: 14.5px; letter-spacing: 0.4px;
+    }
+    .btn-primary { background: var(--cobalt); color: #fff; }
+    .btn-ghost { background: var(--cream); color: var(--cobalt); }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="wordmark">møma</div>
+    <h1 id="title"></h1>
+    <p id="sub"></p>
+    <div class="actions">
+      <a id="open" class="btn btn-primary" href="#"></a>
+      <a id="store" class="btn btn-ghost" href="https://apps.apple.com/app/idAPPSTORE_ID_TBD"></a>
+    </div>
+  </main>
+
+  <script>
+    /* Where a shared Learn article lands.
+     *
+     * Sharing used to attach https://joinmoma.org — the coming-soon page. The
+     * recipient got the article's title as text and a link to a landing page
+     * that says nothing about it. Maria: "the sharing link doesn't work… if the
+     * user has møma it can go into the article, if not they have to download
+     * the app first".
+     *
+     * /learn/* is registered in the AASA, so on iOS with the app installed this
+     * page is never seen: the link opens the article directly. It exists for
+     * everyone else — and it deliberately does not show the article's text,
+     * because the reading happens in the app. */
+    var COPY = {
+      en: {
+        title: 'Read this in møma',
+        sub: 'This piece lives inside the app, alongside the group that shared it with you.',
+        open: 'Open møma',
+        store: 'Get møma',
+      },
+      fr: {
+        title: 'À lire dans møma',
+        sub: 'Ce texte vit dans l’application, à côté du groupe qui vous l’a partagé.',
+        open: 'Ouvrir møma',
+        store: 'Télécharger møma',
+      },
+      es: {
+        title: 'Léelo en møma',
+        sub: 'Este texto vive dentro de la aplicación, junto al grupo que te lo compartió.',
+        open: 'Abrir møma',
+        store: 'Descargar møma',
+      },
+    };
+
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var wanted = (params.get('lang') || navigator.language || 'en').slice(0, 2).toLowerCase();
+      var c = COPY[wanted] || COPY.en;
+      document.documentElement.lang = COPY[wanted] ? wanted : 'en';
+
+      // /learn/<docId> — the last non-empty path segment is the Sanity id.
+      var parts = location.pathname.split('/').filter(Boolean);
+      var docId = parts.length > 1 ? parts[parts.length - 1] : '';
+      var deepLink = docId ? 'moma://discover/' + encodeURIComponent(docId) : 'moma://';
+
+      document.getElementById('title').textContent = c.title;
+      document.getElementById('sub').textContent = c.sub;
+      var openBtn = document.getElementById('open');
+      openBtn.textContent = c.open;
+      openBtn.href = deepLink;
+      document.getElementById('store').textContent = c.store;
+
+      setTimeout(function () { location.href = deepLink; }, 250);
+    })();
+  </script>
+</body>
+</html>
