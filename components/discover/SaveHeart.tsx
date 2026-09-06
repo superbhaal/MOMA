@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
 import type { SavedDocType } from '@/types';
@@ -17,6 +18,7 @@ interface SaveHeartProps {
  * stopPropagation so saving never opens the article/reel underneath.
  */
 export function SaveHeart({ docId, docType, title, size = 20 }: SaveHeartProps) {
+  const { t } = useTranslation();
   const { isSaved, toggle } = useSavedTips();
   const saved = isSaved(docId);
   return (
@@ -28,7 +30,8 @@ export function SaveHeart({ docId, docType, title, size = 20 }: SaveHeartProps) 
       hitSlop={12}
       style={styles.btn}
       accessibilityRole="button"
-      accessibilityLabel={saved ? 'Saved' : 'Save'}
+      accessibilityState={{ selected: saved }}
+      accessibilityLabel={t(saved ? 'dis.unsave' : 'dis.save')}
     >
       <Ionicons
         name={saved ? 'heart' : 'heart-outline'}

@@ -25,6 +25,7 @@ import { scaled } from '@/constants/scale';
 import { useLearnDoc } from '@/hooks/useLearn';
 import { useSavedTips } from '@/hooks/useSavedTips';
 import type { LearnArticle, LearnReel, SanityBlock } from '@/types';
+import { learnSaveId } from '@/lib/sanity';
 
 /**
  * Where a shared article points.
@@ -124,7 +125,7 @@ export default function DiscoverDetail() {
 function ArticleReader({ article }: { article: LearnArticle }) {
   const { t } = useTranslation();
   const { isSaved, toggle } = useSavedTips();
-  const saved = isSaved(article._id);
+  const saved = isSaved(learnSaveId(article));
 
   const eyebrow = useMemo(() => {
     const parts = [article.category, article.babyStage ? STAGE_LABEL[article.babyStage] : null].filter(
@@ -230,7 +231,7 @@ function ArticleReader({ article }: { article: LearnArticle }) {
           // the article — did not, so the shelf showed "an article you saved"
           // with no way to tell which. Maria reported it on build 11 and again
           // on 30; it was one missing argument the whole time.
-          onPress={() => toggle(article._id, 'read_article', article.title)}
+          onPress={() => toggle(learnSaveId(article), 'read_article', article.title)}
         >
           <Ionicons
             name={saved ? 'heart' : 'heart-outline'}

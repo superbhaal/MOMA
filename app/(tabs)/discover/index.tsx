@@ -13,10 +13,13 @@ import { ComposeFab } from '@/components/discover/ComposeFab';
 import { ReadCard } from '@/components/discover/ReadCard';
 import { ReelCard } from '@/components/discover/ReelCard';
 import { DiscoverSkeleton } from '@/components/discover/DiscoverSkeleton';
+import { SavedFilterToggle } from '@/components/discover/SavedFilterToggle';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { textStyles } from '@/constants/typography';
 import { useLearn } from '@/hooks/useLearn';
+import { useSavedTips } from '@/hooks/useSavedTips';
+import { learnSaveId } from '@/lib/sanity';
 import { matchesQuery } from '@/lib/search';
 import { useAppStore } from '@/store/useAppStore';
 import type { LearnArticle, LearnReel } from '@/types';
@@ -48,6 +51,11 @@ export default function DiscoverIndex() {
   const [stage, setStage] = useState<string>('all');
   const [stageSheet, setStageSheet] = useState(false);
   const [query, setQuery] = useState('');
+  // Per-tab, and deliberately not remembered: this is a way of looking at the
+  // feed, not a setting. Leaving it on across launches would hide the new
+  // things she hasn't read yet, which is most of what Discover is for.
+  const [savedOnly, setSavedOnly] = useState(false);
+  const { isSaved } = useSavedTips();
 
   const { docs, loading, error, refresh } = useLearn({
     format: tab === 'learn' ? 'learnArticle' : 'learnReel',
@@ -68,8 +76,9 @@ export default function DiscoverIndex() {
   // the category and the source — not the article body, where a stray word
   // would surface a piece that isn't really about it.
   const results = useMemo(() => {
-    if (!query.trim()) return docs;
-    return docs.filter((d) => {
+    const pool = savedOnly ? docs.filter((d) => isSaved(learnSaveId(d))) : docs;
+    if (!query.trim()) return pool;
+    return pool.filter((d) => {
       if (d._type === 'learnArticle') {
         return matchesQuery(query, [
           d.title, d.deck, d.category, d.author, d.authorTitle, d.source, d.lead,
@@ -82,7 +91,7 @@ export default function DiscoverIndex() {
       }
       return matchesQuery(query, [d.title, d.category]);
     });
-  }, [docs, query]);
+  }, [docs, query, savedOnly, isSaved]);
 
   const [pulling, setPulling] = useState(false);
   const onPullRefresh = useCallback(async () => {
@@ -129,6 +138,7 @@ export default function DiscoverIndex() {
               }
               searchValue={query}
               onSearchChange={setQuery}
+              searchRight={<SavedFilterToggle active={savedOnly} onChange={setSavedOnly} />}
             />
             <DiscoverSubTabs active={tab} onChange={onTabChange} />
             <StageFilter
@@ -139,8 +149,8 @@ export default function DiscoverIndex() {
             />
             <Typography style={styles.sectionLabel} color={colors.cobalt}>
               {query.trim()
-                ? `${results.length} ${results.length === 1 ? 'RESULT' : 'RESULTS'}`
-                : sectionLabels(t)[tab].toUpperCase()}
+                ? t('dis.resultCount', { count: results.length }).toUpperCase()
+                : (savedOnly ? t('dis.secSaved') : sectionLabels(t)[tab]).toUpperCase()}
             </Typography>
             {error ? (
               <Typography variant="bodyL" color={colors.cherry} style={styles.error}>
@@ -171,14 +181,22 @@ export default function DiscoverIndex() {
           ) : query.trim() ? (
             <View style={styles.empty}>
               <Typography variant="bodyL" color={colors.muted} style={styles.emptyText}>
-                Nothing matches &ldquo;{query.trim()}&rdquo;
-                {stage !== 'all' ? t('dis.inThisStage') : ''}.
+                {t('dis.noResultsFor', {
+                  query: query.trim(),
+                  stage: stage !== 'all' ? t('dis.inThisStage') : '',
+                })}
               </Typography>
               <Pressable onPress={() => setQuery('')} hitSlop={10}>
                 <Typography style={styles.clearLink} color={colors.cobalt}>
                   {t('dis.clearSearch')}
                 </Typography>
               </Pressable>
+            </View>
+          ) : savedOnly ? (
+            <View style={styles.empty}>
+              <Typography variant="bodyL" color={colors.muted} style={styles.emptyText}>
+                {t(tab === 'learn' ? 'dis.emptySavedLearn' : 'dis.emptySavedWatch')}
+              </Typography>
             </View>
           ) : (
             <Typography variant="bodyL" color={colors.muted} style={styles.emptyText}>

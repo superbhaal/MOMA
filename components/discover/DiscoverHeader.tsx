@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,10 @@ interface DiscoverHeaderProps {
   searchPlaceholder?: string;
   searchValue?: string;
   onSearchChange?: (v: string) => void;
+  /** Rendered to the right of the search field — the "only what I liked"
+   *  toggle. Passed in rather than built here, because each tab owns its own
+   *  filter state and its own idea of what "liked" means. */
+  searchRight?: ReactNode;
   /** Extra top padding for the status bar (safe-area inset). */
   topInset?: number;
   /** Right-aligned adornment beside the title (e.g. the Contributor badge). */
@@ -40,6 +45,7 @@ export function DiscoverHeader({
   searchPlaceholder,
   searchValue,
   onSearchChange,
+  searchRight,
   topInset = 0,
   titleRight,
   illustration,
@@ -73,16 +79,19 @@ export function DiscoverHeader({
         {subtitle}
       </Typography>
 
-      <View style={styles.search}>
-        <Ionicons name="search" size={15} color={colors.muted} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder={searchPlaceholder ?? t('dis.searchDefault')}
-          placeholderTextColor={colors.muted}
-          value={searchValue}
-          onChangeText={onSearchChange}
-          returnKeyType="search"
-        />
+      <View style={styles.searchRow}>
+        <View style={styles.search}>
+          <Ionicons name="search" size={15} color={colors.muted} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={searchPlaceholder ?? t('dis.searchDefault')}
+            placeholderTextColor={colors.muted}
+            value={searchValue}
+            onChangeText={onSearchChange}
+            returnKeyType="search"
+          />
+        </View>
+        {searchRight}
       </View>
     </View>
   );
@@ -131,7 +140,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: spacing.lg,
   },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   search: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,

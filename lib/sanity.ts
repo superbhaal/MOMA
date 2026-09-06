@@ -76,3 +76,16 @@ export function fetchReels(): Promise<LearnReel[]> {
 export function fetchRecommendations(): Promise<LearnRecommendation[]> {
   return sanityFetch(`*[_type == "learnRecommendation"] | order(publishedAt desc)`);
 }
+
+/**
+ * The id a like is stored under.
+ *
+ * Each Learn piece exists once per language — `learn-four-month-sleep`,
+ * `-fr`, `-es` — so storing `_id` would make a like language-specific: she
+ * hearts an article in Spanish, switches the app to French, and her filter
+ * comes back empty. The English original is the identity of the piece, and
+ * every translation names it in `translationOf`.
+ */
+export function learnSaveId(doc: { _id: string; translationOf?: string }): string {
+  return doc.translationOf || doc._id;
+}

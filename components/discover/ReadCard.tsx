@@ -6,6 +6,7 @@ import { colors } from '@/constants/colors';
 import { textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import type { LearnArticle } from '@/types';
+import { learnSaveId } from '@/lib/sanity';
 
 interface ReadCardProps {
   article: LearnArticle;
@@ -29,7 +30,7 @@ export function ReadCard({ article, onPress }: ReadCardProps) {
             {t('dis.readMin', { n: article.readMinutes ?? 5 })}
           </Typography>
         </View>
-        <SaveHeart docId={article._id} docType="read_article" title={article.title} />
+        <SaveHeart docId={learnSaveId(article)} docType="read_article" title={article.title} />
       </View>
 
       <Typography style={styles.title} color={colors.text}>

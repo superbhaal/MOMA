@@ -5,7 +5,11 @@ import { useAuth } from './useAuth';
 import type { SavedDocType, SavedTip } from '@/types';
 
 /**
- * Bookmarks across Read / Watch / Recco.
+ * What she has liked, across articles, reels, places and regulars.
+ *
+ * These used to accumulate into a shelf on her profile. That list only grew,
+ * and Maria asked for it to go: liking now filters where she is already
+ * browsing — a heart beside the search on each Discover tab.
  *
  * The state is one shared store rather than per-hook: Discover and Me each
  * mount their own copy of this hook, and Me stays mounted in the tab navigator
@@ -52,13 +56,13 @@ export function useSavedTips() {
     if (user) await load(user.id);
   };
 
-  const isSaved = (sanityDocId: string) => tips.some((t) => t.sanity_doc_id === sanityDocId);
+  const isSaved = (itemId: string) => tips.some((t) => t.item_id === itemId);
 
-  /** `title` is snapshotted at save time — see 030. Without it the shelf is a
-   *  list of types, which is what it had been since it shipped. */
-  const toggle = async (sanityDocId: string, docType: SavedDocType, title?: string) => {
+  /** `title` is still snapshotted: the shelf is gone, but a saved row that
+   *  names nothing is unreadable in the admin and in any export. */
+  const toggle = async (itemId: string, docType: SavedDocType, title?: string) => {
     if (!user) return;
-    const existing = tips.find((t) => t.sanity_doc_id === sanityDocId);
+    const existing = tips.find((t) => t.item_id === itemId);
 
     if (existing) {
       set((cur) => cur.filter((t) => t.id !== existing.id));
@@ -70,7 +74,7 @@ export function useSavedTips() {
         {
           id: tmpId,
           user_id: user.id,
-          sanity_doc_id: sanityDocId,
+          item_id: itemId,
           doc_type: docType,
           title: title ?? null,
           saved_at: new Date().toISOString(),
@@ -79,7 +83,7 @@ export function useSavedTips() {
       ]);
       const { data, error } = await supabase
         .from('saved_tips')
-        .insert({ user_id: user.id, sanity_doc_id: sanityDocId, doc_type: docType, title: title ?? null })
+        .insert({ user_id: user.id, item_id: itemId, doc_type: docType, title: title ?? null })
         .select('*')
         .maybeSingle();
       if (error || !data) refresh();

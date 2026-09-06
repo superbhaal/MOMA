@@ -26,7 +26,16 @@ export type GroupStatus = 'active' | 'archived';
 export type ProposalState = 'open' | 'decided' | 'expired';
 export type Vote = 'going' | 'maybe' | 'cant';
 export type AvailabilityBlock = 'morning' | 'afternoon' | 'evening';
-export type SavedDocType = 'read_article' | 'watch_reel' | 'recommendation';
+/**
+ * What can be liked. The first three are Sanity documents; loved_spot and
+ * regular are Postgres uuids — a place, a person, or a mother from Regulars.
+ */
+export type SavedDocType =
+  | 'read_article'
+  | 'watch_reel'
+  | 'recommendation'
+  | 'loved_spot'
+  | 'regular';
 
 export type DiscoverRole = 'reader' | 'contributor' | 'admin';
 
@@ -335,7 +344,8 @@ export interface DmThread {
 export interface SavedTip {
   id: string;
   user_id: string;
-  sanity_doc_id: string;
+  /** Sanity document id, or the uuid of a loved_spot / user. See 041. */
+  item_id: string;
   doc_type: SavedDocType;
   /** Snapshot of the title at save time (030) — null on rows saved before it. */
   title: string | null;
@@ -405,6 +415,8 @@ export interface SanityBlock {
 export interface LearnArticle {
   _id: string;
   _type: 'learnArticle';
+  /** _id of the English original; absent on the English document itself. */
+  translationOf?: string;
   title: string;
   deck: string;
   category: string;
@@ -422,6 +434,8 @@ export interface LearnArticle {
 export interface LearnReel {
   _id: string;
   _type: 'learnReel';
+  /** _id of the English original; absent on the English document itself. */
+  translationOf?: string;
   title: string;
   platform: 'instagram' | 'tiktok';
   externalUrl: string;
@@ -442,6 +456,8 @@ export interface LearnReel {
 export interface LearnRecommendation {
   _id: string;
   _type: 'learnRecommendation';
+  /** _id of the English original; absent on the English document itself. */
+  translationOf?: string;
   title: string;
   category: string;
   body: string;

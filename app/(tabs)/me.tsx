@@ -20,7 +20,6 @@ import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useGroups } from '@/hooks/useGroups';
 import { useProposals } from '@/hooks/useProposals';
-import { useSavedTips } from '@/hooks/useSavedTips';
 import { usePreferences } from '@/hooks/usePreferences';
 import { babyMetaLine } from '@/lib/babyAge';
 import { formatTime, localeTag } from '@/lib/time';
@@ -71,21 +70,12 @@ function activePauseDays(pausedUntil: string | null | undefined): number | null 
   return days > 14 ? 30 : 7;
 }
 
-function savedMeta(t: TFunction): Record<SavedDocType, { label: string; bg: string; fg: string; noun: string }> {
-  return {
-  read_article: { label: t('misc.read'), bg: '#D8E8C8', fg: '#2a5a1a', noun: t('me.savedRead') },
-  watch_reel: { label: t('misc.watchLabel'), bg: '#e0f8fa', fg: '#007a88', noun: t('me.savedWatch') },
-  recommendation: { label: t('misc.recco'), bg: '#fce8f4', fg: '#b0246e', noun: t('me.savedRecco') },
-  };
-}
-
 export default function MeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
   const { groups, leaveGroup } = useGroups();
-  const { tips, toggle: toggleTip } = useSavedTips();
   const { item: brought } = useMyBrought();
   const { pauseFor } = usePreferences();
 
@@ -313,58 +303,13 @@ export default function MeScreen() {
         )}
       </MeCard>
 
-      {/* Saved tips */}
-      <MeSectionLabel
-        label={t('me.savedTips')}
-        right={
-          tips.length > 0 ? (
-            <Typography style={styles.countBadge}>{tips.length}</Typography>
-          ) : null
-        }
-      />
-      <MeCard>
-        {tips.length === 0 ? (
-          <View style={styles.savedEmpty}>
-            <Typography style={styles.savedEmptyText}>
-              {/* Split in three rather than one interpolated string: the middle
-                  segment is styled, and the emphasis has to sit on the right
-                  words in each language, not at a fixed character offset. */}
-              {t('me.savedEmptyA')}
-              <Typography style={styles.savedEmptyStrong}>{t('me.savedEmptyStrong')}</Typography>
-              {t('me.savedEmptyB')}
-            </Typography>
-          </View>
-        ) : (
-          tips.map((tip, i) => {
-            const meta = savedMeta(t)[tip.doc_type];
-            return (
-              <View key={tip.id} style={[styles.savedRow, i === tips.length - 1 && styles.savedRowLast]}>
-                <View style={[styles.savedCat, { backgroundColor: meta.bg }]}>
-                  <Typography style={[styles.savedCatText, { color: meta.fg }]}>
-                    {meta.label}
-                  </Typography>
-                </View>
-                {/* Its own title, snapshotted when she saved it. Rows kept
-                    before 030 have none, so they keep the old generic line —
-                    better than an empty row where a name should be. */}
-                <Typography style={styles.savedText} numberOfLines={2}>
-                  {tip.title || meta.noun}
-                </Typography>
-                <Pressable onPress={() => toggleTip(tip.sanity_doc_id, tip.doc_type)} hitSlop={8}>
-                  <Ionicons name="heart" size={16} color={colors.fuchsia} />
-                </Pressable>
-              </View>
-            );
-          })
-        )}
-      </MeCard>
 
       {/* My groups */}
       <MeSectionLabel label={t('me.myGroups')} />
       <MeCard>
         {groups.length === 0 ? (
-          <View style={styles.savedEmpty}>
-            <Typography style={styles.savedEmptyText}>
+          <View style={styles.emptyBlock}>
+            <Typography style={styles.emptyText}>
               {t('me.noGroupYet')}
             </Typography>
           </View>
@@ -769,54 +714,6 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   // Saved tips
-  countBadge: {
-    fontFamily: fonts.bodySemi,
-    fontSize: scaled(10.5),
-    letterSpacing: 1,
-    color: colors.muted,
-  },
-  savedRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  savedRowLast: { borderBottomWidth: 0 },
-  savedCat: {
-    borderRadius: radius.pill,
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    marginTop: 1,
-  },
-  savedCatText: {
-    fontFamily: fonts.bodySemi,
-    fontSize: scaled(10.5),
-    letterSpacing: 0.8,
-  },
-  savedText: {
-    flex: 1,
-    fontFamily: fonts.readingItal,
-    fontStyle: 'italic',
-    fontSize: scaled(13),
-    lineHeight: scaled(20),
-    color: colors.text,
-  },
-  savedEmpty: {
-    padding: spacing.lg,
-  },
-  savedEmptyText: {
-    fontFamily: fonts.reading,
-    fontSize: scaled(13),
-    lineHeight: scaled(21),
-    color: colors.muted,
-  },
-  savedEmptyStrong: {
-    fontFamily: fonts.bodySemi,
-    color: colors.text,
-  },
   // Sign out
   signOut: {
     alignItems: 'center',
@@ -851,6 +748,16 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodySemi,
     fontSize: scaled(15),
     color: colors.text,
+  },
+  // Shared empty state — was named for the saved shelf, which no longer
+  // exists here: liking now lives in Discover behind its own filter.
+  emptyBlock: { paddingHorizontal: spacing.lg, paddingVertical: spacing.xl },
+  emptyText: {
+    fontFamily: fonts.readingItal,
+    fontSize: scaled(15),
+    lineHeight: scaled(23),
+    color: colors.mutedStrong,
+    textAlign: 'center',
   },
   sheetItemSub: {
     fontFamily: fonts.body,

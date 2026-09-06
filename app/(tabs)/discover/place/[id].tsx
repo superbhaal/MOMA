@@ -26,6 +26,7 @@ import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeleteLovedSpot } from '@/hooks/useDeleteLovedSpot';
 import { useLovedPlace } from '@/hooks/useLovedSpots';
+import { useSavedTips } from '@/hooks/useSavedTips';
 
 const HERO_H = 280;
 
@@ -78,6 +79,7 @@ export default function LovedSpotDetail() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { place: spot, loading, error } = useLovedPlace(id);
+  const { isSaved, toggle: toggleSaved } = useSavedTips();
   const { user } = useAuth();
   const { remove, deleting } = useDeleteLovedSpot();
   const [heroFailed, setHeroFailed] = useState(false);
@@ -146,6 +148,7 @@ export default function LovedSpotDetail() {
   }
 
   const isPerson = spot.kind === 'person';
+  const saved = isSaved(spot.id);
   // The hero's identity treatment follows the first recommendation — for a
   // person, whose face the page is about, that's whoever vouched for them first.
   const ring = spot.recommendations[0]?.poster_color ?? colors.fuchsia;
@@ -210,6 +213,26 @@ export default function LovedSpotDetail() {
             accessibilityLabel={t('misc.back')}
           >
             <Ionicons name="chevron-back" size={24} color={colors.white} />
+          </Pressable>
+
+          {/* Keep-this, mirrored across from Back. Not to be confused with the
+              fuchsia count below, which is how many moms vouched for the spot:
+              that one is the place's, this one is hers. */}
+          <Pressable
+            style={styles.saveBtn}
+            onPress={() =>
+              toggleSaved(spot.id, isPerson ? 'regular' : 'loved_spot', spot.name)
+            }
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityState={{ selected: saved }}
+            accessibilityLabel={t(saved ? 'dis.unsave' : 'dis.save')}
+          >
+            <Ionicons
+              name={saved ? 'heart' : 'heart-outline'}
+              size={21}
+              color={saved ? colors.fuchsia : colors.white}
+            />
           </Pressable>
         </View>
 
@@ -378,6 +401,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.cream,
+  },
+  saveBtn: {
+    // Bottom of the hero, not the top: the top-right corner belongs to the
+    // environment badge in dev and pre-prod builds, and the two round grey
+    // pills sat on top of each other.
+    position: 'absolute',
+    right: spacing.lg,
+    bottom: spacing.lg,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(17,17,24,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   backBtn: {
     position: 'absolute',

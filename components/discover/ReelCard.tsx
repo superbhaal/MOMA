@@ -9,6 +9,7 @@ import { colors } from '@/constants/colors';
 import { fonts, textStyles } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import type { LearnReel } from '@/types';
+import { learnSaveId } from '@/lib/sanity';
 
 interface ReelCardProps {
   reel: LearnReel;
@@ -91,7 +92,7 @@ export function ReelCard({ reel }: ReelCardProps) {
               {t('dis.watchPlatform', { p: reel.platform.toUpperCase() })}
             </Typography>
           </View>
-          <SaveHeart docId={reel._id} docType="watch_reel" title={reel.title} />
+          <SaveHeart docId={learnSaveId(reel)} docType="watch_reel" title={reel.title} />
         </View>
 
         <Typography style={styles.title} color={colors.text}>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -8,11 +8,14 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Typography } from '@/components/ui/Typography';
 import { DiscoverHeader } from '@/components/discover/DiscoverHeader';
 import { DiscoverSubTabs, type DiscoverTab } from '@/components/discover/DiscoverSubTabs';
+import { SavedFilterToggle } from '@/components/discover/SavedFilterToggle';
+import { SaveHeart } from '@/components/discover/SaveHeart';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { fonts, textStyles } from '@/constants/typography';
 import { scaled } from '@/constants/scale';
 import { useRegulars, type Regular } from '@/hooks/useLovedSpots';
+import { useSavedTips } from '@/hooks/useSavedTips';
 import { useAppStore } from '@/store/useAppStore';
 
 /**
@@ -26,6 +29,12 @@ export default function RegularsScreen() {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const { regulars, loading } = useRegulars(query);
+  const [savedOnly, setSavedOnly] = useState(false);
+  const { isSaved } = useSavedTips();
+  const shown = useMemo(
+    () => (savedOnly ? regulars.filter((r) => isSaved(r.id)) : regulars),
+    [regulars, savedOnly, isSaved],
+  );
   const setFeedTab = useAppStore((s) => s.setDiscoverFeedTab);
 
   const onSubTab = (next: DiscoverTab) => {
@@ -48,6 +57,7 @@ export default function RegularsScreen() {
         searchPlaceholder={t('dis.searchRegulars')}
         searchValue={query}
         onSearchChange={setQuery}
+        searchRight={<SavedFilterToggle active={savedOnly} onChange={setSavedOnly} />}
         topInset={insets.top}
         illustration="poolside"
       />
@@ -57,13 +67,17 @@ export default function RegularsScreen() {
         <ActivityIndicator style={{ marginTop: spacing.xxl }} color={colors.cobalt} />
       ) : (
         <FlatList
-          data={regulars}
+          data={shown}
           keyExtractor={(r) => r.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <Typography style={styles.empty} color={colors.muted}>
-              {query.trim() ? t('dis.noRegulars') : t('dis.regularsEmpty')}
+              {savedOnly
+                ? t('dis.emptySavedRegulars')
+                : query.trim()
+                  ? t('dis.noRegulars')
+                  : t('dis.regularsEmpty')}
             </Typography>
           }
           renderItem={({ item }) => <Row regular={item} onPress={() => router.push(`/discover/contributor/${item.id}`)} />}
@@ -95,6 +109,9 @@ function Row({ regular, onPress }: { regular: Regular; onPress: () => void }) {
             .join(' · ')}
         </Typography>
       </View>
+      {/* Nothing else claims the right edge here, so the heart can sit on the
+          row itself — one tap to keep a mom she wants to find again. */}
+      <SaveHeart docId={regular.id} docType="regular" title={regular.display_name} />
     </Pressable>
   );
 }

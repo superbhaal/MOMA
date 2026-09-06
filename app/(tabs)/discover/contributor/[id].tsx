@@ -21,6 +21,7 @@ import { discoverMapUri, openInGoogleMaps, staticMapUri } from '@/lib/maps';
 import { categoryLabel } from '@/constants/discover';
 import { scaled } from '@/constants/scale';
 import { useContributor } from '@/hooks/useLovedSpots';
+import { SaveHeart } from '@/components/discover/SaveHeart';
 import type { LovedSpotWithPoster } from '@/types';
 
 export default function ContributorProfile() {
@@ -68,11 +69,21 @@ export default function ContributorProfile() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        <Pressable onPress={() => router.back()} hitSlop={8} style={styles.backRow}>
-          <Typography style={styles.backLink} color={colors.cobalt}>
-            ‹ {t('misc.backShort')}
-          </Typography>
-        </Pressable>
+        <View style={styles.topRow}>
+          <Pressable onPress={() => router.back()} hitSlop={8}>
+            <Typography style={styles.backLink} color={colors.cobalt}>
+              ‹ {t('misc.backShort')}
+            </Typography>
+          </Pressable>
+          {/* Same heart as the Regulars list, so keeping her from her page and
+              keeping her from the row are visibly the same act. */}
+          <SaveHeart
+            docId={contributor.id}
+            docType="regular"
+            title={contributor.display_name}
+            size={22}
+          />
+        </View>
 
         {/* Hero */}
         <View style={styles.hero}>
@@ -207,7 +218,12 @@ function ContributedRow({
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   center: { alignItems: 'center', justifyContent: 'center', gap: spacing.md, padding: spacing.xl },
-  backRow: { marginBottom: spacing.md },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
   backLink: { fontFamily: fonts.bodySemi, fontSize: scaled(15) },
 
   hero: { alignItems: 'center', gap: spacing.sm },

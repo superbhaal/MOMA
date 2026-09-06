@@ -10,12 +10,14 @@ import { ExploreCategoryChips } from '@/components/discover/ExploreCategoryChips
 import { ExploreMap } from '@/components/discover/ExploreMap';
 import { ExploreSheet } from '@/components/discover/ExploreSheet';
 import { ComposeFab } from '@/components/discover/ComposeFab';
+import { SavedFilterToggle } from '@/components/discover/SavedFilterToggle';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { categoryLabel } from '@/constants/discover';
 import { useAuth } from '@/hooks/useAuth';
 import { useDiscoverRole } from '@/hooks/useDiscoverRole';
 import { useLovedPlaces } from '@/hooks/useLovedSpots';
+import { useSavedTips } from '@/hooks/useSavedTips';
 import { matchesQuery } from '@/lib/search';
 import { useAppStore } from '@/store/useAppStore';
 import type { LovedKind, LovedCategory, LovedPlace } from '@/types';
@@ -38,6 +40,11 @@ export default function DiscoverExplore() {
   const [personCat, setPersonCat] = useState<LovedCategory | 'all'>('all');
   const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState(false);
+  // Places and people are hearted from their own page — the row's right edge
+  // already carries a fuchsia heart, and it means something else there (how
+  // many moms vouched). Two hearts in one row would read as one.
+  const [savedOnly, setSavedOnly] = useState(false);
+  const { isSaved } = useSavedTips();
   // Height of the map canvas — the sheet lives INSIDE it, so its rest heights
   // must be measured against this, never the full window (else the expanded
   // sheet overflows the canvas top and gets clipped by overflow:hidden).
@@ -60,8 +67,9 @@ export default function DiscoverExplore() {
   // matcher with the Learn feed, so accents fold and terms can arrive in any
   // order — "nuria cafe" finds Núria's café.
   const filtered = useMemo(() => {
-    if (!query.trim()) return places;
-    return places.filter((s: LovedPlace) =>
+    const pool = savedOnly ? places.filter((s: LovedPlace) => isSaved(s.id)) : places;
+    if (!query.trim()) return pool;
+    return pool.filter((s: LovedPlace) =>
       matchesQuery(query, [
         s.name,
         s.address,
@@ -69,7 +77,7 @@ export default function DiscoverExplore() {
         ...s.recommendations.map((r) => r.poster_name),
       ]),
     );
-  }, [places, query]);
+  }, [places, query, savedOnly, isSaved]);
 
   const me =
     user?.latitude != null && user?.longitude != null
@@ -108,6 +116,7 @@ export default function DiscoverExplore() {
         searchPlaceholder={t('expl.search')}
         searchValue={query}
         onSearchChange={setQuery}
+        searchRight={<SavedFilterToggle active={savedOnly} onChange={setSavedOnly} />}
         topInset={insets.top}
         illustration="table"
       />
@@ -148,12 +157,13 @@ export default function DiscoverExplore() {
           bottomInset={0}
           collapsedHeight={collapsedHeight}
           expandedHeight={expandedHeight}
-          hasCategoryFilter={category !== 'all' || query.trim().length > 0}
+          hasCategoryFilter={category !== 'all' || query.trim().length > 0 || savedOnly}
           canPost={canPost}
           onRetry={refresh}
           onClearFilters={() => {
             setCategory('all');
             setQuery('');
+            setSavedOnly(false);
           }}
           onCompose={() =>
             router.push({ pathname: '/discover/place/new', params: { kind: mode } })
