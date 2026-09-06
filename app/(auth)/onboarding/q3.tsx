@@ -119,7 +119,13 @@ export default function Q3LanguagesScreen() {
   return (
     <View style={styles.container}>
       <OnboardingHeader current={4} total={5} />
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        // See app/brought/new.tsx — same omission, same symptom.
+        automaticallyAdjustKeyboardInsets
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <Typography style={styles.heading}>
           {t('ob.q3heading')}
         </Typography>
@@ -210,11 +216,11 @@ export default function Q3LanguagesScreen() {
         visible={addOpen}
         onClose={() => setAddOpen(false)}
         onShow={() => inputRef.current?.focus()}
-        title={addTarget === 'primary' ? 'Add a primary language' : 'Add another language'}
+        title={addTarget === 'primary' ? t('ob.q3addPrimary') : t('ob.q3addAnother')}
       >
         <View>
           <Typography variant="bodyM" color={colors.muted} style={styles.sheetHint}>
-            Type any language. We&rsquo;ll keep it as-is.
+            {t('ob.q3addHint')}
           </Typography>
           <TextInput
             ref={inputRef}

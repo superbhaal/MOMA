@@ -133,6 +133,12 @@ export default function BringSomethingScreen() {
 
       <ScrollView
         contentContainerStyle={styles.scroll}
+        // iOS shifts the scroll content up by the keyboard's height and brings
+        // the focused field with it. Without this the field simply stays where
+        // it was, under the keyboard — which is what Maria hit on the recipe
+        // steps: she typed steps 1 to 3, and step 4 was behind the keyboard.
+        // She reported the same thing on build 11 (email/phone) a month ago.
+        automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}

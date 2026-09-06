@@ -159,7 +159,10 @@
     "nextColour": "pick your color",
     "nextFinal": "the last step",
     "missingFirstName": "your first name is missing",
-    "missingLastName": "your last name is missing"
+    "missingLastName": "your last name is missing",
+    "q3addPrimary": "Add a primary language",
+    "q3addAnother": "Add another language",
+    "q3addHint": "Type any language. We’ll keep it as-is."
   },
   "home": {
     "yourGroups": "YOUR GROUPS",

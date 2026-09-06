@@ -134,7 +134,13 @@ export default function PreferencesScreen() {
         </Typography>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        // See app/brought/new.tsx — same omission, same symptom.
+        automaticallyAdjustKeyboardInsets
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <Typography style={styles.sectionLabel} color={colors.cobalt}>
           {t('prefs.whoMatched')}
         </Typography>

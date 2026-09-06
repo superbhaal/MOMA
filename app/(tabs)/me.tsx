@@ -33,12 +33,42 @@ import type { SavedDocType } from '@/types';
 
 // Copy, not data: built from `t` so switching language in Settings updates it
 // instead of leaving it in whichever language was active at import time.
+/**
+ * How long an open-ended pause lasts, in days.
+ *
+ * It has to be a real future date, not null. pauseFor(null) clears
+ * paused_until, which is the value that means NOT paused — so "until I turn it
+ * back on" was resuming matching, the exact opposite of what it says, and was
+ * indistinguishable from the "resume now" row right below it. pauseValue above
+ * already expects a far-future date and reads anything over a year out as
+ * open-ended; only the write side was missing.
+ */
+const PAUSE_INDEFINITE_DAYS = 3650;
+
 function pauseOptions(t: TFunction) {
   return [
     { days: 7, label: t('me.pause1wLabel'), sub: t('me.pause1wSub') },
     { days: 30, label: t('me.pause1mLabel'), sub: t('me.pause1mSub') },
-    { days: null, label: t('me.pauseIndefLabel'), sub: t('me.pauseIndefSub') },
+    {
+      days: PAUSE_INDEFINITE_DAYS,
+      label: t('me.pauseIndefLabel'),
+      sub: t('me.pauseIndefSub'),
+    },
   ];
+}
+
+/**
+ * Which option is in force, from the stored date. Maria: "I cannot visually
+ * see which matching preference I'm choosing" — she was paused until 6 October
+ * and all three rows looked the same.
+ */
+function activePauseDays(pausedUntil: string | null | undefined): number | null {
+  if (!pausedUntil) return null;
+  const ms = new Date(pausedUntil).getTime() - Date.now();
+  if (ms <= 0) return null;
+  const days = ms / (24 * 60 * 60 * 1000);
+  if (days > 365) return PAUSE_INDEFINITE_DAYS;
+  return days > 14 ? 30 : 7;
 }
 
 function savedMeta(t: TFunction): Record<SavedDocType, { label: string; bg: string; fg: string; noun: string }> {
@@ -453,19 +483,32 @@ export default function MeScreen() {
         <Typography style={styles.sheetSub}>
           {t('me.pauseBlurb')}
         </Typography>
-        {pauseOptions(t).map((opt) => (
-          <Pressable
-            key={opt.label}
-            style={styles.sheetItem}
-            onPress={async () => {
-              await pauseFor(opt.days);
-              setPauseOpen(false);
-            }}
-          >
-            <Typography style={styles.sheetItemTitle}>{opt.label}</Typography>
-            <Typography style={styles.sheetItemSub}>{opt.sub}</Typography>
-          </Pressable>
-        ))}
+        {pauseOptions(t).map((opt) => {
+          const active = opt.days === activePauseDays(user?.paused_until);
+          return (
+            <Pressable
+              key={opt.label}
+              style={styles.sheetItem}
+              onPress={async () => {
+                await pauseFor(opt.days);
+                setPauseOpen(false);
+              }}
+            >
+              <View style={styles.sheetItemRow}>
+                <Typography
+                  style={styles.sheetItemTitle}
+                  color={active ? colors.cobalt : colors.text}
+                >
+                  {opt.label}
+                </Typography>
+                {active ? (
+                  <Ionicons name="checkmark" size={18} color={colors.cobalt} />
+                ) : null}
+              </View>
+              <Typography style={styles.sheetItemSub}>{opt.sub}</Typography>
+            </Pressable>
+          );
+        })}
         {isPaused ? (
           <Pressable
             style={[styles.sheetItem, styles.sheetItemLast]}
@@ -799,6 +842,11 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.line,
   },
   sheetItemLast: { borderBottomWidth: 0 },
+  sheetItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   sheetItemTitle: {
     fontFamily: fonts.bodySemi,
     fontSize: scaled(15),

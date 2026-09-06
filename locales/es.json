@@ -159,7 +159,10 @@
     "nextColour": "elegir tu color",
     "nextFinal": "el último paso",
     "missingFirstName": "falta tu nombre",
-    "missingLastName": "falta tu apellido"
+    "missingLastName": "falta tu apellido",
+    "q3addPrimary": "Añadir un idioma principal",
+    "q3addAnother": "Añadir otro idioma",
+    "q3addHint": "Escribe cualquier idioma. Lo dejamos tal cual."
   },
   "home": {
     "yourGroups": "TUS GRUPOS",

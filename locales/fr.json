@@ -159,7 +159,10 @@
     "nextColour": "choisir votre couleur",
     "nextFinal": "la dernière étape",
     "missingFirstName": "il manque votre prénom",
-    "missingLastName": "il manque votre nom"
+    "missingLastName": "il manque votre nom",
+    "q3addPrimary": "Ajouter une langue principale",
+    "q3addAnother": "Ajouter une autre langue",
+    "q3addHint": "Écrivez n’importe quelle langue. Nous la gardons telle quelle."
   },
   "home": {
     "yourGroups": "VOS GROUPES",
