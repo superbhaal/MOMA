@@ -17,6 +17,7 @@ import { fonts } from '@/constants/typography';
 import { scaled } from '@/constants/scale';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { lifeStageFromDob } from '@/lib/lifeStage';
+import { localeTag } from '@/lib/time';
 
 const DOB_MAX = (() => {
   const d = new Date();
@@ -33,7 +34,7 @@ function formatDob(iso: string): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString('en-US', {
+  return d.toLocaleDateString(localeTag(), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -87,7 +88,7 @@ export default function Q2BabyDobScreen() {
 
   return (
     <View style={styles.container}>
-      <OnboardingHeader current={2} total={4} />
+      <OnboardingHeader current={3} total={5} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>{heading}</Typography>
         <Typography style={styles.sub}>{t('ob.q2sub')}</Typography>
@@ -100,7 +101,7 @@ export default function Q2BabyDobScreen() {
 
         <Pressable style={styles.dateInput} onPress={() => setPickerOpen(true)}>
           <Typography style={[styles.dateText, babyDob ? styles.dateTextFilled : null]}>
-            {babyDob ? formatDob(babyDob) : 'mm / dd / yyyy'}
+            {babyDob ? formatDob(babyDob) : t('ob.dobPlaceholder')}
           </Typography>
           <Ionicons name="calendar-outline" size={20} color={colors.cobalt} />
         </Pressable>

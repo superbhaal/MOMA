@@ -8,7 +8,7 @@
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { asLocale, pt, type PushLocale } from '../_shared/push-i18n.ts';
+import { pushLocaleFor, pt, type PushLocale } from '../_shared/push-i18n.ts';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
@@ -16,6 +16,9 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 );
+
+/** The two columns the language choice is read from. */
+type A = { locale?: string | null; primary_language?: string | null };
 
 Deno.serve(async (req) => {
   try {
@@ -70,7 +73,7 @@ Deno.serve(async (req) => {
 
     const { data: recips } = await supabase
       .from('users')
-      .select('id, expo_push_token, notif_chat_activity, locale')
+      .select('id, expo_push_token, notif_chat_activity, locale, primary_language')
       .in('id', recipientIds);
 
     // Respect the per-user chat-activity preference: 'off' opts out of message
@@ -87,7 +90,7 @@ Deno.serve(async (req) => {
     const messages = tokens.map((r) => ({
       to: r.expo_push_token as string,
       title,
-      body: previewFor(msg, asLocale((r as { locale?: string | null }).locale)),
+      body: previewFor(msg, pushLocaleFor((r as A).locale, (r as A).primary_language)),
       sound: 'default',
       data,
     }));

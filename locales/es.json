@@ -128,7 +128,6 @@
     "soft": "SUAVES",
     "bold": "VIVOS",
     "picked": "Elegido ",
-    "stepAbout": "PASO 2 DE 2 · SOBRE TI",
     "back": "Atrás",
     "required": "OBLIGATORIO",
     "optional": "OPCIONAL",
@@ -141,7 +140,11 @@
     "resumeTitle": "Ya casi\nestabas.",
     "resumeBody": "Respondiste {{answered}} de {{total}} preguntas. Retoma donde lo dejaste: guardamos tus respuestas.",
     "pfTitle": "Cuéntanos un poco\nsobre ti.",
-    "agePlaceholder": "p. ej. 28"
+    "agePlaceholder": "p. ej. 28",
+    "firstBabyYesSub": "Es la primera vez.",
+    "firstBabyNoSub": "Ya he pasado por esto.",
+    "dobPlaceholder": "dd / mm / aaaa",
+    "stepAboutN": "PASO {{current}} DE {{total}} · SOBRE TI"
   },
   "home": {
     "yourGroups": "TUS GRUPOS",
@@ -198,7 +201,9 @@
     "sameHoodWeek": "Mismo barrio, misma semana.",
     "sameHood": "Mismo barrio.",
     "sameWeek": "Misma franja de edad del bebé.",
-    "bothSpeak": "Las dos habláis {{language}}."
+    "bothSpeak": "Las dos habláis {{language}}.",
+    "notQuiteRight": "¿No termina de encajar?",
+    "num2": "dos"
   },
   "grp": {
     "nextMeetup": "PRÓXIMO ENCUENTRO",
@@ -231,8 +236,8 @@
     "afternoon": "tarde",
     "evening": "noche",
     "opener1": "hola a todas — con ganas de conoceros",
-    "opener2": "¿alguien duerme? (o no)",
-    "opener3": "¿un café esta semana?",
+    "opener2": "¿vosotras dormís? (o no)",
+    "opener3": "¿alguien se apunta a un café esta semana?",
     "members": "{{count}} MIEMBROS",
     "membersHeading": "MIEMBROS",
     "holding": "Estamos dejando el chat en pausa un momento. En cuanto todas indiquen su disponibilidad, møma pondrá aquí una fecha y un sitio. Mientras tanto, comparte algún lugar que te guste.",
@@ -257,7 +262,12 @@
     "babyWeeks": "Bebé: {{count}} sem",
     "babyMonths": "Bebé: {{count}} m",
     "babyYears_one": "Bebé: {{count}} año",
-    "babyYears_other": "Bebé: {{count}} años"
+    "babyYears_other": "Bebé: {{count}} años",
+    "backToGroups": "Mis grupos",
+    "youLabel": "TÚ",
+    "suggestTimeCta": "PROPONER UN MOMENTO",
+    "messagePrivately": "Escribir a {{name}} en privado",
+    "themFallback": "esta persona"
   },
   "me": {
     "aboutMe": "Sobre mí",
@@ -312,7 +322,10 @@
     "savedWatch": "Reel guardado",
     "savedRecco": "Recomendación guardada",
     "leaveTitle": "¿Salir de {{name}}?",
-    "thisGroup": "este grupo"
+    "thisGroup": "este grupo",
+    "youreIn": "Estás dentro — van {{count}}.",
+    "pausedUntil": "En pausa hasta el {{date}}",
+    "signOut": "Cerrar sesión"
   },
   "prefs": {
     "whoMatched": "CON QUIÉN TE JUNTAMOS",
@@ -592,7 +605,10 @@
     "every": "Cada mensaje",
     "daily": "Resumen diario",
     "weekly": "Semanal",
-    "off": "Desactivado"
+    "off": "Desactivado",
+    "meetupRemindersTitle": "Recordatorios de encuentro",
+    "muteOvernightTitle": "Silencio por la noche",
+    "privacyContact": "¿Dudas sobre tus datos? Escríbenos a {{email}}"
   },
   "dis": {
     "masthead": "Cómo se construye un humano",
@@ -720,7 +736,11 @@
     "a11yCall": "Llamar a {{name}}",
     "a11yEmail": "Escribir a {{name}}",
     "a11yWebsite": "Abrir el sitio de {{name}}",
-    "lovedByWho": "Recomendado por {{names}}"
+    "lovedByWho": "Recomendado por {{names}}",
+    "lovedSpotsCount_one": "SITIO FAVORITO · {{count}}",
+    "lovedSpotsCount_other": "SITIOS FAVORITOS · {{count}}",
+    "inCity": "EN {{city}}",
+    "openInMaps": "Abrir en Mapas"
   },
   "lang": {
     "English": "Inglés",
@@ -790,6 +810,11 @@
     "addressNotFound": "No encontramos esa dirección. Revisa cómo está escrita, o toca el icono de ubicación.",
     "addressNeeded": "Necesitamos tu dirección para juntarte con madres a distancia de paseo.",
     "photoTooBig": "Esa pesa más de 8 MB — prueba con una imagen más ligera.",
-    "shareMessage": "cada una trae algo a la mesa — ven a la mía. únete a møma, grupos pequeños de madres cerca de ti. https://joinmoma.org"
+    "shareMessage": "cada una trae algo a la mesa — ven a la mía. únete a møma, grupos pequeños de madres cerca de ti. https://joinmoma.org",
+    "optional": "opcional",
+    "backShort": "Atrás",
+    "minShort": "{{count}} min",
+    "dayShort": "{{count}} d",
+    "weekShort": "{{count}} sem"
   }
 }

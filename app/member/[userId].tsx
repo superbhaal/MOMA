@@ -12,6 +12,7 @@ import { fonts, textStyles } from '@/constants/typography';
 import { spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 import { openInstagramProfile } from '@/lib/instagram';
 import { BroughtCard } from '@/components/brought/BroughtCard';
 import { kindPossessive } from '@/constants/brought';
@@ -27,6 +28,9 @@ export default function MemberScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { userId } = useLocalSearchParams<{ userId: string }>();
+  const { user } = useAuth();
+  // This screen is reachable from a group member row — including your own.
+  const isSelf = !!user?.id && user.id === userId;
   const { items: broughtItems } = useBroughtFor(userId ? [userId] : []);
   const insets = useSafeAreaInsets();
   const [u, setU] = useState<User | null>(null);
@@ -49,7 +53,7 @@ export default function MemberScreen() {
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Typography style={styles.back} color={colors.cobalt}>
-            ← Back
+            ← {t('misc.backShort')}
           </Typography>
         </Pressable>
       </View>
@@ -120,13 +124,17 @@ export default function MemberScreen() {
               </Pressable>
             ) : null}
 
-            <View style={{ marginTop: spacing.xxl }}>
-              <Button
-                title="message"
-                size="lg"
-                onPress={() => router.push(`/group/dm/${u.id}`)}
-              />
-            </View>
+            {/* Offering to message yourself opens a DM thread with yourself.
+                The label was hardcoded English on top of that. */}
+            {isSelf ? null : (
+              <View style={{ marginTop: spacing.xxl }}>
+                <Button
+                  title={t('grp.messageBtn')}
+                  size="lg"
+                  onPress={() => router.push(`/group/dm/${u.id}`)}
+                />
+              </View>
+            )}
           </>
         )}
       </ScrollView>

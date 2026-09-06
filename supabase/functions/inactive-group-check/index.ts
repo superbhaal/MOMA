@@ -3,10 +3,13 @@
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { asLocale, pt } from '../_shared/push-i18n.ts';
+import { pushLocaleFor, pt } from '../_shared/push-i18n.ts';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 const INACTIVE_DAYS = 30;
+
+/** The two columns the language choice is read from. */
+type A = { locale?: string | null; primary_language?: string | null };
 
 Deno.serve(async () => {
   const supabase = createClient(
@@ -20,7 +23,7 @@ Deno.serve(async () => {
 
   const { data: groups, error: gErr } = await supabase
     .from('groups')
-    .select('id, name, last_active_at, members:group_members(user_id, user:users(id, expo_push_token, locale))')
+    .select('id, name, last_active_at, members:group_members(user_id, user:users(id, expo_push_token, locale, primary_language))')
     .eq('status', 'active')
     .lt('last_active_at', cutoffIso);
 
@@ -47,7 +50,7 @@ Deno.serve(async () => {
       promptRows.push({ group_id: g.id, user_id: m.user_id });
       const token = m.user?.expo_push_token;
       if (token) {
-        const loc = asLocale((m.user as { locale?: string | null } | null)?.locale);
+        const loc = pushLocaleFor((m.user as A | null)?.locale, (m.user as A | null)?.primary_language);
         messages.push({
           to: token,
           title: pt(loc, 'quietTitle'),

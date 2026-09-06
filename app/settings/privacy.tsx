@@ -103,7 +103,7 @@ export default function PrivacyScreen() {
         </MeCard>
 
         <Typography style={styles.footnote}>
-          Questions about your data? Reach us at hello@joinmoma.org
+          {t('set.privacyContact', { email: 'hello@joinmoma.org' })}
         </Typography>
       </ScrollView>
     </View>

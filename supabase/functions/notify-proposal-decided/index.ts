@@ -7,7 +7,7 @@
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { asLocale, BCP47, pt } from '../_shared/push-i18n.ts';
+import { pushLocaleFor, BCP47, pt } from '../_shared/push-i18n.ts';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
@@ -15,6 +15,9 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 );
+
+/** The two columns the language choice is read from. */
+type A = { locale?: string | null; primary_language?: string | null };
 
 Deno.serve(async (req) => {
   try {
@@ -48,7 +51,7 @@ Deno.serve(async (req) => {
     // Meetup pushes respect the notif_meetup_reminders opt-out.
     const { data: recips } = await supabase
       .from('users')
-      .select('expo_push_token, notif_meetup_reminders, locale')
+      .select('expo_push_token, notif_meetup_reminders, locale, primary_language')
       .in('id', memberIds);
     const targets = (recips ?? []).filter(
       (r) => r.expo_push_token && r.notif_meetup_reminders !== false,
@@ -66,7 +69,7 @@ Deno.serve(async (req) => {
     // inside the loop, because 'Saturday, Mar 15' has to become 'samedi 15 mars'
     // for a French reader, not just the sentence around it.
     const messages = targets.map((r) => {
-      const loc = asLocale((r as { locale?: string | null }).locale);
+      const loc = pushLocaleFor((r as A).locale, (r as A).primary_language);
       const when = new Date(proposal.scheduled_at).toLocaleDateString(BCP47[loc], {
         weekday: 'long',
         month: 'short',

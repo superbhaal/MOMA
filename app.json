@@ -24,7 +24,20 @@
         "LSApplicationQueriesSchemes": [
           "instagram"
         ],
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleLocalizations": [
+          "en",
+          "fr",
+          "es"
+        ],
+        "NSPhotoLibraryUsageDescription": "møma needs your photos so you can add a picture to your profile and to what you bring to the table.",
+        "NSCameraUsageDescription": "møma uses your camera so you can take a picture for your profile or for what you bring to the table.",
+        "NSMicrophoneUsageDescription": "møma does not record audio. This permission is only requested by a component we use for video previews.",
+        "NSFaceIDUsageDescription": "møma uses Face ID to keep you signed in without retyping your password.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "møma uses your location to match you with moms in your neighbourhood.",
+        "NSLocationAlwaysUsageDescription": "møma uses your location to match you with moms in your neighbourhood.",
+        "NSRemindersUsageDescription": "møma can add your group meetups to your reminders so you do not miss them.",
+        "NSRemindersFullAccessUsageDescription": "møma can add your group meetups to your reminders so you do not miss them."
       }
     },
     "android": {

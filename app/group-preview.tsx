@@ -96,7 +96,10 @@ export default function GroupPreviewScreen() {
             </Typography>
           </View>
           <Typography style={styles.title} color={colors.cobalt}>
-            {t('preview.weFound', { word: wordForCount(others.length + 1, t) })}
+            {/* "your N moms" means the others — she is not one of her own
+                moms. The +1 counted the whole group, so a group of four
+                promised four while the screen listed three. */}
+            {t('preview.weFound', { word: wordForCount(others.length, t) })}
           </Typography>
           <Typography style={styles.sub} color={colors.muted}>
             {headlineSub}
@@ -146,7 +149,7 @@ export default function GroupPreviewScreen() {
             style={styles.findAnother}
           >
             <Typography style={styles.findAnotherText} color={colors.muted}>
-              Not quite right?{' '}
+              {t('preview.notQuiteRight')}{' '}
               <Typography style={styles.underline} color={colors.muted}>
                 {t('preview.findAnother')}
               </Typography>
@@ -221,6 +224,8 @@ export default function GroupPreviewScreen() {
 
 function wordForCount(n: number, t: TFunction): string {
   switch (n) {
+    case 2:
+      return t('preview.num2');
     case 3:
       return t('preview.num3');
     case 4:

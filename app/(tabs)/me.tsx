@@ -23,7 +23,7 @@ import { useProposals } from '@/hooks/useProposals';
 import { useSavedTips } from '@/hooks/useSavedTips';
 import { usePreferences } from '@/hooks/usePreferences';
 import { babyMetaLine } from '@/lib/babyAge';
-import { formatTime } from '@/lib/time';
+import { formatTime, localeTag } from '@/lib/time';
 import { shareMoma } from '@/lib/share';
 import { openInstagramProfile } from '@/lib/instagram';
 import { openInGoogleMaps } from '@/lib/maps';
@@ -80,7 +80,9 @@ export default function MeScreen() {
         // "Until I turn it back on" is stored as a far-future date — no point
         // showing it as a calendar day.
         if (until.getTime() - Date.now() > YEAR_MS) return t('me.paused');
-        return `Paused until ${until.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}`;
+        return t('me.pausedUntil', {
+          date: until.toLocaleDateString(localeTag(), { day: 'numeric', month: 'short' }),
+        });
       })();
 
   // Soonest upcoming meetup across the user's groups (each group has ≤ 1 open proposal).
@@ -189,7 +191,7 @@ export default function MeScreen() {
               </Typography>
               <Typography style={[styles.meetupMon, meetupDecided && { color: colors.muted }]}>
                 {new Date(nextMeetup.proposal.scheduled_at)
-                  .toLocaleDateString('en-US', { month: 'short' })
+                  .toLocaleDateString(localeTag(), { month: 'short' })
                   .toUpperCase()}
               </Typography>
             </View>
@@ -225,7 +227,7 @@ export default function MeScreen() {
               </Typography>
               {myVote === 'going' ? (
                 <Typography style={[styles.rsvpConfirm, meetupDecided && { color: colors.cobalt }]}>
-                  You&rsquo;re in — {goingCount} going.
+                  {t('me.youreIn', { count: goingCount })}
                 </Typography>
               ) : null}
             </View>
@@ -443,7 +445,7 @@ export default function MeScreen() {
       ) : null}
 
       <Pressable style={styles.signOut} onPress={signOut} hitSlop={8}>
-        <Typography style={styles.signOutText}>Sign out</Typography>
+        <Typography style={styles.signOutText}>{t('me.signOut')}</Typography>
       </Pressable>
 
       {/* Pause matching sheet */}

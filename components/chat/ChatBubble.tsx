@@ -7,6 +7,7 @@ import { spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
 import { formatTime } from '@/lib/time';
 import type { Message, PlaceAttachment, User } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 interface ChatBubbleProps {
   message: Message;
@@ -27,7 +28,8 @@ interface ChatBubbleProps {
 export function ChatBubble({ message, isMine, sender, showAvatar = true, onLongPress }: ChatBubbleProps) {
   const isPlace = message.attachment_type === 'place' && !!message.attachment_data;
   const dotColor = isMine ? colors.cobalt : sender?.profile_color ?? colors.fuchsia;
-  const name = isMine ? 'You' : sender?.display_name ?? '?';
+  const { t } = useTranslation();
+  const name = isMine ? t('grp.youLabel') : sender?.display_name ?? '?';
 
   return (
     <Pressable

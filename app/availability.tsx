@@ -11,6 +11,7 @@ import { fonts } from '@/constants/typography';
 import { scaled } from '@/constants/scale';
 import { useAvailability } from '@/hooks/useAvailability';
 import type { AvailabilityBlock } from '@/types';
+import { localeTag } from '@/lib/time';
 
 // Three letters aren't a definition — "EVE" in particular means nothing until
 // you're told, and our tester asked outright where each one starts and ends.
@@ -76,7 +77,7 @@ export default function AvailabilityScreen() {
             <View key={iso} style={styles.row}>
               <View style={styles.dayLabel}>
                 <Typography variant="labelS" color={colors.muted}>
-                  {d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
+                  {d.toLocaleDateString(localeTag(), { weekday: 'short' }).toUpperCase()}
                 </Typography>
                 <Typography variant="displayS" color={colors.text}>
                   {d.getDate()}

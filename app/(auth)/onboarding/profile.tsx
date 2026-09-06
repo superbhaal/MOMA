@@ -239,12 +239,19 @@ export default function ProfileScreen() {
             {t('ob.back')}
           </Typography>
         </Pressable>
+        {/* This screen used to announce "STEP 2 OF 2", then the next screen
+            said "STEP 1 OF 4" — two numbering schemes glued together, so the
+            progress appeared to reset. It is one journey of five screens:
+            about you, then the four quiz questions. */}
         <Typography variant="labelS" style={styles.stepLabel}>
-          {t('ob.stepAbout')}
+          {t('ob.stepAboutN', { current: 1, total: 5 })}
         </Typography>
         <View style={styles.stepBar}>
-          <View style={[styles.stepSeg, styles.stepSegHalfDone]} />
           <View style={[styles.stepSeg, styles.stepSegDone]} />
+          <View style={styles.stepSeg} />
+          <View style={styles.stepSeg} />
+          <View style={styles.stepSeg} />
+          <View style={styles.stepSeg} />
         </View>
       </View>
 

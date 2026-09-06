@@ -22,7 +22,7 @@
     "back": "Retour"
   },
   "auth": {
-    "welcomeBack": "content de vous revoir",
+    "welcomeBack": "ravie de vous revoir",
     "createYourAccount": "créez votre compte",
     "email": "E-MAIL",
     "password": "MOT DE PASSE",
@@ -128,7 +128,6 @@
     "soft": "DOUCES",
     "bold": "VIVES",
     "picked": "Choisie ",
-    "stepAbout": "ÉTAPE 2 SUR 2 · À PROPOS DE VOUS",
     "back": "Retour",
     "required": "OBLIGATOIRE",
     "optional": "FACULTATIF",
@@ -141,7 +140,11 @@
     "resumeTitle": "Vous y étiez\npresque.",
     "resumeBody": "Vous avez répondu à {{answered}} questions sur {{total}}. Reprenez où vous en étiez, vos réponses sont bien gardées.",
     "pfTitle": "Parlez-nous un peu\nde vous.",
-    "agePlaceholder": "ex. 28"
+    "agePlaceholder": "ex. 28",
+    "firstBabyYesSub": "C'est la première fois.",
+    "firstBabyNoSub": "J'ai déjà vécu ça.",
+    "dobPlaceholder": "jj / mm / aaaa",
+    "stepAboutN": "ÉTAPE {{current}} SUR {{total}} · À PROPOS DE VOUS"
   },
   "home": {
     "yourGroups": "VOS GROUPES",
@@ -198,7 +201,9 @@
     "sameHoodWeek": "Même quartier, même semaine.",
     "sameHood": "Même quartier.",
     "sameWeek": "Même tranche d’âge de bébé.",
-    "bothSpeak": "Vous parlez toutes les deux {{language}}."
+    "bothSpeak": "Vous parlez toutes les deux {{language}}.",
+    "notQuiteRight": "Ça ne colle pas ?",
+    "num2": "deux"
   },
   "grp": {
     "nextMeetup": "PROCHAINE RENCONTRE",
@@ -232,7 +237,7 @@
     "evening": "soir",
     "opener1": "bonjour à toutes — hâte de vous rencontrer",
     "opener2": "vous dormez, vous ? (ou pas)",
-    "opener3": "un café cette semaine, ça dit à quelqu’une ?",
+    "opener3": "un café cette semaine, ça dit à quelqu'une ?",
     "members": "{{count}} MEMBRES",
     "membersHeading": "MEMBRES",
     "holding": "On met le chat en attente un instant. Dès que chacune aura indiqué ses disponibilités, møma déposera une date et un lieu ici. En attendant, n’hésitez pas à partager un endroit que vous aimez.",
@@ -257,7 +262,12 @@
     "babyWeeks": "Bébé : {{count}} sem",
     "babyMonths": "Bébé : {{count}} mois",
     "babyYears_one": "Bébé : {{count}} an",
-    "babyYears_other": "Bébé : {{count}} ans"
+    "babyYears_other": "Bébé : {{count}} ans",
+    "backToGroups": "Mes groupes",
+    "youLabel": "VOUS",
+    "suggestTimeCta": "PROPOSER UN MOMENT",
+    "messagePrivately": "Écrire à {{name}} en privé",
+    "themFallback": "cette personne"
   },
   "me": {
     "aboutMe": "À propos de moi",
@@ -283,7 +293,7 @@
     "notifications": "Notifications",
     "privacy": "Confidentialité et données",
     "help": "Aide et support",
-    "share": "Partager møma à une amie",
+    "share": "Partager møma avec une amie",
     "pauseBlurb": "Aucun nouveau groupe. Aucune relance. Vos groupes actuels restent ouverts. Vous relancez quand vous voulez.",
     "pause1wLabel": "Pendant 1 semaine",
     "pause1wSub": "Fréquent quand la vie pèse. On reprendra discrètement.",
@@ -312,7 +322,10 @@
     "savedWatch": "Reel enregistré",
     "savedRecco": "Recommandation enregistrée",
     "leaveTitle": "Quitter {{name}} ?",
-    "thisGroup": "ce groupe"
+    "thisGroup": "ce groupe",
+    "youreIn": "Vous y êtes — {{count}} y vont.",
+    "pausedUntil": "En pause jusqu'au {{date}}",
+    "signOut": "Se déconnecter"
   },
   "prefs": {
     "whoMatched": "AVEC QUI ON VOUS RAPPROCHE",
@@ -592,7 +605,10 @@
     "every": "Chaque message",
     "daily": "Résumé quotidien",
     "weekly": "Hebdomadaire",
-    "off": "Désactivé"
+    "off": "Désactivé",
+    "meetupRemindersTitle": "Rappels de rencontre",
+    "muteOvernightTitle": "Silence la nuit",
+    "privacyContact": "Une question sur vos données ? Écrivez-nous à {{email}}"
   },
   "dis": {
     "masthead": "Comment fabriquer un humain",
@@ -720,7 +736,11 @@
     "a11yCall": "Appeler {{name}}",
     "a11yEmail": "Écrire à {{name}}",
     "a11yWebsite": "Ouvrir le site de {{name}}",
-    "lovedByWho": "Recommandé par {{names}}"
+    "lovedByWho": "Recommandé par {{names}}",
+    "lovedSpotsCount_one": "ADRESSE AIMÉE · {{count}}",
+    "lovedSpotsCount_other": "ADRESSES AIMÉES · {{count}}",
+    "inCity": "À {{city}}",
+    "openInMaps": "Ouvrir dans Maps"
   },
   "lang": {
     "English": "Anglais",
@@ -790,6 +810,11 @@
     "addressNotFound": "Nous n'avons pas trouvé cette adresse. Vérifiez l'orthographe, ou touchez l'icône de localisation.",
     "addressNeeded": "Votre adresse est nécessaire pour vous rapprocher de mamans à distance de marche.",
     "photoTooBig": "Celle-ci dépasse 8 Mo — essayez une image plus légère.",
-    "shareMessage": "chacune apporte quelque chose à la table — viens à la mienne. rejoins-moi sur møma, de petits groupes de mamans près de chez toi. https://joinmoma.org"
+    "shareMessage": "chacune apporte quelque chose à la table — viens à la mienne. rejoins-moi sur møma, de petits groupes de mamans près de chez toi. https://joinmoma.org",
+    "optional": "facultatif",
+    "backShort": "Retour",
+    "minShort": "{{count}} min",
+    "dayShort": "{{count}} j",
+    "weekShort": "{{count}} sem"
   }
 }

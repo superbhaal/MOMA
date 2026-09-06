@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Typography } from '@/components/ui/Typography';
 import { colors } from '@/constants/colors';
 import { radius, spacing } from '@/constants/spacing';
@@ -9,11 +10,14 @@ interface OpenerChipsProps {
   onPick: (text: string) => void;
 }
 
-const OPENERS = [
-  'hi everyone — excited to meet you all',
-  'how is everyone sleeping (or not)?',
-  'anyone free for a coffee this week?',
-];
+/**
+ * A function of t, not a module constant. As an array it captured English at
+ * import and never let go — and these are not labels, they are SENT as her
+ * first message. A French mother greeted her French group in English.
+ */
+function openers(t: TFunction): string[] {
+  return [t('grp.opener1'), t('grp.opener2'), t('grp.opener3')];
+}
 
 /** Empty-state chips on group chat. */
 export function OpenerChips({ onPick }: OpenerChipsProps) {
@@ -27,7 +31,7 @@ export function OpenerChips({ onPick }: OpenerChipsProps) {
         {t('grp.breakIce')}
       </Typography>
       <View style={styles.chips}>
-        {OPENERS.map((t) => (
+        {openers(t).map((t) => (
           <Pressable key={t} onPress={() => onPick(t)} style={styles.chip}>
             <Typography variant="bodyL" color={colors.cobalt}>
               {t}

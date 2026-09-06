@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { AppState, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 
 const RESEND_COOLDOWN_S = 60;
@@ -36,7 +37,7 @@ export default function VerifyEmailScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { email = '' } = useLocalSearchParams<{ email?: string }>();
-  const { resendConfirmationEmail } = useAuth();
+  const { resendConfirmationEmail, fetchProfile } = useAuth();
 
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -49,6 +50,38 @@ export default function VerifyEmailScreen() {
     const t = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
     return () => clearInterval(t);
   }, [cooldown]);
+
+  // Watch for a confirmation that happened somewhere else.
+  //
+  // This screen used to wait forever. She signs up on her phone, opens her mail
+  // on a laptop, clicks — and the phone never notices, because nothing here
+  // ever asked again. Verified: account confirmed in the database, screen still
+  // saying "check your email". Tapping resend does not help either.
+  //
+  // Two triggers, because either alone leaves a hole: a poll while the screen
+  // is open, and a check when the app comes back to the foreground (she
+  // switched to Mail and came back).
+  useEffect(() => {
+    let stop = false;
+    async function check() {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (stop || error) return;
+      if (data.user?.email_confirmed_at) {
+        stop = true;
+        await fetchProfile(data.user.id);
+        router.replace('/(auth)/onboarding/resume');
+      }
+    }
+    const id = setInterval(check, 5000);
+    const sub = AppState.addEventListener('change', (st) => {
+      if (st === 'active') void check();
+    });
+    return () => {
+      stop = true;
+      clearInterval(id);
+      sub.remove();
+    };
+  }, [router, fetchProfile]);
 
   async function handleResend() {
     if (cooldown > 0) return;

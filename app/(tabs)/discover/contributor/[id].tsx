@@ -46,7 +46,7 @@ export default function ContributorProfile() {
         </Typography>
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <Typography style={styles.backLink} color={colors.cobalt}>
-            ‹ Back
+            ‹ {t('misc.backShort')}
           </Typography>
         </Pressable>
       </View>
@@ -70,7 +70,7 @@ export default function ContributorProfile() {
       >
         <Pressable onPress={() => router.back()} hitSlop={8} style={styles.backRow}>
           <Typography style={styles.backLink} color={colors.cobalt}>
-            ‹ Back
+            ‹ {t('misc.backShort')}
           </Typography>
         </Pressable>
 
@@ -113,7 +113,7 @@ export default function ContributorProfile() {
         ) : null}
 
         <Typography style={styles.sectionLabel} color={colors.labelTertiary}>
-          {`LOVED SPOTS · ${contributor.spot_count}${contributor.city ? ` IN ${contributor.city.toUpperCase()}` : ''}`}
+          {`${t('expl.lovedSpotsCount', { count: contributor.spot_count })}${contributor.city ? ` ${t('expl.inCity', { city: contributor.city.toUpperCase() })}` : ''}`}
         </Typography>
 
         {miniMap ? (
@@ -195,7 +195,7 @@ function ContributedRow({
           accessibilityLabel={t('expl.openMapsA11y', { name: spot.name })}
         >
           <Typography style={styles.openMaps} color={colors.cobalt}>
-            Open in Maps ↗
+            {t('expl.openInMaps')} ↗
           </Typography>
         </Pressable>
       </View>

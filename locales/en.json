@@ -128,7 +128,6 @@
     "soft": "SOFT",
     "bold": "BOLD",
     "picked": "Picked ",
-    "stepAbout": "STEP 2 OF 2 · ABOUT YOU",
     "back": "Back",
     "required": "REQUIRED",
     "optional": "OPTIONAL",
@@ -141,7 +140,11 @@
     "resumeTitle": "You were\nalmost there.",
     "resumeBody": "You answered {{answered}} of {{total}} questions. Pick up where you left off. We kept your answers safe.",
     "pfTitle": "Tell us a little\nabout you.",
-    "agePlaceholder": "e.g. 28"
+    "agePlaceholder": "e.g. 28",
+    "firstBabyYesSub": "Doing this for the first time.",
+    "firstBabyNoSub": "Been here before.",
+    "dobPlaceholder": "mm / dd / yyyy",
+    "stepAboutN": "STEP {{current}} OF {{total}} · ABOUT YOU"
   },
   "home": {
     "yourGroups": "YOUR GROUPS",
@@ -198,7 +201,9 @@
     "sameHoodWeek": "Same neighbourhood, same week.",
     "sameHood": "Same neighbourhood.",
     "sameWeek": "Same baby-age window.",
-    "bothSpeak": "Both speak {{language}}."
+    "bothSpeak": "Both speak {{language}}.",
+    "notQuiteRight": "Not quite right?",
+    "num2": "two"
   },
   "grp": {
     "nextMeetup": "NEXT MEETUP",
@@ -257,7 +262,12 @@
     "babyWeeks": "Baby: {{count}}w",
     "babyMonths": "Baby: {{count}}mo",
     "babyYears_one": "Baby: {{count}}y",
-    "babyYears_other": "Baby: {{count}}y"
+    "babyYears_other": "Baby: {{count}}y",
+    "backToGroups": "My Groups",
+    "youLabel": "YOU",
+    "suggestTimeCta": "SUGGEST A TIME",
+    "messagePrivately": "Message {{name}} privately",
+    "themFallback": "them"
   },
   "me": {
     "aboutMe": "About me",
@@ -312,7 +322,10 @@
     "savedWatch": "Saved reel",
     "savedRecco": "Saved recommendation",
     "leaveTitle": "Leave {{name}}?",
-    "thisGroup": "this group"
+    "thisGroup": "this group",
+    "youreIn": "You're in — {{count}} going.",
+    "pausedUntil": "Paused until {{date}}",
+    "signOut": "Sign out"
   },
   "prefs": {
     "whoMatched": "WHO YOU GET MATCHED WITH",
@@ -592,7 +605,10 @@
     "every": "Every message",
     "daily": "Daily digest",
     "weekly": "Weekly",
-    "off": "Off"
+    "off": "Off",
+    "meetupRemindersTitle": "Meetup reminders",
+    "muteOvernightTitle": "Mute overnight",
+    "privacyContact": "Questions about your data? Reach us at {{email}}"
   },
   "dis": {
     "masthead": "How to build a human",
@@ -720,7 +736,11 @@
     "a11yCall": "Call {{name}}",
     "a11yEmail": "Email {{name}}",
     "a11yWebsite": "Open {{name}}'s website",
-    "lovedByWho": "Loved by {{names}}"
+    "lovedByWho": "Loved by {{names}}",
+    "lovedSpotsCount_one": "LOVED SPOT · {{count}}",
+    "lovedSpotsCount_other": "LOVED SPOTS · {{count}}",
+    "inCity": "IN {{city}}",
+    "openInMaps": "Open in Maps"
   },
   "lang": {
     "English": "English",
@@ -790,6 +810,11 @@
     "addressNotFound": "We couldn't find that address. Check the spelling, or tap the location icon.",
     "addressNeeded": "Your address is needed so we can match you within walking distance.",
     "photoTooBig": "That one's over 8MB — try a smaller picture.",
-    "shareMessage": "everyone brings something to the table — come to mine. join me on møma, small local groups for new moms. https://joinmoma.org"
+    "shareMessage": "everyone brings something to the table — come to mine. join me on møma, small local groups for new moms. https://joinmoma.org",
+    "optional": "optional",
+    "backShort": "Back",
+    "minShort": "{{count}}m",
+    "dayShort": "{{count}}d",
+    "weekShort": "{{count}}w"
   }
 }

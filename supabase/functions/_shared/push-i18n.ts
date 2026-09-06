@@ -21,6 +21,24 @@ export function asLocale(raw: string | null | undefined): PushLocale {
   return raw === 'fr' || raw === 'es' ? raw : 'en';
 }
 
+/**
+ * Onboarding stores a language NAME, not a code. Falling back to it matters:
+ * users.locale was only ever written when a woman visited Settings → Language,
+ * so every account created before that fix has a null locale and was getting
+ * English push notifications despite a French or Spanish app. The email hook
+ * already had this fallback; the push path did not.
+ */
+export function pushLocaleFor(
+  locale: string | null | undefined,
+  primaryLanguage: string | null | undefined,
+): PushLocale {
+  if (locale === 'fr' || locale === 'es' || locale === 'en') return locale;
+  const n = (primaryLanguage ?? '').trim().toLowerCase();
+  if (n === 'french' || n === 'français' || n === 'francais') return 'fr';
+  if (n === 'spanish' || n === 'español' || n === 'espanol') return 'es';
+  return 'en';
+}
+
 type Dict = Record<string, string>;
 
 const STRINGS: Record<PushLocale, Dict> = {

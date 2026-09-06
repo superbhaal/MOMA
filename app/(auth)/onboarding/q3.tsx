@@ -118,7 +118,7 @@ export default function Q3LanguagesScreen() {
 
   return (
     <View style={styles.container}>
-      <OnboardingHeader current={3} total={4} />
+      <OnboardingHeader current={4} total={5} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>
           {t('ob.q3heading')}

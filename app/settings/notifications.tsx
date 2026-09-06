@@ -66,7 +66,7 @@ export default function NotificationsScreen() {
         <MeCard padded>
           <View style={styles.switchRow}>
             <View style={styles.switchText}>
-              <Typography style={styles.rowTitle}>Meetup reminders</Typography>
+              <Typography style={styles.rowTitle}>{t('set.meetupRemindersTitle')}</Typography>
               <Typography style={styles.rowSub}>
                 {t('set.nudgeDayBefore')}
               </Typography>
@@ -101,7 +101,7 @@ export default function NotificationsScreen() {
         <MeCard padded>
           <View style={styles.switchRow}>
             <View style={styles.switchText}>
-              <Typography style={styles.rowTitle}>Mute overnight</Typography>
+              <Typography style={styles.rowTitle}>{t('set.muteOvernightTitle')}</Typography>
               <Typography style={styles.rowSub}>
                 {t('set.noPushBetween')}
               </Typography>

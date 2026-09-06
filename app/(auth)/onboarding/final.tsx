@@ -13,6 +13,8 @@ import { scaled } from '@/constants/scale';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { Pressable } from 'react-native';
+import { currentLocale } from '@/lib/i18n';
+import { debugLog } from '@/lib/log';
 
 export default function FinalScreen() {
   const router = useRouter();
@@ -27,6 +29,20 @@ export default function FinalScreen() {
     let cancelled = false;
     async function run() {
       if (!user) return;
+
+      // Record the language she has actually been reading, now that the row
+      // exists. users.locale was previously only ever written if she visited
+      // Settings → Language, which almost nobody does — so the SERVER, which
+      // reads that column and nothing else, composed every push notification
+      // in English for a woman whose app had been French throughout.
+      // Not awaited: it must never delay or block reaching Home.
+      void supabase
+        .from('users')
+        .update({ locale: currentLocale(), updated_at: new Date().toISOString() })
+        .eq('id', user.id)
+        .then(({ error: e }) => {
+          if (e) debugLog('[onboarding] locale save failed', e.message);
+        });
 
       const { error: queueError } = await supabase
         .from('matching_queue')

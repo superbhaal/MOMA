@@ -138,7 +138,7 @@ export default function LovedSpotDetail() {
         </Typography>
         <Pressable onPress={back} hitSlop={8}>
           <Typography style={styles.backLink} color={colors.cobalt}>
-            ‹ Back
+            ‹ {t('misc.backShort')}
           </Typography>
         </Pressable>
       </View>

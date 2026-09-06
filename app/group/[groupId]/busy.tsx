@@ -13,6 +13,7 @@ import { scaled } from '@/constants/scale';
 import { useBusyWindows } from '@/hooks/useBusyWindows';
 import { useMatching } from '@/hooks/useMatching';
 import type { AvailabilityBlock } from '@/types';
+import { localeTag } from '@/lib/time';
 
 function blocks(t: TFunction): { value: AvailabilityBlock; label: string; range: string }[] {
   return [
@@ -121,7 +122,7 @@ export default function BusyWindowsScreen() {
               <View style={styles.row}>
                 <View style={styles.dayCol}>
                   <Typography style={styles.dayName} color={colors.muted}>
-                    {d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
+                    {d.toLocaleDateString(localeTag(), { weekday: 'short' }).toUpperCase()}
                   </Typography>
                   <Typography style={styles.dayNum} color={colors.text}>
                     {d.getDate()}
@@ -179,7 +180,7 @@ function weekLabel(d: Date, t: TFunction): string {
   start.setDate(start.getDate() - day);
   const end = new Date(start);
   end.setDate(start.getDate() + 6);
-  const month = end.toLocaleDateString('en-US', { month: 'long' }).toUpperCase();
+  const month = end.toLocaleDateString(localeTag(), { month: 'long' }).toUpperCase();
   return t('busy.weekOf', { from: start.getDate(), to: end.getDate(), month });
 }
 

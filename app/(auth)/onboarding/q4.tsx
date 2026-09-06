@@ -48,7 +48,7 @@ export default function Q4ColourScreen() {
 
   return (
     <View style={styles.container}>
-      <OnboardingHeader current={4} total={4} />
+      <OnboardingHeader current={5} total={5} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>{t('ob.q4heading')}</Typography>
         <Typography style={styles.sub}>

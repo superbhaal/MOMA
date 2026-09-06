@@ -14,12 +14,14 @@ interface ChatInputProps {
   // composer only cares that it's callable/awaitable.
   onSend: (text: string) => Promise<unknown> | unknown;
   onSharePlace?: () => void;
+  onSuggestTime?: () => void;
   placeholder?: string;
 }
 
 export function ChatInput({
   onSend,
   onSharePlace,
+  onSuggestTime,
   placeholder,
 }: ChatInputProps) {
   const { t } = useTranslation();
@@ -56,14 +58,24 @@ export function ChatInput({
 
   return (
     <View style={[styles.wrap, { paddingBottom: bottomPad }]}>
-      {onSharePlace ? (
+      {onSharePlace || onSuggestTime ? (
         <View style={styles.actions}>
-          <Pressable onPress={onSharePlace} style={styles.placeChip}>
-            <Ionicons name="location-outline" size={13} color={colors.cobalt} />
-            <Typography style={styles.placeChipText} color={colors.cobalt}>
-              {t('grp.sharePlaceCta')}
-            </Typography>
-          </Pressable>
+          {onSharePlace ? (
+            <Pressable onPress={onSharePlace} style={styles.placeChip}>
+              <Ionicons name="location-outline" size={13} color={colors.cobalt} />
+              <Typography style={styles.placeChipText} color={colors.cobalt}>
+                {t('grp.sharePlaceCta')}
+              </Typography>
+            </Pressable>
+          ) : null}
+          {onSuggestTime ? (
+            <Pressable onPress={onSuggestTime} style={styles.placeChip}>
+              <Ionicons name="calendar-outline" size={13} color={colors.cobalt} />
+              <Typography style={styles.placeChipText} color={colors.cobalt}>
+                {t('grp.suggestTimeCta')}
+              </Typography>
+            </Pressable>
+          ) : null}
         </View>
       ) : null}
       <View style={styles.row}>
@@ -100,7 +112,10 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   actions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    gap: spacing.md,
     paddingBottom: spacing.sm,
   },
   placeChip: {

@@ -3,9 +3,12 @@
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { asLocale, pt } from '../_shared/push-i18n.ts';
+import { pushLocaleFor, pt } from '../_shared/push-i18n.ts';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
+
+/** The two columns the language choice is read from. */
+type A = { locale?: string | null; primary_language?: string | null };
 
 Deno.serve(async () => {
   const supabase = createClient(
@@ -15,7 +18,7 @@ Deno.serve(async () => {
 
   const { data: users, error } = await supabase
     .from('users')
-    .select('id, expo_push_token, paused_until, locale')
+    .select('id, expo_push_token, paused_until, locale, primary_language')
     .not('expo_push_token', 'is', null);
 
   if (error) {
@@ -30,7 +33,7 @@ Deno.serve(async () => {
   // Composed per recipient, not once for the batch: each woman reads this in
   // her own language.
   const messages = targets.map((u) => {
-    const loc = asLocale((u as { locale?: string | null }).locale);
+    const loc = pushLocaleFor((u as A).locale, (u as A).primary_language);
     return {
       to: u.expo_push_token!,
       title: pt(loc, 'freeTitle'),

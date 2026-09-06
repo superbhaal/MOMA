@@ -313,7 +313,7 @@ export function ComposerPhoto({
         </Typography>
         {optional ? (
           <Typography style={styles.dropzoneHint} color={colors.muted}>
-            optional
+            {t('misc.optional')}
           </Typography>
         ) : null}
       </Pressable>

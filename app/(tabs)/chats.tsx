@@ -202,20 +202,23 @@ function DmRow({ dm, onPress }: { dm: DmThreadItem; onPress: () => void }) {
   );
 }
 
-/** Compact v11 timestamp: 8:52 (today) · YESTERDAY · 2D · 3W. */
+/** Compact v11 timestamp: 8:52 (today) · YESTERDAY · 2 j · 3 sem.
+ *  The units used to be hardcoded M / D / W, which read as *months* in French —
+ *  "18M" for eighteen minutes. The function already took t; it only used it for
+ *  "yesterday". */
 function timeLabel(iso: string | null | undefined, t: TFunction): string {
   if (!iso) return '';
   const d = new Date(iso);
   const mins = (Date.now() - d.getTime()) / 60000;
-  if (mins < 60) return `${Math.max(1, Math.round(mins))}M`;
+  if (mins < 60) return t('misc.minShort', { count: Math.max(1, Math.round(mins)) });
   const sameDay = new Date().toDateString() === d.toDateString();
   if (sameDay) {
     return formatTime(d);
   }
   const days = Math.floor(mins / (60 * 24));
   if (days <= 1) return t('misc.yesterdayCaps');
-  if (days < 7) return `${days}D`;
-  return `${Math.floor(days / 7)}W`;
+  if (days < 7) return t('misc.dayShort', { count: days });
+  return t('misc.weekShort', { count: Math.floor(days / 7) });
 }
 
 const styles = StyleSheet.create({

@@ -42,7 +42,7 @@ export default function Q1FirstBabyScreen() {
 
   return (
     <View style={styles.container}>
-      <OnboardingHeader current={1} total={4} />
+      <OnboardingHeader current={2} total={5} />
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Typography style={styles.heading}>
           {t('ob.q1heading')}
@@ -61,14 +61,14 @@ export default function Q1FirstBabyScreen() {
           <OptionCard
             letter="a"
             title={t('ob.yes')}
-            desc="Doing this for the first time."
+            desc={t('ob.firstBabyYesSub')}
             selected={isFirst === true}
             onPress={() => setIsFirst(true)}
           />
           <OptionCard
             letter="b"
             title={t('ob.no')}
-            desc="Been here before."
+            desc={t('ob.firstBabyNoSub')}
             selected={isFirst === false}
             onPress={() => setIsFirst(false)}
           />

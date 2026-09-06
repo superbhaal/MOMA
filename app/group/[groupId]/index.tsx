@@ -26,13 +26,13 @@ export default function GroupDetailScreen() {
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { group, members, open_proposal, open_votes, loading } = useGroupDetail(groupId);
+  const { group, members, open_proposal, open_votes, loading, refresh } = useGroupDetail(groupId);
   const { vote, unvote } = useProposals(groupId);
 
   const myVote = open_votes.find((v) => v.user_id === user?.id)?.vote ?? null;
   const meta = [
     group?.neighbourhood,
-    `${members.length} member${members.length === 1 ? '' : 's'}`,
+    t('grp.membersCount', { count: members.length }),
   ]
     .filter(Boolean)
     .join(' · ');
@@ -42,7 +42,7 @@ export default function GroupDetailScreen() {
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Typography style={styles.back} color={colors.cobalt}>
-            ← My Groups
+            ← {t('grp.backToGroups')}
           </Typography>
         </Pressable>
       </View>
@@ -73,10 +73,16 @@ export default function GroupDetailScreen() {
                   totalMembers={members.length}
                   myVote={myVote}
                   groupName={group?.name ?? null}
-                  onToggleGoing={() => {
+                  onToggleGoing={async () => {
                     if (!open_proposal) return;
-                    if (myVote === 'going') unvote(open_proposal.id);
-                    else vote(open_proposal.id, 'going');
+                    // Await, then refetch. The vote always reached the
+                    // database; the screen simply never asked again, so the
+                    // button stayed on "coming?" and the tally on its old
+                    // number. From her side the tap did nothing — so she taps
+                    // again, and again.
+                    if (myVote === 'going') await unvote(open_proposal.id);
+                    else await vote(open_proposal.id, 'going');
+                    await refresh();
                   }}
                 />
               </View>

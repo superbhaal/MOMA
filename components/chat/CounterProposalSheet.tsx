@@ -9,6 +9,7 @@ import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { radius, spacing } from '@/constants/spacing';
 import { scaled } from '@/constants/scale';
+import { localeTag } from '@/lib/time';
 
 interface CounterProposalSheetProps {
   visible: boolean;
@@ -83,7 +84,7 @@ export function CounterProposalSheet({
                 variant="labelS"
                 color={active ? colors.white : colors.muted}
               >
-                {d.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()}
+                {d.toLocaleDateString(localeTag(), { weekday: 'short' }).toLowerCase()}
               </Typography>
               <Typography
                 variant="displayS"

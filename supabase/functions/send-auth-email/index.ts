@@ -161,6 +161,10 @@ Deno.serve(async (req) => {
       type: d.email_action_type,
     });
     if (d.redirect_to) params.set('redirect_to', d.redirect_to);
+    // Carry the language across to the landing page. We already resolved it for
+    // the email body; without this the page has to guess from the browser, and
+    // a French reader who clicked a French email met an English screen.
+    params.set('lang', locale);
     const url = `${base}/auth/confirm?${params.toString()}`;
 
     const res = await fetch(RESEND_URL, {

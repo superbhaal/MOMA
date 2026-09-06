@@ -13,7 +13,7 @@
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { asLocale, pt, type PushLocale } from '../_shared/push-i18n.ts';
+import { pushLocaleFor, pt, type PushLocale } from '../_shared/push-i18n.ts';
 
 const MIN_GROUP = 3;
 const MAX_GROUP = 5;
@@ -173,7 +173,7 @@ Deno.serve(async () => {
 
     for (const u of g.mates) {
       const others = g.mates.length - 1;
-      const loc = asLocale(u.locale);
+      const loc = pushLocaleFor(u.locale, u.primary_language);
       const body = matchBody(others, hood, wLo, wHi, loc);
       if (u.expo_push_token) {
         pushMessages.push({
