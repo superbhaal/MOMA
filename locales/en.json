@@ -562,7 +562,11 @@
     "allFree": "all free so far",
     "slotsBlocked_one": "{{count}} slot blocked",
     "slotsBlocked_other": "{{count}} slots blocked",
-    "done": "done"
+    "done": "done",
+    "rangeMorning": "7–12",
+    "rangeAfternoon": "12–5",
+    "rangeEvening": "5–9",
+    "weekOfSplit": "WEEK OF {{from}} {{fromMonth}} – {{to}} {{month}}"
   },
   "set": {
     "tabHome": "Home",
@@ -817,6 +821,7 @@
     "backShort": "Back",
     "minShort": "{{count}}m",
     "dayShort": "{{count}}d",
-    "weekShort": "{{count}}w"
+    "weekShort": "{{count}}w",
+    "betaBadge": "BETA"
   }
 }

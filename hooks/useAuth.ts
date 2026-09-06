@@ -5,6 +5,7 @@ import * as AuthSession from 'expo-auth-session';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import { supabase } from '@/lib/supabase';
+import { currentLocale } from '@/lib/i18n';
 import { clearPushTokenInDb } from '@/lib/notifications';
 import { useAppStore } from '@/store/useAppStore';
 import { userToOnboardingPatch } from './useOnboarding';
@@ -250,7 +251,16 @@ export function useAuth() {
     // a DB reset) so a dead refresh token can't interfere with creating the new
     // account. No network call, no-op when there's nothing stored.
     await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    // Carry the language into user_metadata. This is the one moment the
+    // server cannot work it out for itself: the confirmation email is sent
+    // before public.users exists, so the hook has nothing to read and every
+    // signup email went out in English — in all three languages, from the
+    // start. The phone knows; it just never said.
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { locale: currentLocale() } },
+    });
     if (error) {
       setAuthLoading(false);
       return { error };

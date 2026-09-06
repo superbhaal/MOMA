@@ -14,6 +14,7 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { pushLocaleFor, pt, type PushLocale } from '../_shared/push-i18n.ts';
+import { renderShell } from '../_shared/email-shell.ts';
 
 const MIN_GROUP = 3;
 const MAX_GROUP = 5;
@@ -185,7 +186,7 @@ Deno.serve(async () => {
         });
       }
       if (u.email) {
-        emailJobs.push(sendMatchEmail(u.email, body));
+        emailJobs.push(sendMatchEmail(u.email, body, loc));
       }
     }
   }
@@ -260,7 +261,11 @@ async function sendPushChunked(items: PushMessage[], size = 100) {
 // Email at match, isolated behind one function. Uses Resend if RESEND_API_KEY is
 // configured on the function; otherwise no-ops (logs) so a missing key never
 // breaks the matcher. Skips silently when the address is null (Apple relay).
-async function sendMatchEmail(to: string, body: string): Promise<void> {
+async function sendMatchEmail(
+  to: string,
+  body: string,
+  locale: PushLocale,
+): Promise<void> {
   const key = Deno.env.get('RESEND_API_KEY');
   const from = Deno.env.get('MATCH_EMAIL_FROM') ?? 'møma <hello@joinmoma.org>';
   if (!key) {
@@ -277,8 +282,18 @@ async function sendMatchEmail(to: string, body: string): Promise<void> {
       body: JSON.stringify({
         from,
         to,
-        subject: 'Your group is ready',
-        text: `${body}\n\nOpen møma to meet your group.`,
+        // Subject and closing line used to be hardcoded English wrapped
+        // around an already-localized body, so a Spanish reader got a Spanish
+        // sentence between two English ones. And it went as text: only, with
+        // none of the markup the auth emails have had all along.
+        subject: pt(locale, 'matchTitle'),
+        text: `${body}\n\n${pt(locale, 'matchEmailCta')} — https://joinmoma.org`,
+        html: renderShell(locale, {
+          heading: pt(locale, 'matchTitle'),
+          body,
+          cta: pt(locale, 'matchEmailCta'),
+          url: 'https://joinmoma.org/group-preview',
+        }),
       }),
     });
   } catch (e) {

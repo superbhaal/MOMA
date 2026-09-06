@@ -42,7 +42,13 @@ const supabase = createClient(
 );
 
 type HookPayload = {
-  user: { id: string; email: string };
+  user: {
+    id: string;
+    email: string;
+    /** Set by the app at signUp — the only language signal that exists before
+        public.users does. */
+    user_metadata?: { locale?: string | null } | null;
+  };
   email_data: {
     token: string;
     token_hash: string;
@@ -53,14 +59,28 @@ type HookPayload = {
 };
 
 /**
- * Her language, by the same chain the app uses minus the parts only a phone
- * knows: the explicit choice first, then the onboarding answer, then English.
- * A signup email is the one case where NEITHER exists yet — the public.users
+ * Her language, in the order the answer becomes available.
+ *
+ * user_metadata comes FIRST because of the case that used to be broken: at
+ * signup, public.users does not exist yet — it is written during onboarding —
+ * so this function had nothing to read and fell through to English. Every
+ * confirmation email ever sent went out in English, in all three languages,
+ * while password-recovery emails (sent later, once the row exists) were
+ * correctly localized. The app now stamps the locale into user_metadata at
+ * signUp, so the first email is in her language too.
+ *
+ * After that, the same chain the app uses: the explicit choice, then the
+ * onboarding answer, then English.
+ * (Historic note: the public.users
  * row is written after the quiz — so new signups get English and everything
  * afterwards is in her language. Living with that is better than guessing from
  * an Accept-Language header we are not given.
  */
-async function localeFor(userId: string): Promise<Locale> {
+async function localeFor(
+  userId: string,
+  metaLocale?: string | null,
+): Promise<Locale> {
+  if (metaLocale) return asLocale(metaLocale);
   const { data, error } = await supabase
     .from('users')
     .select('locale, primary_language')
@@ -140,7 +160,7 @@ Deno.serve(async (req) => {
 
   try {
     const { user, email_data: d } = payload;
-    const locale = await localeFor(user.id);
+    const locale = await localeFor(user.id, user.user_metadata?.locale);
 
     // Deliberately NOT email_data.site_url. Two things were wrong with trusting
     // it, found one after the other by logging the URL actually built:

@@ -562,7 +562,11 @@
     "allFree": "tout est libre pour l’instant",
     "slotsBlocked_one": "{{count}} créneau bloqué",
     "slotsBlocked_other": "{{count}} créneaux bloqués",
-    "done": "terminé"
+    "done": "terminé",
+    "rangeMorning": "7–12",
+    "rangeAfternoon": "12–17",
+    "rangeEvening": "17–21",
+    "weekOfSplit": "SEMAINE DU {{from}} {{fromMonth}} AU {{to}} {{month}}"
   },
   "set": {
     "tabHome": "Accueil",
@@ -817,6 +821,7 @@
     "backShort": "Retour",
     "minShort": "{{count}} min",
     "dayShort": "{{count}} j",
-    "weekShort": "{{count}} sem"
+    "weekShort": "{{count}} sem",
+    "betaBadge": "BÊTA"
   }
 }

@@ -201,7 +201,7 @@
     "sameHoodWeek": "Mismo barrio, misma semana.",
     "sameHood": "Mismo barrio.",
     "sameWeek": "Misma franja de edad del bebé.",
-    "bothSpeak": "Las dos habláis {{language}}.",
+    "bothSpeak": "Las dos hablan {{language}}.",
     "notQuiteRight": "¿No termina de encajar?",
     "num2": "dos"
   },
@@ -235,8 +235,8 @@
     "morning": "mañana",
     "afternoon": "tarde",
     "evening": "noche",
-    "opener1": "hola a todas — con ganas de conoceros",
-    "opener2": "¿vosotras dormís? (o no)",
+    "opener1": "hola a todas — qué ganas de conocernos",
+    "opener2": "¿qué tal el sueño por aquí? (o la falta de él)",
     "opener3": "¿alguien se apunta a un café esta semana?",
     "members": "{{count}} MIEMBROS",
     "membersHeading": "MIEMBROS",
@@ -307,7 +307,7 @@
     "leaveWhich": "¿De qué grupo sales?",
     "leaveBlurb": "Saldrás del chat y de los encuentros. Su grupo sigue sin ti.",
     "leaveNamed": "Salir de {{name}}",
-    "leaveConfirmBlurb": "También se va toda vuestra conversación — mensajes, fotos, los sitios que compartisteis.",
+    "leaveConfirmBlurb": "También se va toda la conversación del grupo — mensajes, fotos, los sitios compartidos.",
     "leaveAndDelete": "Salir y borrar el chat",
     "undoTitle": "¿Al final no puedes?",
     "undoBlurb": "Ya no estás en la lista.",
@@ -562,7 +562,11 @@
     "allFree": "todo libre por ahora",
     "slotsBlocked_one": "{{count}} franja bloqueada",
     "slotsBlocked_other": "{{count}} franjas bloqueadas",
-    "done": "listo"
+    "done": "listo",
+    "rangeMorning": "7–12",
+    "rangeAfternoon": "12–17",
+    "rangeEvening": "17–21",
+    "weekOfSplit": "SEMANA DEL {{from}} DE {{fromMonth}} AL {{to}} DE {{month}}"
   },
   "set": {
     "tabHome": "Inicio",
@@ -817,6 +821,7 @@
     "backShort": "Atrás",
     "minShort": "{{count}} min",
     "dayShort": "{{count}} d",
-    "weekShort": "{{count}} sem"
+    "weekShort": "{{count}} sem",
+    "betaBadge": "BETA"
   }
 }

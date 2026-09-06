@@ -44,6 +44,7 @@ type Dict = Record<string, string>;
 const STRINGS: Record<PushLocale, Dict> = {
   en: {
     matchTitle: 'Your group is ready',
+    matchEmailCta: 'Meet your group',
     matchBody: 'We matched you with {who} in {hood}. Tap to meet them.',
     matchBodyWeeks: 'We matched you with {who} in {hood}, all at {weeks}. Tap to meet them.',
     momOne: '1 mom',
@@ -67,6 +68,7 @@ const STRINGS: Record<PushLocale, Dict> = {
   },
   fr: {
     matchTitle: 'Votre groupe est prêt',
+    matchEmailCta: 'Rencontrer votre groupe',
     matchBody: 'Nous vous avons réunie avec {who} à {hood}. Touchez pour les rencontrer.',
     matchBodyWeeks: 'Nous vous avons réunie avec {who} à {hood}, toutes en {weeks}. Touchez pour les rencontrer.',
     momOne: '1 maman',
@@ -90,6 +92,7 @@ const STRINGS: Record<PushLocale, Dict> = {
   },
   es: {
     matchTitle: 'Tu grupo está listo',
+    matchEmailCta: 'Conocer a tu grupo',
     matchBody: 'Te juntamos con {who} en {hood}. Toca para conocerlas.',
     matchBodyWeeks: 'Te juntamos con {who} en {hood}, todas en {weeks}. Toca para conocerlas.',
     momOne: '1 madre',

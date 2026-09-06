@@ -19,6 +19,8 @@
  * app directly — handleAuthCallback's PKCE branch already reads token_hash+type.
  */
 
+import { renderShell } from './email-shell.ts';
+
 export type Locale = 'en' | 'fr' | 'es';
 
 export function asLocale(raw: string | null | undefined): Locale {
@@ -45,12 +47,6 @@ type Copy = {
 
 /** Supabase's email_action_type values we actually send for. */
 export type Action = 'signup' | 'recovery' | 'magiclink' | 'email_change';
-
-const TAGLINE: Record<Locale, string> = {
-  en: 'everyone brings something to the table',
-  fr: 'chacune apporte quelque chose à la table',
-  es: 'cada una trae algo a la mesa',
-};
 
 const COPY: Record<Locale, Record<Action, Copy>> = {
   en: {
@@ -168,44 +164,19 @@ export function subjectFor(locale: Locale, action: string): string {
   return copyFor(locale, action).subject;
 }
 
-/**
- * Table-based, inline-styled, no external stylesheet and no webfont link.
- * Google Fonts are stripped by Gmail and their presence reads as
- * machine-generated, so the serif falls back to Georgia everywhere.
- */
+/** Auth emails, through the shared shell in email-shell.ts. */
 export function renderEmail(
   locale: Locale,
   action: string,
   url: string,
 ): string {
   const c = copyFor(locale, action);
-  const sans = "-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
-  const serif = "Georgia,'Times New Roman',serif";
-  return `<!doctype html>
-<html lang="${locale}">
-  <body style="margin:0;padding:0;background:#ffffff;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
-      <tr><td align="center" style="padding:40px 20px;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;">
-          <tr><td align="center" style="padding-bottom:28px;">
-            <span style="font-family:${serif};font-size:30px;font-weight:300;color:#1A4BCC;letter-spacing:0.5px;">m&oslash;ma</span>
-          </td></tr>
-          <tr><td style="font-family:${serif};font-size:26px;font-style:italic;color:#1A4BCC;line-height:1.25;padding-bottom:16px;">${c.heading}</td></tr>
-          <tr><td style="font-family:${sans};font-size:15px;line-height:1.6;color:#111118;padding-bottom:28px;">${c.body}</td></tr>
-          <tr><td style="padding-bottom:28px;">
-            <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-              <td style="background:#1A4BCC;border-radius:100px;">
-                <a href="${url}" style="display:inline-block;padding:14px 30px;font-family:${sans};font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:0.4px;">${c.cta}</a>
-              </td>
-            </tr></table>
-          </td></tr>
-          <tr><td style="font-family:${sans};font-size:13px;line-height:1.6;color:#6F6F88;padding-bottom:28px;">${c.expiry}</td></tr>
-          <tr><td style="border-top:1px solid rgba(17,17,24,0.07);padding-top:20px;font-family:${sans};font-size:12px;line-height:1.6;color:#6F6F88;">
-            ${c.footer}<br><br>m&oslash;ma &middot; ${TAGLINE[locale]}
-          </td></tr>
-        </table>
-      </td></tr>
-    </table>
-  </body>
-</html>`;
+  return renderShell(locale, {
+    heading: c.heading,
+    body: c.body,
+    cta: c.cta,
+    url,
+    note: c.expiry,
+    footer: c.footer,
+  });
 }

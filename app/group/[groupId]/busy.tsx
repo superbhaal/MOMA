@@ -17,9 +17,12 @@ import { localeTag } from '@/lib/time';
 
 function blocks(t: TFunction): { value: AvailabilityBlock; label: string; range: string }[] {
   return [
-    { value: 'morning', label: t('busy.morning'), range: '7–12' },
-    { value: 'afternoon', label: t('busy.afternoon'), range: '12–5' },
-    { value: 'evening', label: t('busy.evening'), range: '5–9' },
+    // Ranges come from the locale file, not from here. They were hardcoded
+    // on a 12-hour clock ("12–5"), which in French and Spanish reads as noon
+    // to five in the morning — both languages count to 24.
+    { value: 'morning', label: t('busy.morning'), range: t('busy.rangeMorning') },
+    { value: 'afternoon', label: t('busy.afternoon'), range: t('busy.rangeAfternoon') },
+    { value: 'evening', label: t('busy.evening'), range: t('busy.rangeEvening') },
   ];
 }
 
@@ -180,7 +183,21 @@ function weekLabel(d: Date, t: TFunction): string {
   start.setDate(start.getDate() - day);
   const end = new Date(start);
   end.setDate(start.getDate() + 6);
-  const month = end.toLocaleDateString(localeTag(), { month: 'long' }).toUpperCase();
+  // Only the END month was passed, so a week straddling two months read
+  // "31 SEPTIEMBRE" for 31 August – 6 September. When the months differ, name
+  // both; when they match, keep the shorter form.
+  const fmt = (d: Date) =>
+    d.toLocaleDateString(localeTag(), { month: 'long' }).toUpperCase();
+  const startMonth = fmt(start);
+  const month = fmt(end);
+  if (startMonth !== month) {
+    return t('busy.weekOfSplit', {
+      from: start.getDate(),
+      fromMonth: startMonth,
+      to: end.getDate(),
+      month,
+    });
+  }
   return t('busy.weekOf', { from: start.getDate(), to: end.getDate(), month });
 }
 
