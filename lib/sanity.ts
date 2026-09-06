@@ -1,7 +1,11 @@
 import type { LearnArticle, LearnDoc, LearnRecommendation, LearnReel } from '@/types';
 
 const PROJECT_ID = process.env.EXPO_PUBLIC_SANITY_PROJECT_ID!;
-const DATASET = process.env.EXPO_PUBLIC_SANITY_DATASET || 'production';
+// Falls back to the test dataset, not the real one: a missing variable means
+// a misconfigured build, and the harm of showing invented articles in a build
+// that should have shown none is smaller than the reverse. It used to fall
+// back to 'production', which stopped existing when that dataset was renamed.
+const DATASET = process.env.EXPO_PUBLIC_SANITY_DATASET || 'dev';
 const API_VERSION = '2024-01-01';
 
 const SANITY_API_URL = `https://${PROJECT_ID}.api.sanity.io/v${API_VERSION}/data/query/${DATASET}`;

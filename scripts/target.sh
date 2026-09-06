@@ -37,7 +37,7 @@ if [ $# -eq 0 ]; then
 fi
 
 case "$1" in
-  dev)     REF=$DEV_REF; DATASET=production; LABEL="DEV — bac à sable" ;;
+  dev)     REF=$DEV_REF; DATASET=dev;     LABEL="DEV — bac à sable" ;;
   preprod) REF=$PRE_REF; DATASET=preprod;    LABEL="PRÉ-PROD — vraies utilisatrices" ;;
   *) echo "usage: $0 [dev|preprod]" >&2; exit 1 ;;
 esac

@@ -23,7 +23,7 @@ for (const line of envContent.split('\n')) {
 }
 
 const PROJECT_ID = env.EXPO_PUBLIC_SANITY_PROJECT_ID;
-const DATASET = env.EXPO_PUBLIC_SANITY_DATASET || 'production';
+const DATASET = env.EXPO_PUBLIC_SANITY_DATASET || 'dev';
 const TOKEN = env.SANITY_API_TOKEN;
 
 if (!PROJECT_ID || !TOKEN) {
