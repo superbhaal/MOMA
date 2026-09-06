@@ -29,7 +29,20 @@ function timeBlocks(t: TFunction) {
   ];
 }
 
-/** Sheet to author a fresh proposal OR a counter-proposal (chained via parent_proposal_id by caller). */
+/**
+ * NOT WIRED, AND DELIBERATELY SO.
+ *
+ * Members do not choose meetup times. Commit 70223b6 ("admin-decided meetup
+ * replaces member time-proposals") made the date an admin decision and left the
+ * chat with one action: share a place you love. This sheet is what that commit
+ * unhooked, kept in case the decision is revisited.
+ *
+ * Do not import it because it "looks unused" — that is the design. I re-wired
+ * it once on exactly that reasoning and had to take it back out.
+ *
+ * Sheet to author a fresh proposal OR a counter-proposal (chained via
+ * parent_proposal_id by caller).
+ */
 export function CounterProposalSheet({
   visible,
   onClose,

@@ -140,15 +140,13 @@ export function useProposals(groupId: string | undefined) {
       parent_proposal_id?: string | null;
     }) => {
       if (!user || !groupId) return { error: { message: 'missing context' } };
-      // Through an RPC, not a plain insert: one open proposal per group is a
-      // partial unique index, so a counter-proposal has to retire the one it
-      // replaces in the same transaction or the insert just fails.
-      const { error: e } = await supabase.rpc('create_proposal', {
-        p_group_id: groupId,
-        p_scheduled_at: input.scheduled_at,
-        p_note: input.note ?? null,
-        p_location_name: input.location_name ?? null,
-        p_parent_proposal_id: input.parent_proposal_id ?? null,
+      const { error: e } = await supabase.from('meetup_proposals').insert({
+        group_id: groupId,
+        proposed_by: user.id,
+        scheduled_at: input.scheduled_at,
+        location_name: input.location_name ?? null,
+        note: input.note ?? null,
+        parent_proposal_id: input.parent_proposal_id ?? null,
       });
       return { error: e };
     },

@@ -16,7 +16,6 @@ import { ChatInput } from '@/components/chat/ChatInput';
 import { ProposalCard } from '@/components/chat/ProposalCard';
 import { OpenerChips } from '@/components/chat/OpenerChips';
 import { PlacePicker } from '@/components/chat/PlacePicker';
-import { CounterProposalSheet } from '@/components/chat/CounterProposalSheet';
 import { ActionSheet } from '@/components/ui/ActionSheet';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
@@ -37,10 +36,9 @@ export default function GroupChatScreen() {
   const { user } = useAuth();
   const { group, members, open_proposal, open_votes, refresh: refreshDetail } = useGroupDetail(groupId);
   const { messages, send, sendAttachment } = useChat(groupId);
-  const { vote, unvote, propose } = useProposals(groupId);
+  const { vote, unvote } = useProposals(groupId);
 
   const [placeOpen, setPlaceOpen] = useState(false);
-  const [timeOpen, setTimeOpen] = useState(false);
   const [dmTarget, setDmTarget] = useState<User | null>(null);
   const listRef = useRef<FlatList<Message>>(null);
 
@@ -144,28 +142,6 @@ export default function GroupChatScreen() {
       <ChatInput
         onSend={send}
         onSharePlace={() => setPlaceOpen(true)}
-        onSuggestTime={() => setTimeOpen(true)}
-      />
-
-      {/* "Suggest a time" — a P1 feature whose sheet was written, translated
-          and then imported by nobody, so no member could ever propose a
-          meetup. When a proposal is already open this chains to it as a
-          counter-proposal; otherwise it authors a fresh one. */}
-      <CounterProposalSheet
-        visible={timeOpen}
-        onClose={() => setTimeOpen(false)}
-        isCounter={open_proposal?.state === 'open'}
-        onSubmit={async ({ scheduled_at, note }) => {
-          await propose({
-            scheduled_at,
-            note,
-            // Only an OPEN proposal is something to counter. When the
-            // meetup is already decided, this is simply the next one.
-            parent_proposal_id:
-              open_proposal?.state === 'open' ? open_proposal.id : null,
-          });
-          refreshDetail();
-        }}
       />
 
       <PlacePicker

@@ -14,14 +14,12 @@ interface ChatInputProps {
   // composer only cares that it's callable/awaitable.
   onSend: (text: string) => Promise<unknown> | unknown;
   onSharePlace?: () => void;
-  onSuggestTime?: () => void;
   placeholder?: string;
 }
 
 export function ChatInput({
   onSend,
   onSharePlace,
-  onSuggestTime,
   placeholder,
 }: ChatInputProps) {
   const { t } = useTranslation();
@@ -58,24 +56,14 @@ export function ChatInput({
 
   return (
     <View style={[styles.wrap, { paddingBottom: bottomPad }]}>
-      {onSharePlace || onSuggestTime ? (
+      {onSharePlace ? (
         <View style={styles.actions}>
-          {onSharePlace ? (
-            <Pressable onPress={onSharePlace} style={styles.placeChip}>
-              <Ionicons name="location-outline" size={13} color={colors.cobalt} />
-              <Typography style={styles.placeChipText} color={colors.cobalt}>
-                {t('grp.sharePlaceCta')}
-              </Typography>
-            </Pressable>
-          ) : null}
-          {onSuggestTime ? (
-            <Pressable onPress={onSuggestTime} style={styles.placeChip}>
-              <Ionicons name="calendar-outline" size={13} color={colors.cobalt} />
-              <Typography style={styles.placeChipText} color={colors.cobalt}>
-                {t('grp.suggestTimeCta')}
-              </Typography>
-            </Pressable>
-          ) : null}
+          <Pressable onPress={onSharePlace} style={styles.placeChip}>
+            <Ionicons name="location-outline" size={13} color={colors.cobalt} />
+            <Typography style={styles.placeChipText} color={colors.cobalt}>
+              {t('grp.sharePlaceCta')}
+            </Typography>
+          </Pressable>
         </View>
       ) : null}
       <View style={styles.row}>
@@ -112,16 +100,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   actions: {
-    // Wrap, don't overflow. Two chips fit on one line in English and get
-    // clipped at both ends in French ("PARTAGER UN LIEU QUE VOUS AIMEZ" +
-    // "PROPOSER UN MOMENT"). A horizontal ScrollView is not the answer here —
-    // it paints chip backgrounds without their labels in this layout.
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.md,
     paddingBottom: spacing.sm,
   },
   placeChip: {
