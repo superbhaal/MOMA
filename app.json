@@ -2,7 +2,7 @@
   "expo": {
     "name": "møma",
     "slug": "moma",
-    "version": "1.1.5",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "moma",
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "org.joinmoma.moma",
-      "buildNumber": "33",
+      "buildNumber": "34",
       "usesAppleSignIn": true,
       "associatedDomains": [
         "applinks:joinmoma.org"
