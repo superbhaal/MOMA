@@ -423,7 +423,7 @@ export default function MeScreen() {
           iconBg="#fce8f0"
           label={t('me.share')}
           isLast
-          onPress={shareMoma}
+          onPress={() => shareMoma(t)}
         />
       </MeCard>
 

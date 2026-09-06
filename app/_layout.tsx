@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, LogBox, View } from 'react-native';
+import { ActivityIndicator, LogBox, Pressable, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
 import { Stack, useRootNavigationState, useRouter, useSegments } from 'expo-router';
@@ -7,6 +8,7 @@ import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
 import { applyProfileLanguage, initI18n } from '@/lib/i18n';
 import { EnvBadge } from '@/components/ui/EnvBadge';
+import { Typography } from '@/components/ui/Typography';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
@@ -62,7 +64,16 @@ export default function RootLayout() {
     return () => clearTimeout(timer);
   }, []);
 
-  const { user, isAuthenticated, isOnboarded, authLoading, passwordRecovery } = useAuth();
+  const { t } = useTranslation();
+  const {
+    user,
+    isAuthenticated,
+    isOnboarded,
+    authLoading,
+    passwordRecovery,
+    profileUnreachable,
+    retryProfile,
+  } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -177,6 +188,11 @@ export default function RootLayout() {
     // every branch below would happily wave her through to Home with the
     // password she has forgotten still in force. This wins over all of them,
     // and only updatePassword() releases it.
+    // The session is valid, the profile just would not load. Routing on that
+    // would either strand her in onboarding or sign her out — both wrong, both
+    // shipped at some point. Hold, and offer a retry instead.
+    if (profileUnreachable) return;
+
     if (passwordRecovery) {
       if (segments[1] !== 'reset-password') {
         debugLog('[AuthGate] → /reset-password');
@@ -209,18 +225,42 @@ export default function RootLayout() {
         router.replace('/(tabs)');
       }
     }
-  }, [isAuthenticated, isOnboarded, authLoading, fontsLoaded, segments, router, passwordRecovery]);
+  }, [isAuthenticated, isOnboarded, authLoading, fontsLoaded, segments, router, passwordRecovery, profileUnreachable]);
+
+  const centred = {
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    backgroundColor: colors.white,
+    paddingHorizontal: 32,
+  };
+
+  // Session intact, profile unreachable. Say so and offer the retry, rather
+  // than spinning forever or guessing a route.
+  if (profileUnreachable) {
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <View style={centred}>
+          <Typography variant="displayMItal" color={colors.cobalt} style={{ textAlign: 'center', marginBottom: 12 }}>
+            {t('auth.offlineTitle')}
+          </Typography>
+          <Typography variant="bodyL" color={colors.mutedStrong} style={{ textAlign: 'center', marginBottom: 28 }}>
+            {t('auth.offlineBody')}
+          </Typography>
+          <Pressable onPress={retryProfile} hitSlop={12}>
+            <Typography variant="bodyL" color={colors.cobalt}>
+              {t('auth.offlineRetry')}
+            </Typography>
+          </Pressable>
+        </View>
+      </SafeAreaProvider>
+    );
+  }
 
   if (!bootDone) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: colors.white,
-        }}
-      >
+      <View style={centred}>
         <ActivityIndicator size="large" color={colors.cobalt} />
       </View>
     );

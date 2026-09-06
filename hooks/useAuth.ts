@@ -35,6 +35,8 @@ export function useAuth() {
     authLoading,
     passwordRecovery,
     setPasswordRecovery,
+    profileUnreachable,
+    setProfileUnreachable,
     setUser,
     setAuthenticated,
     setOnboarded,
@@ -159,15 +161,30 @@ export function useAuth() {
     options?: { signOutIfMissing?: boolean },
   ) {
     try {
-      const result = await Promise.race([
-        supabase.from('users').select('*').eq('id', userId).maybeSingle(),
-        new Promise<{ data: null; error: { message: string } | null }>((resolve) =>
-          setTimeout(
-            () => resolve({ data: null, error: { message: 'fetchProfile timeout (8s)' } }),
-            8000,
+      // Retry before concluding anything. A cold start on a slow connection
+      // routinely takes longer than one attempt allows, and the conclusion we
+      // used to draw from a single failure was "the account is gone".
+      const attempt = () =>
+        Promise.race([
+          supabase.from('users').select('*').eq('id', userId).maybeSingle(),
+          new Promise<{ data: null; error: { message: string } | null }>((resolve) =>
+            setTimeout(
+              () => resolve({ data: null, error: { message: 'fetchProfile timeout (8s)' } }),
+              8000,
+            ),
           ),
-        ),
-      ]);
+        ]);
+
+      let result = await attempt();
+      for (let i = 0; result.error && i < 2; i++) {
+        await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+        result = await attempt();
+      }
+
+      // The distinction this function used to miss, and it cost the session:
+      // "the query ran and there is no row" is NOT "the query failed". Only the
+      // first says anything about the account.
+      const queryFailed = !!result.error;
 
       const { data, error } = result;
       debugLog('[fetchProfile]', {
@@ -178,6 +195,7 @@ export function useAuth() {
       });
       if (data) {
         const u = data as User;
+        setProfileUnreachable(false);
         setUser(u);
         // Hydrate onboardingData from the row so profile + quiz forms pre-fill
         // with previously saved values instead of showing blank inputs.
@@ -185,17 +203,29 @@ export function useAuth() {
         // Onboarded once the quiz is completed end-to-end.
         // Pre-completion rows exist (auto-save) but are NOT considered onboarded.
         setOnboarded(!!u.life_stage && !!u.profile_color && !!u.primary_language);
+      } else if (options?.signOutIfMissing && queryFailed) {
+        // Three attempts, all failed — network, timeout, paused project. We
+        // still know NOTHING about the account, so we must not act as if it
+        // were gone.
+        //
+        // This branch used to sign out, and it was the worst defect in the app:
+        // one 8-second timeout on a cold start logged the woman out for good.
+        // Reproduced three times on a simulator with the row present in the
+        // database. On a train, in a lift, on hotel wifi — every launch.
+        //
+        // We also must not fall through to "authenticated but not onboarded",
+        // which would strand her on the onboarding screen — the very thing the
+        // sign-out was there to prevent. So: keep the session, keep the boot
+        // screen up, and let the caller decide when to try again. Relaunching,
+        // or the next TOKEN_REFRESHED, retries with a refresh token that is
+        // still perfectly valid.
+        debugLog('[auth] profile unreachable after 3 tries — session kept');
+        setProfileUnreachable(true);
       } else if (options?.signOutIfMissing) {
-        // We're loading a RESTORED session (cold boot / TOKEN_REFRESHED), so a
-        // profile row should already exist. It doesn't load — either because:
-        //   • the query succeeded but found no row (auth.users gone server-side,
-        //     e.g. a dev DB purge), or
-        //   • the query ERRORED (stale/expired-revoked token after sign-out,
-        //     paused project, network/timeout).
-        // Both mean the session is unusable. Sign out so the auth gate returns
-        // to /welcome — do NOT leave the user authenticated-but-not-onboarded,
-        // which would strand them on the onboarding/profile screen on every
-        // launch.
+        // The query SUCCEEDED and there is genuinely no row: the auth.users
+        // record is gone server-side (a dev DB purge, an account deletion).
+        // The session is unusable — sign out so the gate returns to /welcome
+        // rather than stranding her on the onboarding screen every launch.
         setUser(null);
         setOnboarded(false);
         await supabase.auth.signOut();
@@ -373,6 +403,16 @@ export function useAuth() {
     const { error } = await supabase.auth.updateUser({ password });
     if (!error) setPasswordRecovery(false);
     return { error };
+  }
+
+  /** Retry the profile read after a connection failure, from the offline
+   *  screen. Uses the session we deliberately kept rather than signing out. */
+  async function retryProfile() {
+    setProfileUnreachable(false);
+    setAuthLoading(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) await fetchProfile(session.user.id, { signOutIfMissing: true });
+    setAuthLoading(false);
   }
 
   function clearPasswordRecovery() {
@@ -602,6 +642,8 @@ export function useAuth() {
     updatePassword,
     passwordRecovery,
     clearPasswordRecovery,
+    profileUnreachable,
+    retryProfile,
     signOut,
     deleteAccount,
     fetchProfile,

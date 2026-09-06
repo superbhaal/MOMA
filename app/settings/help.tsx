@@ -63,8 +63,8 @@ export default function HelpScreen() {
             iconTint={colors.cobalt}
             iconBg="#eef2ff"
             label={t('set.emailSupport')}
-            value="hello@moma.app"
-            onPress={() => Linking.openURL('mailto:hello@moma.app?subject=møma%20support')}
+            value="hello@joinmoma.org"
+            onPress={() => Linking.openURL('mailto:hello@joinmoma.org?subject=møma%20support')}
           />
           <MeRow
             icon="document-text-outline"
@@ -72,7 +72,7 @@ export default function HelpScreen() {
             iconBg="#f0faf0"
             label={t('set.guidelines')}
             isLast
-            onPress={() => Linking.openURL('https://moma.app/guidelines')}
+            onPress={() => Linking.openURL('https://joinmoma.org/guidelines')}
           />
         </MeCard>
 

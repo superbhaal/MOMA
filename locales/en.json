@@ -60,7 +60,10 @@
     "passwordsDiffer": "The two passwords don't match.",
     "signupFailed": "We couldn't create your account. Try again in a moment.",
     "tooManyTries": "Too many attempts. Wait a few minutes and try again.",
-    "emailInvalid": "That email address doesn't look right."
+    "emailInvalid": "That email address doesn't look right.",
+    "offlineTitle": "we can't reach møma",
+    "offlineBody": "Your connection dropped while we were loading your table. You're still signed in.",
+    "offlineRetry": "try again"
   },
   "verify": {
     "title": "check your email",
@@ -786,6 +789,7 @@
     "learnLoadFailed": "Couldn't load the feed. Pull to retry.",
     "addressNotFound": "We couldn't find that address. Check the spelling, or tap the location icon.",
     "addressNeeded": "Your address is needed so we can match you within walking distance.",
-    "photoTooBig": "That one's over 8MB — try a smaller picture."
+    "photoTooBig": "That one's over 8MB — try a smaller picture.",
+    "shareMessage": "everyone brings something to the table — come to mine. join me on møma, small local groups for new moms. https://joinmoma.org"
   }
 }

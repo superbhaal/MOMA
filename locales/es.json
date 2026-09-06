@@ -60,7 +60,10 @@
     "passwordsDiffer": "Las dos contraseñas no coinciden.",
     "signupFailed": "No pudimos crear tu cuenta. Inténtalo de nuevo en un momento.",
     "tooManyTries": "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.",
-    "emailInvalid": "Ese correo no parece válido."
+    "emailInvalid": "Ese correo no parece válido.",
+    "offlineTitle": "no podemos conectar con møma",
+    "offlineBody": "Se cortó la conexión mientras cargábamos tu mesa. Sigues con la sesión abierta.",
+    "offlineRetry": "reintentar"
   },
   "verify": {
     "title": "revisa tu correo",
@@ -786,6 +789,7 @@
     "learnLoadFailed": "No pudimos cargar el muro. Desliza para reintentar.",
     "addressNotFound": "No encontramos esa dirección. Revisa cómo está escrita, o toca el icono de ubicación.",
     "addressNeeded": "Necesitamos tu dirección para juntarte con madres a distancia de paseo.",
-    "photoTooBig": "Esa pesa más de 8 MB — prueba con una imagen más ligera."
+    "photoTooBig": "Esa pesa más de 8 MB — prueba con una imagen más ligera.",
+    "shareMessage": "cada una trae algo a la mesa — ven a la mía. únete a møma, grupos pequeños de madres cerca de ti. https://joinmoma.org"
   }
 }

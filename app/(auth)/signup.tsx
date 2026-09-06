@@ -209,7 +209,7 @@ export default function SignUpScreen() {
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
             <Typography variant="bodyM" color={colors.muted} style={styles.dividerText}>
-              or
+              {t('auth.or')}
             </Typography>
             <View style={styles.dividerLine} />
           </View>

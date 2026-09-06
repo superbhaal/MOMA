@@ -41,7 +41,15 @@ FONT = re.compile(r"(DMSans|Cormorant|Lora)-")
 # Au moins deux mots alphabétiques, ou un mot capitalisé de 4+ lettres.
 # Les chiffres comptent : « frees up 1 of 2 slots » est de la copie, et sans
 # 0-9 dans les classes ce genre de phrase passait sous le radar.
-COPYISH = re.compile(r"^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9’'.,!?&()·—–-]*( +[A-Za-zÀ-ÿ0-9’'.,!?&()·—–-]+)+$|^[A-Z][a-zA-Z]{3,}$")
+COPYISH = re.compile(r"^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9’'.,!?&()·—–-]*( +[A-Za-zÀ-ÿ0-9’'.,!?&()·—–-]+)+$"
+                     r"|^[A-Z][a-zA-Z]{3,}$"
+                     # A bare English function word on its own JSX line: signup.tsx
+                     # rendered a hardcoded "or" between the buttons for months and
+                     # every pass walked past it, because the filter wanted two words
+                     # or a capital. An allowlist rather than "any short word" — the
+                     # latter drowns in JSX boolean props (multiline, optional) and
+                     # enum values (newborn, expecting).
+                     r"|^(or|and|to|of|at|in|on|no|yes|from|with|by|new|back|next|done|save|edit|add)$")
 
 # Positions qui rendent une chaîne visible.
 # setError/setMessage carry copy straight to the screen. signup.tsx held
