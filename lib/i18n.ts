@@ -32,7 +32,22 @@ import fr from '@/locales/fr.json';
 export const SUPPORTED = ['en', 'fr', 'es'] as const;
 export type Locale = (typeof SUPPORTED)[number];
 
-const STORAGE_KEY = 'moma.locale';
+/**
+ * Two keys, because there are two kinds of stored language and only one of them
+ * belongs to the device.
+ *
+ * CHOICE is what she picked in Settings. It is hers, it is deliberate, and it
+ * survives signing out — the next person to open the app on this phone gets the
+ * language the phone was set to speak.
+ *
+ * SESSION is users.locale, adopted from her profile so the app boots in the
+ * right language instead of flashing the OS one. That is a cache of who is
+ * signed in, so it dies with the session. It used to be written to CHOICE,
+ * which is how a deleted Spanish account left an English phone reading
+ * "CADA UNA TRAE ALGO A LA MESA" on the welcome screen.
+ */
+const CHOICE_KEY = 'moma.locale';
+const SESSION_KEY = 'moma.locale.session';
 
 /** Narrow anything — OS tag, DB value, stale storage — to a locale we ship. */
 export function coerceLocale(raw: string | null | undefined): Locale | null {
@@ -74,9 +89,11 @@ export function hasExplicitChoice(): boolean {
  * `applyProfileLanguage`.
  */
 export async function initI18n(): Promise<Locale> {
-  const stored = coerceLocale(await AsyncStorage.getItem(STORAGE_KEY).catch(() => null));
-  explicitChoice = stored;
-  const initial = stored ?? osLocale();
+  const chosen = coerceLocale(await AsyncStorage.getItem(CHOICE_KEY).catch(() => null));
+  const session = coerceLocale(await AsyncStorage.getItem(SESSION_KEY).catch(() => null));
+  explicitChoice = chosen;
+  // Her own choice, then the signed-in profile's, then the phone's.
+  const initial = chosen ?? session ?? osLocale();
 
   await i18n.use(initReactI18next).init({
     resources: { en: { t: en }, fr: { t: fr }, es: { t: es } },
@@ -107,7 +124,11 @@ export async function applyProfileLanguage(profile: {
 
   const chosenElsewhere = coerceLocale(profile?.locale);
   if (chosenElsewhere) {
-    await setLocale(chosenElsewhere);
+    // Adopt it, but as a session cache — NOT as an explicit choice. Writing it
+    // to CHOICE made her language outlive her session on a shared or reused
+    // device.
+    await AsyncStorage.setItem(SESSION_KEY, chosenElsewhere).catch(() => {});
+    if (chosenElsewhere !== i18n.language) await i18n.changeLanguage(chosenElsewhere);
     return;
   }
 
@@ -120,14 +141,24 @@ export async function applyProfileLanguage(profile: {
 /** Step 1. Persists, and takes precedence from here on. */
 export async function setLocale(locale: Locale) {
   explicitChoice = locale;
-  await AsyncStorage.setItem(STORAGE_KEY, locale).catch(() => {});
+  await AsyncStorage.setItem(CHOICE_KEY, locale).catch(() => {});
   await i18n.changeLanguage(locale);
+}
+
+/**
+ * Drop the language adopted from the signed-in profile, keeping any choice she
+ * made in Settings. Called on sign-out.
+ */
+export async function clearSessionLocale() {
+  await AsyncStorage.removeItem(SESSION_KEY).catch(() => {});
+  if (explicitChoice) return; // her own choice stands
+  await i18n.changeLanguage(osLocale());
 }
 
 /** Clears the explicit choice and falls back down the chain again. */
 export async function clearLocaleChoice(primaryLanguage?: string | null) {
   explicitChoice = null;
-  await AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
+  await AsyncStorage.removeItem(CHOICE_KEY).catch(() => {});
   await i18n.changeLanguage(localeFromLanguageName(primaryLanguage) ?? osLocale());
 }
 

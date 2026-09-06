@@ -5,7 +5,7 @@ import * as AuthSession from 'expo-auth-session';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import { supabase } from '@/lib/supabase';
-import { currentLocale } from '@/lib/i18n';
+import { clearSessionLocale, currentLocale } from '@/lib/i18n';
 import { clearPushTokenInDb } from '@/lib/notifications';
 import { useAppStore } from '@/store/useAppStore';
 import { userToOnboardingPatch } from './useOnboarding';
@@ -136,6 +136,11 @@ export function useAuth() {
             if (mounted) setAuthLoading(false);
           }, 0);
         } else {
+          // SIGNED_OUT only: a session ended, so the language cached from her
+          // profile goes with it (see signOut). INITIAL_SESSION with no session
+          // is just a cold boot for a signed-out person — clearing there would
+          // wipe a language she picked in Settings while logged out.
+          if (event === 'SIGNED_OUT') void clearSessionLocale();
           reset();
         }
       },
@@ -523,6 +528,12 @@ export function useAuth() {
     const uid = useAppStore.getState().user?.id;
     if (uid) await clearPushTokenInDb(uid);
     await supabase.auth.signOut();
+    // Let her language leave with her — but only the part that was hers by
+    // accident. applyProfileLanguage adopts users.locale so the app boots in
+    // the right language; that is a cache of who is signed in and dies here. A
+    // language she deliberately picked in Settings is a property of the phone
+    // and stays. See the two keys in lib/i18n.ts.
+    await clearSessionLocale();
     reset();
   }
 
