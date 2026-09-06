@@ -2,11 +2,17 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["ZF4H8SWR7L.org.joinmoma.moma"],
+        "appIDs": [
+          "ZF4H8SWR7L.org.joinmoma.moma"
+        ],
         "components": [
           {
             "/": "/auth/*",
             "comment": "møma email confirmation + OAuth callbacks"
+          },
+          {
+            "/": "/group-preview",
+            "comment": "møma \"your group is ready\" email — opens the app on the preview"
           }
         ]
       }

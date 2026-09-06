@@ -287,12 +287,15 @@ async function sendMatchEmail(
         // sentence between two English ones. And it went as text: only, with
         // none of the markup the auth emails have had all along.
         subject: pt(locale, 'matchTitle'),
-        text: `${body}\n\n${pt(locale, 'matchEmailCta')} — https://joinmoma.org`,
+        text: `${body}\n\n${pt(locale, 'matchEmailCta')} — https://joinmoma.org/group-preview`,
         html: renderShell(locale, {
           heading: pt(locale, 'matchTitle'),
           body,
           cta: pt(locale, 'matchEmailCta'),
-          url: 'https://joinmoma.org/group-preview',
+          // ?lang= so the landing page speaks her language too, the same way
+          // the auth emails do. The path is registered in the AASA, so on iOS
+          // this opens the app and the page is never seen.
+          url: `https://joinmoma.org/group-preview?lang=${locale}`,
         }),
       }),
     });

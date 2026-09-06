@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>møma — community guidelines</title>
+  <meta name="description" content="How we keep møma tables good places to be.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cobalt: #1A4BCC;
+      --cream: #FAF6F1;
+      --text: #111118;
+      --muted: #6F6F88;
+      --line: rgba(17,17,24,0.07);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #fff;
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 24px 80px;
+    }
+    main { max-width: 620px; margin: 0 auto; }
+    .wordmark {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 40px;
+      color: var(--cobalt);
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 34px;
+      line-height: 1.15;
+      margin: 36px 0 14px;
+    }
+    .lead { color: var(--muted); font-size: 16.5px; margin-bottom: 40px; }
+    section { border-top: 1px solid var(--line); padding-top: 26px; margin-top: 26px; }
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+    p + p { margin-top: 12px; }
+    .closing {
+      background: var(--cream);
+      border-radius: 18px;
+      padding: 24px;
+      margin-top: 40px;
+      font-size: 15.5px;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 13.5px;
+      color: var(--muted);
+      text-align: center;
+    }
+    footer a { color: var(--cobalt); }
+    .langs { text-align: center; margin-top: 28px; font-size: 13px; }
+    .langs button {
+      font: inherit;
+      background: none;
+      border: 0;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      text-decoration: underline;
+    }
+    .langs button[aria-current="true"] { color: var(--text); font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="wordmark">møma</div>
+    <h1 id="title"></h1>
+    <p class="lead" id="lead"></p>
+    <div id="sections"></div>
+    <div class="closing" id="closing"></div>
+    <footer>
+      <span id="contact"></span>
+      <a href="mailto:hello@joinmoma.org">hello@joinmoma.org</a>
+    </footer>
+    <div class="langs">
+      <button data-lang="en">English</button>
+      <button data-lang="fr">Français</button>
+      <button data-lang="es">Español</button>
+    </div>
+  </main>
+
+  <script>
+    // A draft, written from what the product actually does — small local groups
+    // that only work if people turn up and are decent to each other. The fault
+    // lines it names (feeding, sleep, working or not) are the ones that
+    // actually split new-mother communities.
+    var COPY = {
+      en: {
+        docTitle: 'møma — community guidelines',
+        title: 'What we ask of each other.',
+        lead: 'A møma table is three or four women who did not choose each other, meeting near where they live. That only works if everyone brings the same few things. This is the whole list.',
+        sections: [
+          ['Turn up, or say you can’t.',
+           'A table of four where two drift away is not a table. You do not owe anyone an explanation — but say something. Tapping “can’t make it” takes a second and it is never held against you. Silence is the only thing that hurts.'],
+          ['What is said at the table stays at the table.',
+           'Addresses, photos, due dates, the hard week someone had. None of it is yours to repeat, screenshot, or put anywhere else. Your group sees where you live because it has to; nobody else does.'],
+          ['No selling.',
+           'No products, no programmes, no “I just started with this brand”. New mothers are a market and everyone knows it. møma is not a place to work that. One pitch is enough to have you removed.'],
+          ['Share what worked for you, not what she should do.',
+           '“This helped me” is a gift. “You should” is not. Nobody here is anyone’s doctor or midwife — if something is worrying, the answer is a professional, not a group chat.'],
+          ['Be careful around the choices that divide.',
+           'Breast or bottle. Back to work or not. Sleep training or not. Whatever you decided, someone at your table decided otherwise, and she has heard enough about it. You can say what you chose without saying what she got wrong.'],
+          ['If it goes wrong, use the tools.',
+           'You can mute a group, leave it, or report a problem — from the group screen. Leaving is allowed and does not need a reason. We would rather you leave a table than dread it.'],
+        ],
+        closing: 'Everyone brings something to the table. That is the whole idea, and it is also the standard: if what you are bringing would make someone dread coming, it does not belong here.',
+        contact: 'Something wrong at your table? Write to us: ',
+      },
+      fr: {
+        docTitle: 'møma — règles de la communauté',
+        title: 'Ce qu’on se demande les unes aux autres.',
+        lead: 'Une table møma, c’est trois ou quatre femmes qui ne se sont pas choisies et qui se retrouvent près de chez elles. Ça ne tient que si chacune apporte les mêmes quelques choses. Voici la liste entière.',
+        sections: [
+          ['Venez, ou dites que vous ne pouvez pas.',
+           'Une table de quatre dont deux s’effacent n’est plus une table. Vous ne devez d’explication à personne — mais dites quelque chose. Toucher « je ne peux pas » prend une seconde et ne vous sera jamais reproché. Seul le silence blesse.'],
+          ['Ce qui se dit à la table reste à la table.',
+           'Les adresses, les photos, les dates de terme, la semaine difficile de l’une. Rien de tout cela ne vous appartient pour le répéter, le capturer ou le poser ailleurs. Votre groupe voit où vous habitez parce qu’il le faut ; personne d’autre.'],
+          ['Pas de vente.',
+           'Ni produits, ni programmes, ni « je viens de me lancer avec cette marque ». Les jeunes mères sont un marché et tout le monde le sait. møma n’est pas un endroit où travailler ça. Une seule sollicitation suffit à être retirée.'],
+          ['Dites ce qui a marché pour vous, pas ce qu’elle devrait faire.',
+           '« Ça m’a aidée » est un cadeau. « Tu devrais » n’en est pas un. Personne ici n’est le médecin ni la sage-femme de personne — si quelque chose inquiète, la réponse est un professionnel, pas une conversation de groupe.'],
+          ['Prudence sur les choix qui divisent.',
+           'Sein ou biberon. Reprendre le travail ou non. Apprentissage du sommeil ou non. Quoi que vous ayez décidé, quelqu’un à votre table a décidé l’inverse, et elle en a assez entendu. On peut dire ce qu’on a choisi sans dire ce qu’elle a raté.'],
+          ['Si ça se passe mal, servez-vous des outils.',
+           'Vous pouvez mettre un groupe en sourdine, le quitter, ou signaler un problème — depuis l’écran du groupe. Partir est permis et n’a pas à se justifier. On préfère que vous quittiez une table plutôt que de la redouter.'],
+        ],
+        closing: 'Chacune apporte quelque chose à la table. C’est toute l’idée, et c’est aussi le critère : si ce que vous apportez donne à quelqu’un l’envie de ne pas venir, ça n’a pas sa place ici.',
+        contact: 'Un problème à votre table ? Écrivez-nous : ',
+      },
+      es: {
+        docTitle: 'møma — normas de la comunidad',
+        title: 'Lo que nos pedimos unas a otras.',
+        lead: 'Una mesa møma son tres o cuatro mujeres que no se eligieron, que se ven cerca de donde viven. Eso solo funciona si cada una trae las mismas pocas cosas. Esta es la lista completa.',
+        sections: [
+          ['Ven, o di que no puedes.',
+           'Una mesa de cuatro donde dos se desvanecen ya no es una mesa. No le debes una explicación a nadie — pero di algo. Tocar «no puedo» lleva un segundo y nunca se te reprocha. Lo único que duele es el silencio.'],
+          ['Lo que se dice en la mesa se queda en la mesa.',
+           'Las direcciones, las fotos, las fechas de parto, la semana dura que tuvo alguna. Nada de eso es tuyo para repetirlo, capturarlo o ponerlo en otro sitio. Tu grupo ve dónde vives porque hace falta; nadie más.'],
+          ['Nada de vender.',
+           'Ni productos, ni programas, ni «acabo de empezar con esta marca». Las madres recientes son un mercado y todo el mundo lo sabe. møma no es un sitio donde trabajar eso. Basta una sola oferta para que se te retire.'],
+          ['Cuenta lo que te funcionó a ti, no lo que ella debería hacer.',
+           '«A mí me ayudó» es un regalo. «Deberías» no lo es. Aquí nadie es la médica ni la matrona de nadie — si algo preocupa, la respuesta es una profesional, no un chat de grupo.'],
+          ['Cuidado con las decisiones que dividen.',
+           'Pecho o biberón. Volver al trabajo o no. Enseñar a dormir o no. Hayas decidido lo que hayas decidido, alguien en tu mesa decidió lo contrario, y ya ha oído bastante. Se puede contar lo que una eligió sin decirle a la otra en qué se equivocó.'],
+          ['Si va mal, usa las herramientas.',
+           'Puedes silenciar un grupo, salirte, o informar de un problema — desde la pantalla del grupo. Salirse está permitido y no hace falta justificarlo. Preferimos que dejes una mesa a que te dé pereza ir.'],
+        ],
+        closing: 'Cada una trae algo a la mesa. Esa es toda la idea, y también es el criterio: si lo que traes hace que a alguien le pese venir, aquí no encaja.',
+        contact: '¿Algo va mal en tu mesa? Escríbenos: ',
+      },
+    };
+
+    function render(lang) {
+      var c = COPY[lang] || COPY.en;
+      document.documentElement.lang = COPY[lang] ? lang : 'en';
+      document.title = c.docTitle;
+      document.getElementById('title').textContent = c.title;
+      document.getElementById('lead').textContent = c.lead;
+      document.getElementById('closing').textContent = c.closing;
+      document.getElementById('contact').textContent = c.contact;
+
+      var host = document.getElementById('sections');
+      host.textContent = '';
+      c.sections.forEach(function (pair) {
+        var s = document.createElement('section');
+        var h = document.createElement('h2');
+        h.textContent = pair[0];
+        var p = document.createElement('p');
+        p.textContent = pair[1];
+        s.appendChild(h);
+        s.appendChild(p);
+        host.appendChild(s);
+      });
+
+      Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function (b) {
+        b.setAttribute('aria-current', b.dataset.lang === document.documentElement.lang);
+      });
+    }
+
+    // ?lang= wins (the app can link straight to her language), then the browser.
+    var wanted = (new URLSearchParams(location.search).get('lang')
+      || navigator.language || 'en').slice(0, 2).toLowerCase();
+    render(wanted);
+
+    Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function (b) {
+      b.addEventListener('click', function () { render(b.dataset.lang); });
+    });
+  </script>
+</body>
+</html>

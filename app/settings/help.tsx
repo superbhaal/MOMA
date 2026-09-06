@@ -1,3 +1,4 @@
+import { currentLocale } from '@/lib/i18n';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -72,7 +73,11 @@ export default function HelpScreen() {
             iconBg="#f0faf0"
             label={t('set.guidelines')}
             isLast
-            onPress={() => Linking.openURL('https://joinmoma.org/guidelines')}
+            // ?lang= so the page opens in her language rather than guessing
+            // from the browser — the app already knows.
+            onPress={() =>
+              Linking.openURL(`https://joinmoma.org/guidelines?lang=${currentLocale()}`)
+            }
           />
         </MeCard>
 
