@@ -85,6 +85,22 @@ export default function ProfileScreen() {
     !locating &&
     !verifying;
 
+  // Name what is missing, quietly.
+  //
+  // Every field filled and the button still inert, with nothing saying why —
+  // it was the photo. You can re-read the form a long time. One muted line,
+  // no icon and no red: the tone is "here's what's left", not "you got it
+  // wrong". Busy states (saving, uploading, geocoding) say nothing, because
+  // the button is only inert for a moment and a message would flicker.
+  const missingLabel = (() => {
+    if (canContinue || saving || uploadingAvatar || locating || verifying) return null;
+    if (!photoValid) return t('ob.missingPhoto');
+    if (!displayName.trim() || !lastName.trim()) return t('ob.missingName');
+    if (!ageValid) return t('ob.missingAge');
+    if (!address.trim()) return t('ob.missingAddress');
+    return null;
+  })();
+
   async function handlePickPhoto() {
     setError(null);
     // Handles the "denied and never asked again" dead end by offering Settings.
@@ -449,6 +465,11 @@ export default function ProfileScreen() {
           disabled={!canContinue}
           size="lg"
         />
+        {missingLabel ? (
+          <Typography variant="bodyS" color={colors.muted} style={styles.missing}>
+            {missingLabel}
+          </Typography>
+        ) : null}
       </View>
     </KeyboardAvoidingView>
   );
@@ -473,6 +494,10 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: scaled(15),
+  },
+  missing: {
+    textAlign: 'center',
+    marginTop: spacing.sm,
   },
   stepLabel: {
     color: colors.muted,

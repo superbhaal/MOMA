@@ -77,7 +77,7 @@ export default function ResumeScreen() {
             ))}
           </View>
           <Typography variant="bodyM" color={colors.mutedStrong} style={styles.nextUp}>
-            Next up: {progress.nextLabel}
+            {t('ob.nextUp', { step: t(progress.nextKey) })}
           </Typography>
         </View>
       </View>

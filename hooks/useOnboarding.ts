@@ -68,8 +68,10 @@ export interface QuizProgress {
   /** 0…4 — how many of the 4 quiz steps have been completed. */
   answered: number;
   nextRoute: ResumeRoute;
-  /** Human label for the next missing step, e.g. "pick your colour". */
-  nextLabel: string;
+  /** i18n key for the next missing step. Was a hardcoded English label, which
+   *  is how "Next up: languages" ended up mid-sentence on a Spanish screen —
+   *  this hook has no t(), so the label has to be resolved where it is shown. */
+  nextKey: string;
 }
 
 export const TOTAL_QUIZ_STEPS = 4;
@@ -79,41 +81,41 @@ export function getQuizProgress(u: User | null): QuizProgress {
     return {
       answered: 0,
       nextRoute: '/(auth)/onboarding/profile',
-      nextLabel: 'Profile basics',
+      nextKey: 'ob.nextProfile',
     };
   }
   if (u.is_first_baby === null || u.is_first_baby === undefined) {
     return {
       answered: 0,
       nextRoute: '/(auth)/onboarding/q1',
-      nextLabel: 'first baby?',
+      nextKey: 'ob.nextFirstBaby',
     };
   }
   if (!u.baby_dob) {
     return {
       answered: 1,
       nextRoute: '/(auth)/onboarding/q2',
-      nextLabel: 'baby’s date of birth',
+      nextKey: 'ob.nextDob',
     };
   }
   if (!u.primary_language) {
     return {
       answered: 2,
       nextRoute: '/(auth)/onboarding/q3',
-      nextLabel: 'languages',
+      nextKey: 'ob.nextLanguages',
     };
   }
   if (!u.profile_color) {
     return {
       answered: 3,
       nextRoute: '/(auth)/onboarding/q4',
-      nextLabel: 'pick your colour',
+      nextKey: 'ob.nextColour',
     };
   }
   return {
     answered: 4,
     nextRoute: '/(auth)/onboarding/final',
-    nextLabel: 'Final',
+    nextKey: 'ob.nextFinal',
   };
 }
 

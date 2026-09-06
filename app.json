@@ -95,7 +95,8 @@
         }
       ],
       "expo-asset",
-      "expo-localization"
+      "expo-localization",
+      "./plugins/withLocalizedPermissions"
     ],
     "experiments": {
       "typedRoutes": true

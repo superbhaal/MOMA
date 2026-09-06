@@ -7,6 +7,9 @@ inscription → confirmation e-mail → onboarding 5 étapes → appariement ré
 12 défauts, plus une question de registre. Les correctifs de la passe française
 ont été revérifiés en espagnol et tiennent tous.
 
+**État au 2026-09-06 (soir).** Tout est corrigé sauf ce qui relevait d'un choix
+et a été tranché autrement — voir « Décisions » en fin de document.
+
 ## Ce qui va bien
 
 L'espagnol est de bonne tenue partout où il existe : `¿` et `¡` ouvrants,
@@ -133,3 +136,37 @@ un `toLocaleDateString` court qui rend « 1 sept ». Deux issues : demander un
 format long au formateur, ou intégrer le « de » dans la clé. Le français
 (« Bébé né le 1 sept ») est correct tel quel — c'est une différence de langue,
 pas un bug partagé. `lib/babyAge.ts:46`.
+
+---
+
+## Décisions de Simon
+
+**Le nom de groupe reste « Madrid Table n°1 ».** Assumé comme un nom de marque
+plutôt qu'une phrase à traduire : « Table » porte la métaphore du produit, et un
+groupe multilingue n'a de toute façon pas *une* langue. Le défaut 6 est donc
+clos sans changement de code.
+
+**Push + e-mail sur la formation de groupe : les deux restent.** Mais l'e-mail
+devait être mis en forme comme les autres — fait (défauts 10 et 11).
+
+**Bouton désactivé : une ligne discrète.** Grise, sous le bouton, nommant ce qui
+manque, sans icône ni rouge. Vérifié à l'écran : « falta la foto de perfil ».
+
+## État des correctifs
+
+| # | Sujet | État |
+|---|---|---|
+| 1 | E-mail d'inscription toujours en anglais | corrigé — la langue passe par `user_metadata` à l'inscription |
+| 2 | Badge « BÊTA » avec accent français | corrigé — vérifié à l'écran |
+| 3 | « REENVIAR EN 58S » | non traité — convention typographique mineure |
+| 4 | Autorisations iOS en anglais | corrigé — plugin `withLocalizedPermissions` |
+| 5 | Bouton désactivé muet | corrigé — vérifié à l'écran |
+| 6 | Nom de groupe mixte | clos par décision (voir ci-dessus) |
+| 7 | Barre de progression sous le badge | non traité — chevauchement mineur à l'étape 5/5 |
+| 8 | Semaine à cheval : « 31 septiembre » | corrigé — le mois de départ est nommé quand il diffère |
+| 9 | Plages horaires en 12 h | corrigé — 24 h en fr et es, depuis le fichier de langue |
+| 10 | E-mail de groupe à moitié traduit | corrigé |
+| 11 | E-mail de groupe sans mise en forme | corrigé — coquille partagée `_shared/email-shell.ts` |
+| 12 | « Bebé nacido el 1 sept » | **retiré** — c'est la forme abrégée d'Intl pour es-ES |
+| — | Registre *vosotros* | corrigé — zéro forme restante, on tutoie partout |
+| — | « Next up: languages » (trouvé en vérifiant) | corrigé — le hook rendait des libellés anglais en dur |

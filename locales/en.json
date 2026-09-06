@@ -144,7 +144,18 @@
     "firstBabyYesSub": "Doing this for the first time.",
     "firstBabyNoSub": "Been here before.",
     "dobPlaceholder": "mm / dd / yyyy",
-    "stepAboutN": "STEP {{current}} OF {{total}} · ABOUT YOU"
+    "stepAboutN": "STEP {{current}} OF {{total}} · ABOUT YOU",
+    "missingPhoto": "a profile photo is missing",
+    "missingName": "your name is missing",
+    "missingAge": "your age is missing",
+    "missingAddress": "where you live is missing",
+    "nextUp": "Next up: {{step}}",
+    "nextProfile": "profile basics",
+    "nextFirstBaby": "first baby?",
+    "nextDob": "baby’s date of birth",
+    "nextLanguages": "languages",
+    "nextColour": "pick your colour",
+    "nextFinal": "the last step"
   },
   "home": {
     "yourGroups": "YOUR GROUPS",
