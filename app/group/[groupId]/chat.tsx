@@ -154,12 +154,15 @@ export default function GroupChatScreen() {
       <CounterProposalSheet
         visible={timeOpen}
         onClose={() => setTimeOpen(false)}
-        isCounter={!!open_proposal}
+        isCounter={open_proposal?.state === 'open'}
         onSubmit={async ({ scheduled_at, note }) => {
           await propose({
             scheduled_at,
             note,
-            parent_proposal_id: open_proposal?.id ?? null,
+            // Only an OPEN proposal is something to counter. When the
+            // meetup is already decided, this is simply the next one.
+            parent_proposal_id:
+              open_proposal?.state === 'open' ? open_proposal.id : null,
           });
           refreshDetail();
         }}

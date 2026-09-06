@@ -267,7 +267,10 @@
     "youLabel": "YOU",
     "suggestTimeCta": "SUGGEST A TIME",
     "messagePrivately": "Message {{name}} privately",
-    "themFallback": "them"
+    "themFallback": "them",
+    "counterProposeTitle": "can't make it — suggest another",
+    "suggestTimeTitle": "suggest a time",
+    "dayLabel": "DAY"
   },
   "me": {
     "aboutMe": "About me",

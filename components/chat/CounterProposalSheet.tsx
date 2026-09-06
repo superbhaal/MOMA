@@ -64,10 +64,10 @@ export function CounterProposalSheet({
     <ActionSheet
       visible={visible}
       onClose={onClose}
-      title={isCounter ? "can't make it — suggest another" : 'suggest a time'}
+      title={isCounter ? t('grp.counterProposeTitle') : t('grp.suggestTimeTitle')}
     >
       <Typography variant="label" color={colors.muted} style={styles.label}>
-        DAY
+        {t('grp.dayLabel')}
       </Typography>
       <View style={styles.daysRow}>
         {days.map((i) => {

@@ -112,10 +112,16 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   actions: {
+    // Wrap, don't overflow. Two chips fit on one line in English and get
+    // clipped at both ends in French ("PARTAGER UN LIEU QUE VOUS AIMEZ" +
+    // "PROPOSER UN MOMENT"). A horizontal ScrollView is not the answer here —
+    // it paints chip backgrounds without their labels in this layout.
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
     paddingBottom: spacing.sm,
   },
   placeChip: {

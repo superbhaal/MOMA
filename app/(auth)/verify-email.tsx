@@ -51,28 +51,33 @@ export default function VerifyEmailScreen() {
     return () => clearInterval(t);
   }, [cooldown]);
 
-  // Watch for a confirmation that happened somewhere else.
+  // Notice the confirmation instead of waiting forever.
   //
-  // This screen used to wait forever. She signs up on her phone, opens her mail
-  // on a laptop, clicks — and the phone never notices, because nothing here
-  // ever asked again. Verified: account confirmed in the database, screen still
-  // saying "check your email". Tapping resend does not help either.
+  // She signs up, leaves for her mail app, taps the link, comes back — and the
+  // screen still said "check your email" because nothing here ever looked
+  // again.
   //
-  // Two triggers, because either alone leaves a hole: a poll while the screen
-  // is open, and a check when the app comes back to the foreground (she
-  // switched to Mail and came back).
+  // What we can look at is narrow, and worth being precise about: signUp
+  // returns NO session when confirmation is required, so there is no session to
+  // refresh, and Supabase deliberately offers no way to ask "is this address
+  // confirmed yet?" — that would be an account-enumeration oracle. So we watch
+  // for a session APPEARING, which is what the deep-link handler creates when
+  // she confirms on this device. getSession() reads local storage, so polling
+  // it is free and rotates no tokens.
+  //
+  // Confirming on a different device cannot be detected from here at all. That
+  // path is covered by the sign-in link at the bottom of this screen.
   useEffect(() => {
     let stop = false;
     async function check() {
-      const { data, error } = await supabase.auth.refreshSession();
-      if (stop || error) return;
-      if (data.user?.email_confirmed_at) {
-        stop = true;
-        await fetchProfile(data.user.id);
-        router.replace('/(auth)/onboarding/resume');
-      }
+      const { data } = await supabase.auth.getSession();
+      const uid = data.session?.user?.id;
+      if (stop || !uid) return;
+      stop = true;
+      await fetchProfile(uid);
+      router.replace('/(auth)/onboarding/resume');
     }
-    const id = setInterval(check, 5000);
+    const id = setInterval(check, 3000);
     const sub = AppState.addEventListener('change', (st) => {
       if (st === 'active') void check();
     });

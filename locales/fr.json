@@ -267,7 +267,10 @@
     "youLabel": "VOUS",
     "suggestTimeCta": "PROPOSER UN MOMENT",
     "messagePrivately": "Écrire à {{name}} en privé",
-    "themFallback": "cette personne"
+    "themFallback": "cette personne",
+    "counterProposeTitle": "pas dispo — proposez un autre moment",
+    "suggestTimeTitle": "proposer un moment",
+    "dayLabel": "JOUR"
   },
   "me": {
     "aboutMe": "À propos de moi",
