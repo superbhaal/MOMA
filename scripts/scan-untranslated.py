@@ -44,7 +44,11 @@ FONT = re.compile(r"(DMSans|Cormorant|Lora)-")
 COPYISH = re.compile(r"^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9’'.,!?&()·—–-]*( +[A-Za-zÀ-ÿ0-9’'.,!?&()·—–-]+)+$|^[A-Z][a-zA-Z]{3,}$")
 
 # Positions qui rendent une chaîne visible.
+# setError/setMessage carry copy straight to the screen. signup.tsx held
+# `setError("passwords don't match")` in English for months and no pass caught
+# it, because the detector only looked at attribute-shaped positions.
 ATTR = re.compile(r"\b(label|title|placeholder|hint|sub|note|text|accessibilityLabel|q|a|body|deck|lead|message)\s*[:=]\s*(['\"])(.+?)\2")
+SETTER = re.compile(r"\bset(?:Error|Message|Status|Toast|Notice)\(\s*(['\"])(.+?)\1")
 JSXATTR = re.compile(r"\b(label|title|placeholder|hint|accessibilityLabel)=\"([^\"]+)\"")
 BRACE = re.compile(r"\{[^{}]*\}")
 # && || ?: sont du JSX conditionnel, jamais de la copie.
@@ -90,6 +94,7 @@ for d in ('app', 'components', 'constants', 'hooks', 'lib'):
             for m in ATTR.finditer(line): found.add(m.group(3))
             for m in JSXATTR.finditer(line): found.add(m.group(2))
             for m in ALERT.finditer(line): found.add(m.group(2))
+            for m in SETTER.finditer(line): found.add(m.group(2))
             for m in TEMPLATE.finditer(line):
                 lit = re.sub(r'\s+', ' ', SUBST.sub(' ', m.group(1))).strip()
                 if lit: found.add(lit)

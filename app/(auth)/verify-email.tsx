@@ -129,6 +129,21 @@ export default function VerifyEmailScreen() {
           variant="ghost"
           onPress={() => router.replace('/(auth)/signup')}
         />
+
+        {/* The exit that was missing, and it is not cosmetic.
+            Signing up with an address that ALREADY has a confirmed account
+            returns 200 and sends nothing — Supabase does that on purpose, so
+            the response cannot be used to discover who is registered. From here
+            it looks identical to a successful signup: this screen appears, and
+            no email ever comes. Our first outside tester hit exactly that and
+            reported it as "I never received the message". Resending does not
+            help either, for the same reason. The only way out is to log in, so
+            say so. */}
+        <Pressable onPress={() => router.replace('/(auth)/login')} hitSlop={10}>
+          <Typography variant="bodyM" color={colors.cobalt} style={styles.alreadyHave}>
+            {t('verify.alreadyHave')}
+          </Typography>
+        </Pressable>
       </View>
     </View>
   );
@@ -146,6 +161,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: spacing.xxl,
   },
+  alreadyHave: { textAlign: 'center', marginTop: spacing.lg },
   resendBtn: {
     marginTop: spacing.lg,
     alignSelf: 'flex-start',

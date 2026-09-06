@@ -29,7 +29,7 @@
     "confirmPassword": "CONFIRM IT",
     "emailPlaceholder": "hello@email.com",
     "passwordPlaceholder": "your password",
-    "passwordMinPlaceholder": "at least 6 characters",
+    "passwordMinPlaceholder": "at least 8 characters",
     "repeatPassword": "repeat your password",
     "or": "or",
     "continueApple": "continue with apple",
@@ -39,7 +39,7 @@
     "logIn": "log in",
     "createAccount": "create account",
     "creatingAccount": "creating account...",
-    "passwordTooShort": "password must be at least 6 characters",
+    "passwordTooShort": "Your password needs at least 8 characters.",
     "loggingIn": "logging in…",
     "forgotLink": "Forgot your password?",
     "forgotTitle": "reset your\npassword",
@@ -56,7 +56,11 @@
     "newPwSaving": "saving…",
     "pwTooShort": "At least 8 characters.",
     "pwMismatch": "The two don't match.",
-    "pwLinkExpired": "That link has expired. Ask for a new one."
+    "pwLinkExpired": "That link has expired. Ask for a new one.",
+    "passwordsDiffer": "The two passwords don't match.",
+    "signupFailed": "We couldn't create your account. Try again in a moment.",
+    "tooManyTries": "Too many attempts. Wait a few minutes and try again.",
+    "emailInvalid": "That email address doesn't look right."
   },
   "verify": {
     "title": "check your email",
@@ -67,7 +71,8 @@
     "openMail": "open mail app",
     "backToSignUp": "back to sign up",
     "tooManyRequests": "too many requests. please wait a moment before trying again.",
-    "newLinkSent": "we sent a new confirmation link."
+    "newLinkSent": "we sent a new confirmation link.",
+    "alreadyHave": "Already signed up with this address? Log in instead."
   },
   "ob": {
     "q1heading": "Is this your\nfirst baby?",
@@ -774,6 +779,13 @@
     "replace": "Replace",
     "you": "(you)",
     "photoHint": "JPG, PNG · up to 8MB",
-    "calendarMeetup": "møma meetup"
+    "calendarMeetup": "møma meetup",
+    "mapLoadFailed": "Couldn't load the map. Pull to retry.",
+    "recoLoadFailed": "Couldn't load this recommendation.",
+    "profileLoadFailed": "Couldn't load this profile.",
+    "learnLoadFailed": "Couldn't load the feed. Pull to retry.",
+    "addressNotFound": "We couldn't find that address. Check the spelling, or tap the location icon.",
+    "addressNeeded": "Your address is needed so we can match you within walking distance.",
+    "photoTooBig": "That one's over 8MB — try a smaller picture."
   }
 }

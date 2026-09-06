@@ -29,7 +29,7 @@
     "confirmPassword": "CONFIRMEZ-LE",
     "emailPlaceholder": "bonjour@email.com",
     "passwordPlaceholder": "votre mot de passe",
-    "passwordMinPlaceholder": "au moins 6 caractères",
+    "passwordMinPlaceholder": "au moins 8 caractères",
     "repeatPassword": "répétez votre mot de passe",
     "or": "ou",
     "continueApple": "continuer avec apple",
@@ -39,7 +39,7 @@
     "logIn": "se connecter",
     "createAccount": "créer un compte",
     "creatingAccount": "création du compte...",
-    "passwordTooShort": "le mot de passe doit faire au moins 6 caractères",
+    "passwordTooShort": "Votre mot de passe doit faire au moins 8 caractères.",
     "loggingIn": "connexion…",
     "forgotLink": "Mot de passe oublié ?",
     "forgotTitle": "réinitialiser votre\nmot de passe",
@@ -56,7 +56,11 @@
     "newPwSaving": "enregistrement…",
     "pwTooShort": "Au moins 8 caractères.",
     "pwMismatch": "Les deux ne correspondent pas.",
-    "pwLinkExpired": "Ce lien a expiré. Demandez-en un nouveau."
+    "pwLinkExpired": "Ce lien a expiré. Demandez-en un nouveau.",
+    "passwordsDiffer": "Les deux mots de passe ne correspondent pas.",
+    "signupFailed": "Nous n'avons pas pu créer votre compte. Réessayez dans un instant.",
+    "tooManyTries": "Trop de tentatives. Attendez quelques minutes et réessayez.",
+    "emailInvalid": "Cette adresse email ne semble pas valide."
   },
   "verify": {
     "title": "vérifiez vos e-mails",
@@ -67,7 +71,8 @@
     "openMail": "ouvrir la messagerie",
     "backToSignUp": "retour à l’inscription",
     "tooManyRequests": "trop de tentatives. patientez un instant avant de réessayer.",
-    "newLinkSent": "nous avons envoyé un nouveau lien."
+    "newLinkSent": "nous avons envoyé un nouveau lien.",
+    "alreadyHave": "Vous avez déjà un compte avec cette adresse ? Connectez-vous."
   },
   "ob": {
     "q1heading": "Est-ce votre\npremier bébé ?",
@@ -774,6 +779,13 @@
     "replace": "Remplacer",
     "you": "(vous)",
     "photoHint": "JPG, PNG · jusqu’à 8 Mo",
-    "calendarMeetup": "Rencontre møma"
+    "calendarMeetup": "Rencontre møma",
+    "mapLoadFailed": "Impossible de charger la carte. Tirez pour réessayer.",
+    "recoLoadFailed": "Impossible de charger cette recommandation.",
+    "profileLoadFailed": "Impossible de charger ce profil.",
+    "learnLoadFailed": "Impossible de charger le fil. Tirez pour réessayer.",
+    "addressNotFound": "Nous n'avons pas trouvé cette adresse. Vérifiez l'orthographe, ou touchez l'icône de localisation.",
+    "addressNeeded": "Votre adresse est nécessaire pour vous rapprocher de mamans à distance de marche.",
+    "photoTooBig": "Celle-ci dépasse 8 Mo — essayez une image plus légère."
   }
 }

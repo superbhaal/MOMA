@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useTranslation } from 'react-i18next';
 import type {
   Contributor,
   LovedKind,
@@ -67,6 +68,7 @@ function toSpot(r: SpotRow): LovedSpotWithPoster {
  * places: one pin, one row, however many moms have vouched for it.
  */
 export function useLovedPlaces(kind: LovedKind, category: LovedCategory | 'all') {
+  const { t } = useTranslation();
   const [places, setPlaces] = useState<LovedPlace[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +81,7 @@ export function useLovedPlaces(kind: LovedKind, category: LovedCategory | 'all')
       p_category: category === 'all' ? null : category,
     });
     if (err) {
-      setError('Couldn’t load the map. Pull to retry.');
+      setError(t('misc.mapLoadFailed'));
       setPlaces([]);
     } else {
       setPlaces((data as LovedPlace[]) ?? []);
@@ -100,6 +102,7 @@ export function useLovedPlaces(kind: LovedKind, category: LovedCategory | 'all')
  * group that spot belongs to.
  */
 export function useLovedPlace(id: string | undefined) {
+  const { t } = useTranslation();
   const [place, setPlace] = useState<LovedPlace | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,7 +115,7 @@ export function useLovedPlace(id: string | undefined) {
     setLoading(true);
     setError(null);
     const { data, error: err } = await supabase.rpc('discover_place', { p_id: id });
-    if (err) setError('Couldn’t load this recommendation.');
+    if (err) setError(t('misc.recoLoadFailed'));
     else setPlace(((data as LovedPlace[]) ?? [])[0] ?? null);
     setLoading(false);
   }, [id]);
@@ -126,6 +129,7 @@ export function useLovedPlace(id: string | undefined) {
 
 /** A contributor's public profile + their loved spots, for the profile screen. */
 export function useContributor(id: string | undefined) {
+  const { t } = useTranslation();
   const [contributor, setContributor] = useState<Contributor | null>(null);
   const [spots, setSpots] = useState<LovedSpotWithPoster[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,7 +150,7 @@ export function useContributor(id: string | undefined) {
       ]);
       if (cancelled) return;
       if (profileRes.error || spotsRes.error) {
-        setError('Couldn’t load this profile.');
+        setError(t('misc.profileLoadFailed'));
       } else {
         const row = (profileRes.data as Contributor[])?.[0] ?? null;
         setContributor(row);

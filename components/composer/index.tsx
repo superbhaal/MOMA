@@ -270,7 +270,7 @@ export function ComposerPhoto({
     if (result.canceled || !result.assets?.length) return;
     const asset = result.assets[0];
     if (asset.fileSize && asset.fileSize > MAX_PHOTO_BYTES) {
-      setError('That one’s over 8MB — try a smaller picture.');
+      setError(t('misc.photoTooBig'));
       return;
     }
     onPick(asset.uri);

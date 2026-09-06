@@ -45,7 +45,7 @@ export function useLearn(filters: LearnFeedFilters = {}) {
       setDocs(merged);
 
       if (editorial.status === 'rejected' && community.status === 'rejected') {
-        setError('failed to load learn feed');
+        setError(t('misc.learnLoadFailed'));
       }
     } catch (e: any) {
       setError(e.message ?? 'failed to load learn feed');

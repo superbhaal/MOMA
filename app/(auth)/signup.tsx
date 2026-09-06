@@ -19,6 +19,27 @@ import { scaled } from '@/constants/scale';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppStore } from '@/store/useAppStore';
 
+/**
+ * Must match the server. Supabase's minimum was raised from 6 to 8 on both
+ * projects so it would agree with reset-password.tsx, and this screen was left
+ * behind — a woman typing seven characters got a 422 and, worse, saw Supabase's
+ * own English sentence. Our first real tester hit it on her first attempt.
+ */
+const MIN_PASSWORD = 8;
+
+/**
+ * CLAUDE.md: never show a raw Supabase error. They are English-only, phrased for
+ * developers, and leak implementation detail. Map the ones a woman can actually
+ * cause; anything else gets a sentence that does not pretend to know.
+ */
+function friendlyAuthError(message: string, t: (k: string) => string): string {
+  const m = message.toLowerCase();
+  if (m.includes('password') && m.includes('characters')) return t('auth.passwordTooShort');
+  if (m.includes('rate limit') || m.includes('too many')) return t('auth.tooManyTries');
+  if (m.includes('invalid') && m.includes('email')) return t('auth.emailInvalid');
+  return t('auth.signupFailed');
+}
+
 export default function SignUpScreen() {
   const router = useRouter();
   const { t } = useTranslation();
@@ -32,17 +53,17 @@ export default function SignUpScreen() {
 
   const canSubmit =
     email.trim().length > 0 &&
-    password.length >= 6 &&
+    password.length >= MIN_PASSWORD &&
     password === confirm &&
     !loading;
 
   async function handleSignUp() {
     setError(null);
     if (password !== confirm) {
-      setError('passwords don\'t match');
+      setError(t('auth.passwordsDiffer'));
       return;
     }
-    if (password.length < 6) {
+    if (password.length < MIN_PASSWORD) {
       setError(t('auth.passwordTooShort'));
       return;
     }
@@ -50,7 +71,7 @@ export default function SignUpScreen() {
     const { error: authError, needsEmailConfirmation } = await signUp(email.trim(), password);
     setLoading(false);
     if (authError) {
-      setError(authError.message);
+      setError(friendlyAuthError(authError.message, t));
       return;
     }
     if (needsEmailConfirmation) {

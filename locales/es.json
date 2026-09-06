@@ -29,7 +29,7 @@
     "confirmPassword": "CONFÍRMALA",
     "emailPlaceholder": "hola@email.com",
     "passwordPlaceholder": "tu contraseña",
-    "passwordMinPlaceholder": "al menos 6 caracteres",
+    "passwordMinPlaceholder": "al menos 8 caracteres",
     "repeatPassword": "repite tu contraseña",
     "or": "o",
     "continueApple": "continuar con apple",
@@ -39,7 +39,7 @@
     "logIn": "iniciar sesión",
     "createAccount": "crear cuenta",
     "creatingAccount": "creando la cuenta...",
-    "passwordTooShort": "la contraseña debe tener al menos 6 caracteres",
+    "passwordTooShort": "Tu contraseña necesita al menos 8 caracteres.",
     "loggingIn": "iniciando sesión…",
     "forgotLink": "¿Olvidaste tu contraseña?",
     "forgotTitle": "restablecer tu\ncontraseña",
@@ -56,7 +56,11 @@
     "newPwSaving": "guardando…",
     "pwTooShort": "Al menos 8 caracteres.",
     "pwMismatch": "Las dos no coinciden.",
-    "pwLinkExpired": "Ese enlace ha caducado. Pide uno nuevo."
+    "pwLinkExpired": "Ese enlace ha caducado. Pide uno nuevo.",
+    "passwordsDiffer": "Las dos contraseñas no coinciden.",
+    "signupFailed": "No pudimos crear tu cuenta. Inténtalo de nuevo en un momento.",
+    "tooManyTries": "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.",
+    "emailInvalid": "Ese correo no parece válido."
   },
   "verify": {
     "title": "revisa tu correo",
@@ -67,7 +71,8 @@
     "openMail": "abrir el correo",
     "backToSignUp": "volver al registro",
     "tooManyRequests": "demasiados intentos. espera un momento antes de volver a intentarlo.",
-    "newLinkSent": "te enviamos un enlace nuevo."
+    "newLinkSent": "te enviamos un enlace nuevo.",
+    "alreadyHave": "¿Ya te registraste con este correo? Inicia sesión."
   },
   "ob": {
     "q1heading": "¿Es tu\nprimer bebé?",
@@ -774,6 +779,13 @@
     "replace": "Reemplazar",
     "you": "(tú)",
     "photoHint": "JPG, PNG · hasta 8 MB",
-    "calendarMeetup": "Encuentro møma"
+    "calendarMeetup": "Encuentro møma",
+    "mapLoadFailed": "No pudimos cargar el mapa. Desliza para reintentar.",
+    "recoLoadFailed": "No pudimos cargar esta recomendación.",
+    "profileLoadFailed": "No pudimos cargar este perfil.",
+    "learnLoadFailed": "No pudimos cargar el muro. Desliza para reintentar.",
+    "addressNotFound": "No encontramos esa dirección. Revisa cómo está escrita, o toca el icono de ubicación.",
+    "addressNeeded": "Necesitamos tu dirección para juntarte con madres a distancia de paseo.",
+    "photoTooBig": "Esa pesa más de 8 MB — prueba con una imagen más ligera."
   }
 }

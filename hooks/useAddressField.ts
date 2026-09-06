@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { resolveCurrentLocation, resolveTypedAddress } from '@/lib/geocode';
+import { useTranslation } from 'react-i18next';
 
 export interface AddressCoords {
   city: string | null;
@@ -43,6 +44,7 @@ export function useAddressField(initial: {
   latitude: number | null;
   longitude: number | null;
 }): AddressFieldState {
+  const { t } = useTranslation();
   const [address, setAddressRaw] = useState(initial.address ?? '');
   const [loc, setLoc] = useState<AddressCoords>({
     city: initial.city,
@@ -88,7 +90,7 @@ export function useAddressField(initial: {
     const r = await resolveTypedAddress(addr);
     setVerifying(false);
     if (!r.ok || r.result.latitude == null) {
-      setError("we couldn't find that address. check the spelling, or tap the location icon.");
+      setError(t('misc.addressNotFound'));
       return null;
     }
     const next = {
@@ -103,7 +105,7 @@ export function useAddressField(initial: {
 
   const resolve = useCallback(async (): Promise<AddressCoords | null> => {
     if (!address.trim()) {
-      setError('your address is needed so we can match you within walking distance.');
+      setError(t('misc.addressNeeded'));
       return null;
     }
     return loc.latitude != null ? loc : verify();
