@@ -63,7 +63,10 @@
     "emailInvalid": "Ese correo no parece válido.",
     "offlineTitle": "no podemos conectar con møma",
     "offlineBody": "Se cortó la conexión mientras cargábamos tu mesa. Sigues con la sesión abierta.",
-    "offlineRetry": "reintentar"
+    "offlineRetry": "reintentar",
+    "wrongCredentials": "Ese correo y esa contraseña no coinciden. Revísalos y vuelve a intentarlo.",
+    "notConfirmed": "Esta dirección aún está sin confirmar. El enlace está en tu correo.",
+    "signInFailed": "No pudimos iniciar tu sesión. Inténtalo en un momento."
   },
   "verify": {
     "title": "revisa tu correo",

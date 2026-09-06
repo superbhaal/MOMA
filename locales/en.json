@@ -63,7 +63,10 @@
     "emailInvalid": "That email address doesn't look right.",
     "offlineTitle": "we can't reach møma",
     "offlineBody": "Your connection dropped while we were loading your table. You're still signed in.",
-    "offlineRetry": "try again"
+    "offlineRetry": "try again",
+    "wrongCredentials": "That email and password don't match. Check both and try again.",
+    "notConfirmed": "This address still needs confirming. Check your email for the link.",
+    "signInFailed": "We couldn't sign you in. Try again in a moment."
   },
   "verify": {
     "title": "check your email",

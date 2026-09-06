@@ -1,3 +1,4 @@
+import { friendlySignUpError } from '@/lib/authErrors';
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -26,19 +27,6 @@ import { useAppStore } from '@/store/useAppStore';
  * own English sentence. Our first real tester hit it on her first attempt.
  */
 const MIN_PASSWORD = 8;
-
-/**
- * CLAUDE.md: never show a raw Supabase error. They are English-only, phrased for
- * developers, and leak implementation detail. Map the ones a woman can actually
- * cause; anything else gets a sentence that does not pretend to know.
- */
-function friendlyAuthError(message: string, t: (k: string) => string): string {
-  const m = message.toLowerCase();
-  if (m.includes('password') && m.includes('characters')) return t('auth.passwordTooShort');
-  if (m.includes('rate limit') || m.includes('too many')) return t('auth.tooManyTries');
-  if (m.includes('invalid') && m.includes('email')) return t('auth.emailInvalid');
-  return t('auth.signupFailed');
-}
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -71,7 +59,7 @@ export default function SignUpScreen() {
     const { error: authError, needsEmailConfirmation } = await signUp(email.trim(), password);
     setLoading(false);
     if (authError) {
-      setError(friendlyAuthError(authError.message, t));
+      setError(friendlySignUpError(authError.message, t));
       return;
     }
     if (needsEmailConfirmation) {

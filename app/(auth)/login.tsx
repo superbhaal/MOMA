@@ -1,3 +1,4 @@
+import { friendlySignInError } from '@/lib/authErrors';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -28,7 +29,7 @@ export default function LoginScreen() {
     setLoading(true);
     const { error: authError } = await signIn(email.trim(), password);
     setLoading(false);
-    if (authError) setError(authError.message);
+    if (authError) setError(friendlySignInError(authError.message, t));
   }
 
   async function handleGoogle() {
@@ -36,7 +37,7 @@ export default function LoginScreen() {
     setLoading(true);
     const { error: e } = await signInWithGoogle({ requireExistingAccount: true });
     setLoading(false);
-    if (e) setError(e.message);
+    if (e) setError(friendlySignInError(e.message, t));
   }
 
   async function handleApple() {
@@ -48,7 +49,7 @@ export default function LoginScreen() {
     setLoading(false);
     if (result.error) {
       debugLog('[Login] setError:', result.error.message);
-      setError(result.error.message);
+      setError(friendlySignInError(result.error.message, t));
     }
   }
 

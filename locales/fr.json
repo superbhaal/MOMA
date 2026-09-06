@@ -63,7 +63,10 @@
     "emailInvalid": "Cette adresse email ne semble pas valide.",
     "offlineTitle": "impossible de joindre møma",
     "offlineBody": "La connexion s'est interrompue pendant le chargement de votre table. Vous êtes toujours connectée.",
-    "offlineRetry": "réessayer"
+    "offlineRetry": "réessayer",
+    "wrongCredentials": "Cet e-mail et ce mot de passe ne correspondent pas. Vérifiez les deux et réessayez.",
+    "notConfirmed": "Cette adresse doit encore être confirmée. Le lien est dans votre boîte.",
+    "signInFailed": "Impossible de vous connecter. Réessayez dans un instant."
   },
   "verify": {
     "title": "vérifiez vos e-mails",
