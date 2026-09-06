@@ -6,9 +6,10 @@
 # .env.local. So the EAS `preview` environment — correct as it is — has no
 # effect whatsoever on the builds we actually ship today.
 #
-# Only the two Supabase lines are rewritten. Everything else in .env.local
-# (Sanity project, dataset, API token) is shared between environments and is
-# left exactly as it was.
+# Three lines are rewritten: the two Supabase ones and the Sanity DATASET.
+# The Sanity project and API token are shared — only the dataset differs, so
+# that Learn and Watch can hold seeded test pieces on dev and the real,
+# publishable content on pré-prod without one leaking into the other.
 #
 #   ./scripts/target.sh dev       → the sandbox, where bug-hunters break things
 #   ./scripts/target.sh preprod   → where real mothers will be
@@ -31,12 +32,13 @@ current() {
 if [ $# -eq 0 ]; then
   echo "cible actuelle : $(current)"
   grep -oE '^EXPO_PUBLIC_SUPABASE_URL=.*' .env.local | sed 's/^/  /'
+  grep -oE '^EXPO_PUBLIC_SANITY_DATASET=.*' .env.local | sed 's/^/  /'
   exit 0
 fi
 
 case "$1" in
-  dev)     REF=$DEV_REF; LABEL="DEV — bac à sable" ;;
-  preprod) REF=$PRE_REF; LABEL="PRÉ-PROD — vraies utilisatrices" ;;
+  dev)     REF=$DEV_REF; DATASET=production; LABEL="DEV — bac à sable" ;;
+  preprod) REF=$PRE_REF; DATASET=preprod;    LABEL="PRÉ-PROD — vraies utilisatrices" ;;
   *) echo "usage: $0 [dev|preprod]" >&2; exit 1 ;;
 esac
 
@@ -49,6 +51,7 @@ KEY=$(npx --yes supabase projects api-keys --project-ref "$REF" 2>/dev/null \
 tmp=$(mktemp)
 sed -e "s|^EXPO_PUBLIC_SUPABASE_URL=.*|EXPO_PUBLIC_SUPABASE_URL=https://$REF.supabase.co|" \
     -e "s|^EXPO_PUBLIC_SUPABASE_ANON_KEY=.*|EXPO_PUBLIC_SUPABASE_ANON_KEY=$KEY|" \
+    -e "s|^EXPO_PUBLIC_SANITY_DATASET=.*|EXPO_PUBLIC_SANITY_DATASET=$DATASET|" \
     .env.local > "$tmp"
 mv "$tmp" .env.local
 
@@ -58,6 +61,7 @@ printf "  │  PROCHAIN BUILD →  %-27s │\n" "$LABEL"
 echo "  └────────────────────────────────────────────────┘"
 echo
 echo "  https://$REF.supabase.co"
+echo "  Sanity : dataset $DATASET"
 echo
 echo "  Le bundle JS est lu au moment de l'archivage, pas maintenant :"
 echo "  relance Metro (ou archive) pour que ça prenne effet."
