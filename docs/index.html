@@ -407,12 +407,20 @@ const el = (t, props={}, ...kids) => {
 
 async function api(action, extra={}) {
   const creds = sessionStorage.getItem(CREDS_KEY);
-  const res = await fetch(API, {
-    method:"POST",
-    headers:{ "content-type":"application/json", "x-admin-credentials": creds },
-    body: JSON.stringify({ action, ...extra }),
-  });
+  let res;
+  try {
+    res = await fetch(API, {
+      method:"POST",
+      headers:{ "content-type":"application/json", "x-admin-credentials": creds },
+      body: JSON.stringify({ action, ...extra }),
+      // The edge runtime kills a call at ~20 s and Cloudflare then answers 522
+      // with an HTML page — which json() cannot parse, so the tab used to sit
+      // there saying nothing at all. Give up first, and say so.
+      signal: AbortSignal.timeout(25000),
+    });
+  } catch { throw new Error("Le serveur n'a pas répondu"); }
   if (res.status === 401) { logout(); throw new Error("Unauthorized"); }
+  if (res.status >= 500) throw new Error("Erreur serveur (" + res.status + ")");
   const data = await res.json().catch(()=>({ok:false,error:"bad response"}));
   if (!data.ok) throw new Error(data.error || "request failed");
   return data;
@@ -446,8 +454,16 @@ async function tryLogin() {
     $("#loginErr").textContent = "";
     await load();
   } catch (e) {
-    sessionStorage.removeItem(CREDS_KEY);
-    $("#loginErr").textContent = e.message === "Unauthorized" ? "Wrong username or password." : e.message;
+    // Only a real 401 clears what she typed. Anything else is the server's
+    // fault, and throwing her password away because the database hiccuped is
+    // how a 20-second outage turns into a locked-out client: the password is
+    // 64 characters, it lives in a password manager, and nobody retypes it.
+    if (e.message === "Unauthorized") {
+      sessionStorage.removeItem(CREDS_KEY);
+      $("#loginErr").textContent = "Wrong username or password.";
+    } else {
+      $("#loginErr").textContent = e.message + " — serveur indisponible, réessayez dans une minute.";
+    }
   }
 }
 function logout(){ sessionStorage.removeItem(CREDS_KEY); $("#app").classList.add("hidden"); $("#login").classList.remove("hidden"); }
@@ -862,7 +878,11 @@ $("#manualPlace").oninput=()=>{ if($("#manualPlace").value.trim()){SELPLACE=null
 
 if (sessionStorage.getItem(CREDS_KEY)) {
   api("list_users").then(()=>{ $("#login").classList.add("hidden"); $("#app").classList.remove("hidden"); load(); })
-    .catch(()=>logout());
+    // Same rule as tryLogin: a 401 already logged her out inside api(). Every
+    // other failure is the backend's, and must not cost her the password —
+    // reloading the page during an outage used to be enough to lose it.
+    .catch((e)=>{ if (e.message !== "Unauthorized") $("#loginErr").textContent =
+      e.message + " — serveur indisponible, réessayez dans une minute."; });
 }
 </script>
 </body>
