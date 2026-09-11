@@ -58,6 +58,16 @@
               "scheme": "https",
               "host": "joinmoma.org",
               "pathPrefix": "/auth"
+            },
+            {
+              "scheme": "https",
+              "host": "joinmoma.org",
+              "pathPrefix": "/group-preview"
+            },
+            {
+              "scheme": "https",
+              "host": "joinmoma.org",
+              "pathPrefix": "/learn"
             }
           ],
           "category": [
