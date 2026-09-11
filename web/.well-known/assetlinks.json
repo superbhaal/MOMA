@@ -1,10 +1,14 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "org.joinmoma.moma",
-      "sha256_cert_fingerprints": ["SHA256_FINGERPRINT_PLACEHOLDER"]
+      "sha256_cert_fingerprints": [
+        "E4:98:25:AE:66:95:72:FA:D0:28:35:0C:A1:3B:A2:38:75:EE:38:5D:00:CD:18:4F:0D:60:3F:A5:E9:F2:21:EE"
+      ]
     }
   }
 ]
