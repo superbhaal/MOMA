@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "189949303690",
+    "project_id": "moma-push",
+    "storage_bucket": "moma-push.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:189949303690:android:fd5aee7b3c5ed26bb00673",
+        "android_client_info": {
+          "package_name": "org.joinmoma.moma"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKQIW13rtXmjKKAlxEIP2RLgnEYZPuMug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
