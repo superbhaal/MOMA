@@ -129,26 +129,44 @@ export function categoryLabel(category: LovedCategory, t: TFunction): string {
  * bright one lands on the green the map already draws there; and nothing takes
  * cobalt, which is reserved for "this one is yours".
  */
+/**
+ * One colour per category — eighteen of them, not nine.
+ *
+ * Places and people used to share the same nine: a paediatrician was the same
+ * fuchsia as a baby shop, so the colour told you nothing you didn't already
+ * know from the tab you were on. The two families now come from the two halves
+ * of the palette, which also reads at a glance: a **bold** pin is a place, a
+ * **soft** pin is a person.
+ *
+ * Places take the eight bold user colours. Parks take a deep green that is not
+ * in the palette — the bold row has no green darker than lime, and a park
+ * reading as anything else fights the map underneath it.
+ *
+ * People take the eight soft user colours plus pistachio, the brand green.
+ * Ref: design/moma-palette.pdf.
+ */
 const PIN_COLORS: Record<LovedCategory, string> = {
-  cafes: '#00B8C8', // pool — the mint the client asked for, at pin strength
+  // ── Lieux · couleurs vives ────────────────────────────────────────────
+  cafes: '#00B8C8', // pool
   restaurants: '#FF7A00', // orange
-  parks: '#3E6B3A', // meadowMuted
+  parks: '#3E6B3A', // vert profond — le neuvième, hors palette
   playgrounds: '#FFC800', // soleil
   classes: '#0038FF', // klein
   baby_shops: '#E8389C', // fuchsia
   mom_shops: '#E82030', // cherry
   wellness: '#9878C8', // lavender
-  stays: '#8C2238', // blushMuted
+  stays: '#B8D830', // lime
 
-  pediatricians: '#E8389C',
-  gynecologists: '#9878C8',
-  midwives_doulas: '#FF7A00',
-  lactation: '#00B8C8',
-  therapists: '#0038FF',
-  pelvic_floor: '#E82030',
-  dentists: '#FFC800',
-  daycare: '#3E6B3A',
-  nannies: '#8C2238',
+  // ── Personnes · couleurs pâles ────────────────────────────────────────
+  pediatricians: '#F4D1D1', // blush
+  gynecologists: '#D8C8E8', // lavande
+  midwives_doulas: '#FADCB8', // pêche
+  lactation: '#C8E8D8', // menthe
+  therapists: '#C8DCF0', // ciel
+  pelvic_floor: '#F0C8D8', // rose
+  dentists: '#F9F0A0', // citron
+  daycare: '#D8E8C8', // pistachio
+  nannies: '#E8DCD0', // sable
 };
 
 export function categoryColor(category: LovedCategory): string {
