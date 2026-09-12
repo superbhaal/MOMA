@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppState, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -67,23 +67,37 @@ export default function VerifyEmailScreen() {
   //
   // Confirming on a different device cannot be detected from here at all. That
   // path is covered by the sign-in link at the bottom of this screen.
+  // The guard has to be a ref, not a variable inside the effect.
+  //
+  // `fetchProfile` is declared in useAuth's body, so it is a new function on
+  // every render, and this effect lists it as a dependency — meaning the effect
+  // is torn down and re-armed constantly. A `let stop = false` inside it is
+  // therefore reset each time, and what was written as a one-shot redirect
+  // became a redirect every three seconds: resume → profile → resume, forever.
+  //
+  // The user sees the profile form wipe itself under her fingers at a steady
+  // beat. Only on the email path — this screen is the one Google and Apple
+  // never show — which is exactly how it was reported.
+  const handled = useRef(false);
+
   useEffect(() => {
-    let stop = false;
+    let id: ReturnType<typeof setInterval> | undefined;
     async function check() {
+      if (handled.current) return;
       const { data } = await supabase.auth.getSession();
       const uid = data.session?.user?.id;
-      if (stop || !uid) return;
-      stop = true;
+      if (!uid || handled.current) return;
+      handled.current = true;
+      if (id) clearInterval(id);
       await fetchProfile(uid);
       router.replace('/(auth)/onboarding/resume');
     }
-    const id = setInterval(check, 3000);
+    id = setInterval(check, 3000);
     const sub = AppState.addEventListener('change', (st) => {
       if (st === 'active') void check();
     });
     return () => {
-      stop = true;
-      clearInterval(id);
+      if (id) clearInterval(id);
       sub.remove();
     };
   }, [router, fetchProfile]);

@@ -1,0 +1,9 @@
+[mcp_servers.ios-simulator]
+command = "npx"
+args = [
+    "-y",
+    "ios-simulator-mcp",
+]
+
+[mcp_servers.supabase]
+url = "https://mcp.supabase.com/mcp?project_ref=rqesqrlrlxetnvihpoxt&features=docs,database,debugging,development,functions,branching,storage"
