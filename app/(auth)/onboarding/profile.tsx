@@ -258,6 +258,15 @@ export default function ProfileScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      {/* The same header as q1…q4, rather than the five-segment bar this screen
+          drew for itself. The numbering already agreed — 1 of 5 here, 2 of 5
+          next — but the shape did not, and Maria read the change of shape as a
+          change of place.
+          It comes first because it owns the safe-area inset. Sitting the Back
+          row above it meant two top insets stacked — this screen's hardcoded
+          60pt and the header's — and a band of white nobody asked for. */}
+      <OnboardingHeader current={1} total={5} />
+
       <View style={styles.header}>
         <Pressable
           onPress={handleBack}
@@ -270,12 +279,6 @@ export default function ProfileScreen() {
           </Typography>
         </Pressable>
       </View>
-
-      {/* The same header as q1…q4, rather than the five-segment bar this screen
-          drew for itself. The numbering already agreed — 1 of 5 here, 2 of 5
-          next — but the shape did not, and Maria read the change of shape as a
-          change of place. */}
-      <OnboardingHeader current={1} total={5} />
 
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <Typography variant="displayL" style={styles.heading}>
@@ -492,14 +495,12 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: spacing.xl,
-    paddingTop: 60,
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.sm,
   },
   backBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: spacing.md,
     alignSelf: 'flex-start',
   },
   backText: {
