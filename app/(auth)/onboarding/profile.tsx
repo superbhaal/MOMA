@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { ensurePhotoPermission } from '@/lib/photoPermission';
 import { Typography } from '@/components/ui/Typography';
+import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
@@ -27,6 +28,18 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 import { resolveCurrentLocation, resolveTypedAddress } from '@/lib/geocode';
 import { uploadAvatar } from '@/lib/avatar';
 import { supabase } from '@/lib/supabase';
+
+/**
+ * The red asterisk on a required field.
+ *
+ * This screen used to say "· OBLIGATOIRE" on the photo and the address and
+ * nothing at all on the three fields between them — which reads as "those two
+ * matter, the rest are optional" rather than "all five are needed". Testers
+ * said the requirement wasn't visible enough; it wasn't consistent either.
+ */
+function Req() {
+  return <Typography variant="label" color={colors.cherry}> *</Typography>;
+}
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -256,21 +269,13 @@ export default function ProfileScreen() {
             {t('ob.back')}
           </Typography>
         </Pressable>
-        {/* This screen used to announce "STEP 2 OF 2", then the next screen
-            said "STEP 1 OF 4" — two numbering schemes glued together, so the
-            progress appeared to reset. It is one journey of five screens:
-            about you, then the four quiz questions. */}
-        <Typography variant="labelS" style={styles.stepLabel}>
-          {t('ob.stepAboutN', { current: 1, total: 5 })}
-        </Typography>
-        <View style={styles.stepBar}>
-          <View style={[styles.stepSeg, styles.stepSegDone]} />
-          <View style={styles.stepSeg} />
-          <View style={styles.stepSeg} />
-          <View style={styles.stepSeg} />
-          <View style={styles.stepSeg} />
-        </View>
       </View>
+
+      {/* The same header as q1…q4, rather than the five-segment bar this screen
+          drew for itself. The numbering already agreed — 1 of 5 here, 2 of 5
+          next — but the shape did not, and Maria read the change of shape as a
+          change of place. */}
+      <OnboardingHeader current={1} total={5} />
 
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <Typography variant="displayL" style={styles.heading}>
@@ -278,6 +283,10 @@ export default function ProfileScreen() {
         </Typography>
         <Typography variant="bodyL" color={colors.muted} style={styles.subhead}>
           {t('ob.pfOnlyShared')}
+        </Typography>
+        <Typography variant="bodyM" color={colors.muted} style={styles.legend}>
+          <Typography variant="bodyM" color={colors.cherry}>*</Typography>{' '}
+          {t('ob.requiredLegend')}
         </Typography>
 
         {error ? (
@@ -299,14 +308,14 @@ export default function ProfileScreen() {
             )}
           </View>
           <Typography variant="label" color={photoValid ? colors.muted : colors.cobalt} style={styles.avatarLabel}>
-            {photoValid ? t('ob.tapChange') : `${t('ob.tapUpload')} · ${t('ob.required')}`}
+            {photoValid ? t('ob.tapChange') : <>{t('ob.tapUpload')}<Req /></>}
           </Typography>
         </Pressable>
 
         <View style={styles.nameRow}>
           <View style={styles.nameCol}>
             <Typography variant="label" color={colors.muted}>
-              {t('ob.pfFirstName')}
+              {t('ob.pfFirstName')}<Req />
             </Typography>
             <TextInput
               style={styles.input}
@@ -321,7 +330,7 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.nameCol}>
             <Typography variant="label" color={colors.muted}>
-              {t('ob.pfLastName')}
+              {t('ob.pfLastName')}<Req />
             </Typography>
             <TextInput
               style={styles.input}
@@ -338,7 +347,7 @@ export default function ProfileScreen() {
 
         <View style={styles.field}>
           <Typography variant="label" color={colors.muted}>
-            {t('ob.pfAge')}
+            {t('ob.pfAge')}<Req />
           </Typography>
           <TextInput
             style={styles.input}
@@ -356,7 +365,7 @@ export default function ProfileScreen() {
 
         <View style={styles.field}>
           <Typography variant="label" color={colors.muted}>
-            {t('ob.whereYouLive')} · {t('ob.required')}
+            {t('ob.whereYouLive')}<Req />
           </Typography>
           <View style={styles.inputWithIcon}>
             <TextInput
@@ -467,7 +476,7 @@ export default function ProfileScreen() {
           size="lg"
         />
         {missingLabel ? (
-          <Typography variant="bodyS" color={colors.muted} style={styles.missing}>
+          <Typography variant="bodyS" color={colors.cherry} style={styles.missing}>
             {missingLabel}
           </Typography>
         ) : null}
@@ -496,30 +505,13 @@ const styles = StyleSheet.create({
   backText: {
     fontSize: scaled(15),
   },
+  legend: { marginTop: spacing.sm },
   missing: {
     textAlign: 'center',
     marginTop: spacing.sm,
   },
-  stepLabel: {
-    color: colors.muted,
-    letterSpacing: 2,
-    marginBottom: spacing.sm,
-  },
-  stepBar: {
-    flexDirection: 'row',
-    gap: 4,
-  },
-  stepSeg: {
-    flex: 1,
-    height: 2,
-    borderRadius: 2,
-    backgroundColor: 'rgba(26,75,204,0.20)',
-  },
   stepSegHalfDone: {
     backgroundColor: 'rgba(26,75,204,0.40)',
-  },
-  stepSegDone: {
-    backgroundColor: colors.cobalt,
   },
   scroll: {
     paddingHorizontal: spacing.xl,
