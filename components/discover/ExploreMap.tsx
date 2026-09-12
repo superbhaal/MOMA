@@ -1,14 +1,12 @@
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import MapView, { Marker, PROVIDER_DEFAULT, type Region } from 'react-native-maps';
-import { colors } from '@/constants/colors';
 import { categoryColor, categoryLabel } from '@/constants/discover';
 import type { LovedPlace } from '@/types';
 
 interface ExploreMapProps {
   places: LovedPlace[];
   me: { lat: number; lng: number } | null;
-  currentUserId?: string;
   onSelectSpot: (id: string) => void;
 }
 
@@ -48,7 +46,7 @@ function initialRegion(
  * what it is; cobalt overrides to say you recommended it. Centres on the user's
  * area; pan/zoom to reach places further out (the list stays authoritative).
  */
-export function ExploreMap({ places, me, currentUserId, onSelectSpot }: ExploreMapProps) {
+export function ExploreMap({ places, me, onSelectSpot }: ExploreMapProps) {
   const { t } = useTranslation();
   const withCoords = places.filter((s) => s.lat != null && s.lng != null);
   const coords = withCoords.map((s) => ({ latitude: s.lat as number, longitude: s.lng as number }));
@@ -68,12 +66,12 @@ export function ExploreMap({ places, me, currentUserId, onSelectSpot }: ExploreM
         <Marker
           key={s.id}
           coordinate={{ latitude: s.lat as number, longitude: s.lng as number }}
-          // Colour says what it is; cobalt still overrides to say it's yours.
-          pinColor={
-            currentUserId && s.recommendations.some((r) => r.poster_id === currentUserId)
-              ? colors.cobalt
-              : categoryColor(s.category)
-          }
+          // The colour says what it is, always. It used to turn cobalt on the
+          // spots you had recommended yourself — which reads as a helpful
+          // marker when you are one contributor among many, and hides the
+          // whole colour scheme when you are the only one. The list still says
+          // "added by you" in words, where it costs nothing.
+          pinColor={categoryColor(s.category)}
           onPress={() => onSelectSpot(s.id)}
           accessibilityLabel={`${s.name} — ${categoryLabel(s.category, t)}`}
           tracksViewChanges={false}

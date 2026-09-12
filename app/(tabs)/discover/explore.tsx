@@ -131,7 +131,6 @@ export default function DiscoverExplore() {
         <ExploreMap
           places={filtered}
           me={me}
-          currentUserId={user?.id}
           onSelectSpot={(id) => router.push({ pathname: '/discover/place/[id]', params: { id } })}
         />
 
