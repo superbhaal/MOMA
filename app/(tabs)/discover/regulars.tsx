@@ -29,7 +29,8 @@ export default function RegularsScreen() {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const { regulars, loading } = useRegulars(query);
-  const [savedOnly, setSavedOnly] = useState(false);
+  const savedOnly = useAppStore((s) => s.discoverSavedOnly);
+  const setSavedOnly = useAppStore((s) => s.setDiscoverSavedOnly);
   const { isSaved } = useSavedTips();
   const shown = useMemo(
     () => (savedOnly ? regulars.filter((r) => isSaved(r.id)) : regulars),

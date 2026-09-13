@@ -90,6 +90,16 @@ interface AppState {
 
   // Discover
   discoverFeedTab: DiscoverFeedTab;
+  /**
+   * "Only what I liked", shared by all four Discover tabs.
+   *
+   * It was local state in three separate screens — the Learn/Watch feed,
+   * Explore and Regulars — so it survived Learn ↔ Watch (one screen) and was
+   * lost or silently restored anywhere else, depending on which screens
+   * happened to still be mounted. Turning it on and changing tab gave a
+   * different answer each time, which is exactly how it was reported.
+   */
+  discoverSavedOnly: boolean;
 
   // Actions
   setUser: (user: User | null) => void;
@@ -101,6 +111,7 @@ interface AppState {
   updateOnboarding: (partial: Partial<OnboardingData>) => void;
   resetOnboarding: () => void;
   setDiscoverFeedTab: (tab: DiscoverFeedTab) => void;
+  setDiscoverSavedOnly: (value: boolean) => void;
   reset: () => void;
 }
 
@@ -113,6 +124,7 @@ export const useAppStore = create<AppState>((set) => ({
   profileUnreachable: false,
   onboardingData: { ...EMPTY_ONBOARDING },
   discoverFeedTab: 'learn',
+  discoverSavedOnly: false,
 
   setUser: (user) => set({ user }),
   setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
@@ -126,6 +138,7 @@ export const useAppStore = create<AppState>((set) => ({
     })),
   resetOnboarding: () => set({ onboardingData: { ...EMPTY_ONBOARDING } }),
   setDiscoverFeedTab: (discoverFeedTab) => set({ discoverFeedTab }),
+  setDiscoverSavedOnly: (discoverSavedOnly) => set({ discoverSavedOnly }),
   reset: () =>
     set({
       user: null,
@@ -136,5 +149,6 @@ export const useAppStore = create<AppState>((set) => ({
       profileUnreachable: false,
       onboardingData: { ...EMPTY_ONBOARDING },
       discoverFeedTab: 'learn',
+  discoverSavedOnly: false,
     }),
 }));

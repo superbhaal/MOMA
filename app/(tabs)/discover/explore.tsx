@@ -43,7 +43,9 @@ export default function DiscoverExplore() {
   // Places and people are hearted from their own page — the row's right edge
   // already carries a fuchsia heart, and it means something else there (how
   // many moms vouched). Two hearts in one row would read as one.
-  const [savedOnly, setSavedOnly] = useState(false);
+  // The filter itself is shared with the other Discover tabs.
+  const savedOnly = useAppStore((s) => s.discoverSavedOnly);
+  const setSavedOnly = useAppStore((s) => s.setDiscoverSavedOnly);
   const { isSaved } = useSavedTips();
   // Height of the map canvas — the sheet lives INSIDE it, so its rest heights
   // must be measured against this, never the full window (else the expanded

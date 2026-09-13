@@ -51,10 +51,12 @@ export default function DiscoverIndex() {
   const [stage, setStage] = useState<string>('all');
   const [stageSheet, setStageSheet] = useState(false);
   const [query, setQuery] = useState('');
-  // Per-tab, and deliberately not remembered: this is a way of looking at the
-  // feed, not a setting. Leaving it on across launches would hide the new
-  // things she hasn't read yet, which is most of what Discover is for.
-  const [savedOnly, setSavedOnly] = useState(false);
+  // Shared across the four Discover tabs, so turning it on and moving to
+  // Explore keeps showing what she liked. Held in the store rather than in
+  // each screen: three screens each with their own copy is what made it look
+  // like the filter forgot itself on some tabs and not others.
+  const savedOnly = useAppStore((s) => s.discoverSavedOnly);
+  const setSavedOnly = useAppStore((s) => s.setDiscoverSavedOnly);
   const { isSaved } = useSavedTips();
 
   const { docs, loading, error, refresh } = useLearn({
