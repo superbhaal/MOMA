@@ -117,13 +117,13 @@ export function ReelCard({ reel }: ReelCardProps) {
           </View>
         ) : null}
 
-        {/* A community reel is vouched for by a mom, not by an editor. Her
-            line is why anyone taps it, so it sits under the creator the way a
-            credential does — attributed, because attribution is the whole
-            trust model on this side of the feed. */}
-        {reel.community?.note ? (
+        {/* The quote is the platform's own caption, not hers — hers is the bold
+            line at the top. TikTok gives us one; Instagram does not, so this
+            renders on TikTok only. It used to show her note here too, directly
+            under the same words in bold. */}
+        {reel.community?.caption ? (
           <Typography style={styles.communityNote} color={colors.mutedStrong}>
-            &ldquo;{reel.community.note}&rdquo;
+            &ldquo;{reel.community.caption}&rdquo;
           </Typography>
         ) : null}
         {reel.community?.posterName ? (

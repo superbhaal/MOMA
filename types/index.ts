@@ -456,7 +456,16 @@ export interface LearnReel {
   /** A real cover image when the platform gave us one; the hex gradient otherwise. */
   thumbnailUrl?: string | null;
   /** Set on reels shared from inside the app — they carry a poster, not an editor. */
-  community?: { id: string; posterId: string; posterName: string | null; note: string | null };
+  community?: {
+    id: string;
+    posterId: string;
+    posterName: string | null;
+    /** Her words — why she shared it. Shown in bold on the card. */
+    note: string | null;
+    /** The caption read from the platform. TikTok gives one; Instagram does
+     *  not, so it is null there and the quote simply doesn't render. */
+    caption: string | null;
+  };
 }
 
 export interface LearnRecommendation {

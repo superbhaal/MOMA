@@ -45,16 +45,18 @@ const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 export function ComposerField({
   label,
   hint,
+  required,
   children,
 }: {
   label: string;
   hint?: string;
+  /** Marks the label with a red asterisk — same grammar as the onboarding form. */
+  required?: boolean;
   children: ReactNode;
 }) {
-  const { t } = useTranslation();
   return (
     <View>
-      <ComposerLabel label={label} hint={hint} />
+      <ComposerLabel label={label} hint={hint} required={required} />
       {children}
       <View style={styles.rule} />
     </View>
@@ -65,11 +67,20 @@ export function ComposerField({
  * The label row on its own — for sections whose answer isn't a text field and
  * so doesn't want a hairline under it (a row of chips, a photo).
  */
-export function ComposerLabel({ label, hint }: { label: string; hint?: string }) {
+export function ComposerLabel({
+  label,
+  hint,
+  required,
+}: {
+  label: string;
+  hint?: string;
+  required?: boolean;
+}) {
   return (
     <View style={styles.labelRow}>
       <Typography style={styles.label} color={colors.text}>
         {label.toUpperCase()}
+        {required ? <Typography style={styles.label} color={colors.cherry}> *</Typography> : null}
       </Typography>
       {hint ? (
         <Typography style={styles.hint} color={colors.muted}>

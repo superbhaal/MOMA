@@ -55,13 +55,12 @@ function toLearnReel(row: FeedRow, t: TFunction): LearnReel {
   return {
     _id: `${COMMUNITY_ID_PREFIX}${row.id}`,
     _type: 'learnReel',
-    // Three fallbacks deep, because on Instagram all three can be missing: we
-    // can't read a title, and both "who's it from" and "why this one" are
-    // optional. A card with only a platform name still says a mom you trust
-    // saved this, which is the whole proposition on this side of the feed.
+    // Her words lead, on both platforms. "Why this one" is required now, so
+    // this is filled for anything shared from here on; the fallbacks are for
+    // the rows posted before that rule, which can have nothing but a link.
     title:
-      row.title ||
       row.note ||
+      row.title ||
       row.creator_label ||
       t('dis.sharedFrom', { platform: row.platform === 'tiktok' ? 'TikTok' : 'Instagram' }),
     platform: row.platform,
@@ -82,6 +81,10 @@ function toLearnReel(row: FeedRow, t: TFunction): LearnReel {
       posterId: row.poster_id,
       posterName: row.poster_name,
       note: row.note,
+      // Only TikTok hands us a caption. On Instagram this stays null and the
+      // card's quote disappears rather than echoing the line just above it —
+      // which is exactly what it used to do.
+      caption: row.platform === 'tiktok' ? row.title : null,
     },
   };
 }

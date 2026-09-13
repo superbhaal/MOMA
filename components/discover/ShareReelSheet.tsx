@@ -122,9 +122,11 @@ export function ShareReelSheet({ visible, onClose, onPosted, standalone }: Share
     return t.includes(`${platform === 'tiktok' ? 'tiktok' : 'instagram'}.com`);
   }, [url, platform]);
 
-  // "Who's it from" is optional — the client's call. The link and who it's for
-  // are what the feed can't do without.
-  const canPost = urlLooksRight && stages.length > 0 && !submitting;
+  // "Why this one" is what the card now shows in bold, so it can no longer be
+  // left out: a shared reel is her recommendation, and a recommendation with
+  // nothing said about it is just a link. "Who's it from" stays optional — on
+  // Instagram we often cannot read it, and she may not know.
+  const canPost = urlLooksRight && why.trim().length > 0 && stages.length > 0 && !submitting;
 
   const toggleStage = (value: string) =>
     setStages((s) => (s.includes(value) ? s.filter((v) => v !== value) : [...s, value]));
@@ -139,7 +141,7 @@ export function ShareReelSheet({ visible, onClose, onPosted, standalone }: Share
         // on this column.
         externalUrl: meta?.url ?? url.trim(),
         creatorLabel: from.trim() || null,
-        note: why.trim() || null,
+        note: why.trim(),
         babyStages: stages,
         title: meta?.title ?? null,
         thumbnailUrl: meta?.thumbnailUrl ?? null,
@@ -182,7 +184,7 @@ export function ShareReelSheet({ visible, onClose, onPosted, standalone }: Share
 
         {platform ? (
           <View style={styles.form}>
-            <ComposerField label={copyFor(t)[platform].label} hint={t('brought.required')}>
+            <ComposerField label={copyFor(t)[platform].label} required>
               <ComposerInput
                 value={url}
                 onChangeText={setUrl}
@@ -192,6 +194,16 @@ export function ShareReelSheet({ visible, onClose, onPosted, standalone }: Share
                 trailing={
                   resolving ? <ActivityIndicator size="small" color={colors.cobalt} /> : null
                 }
+              />
+            </ComposerField>
+
+            <ComposerField label={t('reel.whyThis')} required>
+              <ComposerInput
+                value={why}
+                onChangeText={setWhy}
+                placeholder={t('reel.whyPlaceholder')}
+                multiline
+                maxLength={240}
               />
             </ComposerField>
 
@@ -206,17 +218,7 @@ export function ShareReelSheet({ visible, onClose, onPosted, standalone }: Share
               />
             </ComposerField>
 
-            <ComposerField label={t('reel.whyThis')} hint={t('brought.optional')}>
-              <ComposerInput
-                value={why}
-                onChangeText={setWhy}
-                placeholder={t('reel.whyPlaceholder')}
-                multiline
-                maxLength={240}
-              />
-            </ComposerField>
-
-            <ComposerLabel label={t('reel.whoFor')} hint={t('reel.whoForHint')} />
+            <ComposerLabel label={t('reel.whoFor')} hint={t('reel.whoForHint')} required />
             {stageChipGroups(t).map((g) => (
               <View key={g.group} style={styles.stageGroup}>
                 <Typography style={styles.stageGroupLabel} color={colors.mutedStrong}>
