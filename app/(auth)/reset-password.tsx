@@ -45,9 +45,20 @@ export default function ResetPasswordScreen() {
     const { error: err } = await updatePassword(password);
     setSaving(false);
     if (err) {
-      // The commonest failure by far is an expired link, and the raw message
-      // ("Auth session missing", "token has expired") means nothing to her.
-      setError(t('auth.pwLinkExpired'));
+      // Not "that link has expired" by default, which is what this used to say
+      // for every failure. By the time she is on this screen the link has
+      // ALREADY been verified — that is how she got here — so an expired link
+      // is close to the one thing this cannot be.
+      //
+      // What it usually is: a lost response. The request reaches the server,
+      // the password changes, and the answer never comes back. A tester spent
+      // an evening on that, asking for new links while her new password was
+      // already live. So say what we actually know, and point her at the one
+      // test that settles it.
+      const raw = String((err as { message?: string }).message ?? '');
+      const reallyExpired = /expired|invalid|not found/i.test(raw) &&
+        /token|link|otp/i.test(raw);
+      setError(t(reallyExpired ? 'auth.pwLinkExpired' : 'auth.pwSaveUnconfirmed'));
       return;
     }
     // No navigation here: clearing passwordRecovery releases the gate in
