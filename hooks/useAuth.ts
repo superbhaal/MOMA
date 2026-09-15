@@ -270,17 +270,27 @@ export function useAuth() {
       setAuthLoading(false);
       return { error };
     }
+    // Signing up with an address that already has an account is NOT an error
+    // as far as Supabase is concerned: it answers 200 with a decoy user — a
+    // random id and an empty `identities` array — and sends no email at all.
+    // That silence is deliberate on their side (it stops anyone probing who is
+    // registered), but the app then showed "check your inbox" for a message
+    // that would never arrive. A tester spent an evening on it, signing up
+    // twice and searching her spam, while her account had been waiting since
+    // the day before. The empty array is the documented tell.
+    const alreadyRegistered = !!data.user && (data.user.identities?.length ?? 0) === 0;
+
     // When email confirmation is ON in Supabase project settings, signUp
     // returns no session (data.session === null) and the user must click an
     // email link before they can sign in. Surface that to the caller so the
     // signup screen can show "check your email".
-    const needsEmailConfirmation = !!data.user && !data.session;
+    const needsEmailConfirmation = !alreadyRegistered && !!data.user && !data.session;
     if (data.user && data.session) {
       setAuthenticated(true);
       setOnboarded(false);
     }
     setAuthLoading(false);
-    return { error: null, needsEmailConfirmation };
+    return { error: null, needsEmailConfirmation, alreadyRegistered };
   }
 
   async function signIn(email: string, password: string) {

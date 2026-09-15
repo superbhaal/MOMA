@@ -26,6 +26,12 @@ export function friendlySignInError(message: string, t: TFunction): string {
   if (m.includes('email not confirmed') || m.includes('not confirmed')) {
     return t('auth.notConfirmed');
   }
+  // Supabase phrases its 60-second resend cooldown as "For security purposes, you
+  // can only request this after 57 seconds." — no "rate limit", no "too many",
+  // so it used to fall through to the vague default and read as a dead button.
+  if (m.includes('for security purposes') || m.includes('only request this after')) {
+    return t('auth.waitAMinute');
+  }
   if (m.includes('rate limit') || m.includes('too many')) return t('auth.tooManyTries');
   if (m.includes('invalid') && m.includes('email')) return t('auth.emailInvalid');
   return t('auth.signInFailed');
@@ -35,6 +41,12 @@ export function friendlySignInError(message: string, t: TFunction): string {
 export function friendlySignUpError(message: string, t: TFunction): string {
   const m = message.toLowerCase();
   if (m.includes('password') && m.includes('characters')) return t('auth.passwordTooShort');
+  // Supabase phrases its 60-second resend cooldown as "For security purposes, you
+  // can only request this after 57 seconds." — no "rate limit", no "too many",
+  // so it used to fall through to the vague default and read as a dead button.
+  if (m.includes('for security purposes') || m.includes('only request this after')) {
+    return t('auth.waitAMinute');
+  }
   if (m.includes('rate limit') || m.includes('too many')) return t('auth.tooManyTries');
   if (m.includes('invalid') && m.includes('email')) return t('auth.emailInvalid');
   return t('auth.signupFailed');

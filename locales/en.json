@@ -22,6 +22,7 @@
     "back": "Back"
   },
   "auth": {
+    "alreadyRegistered": "You already have an account with this address. Sign in — and if you've forgotten your password, use “forgot password”.",
     "backToLogin": "back to log in",
     "confirmPassword": "CONFIRM IT",
     "continueApple": "continue with apple",
@@ -66,6 +67,7 @@
     "signInFailed": "We couldn't sign you in. Try again in a moment.",
     "signupFailed": "We couldn't create your account. Try again in a moment.",
     "tooManyTries": "Too many attempts. Wait a few minutes and try again.",
+    "waitAMinute": "We just sent an email to that address. Give it a minute before trying again.",
     "welcomeBack": "welcome back",
     "wrongCredentials": "That email and password don't match. Check both and try again."
   },

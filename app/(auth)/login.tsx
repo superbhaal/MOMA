@@ -1,7 +1,7 @@
 import { friendlySignInError } from '@/lib/authErrors';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/components/ui/Typography';
@@ -17,15 +17,23 @@ export default function LoginScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { signIn, signInWithGoogle, signInWithApple } = useAuth();
-  const [email, setEmail] = useState('');
+  // Arrives pre-filled when signup found an existing account for this address.
+  const params = useLocalSearchParams<{ email?: string; notice?: string }>();
+  const [email, setEmail] = useState(params.email ?? '');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Not an error — she did nothing wrong. It is the answer to what she asked
+  // for, which was to get into møma.
+  const [notice, setNotice] = useState<string | null>(
+    params.notice === 'exists' ? t('auth.alreadyRegistered') : null,
+  );
   const [loading, setLoading] = useState(false);
 
   const canSubmit = email.trim().length > 0 && password.length > 0 && !loading;
 
   async function handleLogin() {
     setError(null);
+    setNotice(null);
     setLoading(true);
     const { error: authError } = await signIn(email.trim(), password);
     setLoading(false);
@@ -74,6 +82,14 @@ export default function LoginScreen() {
         <Typography variant="displayL" color={colors.cobalt} style={styles.heading}>
           {t('auth.welcomeBack')}
         </Typography>
+
+        {notice ? (
+          <View style={styles.noticeBox}>
+            <Typography variant="bodyL" color={colors.cobalt}>
+              {notice}
+            </Typography>
+          </View>
+        ) : null}
 
         {error ? (
           <View style={styles.errorBox}>
@@ -201,6 +217,13 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   heading: {
+    marginBottom: spacing.lg,
+  },
+  // Cobalt, not cherry: she is being told where she already is, not corrected.
+  noticeBox: {
+    backgroundColor: colors.cobaltSoft,
+    borderRadius: 12,
+    padding: spacing.md,
     marginBottom: spacing.lg,
   },
   errorBox: {

@@ -56,10 +56,22 @@ export default function SignUpScreen() {
       return;
     }
     setLoading(true);
-    const { error: authError, needsEmailConfirmation } = await signUp(email.trim(), password);
+    const { error: authError, needsEmailConfirmation, alreadyRegistered } =
+      await signUp(email.trim(), password);
     setLoading(false);
     if (authError) {
       setError(friendlySignUpError(authError.message, t));
+      return;
+    }
+    // She has an account already — most often because she signed up, confirmed,
+    // and stopped partway through the questionnaire, so nothing on her screen
+    // ever said she was registered. Send her to sign in with the address she
+    // just typed, rather than to an inbox where nothing will arrive.
+    if (alreadyRegistered) {
+      router.replace({
+        pathname: '/(auth)/login',
+        params: { email: email.trim(), notice: 'exists' },
+      });
       return;
     }
     if (needsEmailConfirmation) {
