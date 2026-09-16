@@ -85,7 +85,14 @@
         "googleMaps": {
           "apiKey": "AIzaSyBOIdjfvQdpOM2qbaS6GqrYREInX4Y-Lzg"
         }
-      }
+      },
+      "blockedPermissions": [
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "bundler": "metro",
