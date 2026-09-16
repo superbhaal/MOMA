@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>møma — delete your account</title>
+  <meta name="description" content="How to delete your møma account, from the app or from here.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cobalt: #1A4BCC;
+      --cream: #FAF6F1;
+      --text: #111118;
+      --muted: #6F6F88;
+      --line: rgba(17,17,24,0.07);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #fff;
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 24px 80px;
+    }
+    main { max-width: 620px; margin: 0 auto; }
+    .wordmark {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 40px;
+      color: var(--cobalt);
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 34px;
+      line-height: 1.15;
+      margin: 36px 0 14px;
+    }
+    .lead { color: var(--muted); font-size: 16.5px; margin-bottom: 40px; }
+    section { border-top: 1px solid var(--line); padding-top: 26px; margin-top: 26px; }
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+    p + p { margin-top: 12px; }
+    .closing {
+      background: var(--cream);
+      border-radius: 18px;
+      padding: 24px;
+      margin-top: 40px;
+      font-size: 15.5px;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 13.5px;
+      color: var(--muted);
+      text-align: center;
+    }
+    footer a { color: var(--cobalt); }
+    .updated { margin-top: 28px; font-size: 13.5px; color: var(--muted); text-align: center; }
+    .langs { text-align: center; margin-top: 28px; font-size: 13px; }
+    .langs button {
+      font: inherit;
+      background: none;
+      border: 0;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      text-decoration: underline;
+    }
+    .langs button[aria-current="true"] { color: var(--text); font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="wordmark">møma</div>
+    <h1 id="title"></h1>
+    <p class="lead" id="lead"></p>
+    <div id="sections"></div>
+    <div class="closing" id="closing"></div>
+    <footer>
+      <span id="contact"></span>
+      <a href="mailto:hello@joinmoma.org">hello@joinmoma.org</a>
+    </footer>
+    <div class="updated" id="updated"></div>
+    <div class="langs">
+      <button data-lang="en">English</button>
+      <button data-lang="fr">Français</button>
+      <button data-lang="es">Español</button>
+    </div>
+  </main>
+
+  <script>
+    // Google Play requires a web route to account deletion for any app that
+    // lets people create one — the in-app button is not enough on its own.
+    // What is listed as deleted is what supabase/functions/delete-account
+    // actually removes.
+    var COPY = {
+      "en": {
+            "docTitle": "møma — delete your account",
+            "title": "Deleting your møma account.",
+            "lead": "You can delete your account yourself, from the app, in a few seconds. This page exists so that you can also do it from here — including if you no longer have the app installed.",
+            "sections": [
+                  [
+                        "From the app, in three taps",
+                        "Open møma, go to Me → Privacy, and choose Delete my account. You will be asked to confirm once. That is all: there is no waiting period and nothing to write to us."
+                  ],
+                  [
+                        "What is deleted",
+                        "Your account and the way you sign in. Your profile: name, age, address and coordinates, baby's date of birth, languages, bio, interests, Instagram handle. Your photos, removed from our storage — your portrait as well as the pictures of places you shared. Your messages, private and group alike: they also disappear from the conversations you wrote them in. Your availability, your saved items, the places and people you had shared in Discover, your answers to meetup proposals, and the preferences that guided your matching. Your groups carry on for the other members; a group where you were the last one left is deleted with you."
+                  ],
+                  [
+                        "What we keep, and for how long",
+                        "Nothing that identifies you. We keep no waiting copy of a deleted account, and deletion is not reversible — if you come back to møma later, you start a new account."
+                  ],
+                  [
+                        "If you no longer have the app",
+                        "Write to hello@joinmoma.org from the email address of your møma account, asking for your account to be deleted. We do it by hand and confirm to you by reply, within 30 days and usually within a few days. If you signed in with Apple or Google, write from that same address — it is what lets us find your account without asking you for anything else."
+                  ]
+            ],
+            "closing": "A question before deciding? Write to us first — leaving a group is also possible without deleting anything, from the group screen.",
+            "contact": "Deletion request or question: ",
+            "updated": "Last updated: 16 September 2026"
+      },
+      "fr": {
+            "docTitle": "møma — supprimer votre compte",
+            "title": "Supprimer votre compte møma.",
+            "lead": "Vous pouvez supprimer votre compte vous-même, depuis l'application, en quelques secondes. Cette page existe pour que vous puissiez aussi le faire d'ici — y compris si vous n'avez plus l'application installée.",
+            "sections": [
+                  [
+                        "Depuis l'application, en trois touchers",
+                        "Ouvrez møma, allez dans Moi → Confidentialité, et choisissez Supprimer mon compte. Une confirmation vous est demandée une fois. C'est tout : il n'y a ni délai d'attente ni courrier à nous écrire."
+                  ],
+                  [
+                        "Ce qui est supprimé",
+                        "Votre compte et votre moyen de connexion. Votre profil : nom, âge, adresse et coordonnées, date de naissance de votre bébé, langues, présentation, centres d'intérêt, compte Instagram. Vos photos, retirées de notre stockage — votre portrait comme les images des lieux que vous avez partagés. Vos messages, privés comme de groupe : ils disparaissent aussi des conversations où vous les aviez écrits. Vos disponibilités, vos enregistrements, les lieux et les personnes que vous aviez partagés dans Découvrir, vos réponses aux propositions de rendez-vous, et les préférences qui guidaient votre appariement. Vos groupes continuent d'exister pour les autres membres ; un groupe dont vous étiez la dernière est supprimé avec vous."
+                  ],
+                  [
+                        "Ce que nous gardons, et combien de temps",
+                        "Rien qui vous identifie. Nous ne conservons aucune copie d'attente d'un compte supprimé, et la suppression est irréversible — si vous revenez sur møma plus tard, c'est un nouveau compte qui commence."
+                  ],
+                  [
+                        "Si vous n'avez plus l'application",
+                        "Écrivez à hello@joinmoma.org depuis l'adresse e-mail de votre compte møma, en demandant sa suppression. Nous la faisons à la main et vous le confirmons en réponse, sous 30 jours et en pratique sous quelques jours. Si vous vous connectiez avec Apple ou Google, écrivez depuis cette même adresse — c'est ce qui nous permet de retrouver votre compte sans rien vous demander d'autre."
+                  ]
+            ],
+            "closing": "Une question avant de décider ? Écrivez-nous d'abord — quitter un groupe est aussi possible sans rien supprimer, depuis l'écran du groupe.",
+            "contact": "Demande de suppression ou question : ",
+            "updated": "Dernière mise à jour : 16 septembre 2026"
+      },
+      "es": {
+            "docTitle": "møma — eliminar tu cuenta",
+            "title": "Eliminar tu cuenta de møma.",
+            "lead": "Puedes eliminar tu cuenta tú misma, desde la aplicación, en unos segundos. Esta página existe para que también puedas hacerlo desde aquí — incluso si ya no tienes la aplicación instalada.",
+            "sections": [
+                  [
+                        "Desde la aplicación, en tres toques",
+                        "Abre møma, ve a Yo → Privacidad y elige Eliminar mi cuenta. Se te pide una confirmación una vez. Eso es todo: no hay plazo de espera ni hace falta escribirnos."
+                  ],
+                  [
+                        "Qué se elimina",
+                        "Tu cuenta y tu forma de acceder. Tu perfil: nombre, edad, dirección y coordenadas, fecha de nacimiento de tu bebé, idiomas, presentación, intereses, cuenta de Instagram. Tus fotos, retiradas de nuestro almacenamiento — tu retrato y también las imágenes de los lugares que compartiste. Tus mensajes, privados y de grupo: desaparecen también de las conversaciones donde los escribiste. Tu disponibilidad, lo que guardaste, los lugares y personas que habías compartido en Descubrir, tus respuestas a las propuestas de quedada y las preferencias que guiaban tus emparejamientos. Tus grupos siguen existiendo para las demás; un grupo donde eras la última se elimina contigo."
+                  ],
+                  [
+                        "Qué conservamos, y durante cuánto tiempo",
+                        "Nada que te identifique. No guardamos ninguna copia en espera de una cuenta eliminada, y la eliminación es irreversible — si vuelves a møma más adelante, empieza una cuenta nueva."
+                  ],
+                  [
+                        "Si ya no tienes la aplicación",
+                        "Escribe a hello@joinmoma.org desde la dirección de correo de tu cuenta de møma, pidiendo su eliminación. La hacemos a mano y te lo confirmamos por respuesta, en un plazo de 30 días y en la práctica en unos pocos días. Si entrabas con Apple o Google, escribe desde esa misma dirección — es lo que nos permite encontrar tu cuenta sin pedirte nada más."
+                  ]
+            ],
+            "closing": "¿Alguna duda antes de decidir? Escríbenos primero — salir de un grupo también es posible sin eliminar nada, desde la pantalla del grupo.",
+            "contact": "Solicitud de eliminación o consulta: ",
+            "updated": "Última actualización: 16 de septiembre de 2026"
+      }
+};
+
+    function render(lang) {
+      var c = COPY[lang] || COPY.en;
+      document.documentElement.lang = COPY[lang] ? lang : 'en';
+      document.title = c.docTitle;
+      document.getElementById('title').textContent = c.title;
+      document.getElementById('lead').textContent = c.lead;
+      document.getElementById('closing').textContent = c.closing;
+      document.getElementById('contact').textContent = c.contact;
+      document.getElementById('updated').textContent = c.updated;
+
+      var host = document.getElementById('sections');
+      host.textContent = '';
+      c.sections.forEach(function (pair) {
+        var s = document.createElement('section');
+        var h = document.createElement('h2');
+        h.textContent = pair[0];
+        var p = document.createElement('p');
+        p.textContent = pair[1];
+        s.appendChild(h);
+        s.appendChild(p);
+        host.appendChild(s);
+      });
+
+      Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function (b) {
+        b.setAttribute('aria-current', b.dataset.lang === document.documentElement.lang);
+      });
+    }
+
+    // ?lang= wins (the app links straight to her language), then the browser.
+    var wanted = (new URLSearchParams(location.search).get('lang')
+      || navigator.language || 'en').slice(0, 2).toLowerCase();
+    render(wanted);
+
+    Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function (b) {
+      b.addEventListener('click', function () { render(b.dataset.lang); });
+    });
+  </script>
+</body>
+</html>

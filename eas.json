@@ -23,6 +23,13 @@
     },
     "production": {
       "autoIncrement": true
+    },
+    "screenshots": {
+      "extends": "preview",
+      "environment": "development",
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {

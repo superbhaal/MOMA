@@ -11,6 +11,8 @@
 //     availability_slots, match_decline_reasons, …) via the ON DELETE CASCADE
 //     FK on public.users.id → auth.users.id. This is the real fix over the old
 //     client-side row-by-row delete, which left the auth identity orphaned.
+//   - The cascade does NOT reach Storage. Her uploaded photos are removed
+//     explicitly, before the identity goes, from every bucket in PHOTO_BUCKETS.
 //
 // Called from the app via supabase.functions.invoke('delete-account').
 
@@ -26,6 +28,9 @@ const CORS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, content-type, apikey, x-client-info',
 };
+
+// Public buckets, both keyed on the user's id as the first path segment.
+const PHOTO_BUCKETS = ['avatars', 'spot-photos'];
 
 // service_role client — bypasses RLS, can delete auth identities.
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
@@ -60,6 +65,24 @@ Deno.serve(async (req) => {
       .eq('user_id', uid);
     const affectedGroupIds = [...new Set((memberships ?? []).map((m) => m.group_id))];
 
+    // Her photos, first. The cascade below reaches every table, but Storage is
+    // not a table: deleting the row that holds `avatar_url` leaves the file
+    // sitting in the bucket, public, for ever. Every path in this project is
+    // namespaced `<uid>/…` (see lib/uploadImage.ts), so her folder is exactly
+    // what has to go — and it has to go before the identity does, because
+    // afterwards we would no longer be sure whose files these were.
+    let removedFiles = 0;
+    for (const bucket of PHOTO_BUCKETS) {
+      const { data: files } = await admin.storage.from(bucket).list(uid, { limit: 1000 });
+      const paths = (files ?? []).map((f) => `${uid}/${f.name}`);
+      if (paths.length === 0) continue;
+      const { error: rmErr } = await admin.storage.from(bucket).remove(paths);
+      // A failure here must not strand the account: she asked to be deleted,
+      // and a leftover file is a smaller wrong than a deletion that refuses.
+      if (rmErr) console.error(`storage cleanup failed on ${bucket}:`, rmErr.message);
+      else removedFiles += paths.length;
+    }
+
     // One shot: deletes auth.users → cascades to public.users and all children.
     const { error: delErr } = await admin.auth.admin.deleteUser(uid);
     if (delErr) throw delErr;
@@ -77,7 +100,12 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json({ ok: true, deleted_user: uid, cleaned_groups: cleanedGroups });
+    return json({
+      ok: true,
+      deleted_user: uid,
+      cleaned_groups: cleanedGroups,
+      removed_files: removedFiles,
+    });
   } catch (e) {
     return json({ ok: false, error: String((e as Error)?.message ?? e) }, 500);
   }
