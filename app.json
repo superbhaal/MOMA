@@ -85,7 +85,8 @@
         "googleMaps": {
           "apiKey": "AIzaSyBOIdjfvQdpOM2qbaS6GqrYREInX4Y-Lzg"
         }
-      }
+      },
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",

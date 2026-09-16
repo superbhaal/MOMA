@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>møma — privacy</title>
+  <meta name="description" content="What møma collects, who sees it, and how to have it deleted.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cobalt: #1A4BCC;
+      --cream: #FAF6F1;
+      --text: #111118;
+      --muted: #6F6F88;
+      --line: rgba(17,17,24,0.07);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #fff;
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 24px 80px;
+    }
+    main { max-width: 620px; margin: 0 auto; }
+    .wordmark {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 40px;
+      color: var(--cobalt);
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 34px;
+      line-height: 1.15;
+      margin: 36px 0 14px;
+    }
+    .lead { color: var(--muted); font-size: 16.5px; margin-bottom: 40px; }
+    section { border-top: 1px solid var(--line); padding-top: 26px; margin-top: 26px; }
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+    p + p { margin-top: 12px; }
+    .closing {
+      background: var(--cream);
+      border-radius: 18px;
+      padding: 24px;
+      margin-top: 40px;
+      font-size: 15.5px;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 13.5px;
+      color: var(--muted);
+      text-align: center;
+    }
+    footer a { color: var(--cobalt); }
+    .updated { margin-top: 28px; font-size: 13.5px; color: var(--muted); text-align: center; }
+    .langs { text-align: center; margin-top: 28px; font-size: 13px; }
+    .langs button {
+      font: inherit;
+      background: none;
+      border: 0;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      text-decoration: underline;
+    }
+    .langs button[aria-current="true"] { color: var(--text); font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="wordmark">møma</div>
+    <h1 id="title"></h1>
+    <p class="lead" id="lead"></p>
+    <div id="sections"></div>
+    <div class="closing" id="closing"></div>
+    <footer>
+      <span id="contact"></span>
+      <a href="mailto:hello@joinmoma.org">hello@joinmoma.org</a>
+    </footer>
+    <div class="updated" id="updated"></div>
+    <div class="langs">
+      <button data-lang="en">English</button>
+      <button data-lang="fr">Français</button>
+      <button data-lang="es">Español</button>
+    </div>
+  </main>
+
+  <script>
+    // Written from what the app actually does — the column list in the database,
+    // the one edge function that deletes an account, and the absence of any
+    // analytics SDK. If a claim here stops being true, the code changed and this
+    // page has to change with it.
+    var COPY = {
+      "en": {
+            "docTitle": "møma — privacy",
+            "title": "What møma knows about you.",
+            "lead": "An app that introduces mothers who live near each other needs to know where you live and how old your baby is. It needs nothing else. Here is the exact list, what we do with it, and how to erase all of it.",
+            "sections": [
+                  [
+                        "Who is responsible for this data",
+                        "møma — ENTITE_JURIDIQUE. For any question about your data, or to exercise one of the rights below, write to hello@joinmoma.org. We answer ourselves; there is no department you will be passed to."
+                  ],
+                  [
+                        "What you give us when you sign up",
+                        "Your email address — or Apple's relay address, if you choose to hide your own. Your first name, last name and age. Your neighbourhood and address, which we convert once into coordinates to measure a walking distance between you and other mothers: you can type that address, or tap “use my location”, in which case the phone asks your permission and we read your position once, at that moment, to fill the field. We never read it in the background and keep no history of your movements. Your baby's date of birth, or your due date. Your languages. Then, only if you want to: a photo, a few lines about you, your interests, your Instagram handle."
+                  ],
+                  [
+                        "What gets created afterwards, as you use the app",
+                        "Your group messages and your private messages. Meetup proposals and your answers to them. Your availability. What you save in Discover, and the places or people you share there. The reason you give when you decline a group — it is what lets us offer you a better one. And a technical identifier from your phone, which lets us send you a notification without knowing who you are."
+                  ],
+                  [
+                        "What we do not collect, and will not",
+                        "No personality, no income, no ethnicity, no religion, no orientation: those questions are not asked and those columns do not exist. The app carries no advertising tracker and no analytics tool — no such library is installed in it, so we do not know which screens you look at or for how long. Nothing is sold, rented, or passed to an advertiser."
+                  ],
+                  [
+                        "Who sees what",
+                        "Members of the groups you join see your first name, your photo if you added one, your neighbourhood, your baby's age and whatever you wrote about yourself. Nobody else: a stranger cannot search for you or stumble onto your profile. That is not a display rule, it is enforced by the database itself, row by row. Your private messages stay between you and the person concerned. We, who run the service, have technical access to the database in order to repair and improve it."
+                  ],
+                  [
+                        "Where this data is stored",
+                        "With Supabase, on servers located in Ireland, in the European Union — the database, your account and your photos. Notifications travel through Expo's service and then Apple or Google, who carry the message to your phone. The articles and videos in Discover come from Sanity, which receives nothing about you. When you search for a place to meet, the search goes from our servers to Google Maps: it is your search that travels, not your identity."
+                  ],
+                  [
+                        "How long we keep it, and how to erase everything",
+                        "Your data stays as long as your account does. In Me → Privacy you can export everything we hold about you, and delete your account: deletion is immediate and final, taking your profile, your messages and your photos with it. We keep no waiting copy. Messages you sent to a group may remain in the other members' conversation, as in any conversation."
+                  ],
+                  [
+                        "Your rights",
+                        "You may ask for access to your data, its correction, its erasure, its portability, or object to its processing. The two most common — export and erasure — are in the app, with no need to write to us. For the others, an email is enough. If our answer does not satisfy you, you may complain to the data protection authority in your country."
+                  ],
+                  [
+                        "About your baby",
+                        "Your baby's date of birth is data about them, and it is you who entrusts it to us. It serves two purposes: offering you mothers whose child is roughly the same age, and showing that age to your group. We do not ask for their name, their sex, their health, or their photo. møma is an app for adults; it is not directed at children."
+                  ]
+            ],
+            "closing": "møma is in testing. If this policy changes, we will tell you in the app — not by quietly editing a line on this page.",
+            "contact": "A question about your data? Write to us: ",
+            "updated": "Last updated: 16 September 2026"
+      },
+      "fr": {
+            "docTitle": "møma — confidentialité",
+            "title": "Ce que møma sait de vous.",
+            "lead": "Une application qui met en relation des mères près de chez elles a besoin de savoir où vous habitez et quel âge a votre bébé. Elle n'a besoin de rien d'autre. Voici la liste exacte, ce qu'on en fait, et comment tout effacer.",
+            "sections": [
+                  [
+                        "Qui est responsable de ces données",
+                        "møma — ENTITE_JURIDIQUE. Pour toute question sur vos données, ou pour exercer l'un des droits décrits plus bas, écrivez à hello@joinmoma.org. Nous répondons nous-mêmes ; il n'y a pas de service à qui vous serez renvoyée."
+                  ],
+                  [
+                        "Ce que vous nous donnez à l'inscription",
+                        "Votre adresse e-mail — ou l'adresse relais d'Apple, si vous choisissez de masquer la vôtre. Votre prénom, votre nom, votre âge. Votre quartier et votre adresse, que nous convertissons une fois en coordonnées pour mesurer une distance à pied entre vous et d'autres mères : vous pouvez taper cette adresse, ou toucher « utiliser ma position », auquel cas le téléphone vous demande l'autorisation et nous lisons votre position une seule fois, à cet instant, pour remplir le champ. Nous ne la lisons jamais en arrière-plan et ne gardons aucun historique de vos déplacements. La date de naissance de votre bébé, ou votre terme. Vos langues. Puis, uniquement si vous le voulez : une photo, quelques lignes sur vous, vos centres d'intérêt, votre compte Instagram."
+                  ],
+                  [
+                        "Ce qui se crée ensuite en utilisant l'application",
+                        "Vos messages de groupe et vos messages privés. Les propositions de rendez-vous et vos réponses. Vos disponibilités. Ce que vous enregistrez dans Découvrir, et les lieux ou les personnes que vous y partagez. La raison que vous donnez quand vous déclinez un groupe — elle sert à vous en proposer un meilleur. Et un identifiant technique fourni par votre téléphone, qui permet de vous envoyer une notification sans savoir qui vous êtes."
+                  ],
+                  [
+                        "Ce que nous ne collectons pas, et ne collecterons pas",
+                        "Ni personnalité, ni revenus, ni origine, ni religion, ni orientation : ces questions ne sont pas posées et ces colonnes n'existent pas. L'application ne contient aucun traceur publicitaire ni aucun outil de mesure d'audience — aucune bibliothèque de ce type n'y est installée, nous ne savons donc pas quels écrans vous regardez ni combien de temps. Rien n'est vendu, loué, ni transmis à un annonceur."
+                  ],
+                  [
+                        "Qui voit quoi",
+                        "Les membres des groupes que vous rejoignez voient votre prénom, votre photo si vous en avez mis une, votre quartier, l'âge de votre bébé et ce que vous avez écrit sur vous. Personne d'autre : une inconnue ne peut pas vous chercher, ni tomber sur votre profil. Ce n'est pas seulement une règle d'affichage, c'est appliqué par la base de données elle-même, ligne par ligne. Vos messages privés restent entre vous et la personne concernée. Nous, qui faisons tourner le service, avons un accès technique à la base pour la réparer et la faire évoluer."
+                  ],
+                  [
+                        "Où sont stockées ces données",
+                        "Chez Supabase, sur des serveurs situés en Irlande, dans l'Union européenne — la base, votre compte et vos photos. Les notifications passent par le service d'Expo puis par Apple ou Google, qui acheminent le message jusqu'à votre téléphone. Les articles et les vidéos de Découvrir viennent de Sanity, qui ne reçoit aucune donnée vous concernant. Quand vous cherchez un lieu pour un rendez-vous, la recherche part de nos serveurs vers Google Maps : c'est votre recherche qui y va, pas votre identité."
+                  ],
+                  [
+                        "Combien de temps, et comment tout effacer",
+                        "Vos données restent tant que votre compte existe. Dans Moi → Confidentialité, vous pouvez exporter tout ce que nous avons sur vous, et supprimer votre compte : la suppression est immédiate et définitive, elle emporte votre profil, vos messages et vos photos. Nous ne gardons pas de copie d'attente. Les messages que vous avez envoyés dans un groupe peuvent subsister dans la conversation des autres membres, comme dans n'importe quelle conversation."
+                  ],
+                  [
+                        "Vos droits",
+                        "Vous pouvez demander l'accès à vos données, leur correction, leur effacement, leur portabilité, ou vous opposer à leur traitement. Les deux plus courants — l'export et l'effacement — sont dans l'application, sans avoir à nous écrire. Pour les autres, un e-mail suffit. Si notre réponse ne vous satisfait pas, vous pouvez saisir l'autorité de protection des données de votre pays."
+                  ],
+                  [
+                        "Au sujet de votre bébé",
+                        "La date de naissance de votre bébé est une donnée qui le concerne, et c'est vous qui nous la confiez. Elle sert à deux choses : vous proposer des mères dont l'enfant a à peu près le même âge, et afficher cet âge à votre groupe. Nous ne demandons ni son nom, ni son sexe, ni sa santé, ni sa photo. møma est une application pour adultes ; elle n'est pas destinée aux enfants."
+                  ]
+            ],
+            "closing": "møma est en test. Si cette politique change, nous vous le dirons dans l'application — pas par une ligne modifiée en silence sur cette page.",
+            "contact": "Une question sur vos données ? Écrivez-nous : ",
+            "updated": "Dernière mise à jour : 16 septembre 2026"
+      },
+      "es": {
+            "docTitle": "møma — privacidad",
+            "title": "Lo que møma sabe de ti.",
+            "lead": "Una aplicación que pone en contacto a madres que viven cerca necesita saber dónde vives y qué edad tiene tu bebé. No necesita nada más. Esta es la lista exacta, lo que hacemos con ella y cómo borrarlo todo.",
+            "sections": [
+                  [
+                        "Quién responde de estos datos",
+                        "møma — ENTITE_JURIDIQUE. Para cualquier duda sobre tus datos, o para ejercer alguno de los derechos que se describen abajo, escribe a hello@joinmoma.org. Respondemos nosotros mismos; no hay ningún departamento al que te vayan a derivar."
+                  ],
+                  [
+                        "Lo que nos das al registrarte",
+                        "Tu dirección de correo — o la dirección de reenvío de Apple, si eliges ocultar la tuya. Tu nombre, tus apellidos y tu edad. Tu barrio y tu dirección, que convertimos una vez en coordenadas para medir una distancia a pie entre tú y otras madres: puedes escribir esa dirección, o tocar «usar mi ubicación», y entonces el teléfono te pide permiso y leemos tu posición una sola vez, en ese momento, para rellenar el campo. Nunca la leemos en segundo plano ni guardamos ningún historial de tus desplazamientos. La fecha de nacimiento de tu bebé, o tu fecha prevista de parto. Tus idiomas. Y después, solo si quieres: una foto, unas líneas sobre ti, tus intereses, tu cuenta de Instagram."
+                  ],
+                  [
+                        "Lo que se crea después, al usar la aplicación",
+                        "Tus mensajes de grupo y tus mensajes privados. Las propuestas de quedada y tus respuestas. Tu disponibilidad. Lo que guardas en Descubrir, y los lugares o personas que compartes ahí. El motivo que das cuando rechazas un grupo — es lo que nos permite ofrecerte uno mejor. Y un identificador técnico de tu teléfono, que permite enviarte una notificación sin saber quién eres."
+                  ],
+                  [
+                        "Lo que no recogemos, ni recogeremos",
+                        "Ni personalidad, ni ingresos, ni origen, ni religión, ni orientación: esas preguntas no se hacen y esas columnas no existen. La aplicación no lleva ningún rastreador publicitario ni ninguna herramienta de analítica — no hay instalada ninguna biblioteca de ese tipo, así que no sabemos qué pantallas miras ni cuánto tiempo. Nada se vende, se alquila ni se cede a un anunciante."
+                  ],
+                  [
+                        "Quién ve qué",
+                        "Las integrantes de los grupos a los que te unes ven tu nombre, tu foto si pusiste una, tu barrio, la edad de tu bebé y lo que hayas escrito sobre ti. Nadie más: una desconocida no puede buscarte ni tropezarse con tu perfil. No es una regla de visualización, lo aplica la propia base de datos, fila por fila. Tus mensajes privados se quedan entre tú y la persona en cuestión. Nosotros, que hacemos funcionar el servicio, tenemos acceso técnico a la base de datos para repararla y mejorarla."
+                  ],
+                  [
+                        "Dónde se guardan estos datos",
+                        "En Supabase, en servidores situados en Irlanda, en la Unión Europea — la base de datos, tu cuenta y tus fotos. Las notificaciones pasan por el servicio de Expo y luego por Apple o Google, que llevan el mensaje hasta tu teléfono. Los artículos y vídeos de Descubrir vienen de Sanity, que no recibe nada sobre ti. Cuando buscas un sitio para quedar, la búsqueda sale de nuestros servidores hacia Google Maps: lo que viaja es tu búsqueda, no tu identidad."
+                  ],
+                  [
+                        "Cuánto tiempo, y cómo borrarlo todo",
+                        "Tus datos se quedan mientras exista tu cuenta. En Yo → Privacidad puedes exportar todo lo que tenemos sobre ti, y eliminar tu cuenta: la eliminación es inmediata y definitiva, y se lleva tu perfil, tus mensajes y tus fotos. No guardamos ninguna copia en espera. Los mensajes que enviaste a un grupo pueden permanecer en la conversación de las demás, como en cualquier conversación."
+                  ],
+                  [
+                        "Tus derechos",
+                        "Puedes pedir acceso a tus datos, su corrección, su supresión, su portabilidad, u oponerte a su tratamiento. Los dos más habituales — exportar y borrar — están en la aplicación, sin necesidad de escribirnos. Para los demás basta un correo. Si nuestra respuesta no te satisface, puedes reclamar ante la autoridad de protección de datos de tu país."
+                  ],
+                  [
+                        "Sobre tu bebé",
+                        "La fecha de nacimiento de tu bebé es un dato que le concierne, y eres tú quien nos lo confía. Sirve para dos cosas: proponerte madres cuyo hijo tenga más o menos la misma edad, y mostrar esa edad a tu grupo. No pedimos su nombre, ni su sexo, ni su salud, ni su foto. møma es una aplicación para adultas; no está dirigida a menores."
+                  ]
+            ],
+            "closing": "møma está en pruebas. Si esta política cambia, te lo diremos en la aplicación — no editando en silencio una línea de esta página.",
+            "contact": "¿Una duda sobre tus datos? Escríbenos: ",
+            "updated": "Última actualización: 16 de septiembre de 2026"
+      }
+};
+
+    function render(lang) {
+      var c = COPY[lang] || COPY.en;
+      document.documentElement.lang = COPY[lang] ? lang : 'en';
+      document.title = c.docTitle;
+      document.getElementById('title').textContent = c.title;
+      document.getElementById('lead').textContent = c.lead;
+      document.getElementById('closing').textContent = c.closing;
+      document.getElementById('contact').textContent = c.contact;
+      document.getElementById('updated').textContent = c.updated;
+
+      var host = document.getElementById('sections');
+      host.textContent = '';
+      c.sections.forEach(function (pair) {
+        var s = document.createElement('section');
+        var h = document.createElement('h2');
+        h.textContent = pair[0];
+        var p = document.createElement('p');
+        p.textContent = pair[1];
+        s.appendChild(h);
+        s.appendChild(p);
+        host.appendChild(s);
+      });
+
+      Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function (b) {
+        b.setAttribute('aria-current', b.dataset.lang === document.documentElement.lang);
+      });
+    }
+
+    // ?lang= wins (the app links straight to her language), then the browser.
+    var wanted = (new URLSearchParams(location.search).get('lang')
+      || navigator.language || 'en').slice(0, 2).toLowerCase();
+    render(wanted);
+
+    Array.prototype.forEach.call(document.querySelectorAll('.langs button'), function (b) {
+      b.addEventListener('click', function () { render(b.dataset.lang); });
+    });
+  </script>
+</body>
+</html>
