@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "møma",
+    "name": "m\u00f8ma",
     "slug": "moma",
-    "version": "1.2.0",
+    "version": "1.1.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "moma",
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "org.joinmoma.moma",
-      "buildNumber": "42",
+      "buildNumber": "43",
       "usesAppleSignIn": true,
       "associatedDomains": [
         "applinks:joinmoma.org"
@@ -30,14 +30,14 @@
           "fr",
           "es"
         ],
-        "NSPhotoLibraryUsageDescription": "møma needs your photos so you can add a picture to your profile and to what you bring to the table.",
-        "NSCameraUsageDescription": "møma uses your camera so you can take a picture for your profile or for what you bring to the table.",
-        "NSMicrophoneUsageDescription": "møma does not record audio. This permission is only requested by a component we use for video previews.",
-        "NSFaceIDUsageDescription": "møma uses Face ID to keep you signed in without retyping your password.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "møma uses your location to match you with moms in your neighbourhood.",
-        "NSLocationAlwaysUsageDescription": "møma uses your location to match you with moms in your neighbourhood.",
-        "NSRemindersUsageDescription": "møma can add your group meetups to your reminders so you do not miss them.",
-        "NSRemindersFullAccessUsageDescription": "møma can add your group meetups to your reminders so you do not miss them."
+        "NSPhotoLibraryUsageDescription": "m\u00f8ma needs your photos so you can add a picture to your profile and to what you bring to the table.",
+        "NSCameraUsageDescription": "m\u00f8ma uses your camera so you can take a picture for your profile or for what you bring to the table.",
+        "NSMicrophoneUsageDescription": "m\u00f8ma does not record audio. This permission is only requested by a component we use for video previews.",
+        "NSFaceIDUsageDescription": "m\u00f8ma uses Face ID to keep you signed in without retyping your password.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "m\u00f8ma uses your location to match you with moms in your neighbourhood.",
+        "NSLocationAlwaysUsageDescription": "m\u00f8ma uses your location to match you with moms in your neighbourhood.",
+        "NSRemindersUsageDescription": "m\u00f8ma can add your group meetups to your reminders so you do not miss them.",
+        "NSRemindersFullAccessUsageDescription": "m\u00f8ma can add your group meetups to your reminders so you do not miss them."
       }
     },
     "android": {
@@ -101,13 +101,13 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "møma uses your location to match you with moms in your neighbourhood."
+          "locationWhenInUsePermission": "m\u00f8ma uses your location to match you with moms in your neighbourhood."
         }
       ],
       [
         "expo-calendar",
         {
-          "calendarPermission": "møma adds your group meetups to your calendar so you don't miss them."
+          "calendarPermission": "m\u00f8ma adds your group meetups to your calendar so you don't miss them."
         }
       ],
       "expo-asset",
